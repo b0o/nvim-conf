@@ -1,0 +1,9 @@
+.netrwhist
+*.swp
+*.swo
+bundle/*
+!bundle/Vundle.vim
+dein
+dein.vim
+autoload/gocomplete.vim
+ftplugin/go/gocomplete.vim
