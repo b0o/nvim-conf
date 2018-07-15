@@ -68,6 +68,7 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#add('Shougo/neosnippet-snippets')
 
   " Git
+  call dein#add('tpope/vim-fugitive')
   call dein#add('airblade/vim-gitgutter')
 
   " Misc

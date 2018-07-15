@@ -50,7 +50,6 @@ set nofoldenable " disable folding by default
 "   set conceallevel=2 concealcursor=niv
 " endif
 
-
 let mapleader = "\<space>" " set mapleader to the spacebar
 
 let g:no_man_maps = 1 " Disable default manpage mappings
