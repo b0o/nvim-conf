@@ -144,14 +144,3 @@ augroup LanguageClientListener
   au User LanguageClientStarted call <sid>enableHoverAugroup()
   au User LanguageClientStopped call <sid>disableHoverAugroup()
 augroup END
-
-func! PreviewWindowOpen()
-  echom "PreviewWindowOpen"
-  let l:curBufnr = bufnr("%")
-  let l:previewBufnr = bufnr(g:LanguageClientPreviewBufName)
-endfunc
-
-augroup LanguageClient_PreviewWindowOpen
-  au!
-  exec "au BufNew " . g:LanguageClientPreviewBufName . " call PreviewWindowOpen()"
-augroup END
