@@ -18,26 +18,19 @@ let g:LanguageClient_hoverPreview = "Never"
 "" 'LCHover' mini plugin
 
 let g:LanguageClientHoverEnabled = 1
-let g:LanguageClientHoverPreview = 0
+let g:LanguageClientHoverPreview = 1
+let g:LanguageClientPreviewHeight = 1
 let g:LanguageClientHoverPreviewClose = 1
 let g:LanguageClientPreviewBufName = "__LC_Symbol_Info__"
-let g:LanguageClientPreviewHeight = 1
 
 let s:orig_preview_height = v:null
 
 func! LanguageClientHoverToggle()
   let g:LanguageClientHoverEnabled = !g:LanguageClientHoverEnabled
   if g:LanguageClientHoverEnabled == 0
-    let s:orig_preview_height = &previewheight
-    if g:LanguageClientPreviewHeight >= 0
-      exec "set previewheight=" . g:LanguageClientPreviewHeight
-    endif
     call s:disableHoverAugroup()
     echo "LanguageClientHover disabled"
   else
-    if s:orig_preview_height
-      exec "set previewheight=" . s:orig_preview_height
-    endif
     call s:enableHoverAugroup()
     echo "LanguageClientHover enabled"
   endif
@@ -57,9 +50,7 @@ func! g:LanguageClientHoverCb(res)
     endfor
     if len(l:msg) > 0
       if g:LanguageClientHoverPreview
-        if bufnr(g:LanguageClientPreviewBufName) == -1
-          exec "silent! pedit! +setlocal\\ buftype=nofile\\ noswapfile\\ filetype=" . &ft . "\\ nonumber\\ norelativenumber\\ nomodeline " . g:LanguageClientPreviewBufName
-        endif
+        exec "silent! pedit! +setlocal\\ buftype=nofile\\ noswapfile\\ filetype=" . &ft . "\\ nonumber\\ norelativenumber\\ nomodeline " . g:LanguageClientPreviewBufName
         let l:previewBufnr = bufnr(g:LanguageClientPreviewBufName)
         call nvim_buf_set_lines(l:previewBufnr, 0, len(l:msg), 0, l:msg)
       else
@@ -73,7 +64,7 @@ func! g:LanguageClientHoverCb(res)
   if s:cleared == 0
     if g:LanguageClientHoverPreview
       if g:LanguageClientHoverPreviewClose
-        silent! pclose!
+        silent! pclose
       else
         let l:previewBufnr = bufnr(g:LanguageClientPreviewBufName)
         if l:previewBufnr != -1
@@ -127,7 +118,11 @@ func! s:moved()
   let s:moved = 1
 endfunc
 
-func! s:enableHoverAugroup()
+func! s:enableHover()
+  if g:LanguageClientPreviewHeight >= 0
+    let s:orig_preview_height = &previewheight
+    exec "set previewheight=" . g:LanguageClientPreviewHeight
+  endif
   augroup LanguageClient_textDocumentHover
     au!
     au CursorMoved * call <sid>moved()
@@ -135,12 +130,15 @@ func! s:enableHoverAugroup()
   augroup END
 endfunc
 
-func! s:disableHoverAugroup()
+func! s:disableHover()
+  if s:orig_preview_height
+    exec "set previewheight=" . s:orig_preview_height
+  endif
   augroup! LanguageClient_textDocumentHover
 endfunc
 
 augroup LanguageClientListener
   au!
-  au User LanguageClientStarted call <sid>enableHoverAugroup()
-  au User LanguageClientStopped call <sid>disableHoverAugroup()
+  au User LanguageClientStarted call <sid>enableHover()
+  au User LanguageClientStopped call <sid>disableHover()
 augroup END
