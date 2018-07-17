@@ -57,9 +57,9 @@ func! g:LanguageClientHoverCb(res)
     endfor
     if len(l:msg) > 0
       if g:LanguageClientHoverPreview
-        let l:curBufnr = bufnr("%")
-        let l:curft = &ft
-        exec "silent! pedit! +setlocal\\ buftype=nofile\\ noswapfile\\ filetype=" . l:curft . "\\ nonumber\\ norelativenumber\\ nomodeline " . g:LanguageClientPreviewBufName
+        if bufnr(g:LanguageClientPreviewBufName) == -1
+          exec "silent! pedit! +setlocal\\ buftype=nofile\\ noswapfile\\ filetype=" . &ft . "\\ nonumber\\ norelativenumber\\ nomodeline " . g:LanguageClientPreviewBufName
+        endif
         let l:previewBufnr = bufnr(g:LanguageClientPreviewBufName)
         call nvim_buf_set_lines(l:previewBufnr, 0, len(l:msg), 0, l:msg)
       else
