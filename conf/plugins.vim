@@ -31,6 +31,17 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#add('matze/vim-move')
   call dein#add('andymass/vim-matchup')
 
+  " Auto Completion, linting, etc
+  call dein#add('w0rp/ale')
+  call dein#add('Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' })
+  call dein#add('Shougo/neco-syntax')
+  call dein#add('Shougo/neco-vim')
+  call dein#add('Shougo/echodoc')
+
+  " Snippets
+  call dein#add('Shougo/neosnippet.vim')
+  call dein#add('Shougo/neosnippet-snippets')
+
   " ctags
   call dein#add('lyuts/vim-rtags')
 
@@ -49,11 +60,12 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#add('hail2u/vim-css3-syntax')
 
   " Elixir
-  " call dein#add('elixir-editors/vim-elixir')
-  " call dein#add('slashmili/alchemist.vim')
+  call dein#disable('elixir-editors/vim-elixir')
+  call dein#disable('slashmili/alchemist.vim')
 
   " Golang
   call dein#add('fatih/vim-go')
+  call dein#add('zchee/deoplete-go', {'build': 'make'})
 
   " Haskell
   call dein#disable('eagletmt/ghcmod-vim')
@@ -62,10 +74,6 @@ if dein#load_state('~/.config/nvim/dein')
 
   " YAML
   call dein#add('stephpy/vim-yaml')
-
-  " Snippets
-  call dein#add('Shougo/neosnippet.vim')
-  call dein#add('Shougo/neosnippet-snippets')
 
   " Git
   call dein#add('tpope/vim-fugitive')
@@ -80,13 +88,6 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#add('KabbAmine/vCoolor.vim')
   call dein#add('mattn/gist-vim', {'depends': 'mattn/webapi-vim'})
   call dein#add('tpope/vim-eunuch')
-
-  " Auto Completion, linting, etc
-  call dein#add('w0rp/ale')
-  call dein#add('Shougo/deoplete.nvim')
-  call dein#add('Shougo/neco-syntax')
-  call dein#add('Shougo/neco-vim')
-  call dein#add('zchee/deoplete-go', {'build': 'make'})
 
   " Themes
   call dein#add('arcticicestudio/nord-vim')

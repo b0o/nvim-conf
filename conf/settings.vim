@@ -46,9 +46,9 @@ set formatoptions+=c " only auto-hard-wrap comments
 set modeline " always parse modelines when loading files
 set nofoldenable " disable folding by default
 
-" if has('conceal')
-"   set conceallevel=2 concealcursor=niv
-" endif
+if has('conceal')
+  set conceallevel=2 concealcursor=niv
+endif
 
 let mapleader = "\<space>" " set mapleader to the spacebar
 

@@ -16,8 +16,8 @@ source ~/.config/nvim/conf/plugin/denite.vim
 source ~/.config/nvim/conf/plugin/deoplete.vim
 source ~/.config/nvim/conf/plugin/goyo.vim
 source ~/.config/nvim/conf/plugin/haskell-vim.vim
-source ~/.config/nvim/conf/plugin/language-client.vim
 source ~/.config/nvim/conf/plugin/neosnippet.vim
+source ~/.config/nvim/conf/plugin/language-client.vim
 source ~/.config/nvim/conf/plugin/tagbar.vim
 source ~/.config/nvim/conf/plugin/tcomment.vim
 source ~/.config/nvim/conf/plugin/vcoolor.vim

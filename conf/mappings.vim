@@ -57,6 +57,14 @@ vnoremap <leader>P "+P
 vnoremap <C-p>  "+p
 nnoremap <C-p>  "+p
 
+" Duplicate line downwards/upwards
+nnoremap <C-j> "dY"dp
+nnoremap <C-k> "dY"dPj
+
+" Duplicate selection downwards/upwards
+vnoremap <C-j> "dy`>"dpgv
+vnoremap <C-k> "dy`<"dPjgv
+
 " Clear search highlight and command-line on esc
 nnoremap <esc> :noh<return><esc>:echo ""<cr>
 
@@ -65,6 +73,9 @@ map <silent> <leader>r :redraw!<CR>
 
 " Reload vim configuration
 nnoremap <silent> <leader>R :so ~/.config/nvim/init.vim<return><esc>
+
+" goto file under cursor in new tab
+noremap gF <C-w>gf
 
 """ Command mode
 
@@ -84,8 +95,8 @@ noremap <silent> <M-'> :tabn<cr>
 noremap <silent> <M-;> :tabp<cr>
 
 " Rearrange tabs
-noremap <silent> <leader><M-'> :+tabm<cr>
-noremap <silent> <leader><M-;> :-tabm<cr>
+noremap <silent> <M-"> :+tabm<cr>
+noremap <silent> <M-:> :-tabm<cr>
 
 " Open/close tabs
 noremap <silent> <M-cr> :tabnew<cr>
@@ -200,6 +211,7 @@ map <silent> <leader>B :TagbarOpen fj<Cr>
 
 "" LeaderHelper
 nmap <C-space> :call LeaderHelperPrompt('n')<cr>
+imap <expr> <C-space> LeaderHelperPrompt('n')
 
 "" GHC-Mod
 " map <leader>t :GhcModType<return><esc>
@@ -219,6 +231,7 @@ map <leader>al :ALELint<Cr>
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
-"" CopyMatches
-command! -bang -nargs=? -range=% CopyMatches call CopyMatches(<bang>0, <line1>, <line2>, <q-args>, 0)
-command! -bang -nargs=? -range=% CopyLines call CopyMatches(<bang>0, <line1>, <line2>, <q-args>, 1)
+"" LanguageClient
+nnoremap <silent> <leader>k :call LanguageClientHoverToggle()<CR>
+nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
+nnoremap <silent> <leader>gr :call LanguageClient#textDocument_rename()<CR>

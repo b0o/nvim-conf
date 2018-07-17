@@ -1,12 +1,11 @@
 """ deoplete.vim
 " configuration for the plugin Shougo/deoplete.vim
 
-" set completeopt+=noinsert
-" set completeopt+=noselect
-" set completeopt+=preview
+set completeopt+=noinsert
+set completeopt+=noselect
+set completeopt+=preview
 
 let g:deoplete#enable_at_startup = 1
-
 
 call g:deoplete#custom#option("refresh_always", v:true)
 call g:deoplete#custom#option("smart_case",     v:true)
@@ -20,10 +19,3 @@ let g:deoplete#sources#go#json_directory = '~/.cache/deoplete/golang'
 
 " let g:deoplete#sources#clang#libclang_path = '/usr/lib/libclang.so'
 " let g:deoplete#sources#clang#clang_header = '/usr/lib/clang/6.0.1/include/'
-
-" Enable deoplete on BufEnter
-augroup termenter
-  au!
-  au BufEnter :call deoplete#enable()
-augroup END
-

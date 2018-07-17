@@ -15,6 +15,16 @@ function! RestoreRegister()
   return ''
 endfunction
 
+" function to be called upon entering a terminal buffer
+func! TermEnter(insert)
+  setlocal nospell
+  if a:insert == 1
+    startinsert
+  else
+    stopinsert
+  endif
+endfunc
+
 " open a terminal window, where 'count' is number of rows and 'insert' specifies
 " whether term should start in insert or normal mode
 function! OpenTerm(args, count, insert)
@@ -25,11 +35,7 @@ function! OpenTerm(args, count, insert)
   exe cmd
 
   exe 'terminal' a:args
-  if a:insert == 1
-    exe 'startinsert'
-  else
-    exe 'stopinsert'
-  endif
+  call TermEnter(a:insert)
 endf
 
 " open help in full-window view. If current buffer is not empty, open a new
