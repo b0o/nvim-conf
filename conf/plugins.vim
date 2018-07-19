@@ -112,23 +112,3 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#end()
   call dein#save_state()
 endif
-
-""" dein helper functions
-function! s:pluginClean()
-  call map(dein#check_clean(), "delete(v:val, 'rf')")
-  call dein#recache_runtimepath()
-endfunction
-
-function! s:pluginInstall()
-  call s:pluginClean()
-  call dein#install()
-endfunction
-
-function! s:pluginUpdate()
-  call s:pluginClean()
-  call dein#update()
-endfunction
-
-command! PluginClean call s:pluginClean()
-command! PluginInstall call s:pluginInstall()
-command! PluginUpdate call s:pluginUpdate()

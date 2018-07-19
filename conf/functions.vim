@@ -1,6 +1,20 @@
 """ functions.vim
 """ function definitions
 
+"" dein helper functions
+function! PluginClean()
+  call map(dein#check_clean(), "delete(v:val, 'rf')")
+  call dein#recache_runtimepath()
+endfunction
+function! PluginInstall()
+  call PluginClean()
+  call dein#install()
+endfunction
+function! PluginUpdate()
+  call PluginClean()
+  call dein#update()
+endfunction
+
 " paste register without overwriting with the original selection
 let s:restore_reg = ""
 function! PasteRestore()
