@@ -4,6 +4,7 @@
 " add dein to rtp
 set runtimepath+=~/.config/nvim/dein.vim
 
+" Add dein plugins
 if dein#load_state('~/.config/nvim/dein')
   call dein#begin('~/.config/nvim/dein')
 
@@ -36,19 +37,18 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#add('Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' })
   call dein#add('Shougo/neco-syntax')
   call dein#add('Shougo/neco-vim')
-  call dein#add('Shougo/echodoc')
 
   " Snippets
   call dein#add('Shougo/neosnippet.vim')
   call dein#add('Shougo/neosnippet-snippets')
 
   " ctags
-  call dein#add('lyuts/vim-rtags')
+  call dein#disable('lyuts/vim-rtags')
 
   " multi-language completions
   call dein#add('autozimu/LanguageClient-neovim', {
     \ 'rev': 'next',
-    \ 'build': 'bash install.sh',
+    \ 'build': 'bash -c "./install.sh > /tmp/LanguageClient-neovim_build.log 2> /tmp/LanguageClient-neovim_build.err.log"',
     \ })
 
   " JavaScript
@@ -65,7 +65,9 @@ if dein#load_state('~/.config/nvim/dein')
 
   " Golang
   call dein#add('fatih/vim-go')
-  call dein#add('zchee/deoplete-go', {'build': 'make'})
+  call dein#add('zchee/deoplete-go', {
+    \ 'build': 'bash -c "make > /tmp/deoplete-go_build.log 2> /tmp/deoplete-go_build.err.log"',
+    \ })
 
   " Haskell
   call dein#disable('eagletmt/ghcmod-vim')
@@ -94,8 +96,8 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#add('chriskempson/base16-vim')
 
   " Vim Plugin Development
-  " call dein#add('xolox/vim-reload', {'depends': 'xolox/vim-misc'})
-  " call dein#add('gerw/vim-HiLinkTrace')
+  " call dein#disable('xolox/vim-reload', {'depends': 'xolox/vim-misc'})
+  call dein#disable('gerw/vim-HiLinkTrace')
 
   " Local plugins
   call dein#local('~/.config/nvim/bundle', {}, [
@@ -107,7 +109,7 @@ if dein#load_state('~/.config/nvim/dein')
   " Dependencies
   call dein#add('mattn/webapi-vim')
   call dein#add('tomtom/vimtlib')
-  " call dein#add('xolox/vim-misc')
+  call dein#disable('xolox/vim-misc')
 
   call dein#end()
   call dein#save_state()
