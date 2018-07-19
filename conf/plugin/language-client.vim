@@ -3,7 +3,16 @@
 
 let s:cquery_cmd = ['cquery',
   \             '--log-file=~/.local/share/cquery/cquery.log',
-  \             '--init={"cacheDirectory": "' . expand($HOME) . '/.cache/cquery"}' ]
+  \             '--init={'
+  \             . '"cacheDirectory": "' . expand($HOME) . '/.cache/cquery"'
+  \             . ','
+  \             . '"completion": {'
+  \             .   '"filterAndSort": false'
+  \             . '}'
+  \             .
+  \             '}' ]
+
+let s:clangd_cmd = ['clangd']
 
 " LanguageClient-neovim
 let g:LanguageClient_serverCommands = {
@@ -13,7 +22,10 @@ let g:LanguageClient_serverCommands = {
 
 " Fix for https://github.com/autozimu/LanguageClient-neovim/issues/379
 let g:LanguageClient_hasSnippetSupport = 0
+
+" LC Settings
 let g:LanguageClient_hoverPreview = "Never"
+let g:LanguageClient_completionPreferTextEdit = 0
 
 "" 'LCHover' mini plugin
 
@@ -28,10 +40,10 @@ let s:orig_preview_height = v:null
 func! LanguageClientHoverToggle()
   let g:LanguageClientHoverEnabled = !g:LanguageClientHoverEnabled
   if g:LanguageClientHoverEnabled == 0
-    call s:disableHoverAugroup()
+    call s:disableHover()
     echo "LanguageClientHover disabled"
   else
-    call s:enableHoverAugroup()
+    call s:enableHover()
     echo "LanguageClientHover enabled"
   endif
 endfunc

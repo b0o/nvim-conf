@@ -239,10 +239,19 @@ map <leader>af :ALEFix<Cr>
 map <leader>al :ALELint<Cr>
 
 "" Autocompletion
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+imap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+imap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
 "" LanguageClient
 nnoremap <silent> <leader>k :call LanguageClientHoverToggle()<CR>
 nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
 nnoremap <silent> <leader>gr :call LanguageClient#textDocument_rename()<CR>
+
+"" NeoSnippet
+imap <C-e> <Plug>(neosnippet_expand_or_jump)
+smap <C-e> <Plug>(neosnippet_expand_or_jump)
+nmap <C-e> <Plug>(neosnippet_expand_target)
+xmap <C-e> <Plug>(neosnippet_expand_target)
+
+imap <expr><CR>
+\ (pumvisible() && neosnippet#expandable()) ? "\<Plug>(neosnippet_expand_or_jump)" : "\<CR>"
