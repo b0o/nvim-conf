@@ -68,8 +68,13 @@ vnoremap <C-k> "dy`<"dPjgv
 " Clear search highlight and command-line on esc
 nnoremap <esc> :noh<return><esc>:echo ""<cr>
 
+" Quickly edit a macro
+" See: https://github.com/mhinz/vim-galore#quickly-edit-your-macros
+nnoremap <leader>m :<c-u><c-r><c-r>='let @'. v:register .' = '. string(getreg(v:register))<cr><c-f><left>
+
 " Force redraw
-map <silent> <leader>r :redraw!<CR>
+" See: https://github.com/mhinz/vim-galore#saner-ctrl-l
+nnoremap <leader>l :nohlsearch<cr>:diffupdate<cr>:syntax sync fromstart<cr><c-l>
 
 " Reload vim configuration
 nnoremap <silent> <leader>R :so ~/.config/nvim/init.vim<return><esc>
@@ -87,6 +92,12 @@ cnoremap <C-d>  <Delete>
 cnoremap <M-b>  <S-Left>
 cnoremap <M-f>  <S-Right>
 cnoremap <C-g>  <C-c>
+
+" Make c-n and c-p behave like up/down arrows, i.e. take into account the
+" beginning of the text entered in the command line when jumping
+" See: https://github.com/mhinz/vim-galore#saner-command-line-history
+cnoremap <c-n>  <down>
+cnoremap <c-p>  <up>
 
 """ Tabs
 
