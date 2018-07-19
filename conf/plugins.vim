@@ -11,8 +11,6 @@ if dein#load_state('~/.config/nvim/dein')
   " Let dein manage itself
   call dein#add('~/.config/nvim/dein.vim')
 
-  call dein#add('~/.config/nvim/bundles/dein/github.com/Shougo/dein.vim')
-
   " Interface
   call dein#add('vim-airline/vim-airline')
   call dein#add('vim-airline/vim-airline-themes')
