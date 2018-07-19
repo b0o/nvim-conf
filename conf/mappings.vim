@@ -245,6 +245,7 @@ imap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 "" LanguageClient
 nnoremap <silent> <leader>k :call LanguageClientHoverToggle()<CR>
 nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
+nnoremap <silent> gD :call LanguageClient#textDocument_definition({"gotoCmd": "tabedit"})<CR>
 nnoremap <silent> <leader>gr :call LanguageClient#textDocument_rename()<CR>
 
 "" NeoSnippet
