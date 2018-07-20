@@ -3,6 +3,7 @@
 
 let g:ale_linters = {
       \   'haskell'   : ['ghc', 'ghc-mod'],
+      \   'c':          ['clang-check'],
       \   'cpp':        ['clang-check'],
       \}
 
@@ -10,6 +11,7 @@ let g:ale_fixers = {
       \   'javascript': ['eslint'],
       \   'bash':       ['shfmt'],
       \   'sh':         ['shfmt'],
+      \   'c':          ['clang-format'],
       \   'cpp':        ['clang-format'],
       \}
 
