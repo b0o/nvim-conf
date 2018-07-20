@@ -221,3 +221,19 @@ function! CopyMatches(bang, line1, line2, args, wholelines)
   redraw  " so message is seen
   echo msg
 endfunction
+
+" Get Buffer info as JSON (useful for external scripts utilizing neovim-remote)
+func! s:filterFuncrefs(i, elem)
+  return type(a:elem) != v:t_func
+endfunc
+func! BufinfoJSON()
+  let l:bufs = getbufinfo()
+  let l:i = 0
+  for l:buf in l:bufs
+    call filter(l:buf.variables, function('s:filterFuncrefs'))
+    let l:bufs[l:i].variables = l:buf.variables
+    let l:i += 1
+  endfor
+  return json_encode(l:bufs)
+endfunc
+
