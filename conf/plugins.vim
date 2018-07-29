@@ -31,6 +31,10 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#add('matze/vim-move')
   call dein#add('andymass/vim-matchup')
 
+  " Git
+  call dein#add('tpope/vim-fugitive')
+  call dein#add('airblade/vim-gitgutter')
+
   " Auto Completion, linting, etc
   call dein#add('w0rp/ale')
   call dein#add('Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' })
@@ -75,10 +79,6 @@ if dein#load_state('~/.config/nvim/dein')
 
   " YAML
   call dein#add('stephpy/vim-yaml')
-
-  " Git
-  call dein#add('tpope/vim-fugitive')
-  call dein#add('airblade/vim-gitgutter')
 
   " Misc
   call dein#add('Shougo/denite.nvim')
