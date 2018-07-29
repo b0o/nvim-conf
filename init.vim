@@ -15,6 +15,7 @@ source ~/.config/nvim/conf/plugin/ale.vim
 source ~/.config/nvim/conf/plugin/denite.vim
 source ~/.config/nvim/conf/plugin/deoplete.vim
 source ~/.config/nvim/conf/plugin/goyo.vim
+source ~/.config/nvim/conf/plugin/gitgutter.vim
 source ~/.config/nvim/conf/plugin/haskell-vim.vim
 source ~/.config/nvim/conf/plugin/neosnippet.vim
 source ~/.config/nvim/conf/plugin/language-client.vim
