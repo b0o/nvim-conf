@@ -20,6 +20,10 @@ let g:LanguageClient_serverCommands = {
   \     'cpp': s:cquery_cmd,
   \ }
 
+" Let ALE handle linting
+let g:LanguageClient_diagnosticsEnable = 0
+let g:LanguageClient_diagnosticsList = "Disabled"
+
 " Fix for https://github.com/autozimu/LanguageClient-neovim/issues/379
 let g:LanguageClient_hasSnippetSupport = 0
 
@@ -32,7 +36,7 @@ let g:LanguageClient_completionPreferTextEdit = 0
 let g:LanguageClientHoverEnabled = 1
 let g:LanguageClientHoverPreview = 1
 let g:LanguageClientPreviewHeight = 1
-let g:LanguageClientHoverPreviewClose = 1
+let g:LanguageClientHoverPreviewClose = 0
 let g:LanguageClientPreviewBufName = "__LC_Symbol_Info__"
 
 let s:orig_preview_height = v:null
