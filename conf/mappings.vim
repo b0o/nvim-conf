@@ -25,7 +25,7 @@ vmap > >gv
 vmap < <gv
 
 " quit active
-nnoremap Q :confirm q<cr>
+nnoremap Q :confirm q \| pclose<cr>
 
 " quit all
 nnoremap ZQ :confirm qall<cr>
