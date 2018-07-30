@@ -25,7 +25,7 @@ vmap > >gv
 vmap < <gv
 
 " quit active
-nnoremap Q :confirm q \| pclose<cr>
+nnoremap <silent> Q :confirm q \| pclose<cr>
 
 " quit all
 nnoremap ZQ :confirm qall<cr>
@@ -66,7 +66,7 @@ vnoremap <C-j> "dy`>"dpgv
 vnoremap <C-k> "dy`<"dPjgv
 
 " Clear search highlight and command-line on esc
-nnoremap <esc> :noh<return><esc>:echo ""<cr>
+nnoremap <silent> <esc> :noh \| echo ""<cr>
 
 " Quickly edit a macro
 " See: https://github.com/mhinz/vim-galore#quickly-edit-your-macros
