@@ -116,10 +116,28 @@ function! AppendModeline()
   call append(line("$"), l:modeline)
 endfunction
 
-" servername helper
-function! ShortServername()
+" titlestring servername helper
+function! TSServername()
   let n = matchstr(v:servername, '\c\(\/.*\/\)\zs\(.*\)\ze')
   return substitute(n, ".*__", "", "")
+endfunction
+
+" titlestring modified helper
+function! TSModified()
+  if &modified
+    return "[*]"
+  endif
+  return ""
+endfunction
+
+" titlestring tabs helper
+function! TSTabs()
+  let l:tabs = split(execute("silent tabs"), "\n")
+  call filter(l:tabs, {idx, val -> match(val, "^Tab page \\d*$") == 0})
+  if len(l:tabs) > 1
+    return "[+" . (len(l:tabs) - 1) . "]"
+  endif
+  return ""
 endfunction
 
 " Jump to first scratch window visible in current tab, or create it.

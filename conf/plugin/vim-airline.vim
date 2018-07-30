@@ -47,7 +47,7 @@ function! AirlineInit()
   let g:airline_section_a = airline#section#create(
         \ ['mode', 'crypt', 'paste', 'iminsert'])
   let g:airline_section_b = airline#section#create(
-        \ ['%{ShortServername()}'])
+        \ ['%{TSServername()}'])
   let g:airline_section_c = airline#section#create(
         \ ['fileNoTerm', '%m'])
   let g:airline_section_gutter = airline#section#create(

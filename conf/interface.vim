@@ -4,7 +4,7 @@ set title " set and update terminal title
 
 " customize terminal title
 " note: spaces must be preceded by an escaped backslash (\\)
-let g:vim_titlestring    = "[%{ShortServername()}]\\ %t%m"
+let g:vim_titlestring    = "[%{TSServername()}]\\ %t%{TSModified()}%{TSTabs()}"
 let g:vim_titlestring_hi = "\\ " . g:vim_titlestring . "\\ "
 
 set number " show line numbers
@@ -99,7 +99,6 @@ function! HighlightWindow()
 endfunction
 
 function! UnHighlightWindow()
-  set titlestring=[%{ShortServername()}\]\ %t%m
   call Setbackground()
 endfunction
 
