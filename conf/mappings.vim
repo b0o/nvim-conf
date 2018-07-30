@@ -30,6 +30,9 @@ nnoremap <silent> Q :confirm q \| pclose<cr>
 " quit all
 nnoremap ZQ :confirm qall<cr>
 
+" save file
+noremap <C-s> :w<cr>
+
 " quickly enter command mode with substitution commands prefilled
 nnoremap <leader>/ :%s/
 nnoremap <leader>? :%S/
