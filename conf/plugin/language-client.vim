@@ -126,7 +126,7 @@ func! s:hold()
     \ && (l:line != s:lastline || l:pos != s:lastpos)
     let s:lastline = l:line
     let s:lastpos = l:pos
-    call LanguageClient#alive(function("LanguageClientAliveCb"))
+    call LanguageClient#isAlive(function("LanguageClientAliveCb"))
   endif
 endfunc
 
