@@ -255,3 +255,60 @@ func! BufinfoJSON()
   return json_encode(l:bufs)
 endfunc
 
+" open a file in a new vim instance
+func! LaunchVimInstance(...)
+  let l:paths = join(a:000, " ")
+  exec "silent! !nohup st -x st.nvim -c st_EDITOR zsh -c 'cd $HOME;. $HOME/.zshrc;$HOME/bin/nvim " . l:paths . "' >/dev/null 2>&1 &"
+endfunc
+
+" convert the current tab to a new vim instance
+func! TabToNewWindow()
+  let l:quit = 0
+  let l:path = expand("%:p")
+  if l:path == ""
+    echom "No file in buffer"
+    return
+  endif
+  if &modified
+    echom 'Write file before moving to new window?'
+    echohl ErrorMsg | echom 'Unsaved changes will be lost!' | echohl None
+    while 1
+        let choice = inputlist(['1: Yes', '2: No', '3: Cancel'])
+        if choice > 3
+            redraw!
+            echohl WarningMsg | echo 'Please enter a number between 1 and 3' | echohl None
+            continue
+        elseif choice == 0 || choice == 3
+            return
+        elseif choice == 1
+            write
+        endif
+        break
+    endwhile
+  endif
+  try
+    confirm pclose!
+    confirm close!
+  catch
+    echom 'This is the last window. Quit vim after opening new window?'
+    while 1
+        let choice = inputlist(['1: Yes', '2: No', '3: Cancel'])
+        if choice > 3
+            redraw!
+            echohl WarningMsg | echo 'Please enter a number between 1 and 3' | echohl None
+            continue
+        elseif choice == 0 || choice == 3
+            return
+        elseif choice == 1
+          let l:quit = 1
+        endif
+        confirm enew!
+        break
+    endwhile
+  endtry
+
+  call LaunchVimInstance(l:path)
+  if l:quit == 1
+    confirm quit!
+  endif
+endfunc

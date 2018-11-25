@@ -25,7 +25,7 @@ vmap > >gv
 vmap < <gv
 
 " quit active
-nnoremap <silent> Q :confirm q \| pclose<cr>
+nnoremap <silent> Q :lclose \| pclose \| confirm q<cr>
 
 " quit all
 nnoremap ZQ :confirm qall<cr>
@@ -61,12 +61,12 @@ vnoremap <C-p>  "+p
 nnoremap <C-p>  "+p
 
 " Duplicate line downwards/upwards
-nnoremap <C-j> "dY"dp
-nnoremap <C-k> "dY"dPj
+nnoremap <C-M-j> "dY"dp
+nnoremap <C-M-k> "dY"dPj
 
 " Duplicate selection downwards/upwards
-vnoremap <C-j> "dy`>"dpgv
-vnoremap <C-k> "dy`<"dPjgv
+vnoremap <C-M-j> "dy`>"dpgv
+vnoremap <C-M-k> "dy`<"dPjgv
 
 " Clear search highlight and command-line on esc
 nnoremap <silent> <esc> :noh \| echo ""<cr>
@@ -84,6 +84,9 @@ nnoremap <silent> <leader>R :so ~/.config/nvim/init.vim<return><esc>
 
 " goto file under cursor in new tab
 noremap gF <C-w>gf
+
+" Reload vim configuration
+nnoremap <leader>N :call TabToNewWindow()<cr>
 
 """ Command mode
 

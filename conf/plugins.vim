@@ -67,7 +67,7 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#disable('slashmili/alchemist.vim')
 
   " Golang
-  call dein#add('fatih/vim-go')
+  call dein#add('fatih/vim-go', { 'do': ':GoInstallBinaries' })
   call dein#add('zchee/deoplete-go', {
     \ 'build': 'bash -c "make > /tmp/deoplete-go_build.log 2> /tmp/deoplete-go_build.err.log"',
     \ })
@@ -79,6 +79,12 @@ if dein#load_state('~/.config/nvim/dein')
 
   " YAML
   call dein#add('stephpy/vim-yaml')
+
+  " nginx
+  call dein#add('chr4/nginx.vim')
+
+  " Documentation/reference
+  call dein#add('alx741/vinfo')
 
   " Misc
   call dein#add('Shougo/denite.nvim')

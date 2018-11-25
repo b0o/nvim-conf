@@ -19,4 +19,5 @@ command! -nargs=* -complete=help H call HelpTab(<q-args>)
 command! -bang -nargs=? -range=% CopyMatches call CopyMatches(<bang>0, <line1>, <line2>, <q-args>, 0)
 command! -bang -nargs=? -range=% CopyLines call CopyMatches(<bang>0, <line1>, <line2>, <q-args>, 1)
 
-
+" LaunchVimInstance
+command! -count -nargs=* LaunchVimInstance  call LaunchVimInstance(<q-args>)
