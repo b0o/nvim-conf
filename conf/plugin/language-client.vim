@@ -28,8 +28,8 @@ let s:go_langserver_cmd = [
   \ 'go-langserver',
   \ '-gocodecompletion',
   \ '-usebinarypkgcache=0',
-  \ '-logfile', '~/.local/share/go-langserver/go-langserver.log',
   \ ]
+  " \ '-logfile', '~/.local/share/go-langserver/go-langserver.log',
 
 " LanguageClient-neovim
 let g:LanguageClient_serverCommands = {
