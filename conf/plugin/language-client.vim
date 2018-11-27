@@ -27,8 +27,8 @@ let s:hie_cmd = [
 let s:go_langserver_cmd = [
   \ 'go-langserver',
   \ '-gocodecompletion',
-  \ '-usebinarypkgcache=0',
   \ ]
+  " \ '-usebinarypkgcache=0',
   " \ '-logfile', '~/.local/share/go-langserver/go-langserver.log',
 
 " LanguageClient-neovim
