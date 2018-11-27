@@ -2,7 +2,6 @@
 """ configuration for the plugin autozimu/LanguageClient-neovim
 
 let s:cquery_cmd = ['cquery',
-  \  '--log-file=~/.local/share/cquery/cquery.log',
   \  '--init={'
   \  . '"cacheDirectory": "' . expand($HOME) . '/.cache/cquery"'
   \  . ','
@@ -11,18 +10,19 @@ let s:cquery_cmd = ['cquery',
   \  . '}'
   \  .
   \  '}' ]
+  " \  '--log-file=~/.local/share/cquery/cquery.log',
 
 let s:clangd_cmd = ['clangd']
 
 let s:js_ts_langserver_cmd = [
   \ 'javascript-typescript-stdio',
-  \  '--logfile', '~/.local/share/javascript_typescript_langserver/langserver.log',
   \ ]
+  " \  '--logfile', '~/.local/share/javascript_typescript_langserver/langserver.log',
 
 let s:hie_cmd = [
   \ 'hie-wrapper',
-  \ '--logfile', '~/.local/share/haskell-ide-engine/hie-wrapper_lcn.log',
   \ ]
+  " \ '--logfile', '~/.local/share/haskell-ide-engine/hie-wrapper_lcn.log',
 
 let s:go_langserver_cmd = [
   \ 'go-langserver',
