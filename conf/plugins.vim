@@ -77,6 +77,10 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#disable('eagletmt/neco-ghc')
   call dein#add('neovimhaskell/haskell-vim')
 
+  " OCaml/Reason
+  " (See also rtp modification at bottom of file for merlin plugin)
+  call dein#add('reasonml-editor/vim-reason-plus')
+
   " YAML
   call dein#add('stephpy/vim-yaml')
 
@@ -119,3 +123,8 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#end()
   call dein#save_state()
 endif
+
+" Merlin is a plugin for OCaml completion
+" It is managed by opam, not dein, so we manually add it to our RTP
+let s:opamshare = substitute(system('opam config var share'),'\n$','','''')
+execute "set rtp+=" . s:opamshare . "/merlin/vim"

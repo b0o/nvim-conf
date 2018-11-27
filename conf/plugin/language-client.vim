@@ -31,12 +31,19 @@ let s:go_langserver_cmd = [
   " \ '-usebinarypkgcache=0',
   " \ '-logfile', '~/.local/share/go-langserver/go-langserver.log',
 
+let s:ocaml_cmd = [
+  \ 'ocaml-language-server',
+  \ '--stdio',
+  \ ]
+
 " LanguageClient-neovim
 let g:LanguageClient_serverCommands = {
   \    'c':              s:cquery_cmd,
   \    'cpp':            s:cquery_cmd,
   \    'go':             s:go_langserver_cmd,
   \    'haskell':        s:hie_cmd,
+  \    'ocaml':          s:ocaml_cmd,
+  \    'reason':         s:ocaml_cmd,
   \    'javascript.jsx': s:js_ts_langserver_cmd,
   \    'javascript':     s:js_ts_langserver_cmd,
   \    'typescript':     s:js_ts_langserver_cmd,
