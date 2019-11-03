@@ -1,0 +1,12 @@
+global !p
+import sniputils as u
+endglobal
+
+snippet [ "commit message" bA
+[`!p
+c_scope = u.completion(["source", "test", "tools", "deps", "docs", "release", "repo"])
+c_type  = u.completion(["fix", "feat", "tweak", "style", "refactor", "perf", "misc", "patch", "minor", "major"])
+`$1`!p snip.rv+=c_scope(t[1])`:$2`!p snip.rv+=c_type(t[2])`] ${3:subject}
+
+${0:body}
+endsnippet

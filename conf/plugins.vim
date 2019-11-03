@@ -11,16 +11,20 @@ if dein#load_state('~/.config/nvim/dein')
   " Let dein manage itself
   call dein#add('~/.config/nvim/dein.vim')
 
+  " Dependencies
+  call dein#add('mattn/webapi-vim')
+  call dein#add('tomtom/vimtlib')
+  call dein#disable('xolox/vim-misc')
+
   " Interface
   call dein#add('vim-airline/vim-airline')
   call dein#add('vim-airline/vim-airline-themes')
-  call dein#add('majutsushi/tagbar')
-  call dein#add('junegunn/goyo.vim')
 
   " Editing & Motion
+  call dein#add('machakann/vim-swap')
   call dein#add('chaoren/vim-wordmotion')
-  call dein#add('terryma/vim-multiple-cursors')
-  call dein#add('tomtom/tcomment_vim', {'depends': 'tomtom/vimtlib'})
+  call dein#add('mg979/vim-visual-multi')
+  call dein#add('tomtom/tcomment_vim')
   call dein#add('kana/vim-textobj-user')
   call dein#add('kana/vim-textobj-line')
   call dein#add('tpope/vim-repeat')
@@ -31,9 +35,13 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#add('matze/vim-move')
   call dein#add('andymass/vim-matchup')
 
+  " Project Management
+  call dein#add('editorconfig/editorconfig-vim')
+
   " Git
   call dein#add('tpope/vim-fugitive')
   call dein#add('airblade/vim-gitgutter')
+  call dein#add('christoomey/vim-conflicted')
 
   " Auto Completion, linting, etc
   call dein#add('w0rp/ale')
@@ -42,8 +50,8 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#add('Shougo/neco-vim')
 
   " Snippets
-  call dein#add('Shougo/neosnippet.vim')
-  call dein#add('Shougo/neosnippet-snippets')
+  call dein#add('SirVer/ultisnips')
+  call dein#add('honza/vim-snippets')
 
   " ctags
   call dein#disable('lyuts/vim-rtags')
@@ -59,6 +67,9 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#add('mxw/vim-jsx')
   call dein#add('styled-components/vim-styled-components')
 
+  " jq
+  call dein#add('vito-c/jq.vim')
+
   " CSS/Sass/Haml
   call dein#add('hail2u/vim-css3-syntax')
 
@@ -66,10 +77,9 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#disable('elixir-editors/vim-elixir')
   call dein#disable('slashmili/alchemist.vim')
 
-  " Golang
-  call dein#add('fatih/vim-go', { 'do': ':GoInstallBinaries' })
+  call dein#add('fatih/vim-go')
   call dein#add('zchee/deoplete-go', {
-    \ 'build': 'bash -c "make > /tmp/deoplete-go_build.log 2> /tmp/deoplete-go_build.err.log"',
+    \ 'build': 'make',
     \ })
 
   " Haskell
@@ -77,27 +87,37 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#disable('eagletmt/neco-ghc')
   call dein#add('neovimhaskell/haskell-vim')
 
-  " OCaml/Reason
-  " (See also rtp modification at bottom of file for merlin plugin)
+  " OCaml/Reason (See also rtp modification at bottom of file for merlin plugin)
   call dein#add('reasonml-editor/vim-reason-plus')
+  call dein#add('Akin909/vim-dune')
+
+  " Perl5/6
+  call dein#add('vim-perl/vim-perl6')
 
   " YAML
   call dein#add('stephpy/vim-yaml')
 
-  " nginx
+  " NGINX
   call dein#add('chr4/nginx.vim')
+
+  " i3/sway configuration files
+  call dein#add('mboughaba/i3config.vim')
+  call dein#add('aouelete/sway-vim-syntax')
 
   " Documentation/reference
   call dein#add('alx741/vinfo')
 
-  " Misc
+  " Writing, Todos, and Notetaking
+  call dein#add('jceb/vim-orgmode')
+  call dein#add('junegunn/goyo.vim')
+
+  " General Utility
+  call dein#add('majutsushi/tagbar')
   call dein#add('Shougo/denite.nvim')
-  call dein#add('editorconfig/editorconfig-vim')
   call dein#add('chrisbra/Recover.vim')
-  call dein#add('vimwiki/vimwiki')
   call dein#add('ap/vim-css-color')
   call dein#add('KabbAmine/vCoolor.vim')
-  call dein#add('mattn/gist-vim', {'depends': 'mattn/webapi-vim'})
+  call dein#add('mattn/gist-vim')
   call dein#add('tpope/vim-eunuch')
 
   " Themes
@@ -105,20 +125,14 @@ if dein#load_state('~/.config/nvim/dein')
   call dein#add('chriskempson/base16-vim')
 
   " Vim Plugin Development
-  " call dein#disable('xolox/vim-reload', {'depends': 'xolox/vim-misc'})
-  call dein#disable('gerw/vim-HiLinkTrace')
+  call dein#add('tpope/vim-scriptease')
 
   " Local plugins
   call dein#local('~/.config/nvim/bundle', {}, [
         \ 'b0o/builder.vim',
         \ 'b0o/quicktemplate.vim',
+        \ 'b0o/betwixt.vim',
         \ ])
-        " \ 'b0o/vim-HiLinkTrace'
-
-  " Dependencies
-  call dein#add('mattn/webapi-vim')
-  call dein#add('tomtom/vimtlib')
-  call dein#disable('xolox/vim-misc')
 
   call dein#end()
   call dein#save_state()

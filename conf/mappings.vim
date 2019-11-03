@@ -1,6 +1,12 @@
 """ mappings.vim
 """ mappings for various modes
 
+""" Unmaps
+
+" Disable C-z suspend
+map  <C-z> <Nop>
+map! <C-z> <Nop>
+
 """ General
 
 " Disable Ex mode
@@ -20,6 +26,13 @@ nnoremap <expr> k v:count ? 'k' : 'gk'
 noremap J 5j
 noremap K 5k
 
+map <M-L> LJ
+map <M-H> HK
+
+" since the vim-wordmotion plugin overrides the normal `w` wordwise movement,
+" make `W` behave as vanilla `w`
+nnoremap W w
+
 " Indent visual selection without clearing selection
 vmap > >gv
 vmap < <gv
@@ -29,6 +42,9 @@ nnoremap <silent> Q :lclose \| pclose \| confirm q<cr>
 
 " quit all
 nnoremap ZQ :confirm qall<cr>
+
+" close window (except last one)
+nnoremap <C-w> :close<cr>
 
 " save file
 noremap <C-s> :w<cr>
@@ -41,6 +57,10 @@ vnoremap <leader>? :S/
 
 " Toggle line wrapping
 nnoremap <silent> <leader>W :setlocal wrap!<CR>:setlocal wrap?<CR>
+
+" Insert a space and then paste before/after cursor
+nnoremap <M-o> maDo<esc>p`a
+nnoremap <M-O> maDO<esc>p`a
 
 " Copy to system clipboard
 vnoremap <leader>y  "+y
@@ -59,6 +79,10 @@ vnoremap <leader>p "+p
 vnoremap <leader>P "+P
 vnoremap <C-p>  "+p
 nnoremap <C-p>  "+p
+
+" Insert a space and then paste before/after cursor
+nnoremap <M-p> a <esc>p
+nnoremap <M-P> i <esc>P
 
 " Duplicate line downwards/upwards
 nnoremap <C-M-j> "dY"dp
@@ -154,10 +178,10 @@ noremap <M-{> <C-w>3-
 noremap <M-}> <C-w>3+
 
 " create splits
-nnoremap <silent> <leader>s :new<return><esc>
-nnoremap <silent> <leader>S :split<return><esc>
-nnoremap <silent> <leader>v :vnew<return><esc>
-nnoremap <silent> <leader>V :vsplit<return><esc>
+nnoremap <silent> <leader>s  :new<cr>
+nnoremap <silent> <leader>Ss :split<cr>
+nnoremap <silent> <leader>v  :vnew<cr>
+nnoremap <silent> <leader>Vv :vsplit<cr>
 
 """ Plugins/functions
 
@@ -188,36 +212,8 @@ nnoremap <silent> <leader>cc :call ToggleConcealCursor()<cr>
 "" Modeline
 nnoremap <silent> <Leader>ml :call AppendModeline()<CR>
 
-"" Denite
-nnoremap <leader>D   :Denite<space>
-nnoremap <leader>db  :Denite buffer<cr>
-nnoremap <leader>dch :Denite change<cr>
-nnoremap <leader>dcs :Denite colorscheme<cr>
-nnoremap <leader>dco :Denite command<cr>
-nnoremap <leader>dch :Denite command_history<cr>
-nnoremap <leader>dec :Denite decls<cr>
-nnoremap <leader>di  :Denite dein<cr>
-nnoremap <leader>dil :Denite dein_log<cr>
-nnoremap <leader>dir :Denite directory_rec<cr>
-nnoremap <leader>df  :Denite file<cr>
-nnoremap <leader>dfo :Denite file/old<cr>
-nnoremap <leader>dfp :Denite file/point<cr>
-nnoremap <leader>dfr :Denite file/rec<cr>
-nnoremap <leader>dft :Denite filetype<cr>
-nnoremap <leader>dgr :Denite grep<cr>
-nnoremap <leader>dh  :Denite help<cr>
-nnoremap <leader>dj  :Denite jump<cr>
-nnoremap <leader>dl  :Denite line<cr>
-nnoremap <leader>dm  :Denite menu<cr>
-nnoremap <leader>ds  :Denite neosnippet<cr>
-nnoremap <leader>do  :Denite output<cr>
-nnoremap <leader>dol :Denite outline<cr>
-nnoremap <leader>dr  :Denite register<cr>
-nnoremap <leader>dt  :Denite tag<cr>
-
 "" Goyo
 nnoremap <silent> <leader>go :Goyo<CR>
-nnoremap <silent> <leader>g* :echo foo<CR>
 
 "" VCoolor
 nmap <silent> <leader>co :VCoolor<CR>
@@ -226,9 +222,12 @@ nmap <silent> <leader>co :VCoolor<CR>
 map <silent> <leader>b :TagbarToggle<Cr>
 map <silent> <leader>B :TagbarOpen fj<Cr>
 
-"" LeaderHelper
+"" LeaderHelper.vim
 nmap <C-space> :call LeaderHelperPrompt('n')<cr>
 imap <expr> <C-space> LeaderHelperPrompt('n')
+
+"" Between.vim
+" map gb :call Betwixt()<cr>
 
 "" GHC-Mod
 " map <leader>t :GhcModType<return><esc>
@@ -236,13 +235,27 @@ imap <expr> <C-space> LeaderHelperPrompt('n')
 "" vim-go
 nnoremap <silent> <leader>gd :GoDef()<Cr>
 nnoremap <silent> <leader>gf :GoFmt<Cr>
-nnoremap <leader>gi :GoImport<space>
-nnoremap <leader>gI :GoDrop<space>
+nnoremap          <leader>gi :GoImport<space>
+nnoremap          <leader>gI :GoDrop<space>
 nnoremap <silent> <leader>gt :GoInfo()<Cr>
 
 "" ale.vim
-map <leader>af :ALEFix<Cr>
-map <leader>al :ALELint<Cr>
+nnoremap <leader>af :ALEFix<cr>
+nnoremap <leader>al :ALELint<cr>
+
+nmap ]a <Plug>(ale_next_wrap)
+nmap [a <Plug>(ale_previous_wrap)
+nmap ]e <Plug>(ale_next_wrap_error)
+nmap [e <Plug>(ale_previous_wrap_error)
+nmap ]w <Plug>(ale_next_wrap_warning)
+nmap [w <Plug>(ale_previous_wrap_warning)
+
+nnoremap <leader>ad :ALEDisable<cr>:let g:ale_enabled<cr>
+nnoremap <leader>ae :ALEEnable<cr>:let g:ale_enabled<cr>
+nnoremap <leader>aD :ALEToggle<cr>:let g:ale_enabled<cr>
+nnoremap <leader>aE :ALEToggle<cr>:let g:ale_enabled<cr>
+nnoremap <leader>as :let g:ale_fix_on_save=!g:ale_fix_on_save<cr>:let g:ale_fix_on_save<cr>
+nnoremap <leader>aS :let g:ale_fix_on_save=0<cr>:let g:ale_fix_on_save<cr>
 
 "" Autocompletion
 imap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
@@ -253,12 +266,3 @@ nnoremap <silent> <leader>k :call LanguageClientHoverToggle()<CR>
 nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
 nnoremap <silent> gD :call LanguageClient#textDocument_definition({"gotoCmd": "tabedit"})<CR>
 nnoremap <silent> <leader>gr :call LanguageClient#textDocument_rename()<CR>
-
-"" NeoSnippet
-imap <C-e> <Plug>(neosnippet_expand_or_jump)
-smap <C-e> <Plug>(neosnippet_expand_or_jump)
-nmap <C-e> <Plug>(neosnippet_expand_target)
-xmap <C-e> <Plug>(neosnippet_expand_target)
-
-imap <expr><CR>
-\ (pumvisible() && neosnippet#expandable()) ? "\<Plug>(neosnippet_expand_or_jump)" : "\<CR>"

@@ -71,15 +71,9 @@ func! LeaderHelperPrompt(mode)
       let l:status += [l:char]
     endif
 
-    if l:char is# "\<CR>"
-      redraw
-      call s:leaderHelperExec(l:maps[-1])
-      return
-    endif
-
     let l:maps = s:leaderHelper(a:mode, l:status)
 
-    if g:leaderHelperAutoSubmit == 1 && len(l:maps) == 1
+    if l:char is# "\<CR>" || ( g:leaderHelperAutoSubmit == 1 && len(l:maps) == 1 )
       if l:maps[0] == "No mapping found"
         echo l:maps[0] . ": " . join(l:status, "")
       else
@@ -89,7 +83,6 @@ func! LeaderHelperPrompt(mode)
       return
     endif
 
-    " let l:maxheight = winheight(0) - 10
     let l:maxheight = 10
     redraw! | echo join(l:maps[:l:maxheight], "\n") | echo ">> " . join(l:status, "")
   endwhile

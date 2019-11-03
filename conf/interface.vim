@@ -40,49 +40,21 @@ let g:Powerline_symbols = 'fancy'
 if exists("g:colorscheme")
   let s:colorscheme = g:colorscheme
 elseif !exists("g:colors_name") || g:colors_name == "default" || g:colors_name == "unknown"
-  let s:colorscheme = "nord"
-endif
-
-" nord colorscheme options
-" let g:nord_uniform_diff_background=1
-let g:nord_italic_comments=1
-let g:nord_underline=1
-
-if exists("s:colorscheme")
-  let g:airline_theme = substitute(s:colorscheme, "-", "_", "")
-  try
-    exec "colorscheme " . s:colorscheme
-  catch
-    echom "Error: Unable to set colorscheme " . s:colorscheme . "\n"
-  endtry
+  let s:colorscheme = "lavi"
 endif
 
 " set/reset custom colorscheme settings
-function! Setbackground()
-  set background=dark
+function! Setcolorscheme()
+  " set background=dark
   exec "set titlestring=" . g:vim_titlestring
-
-  hi Normal guibg=NONE ctermbg=NONE
-  hi Visual ctermbg=BLUE ctermfg=BLACK
-  hi Normal guibg=NONE ctermbg=NONE
-  hi Search ctermbg=3 guibg=#F1C40F guifg=#000000 ctermfg=0
-  hi NonText ctermfg=23
-
-  "" Don't highlight misspelled words - only underline
-  " cterm
-  hi SpellBad   ctermfg=none ctermbg=none cterm=undercurl,italic
-  hi SpellLocal ctermfg=none ctermbg=none cterm=none
-  hi SpellCap   ctermfg=none ctermbg=none cterm=undercurl
-  hi SpellRare  ctermfg=none ctermbg=none cterm=none
-  " gui
-  hi SpellBad   guifg=none guibg=none gui=undercurl,italic
-  hi SpellLocal guifg=none guibg=none gui=none
-  hi SpellCap   guifg=none guibg=none gui=undercurl
-  hi SpellRare  guifg=none guibg=none gui=none
-
-  " fix denite highlight issue
-  " https://github.com/Shougo/denite.nvim/issues/218
-  hi Search ctermbg=0 ctermfg=3 guibg=#000000 guifg=#F1C40F cterm=reverse gui=reverse
+  if exists("s:colorscheme")
+    let g:airline_theme = substitute(s:colorscheme, "-", "_", "")
+    try
+      exec "colorscheme " . s:colorscheme
+    catch
+      echom "Error: Unable to set colorscheme " . s:colorscheme . "\n"
+    endtry
+  endif
   redraw
 endfunction
 
@@ -99,7 +71,7 @@ function! HighlightWindow()
 endfunction
 
 function! UnHighlightWindow()
-  call Setbackground()
+  call Setcolorscheme()
 endfunction
 
-call Setbackground() " Call Setbackground once on init
+call Setcolorscheme() " Call Setcolorscheme once on init

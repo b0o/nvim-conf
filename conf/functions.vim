@@ -124,10 +124,7 @@ endfunction
 
 " titlestring modified helper
 function! TSModified()
-  if &modified
-    return "[*]"
-  endif
-  return ""
+  return &modified ? "[*]" : ""
 endfunction
 
 " titlestring tabs helper
