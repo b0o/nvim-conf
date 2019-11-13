@@ -3,7 +3,7 @@ if &compatible
 endif
 
 let $cfg  = expand("<sfile>:p")
-let $cfgd = expand("<sfile>:p:h")
+let $cfgd = stdpath("config")
 
 let g:nvim_config_files = [
   \   "conf/settings.vim",
