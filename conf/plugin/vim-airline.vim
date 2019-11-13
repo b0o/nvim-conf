@@ -89,7 +89,14 @@ let g:airline#extensions#tabline#fnamemod          = ':t'
 
 let g:airline#extensions#hunks#non_zero_only = 1
 " let g:airline#extensions#hunks#hunk_symbols  = ['+', '~', '-']
+let s:uid = expand("$UID")
 
+function! Airline_sudo()
+  if s:uid == 0
+    return " "
+  endif
+  return ""
+endfunction
 
 function! Airline_file_no_term()
   if expand("%") == ""
@@ -189,6 +196,11 @@ function! AirlineInit()
   let g:airline_symbols.linenr = ''
   let g:airline_symbols.maxlinenr = ''
 
+  call airline#parts#define('sudo', {
+        \ 'function': 'Airline_sudo',
+        \ 'accent': 'yellow',
+        \ })
+
   call airline#parts#define('file_no_term', {
         \ 'function': 'Airline_file_no_term',
         \ 'accent': 'bold',
@@ -233,7 +245,7 @@ function! AirlineInit()
   let g:airline_section_b = airline#section#create(
         \ ['%{TSServername()}'])
   let g:airline_section_c = airline#section#create(
-        \ ['file_no_term', '%m ', 'branch', 'hunks_add', 'hunks_modify', 'hunks_remove'])
+        \ ['sudo', 'file_no_term', '%m ', 'branch', 'hunks_add', 'hunks_modify', 'hunks_remove'])
   let g:airline_section_gutter = airline#section#create(
         \ ['readonly', '%='])
   let g:airline_section_x = airline#section#create(
