@@ -90,20 +90,6 @@ let g:airline#extensions#tabline#fnamemod          = ':t'
 let g:airline#extensions#hunks#non_zero_only = 1
 " let g:airline#extensions#hunks#hunk_symbols  = ['+', '~', '-']
 
-" let g:airline_theme_patch_func = 'Airline_theme_patch'
-" function! Airline_theme_patch(palette)
-"   if g:airline_theme == 'nord'
-"     let a:palette.accents.none   = [ '', '', '', '', '' ]
-"     let a:palette.accents.bold   = [ '', '', '', '', 'bold' ]
-"     let a:palette.accents.italic = [ '', '', '', '', 'italic' ]
-"     let a:palette.accents.blue   = [ '#5E81AC' , '' , '12' , '' ]
-"     let a:palette.accents.red    = [ '#BF616A' , '' , '1'  , '' ]
-"     let a:palette.accents.green  = [ '#A3BE8C' , '' , '2'  , '' ]
-"     let a:palette.accents.yellow = [ '#EBCB8B' , '' , '3'  , '' ]
-"     let a:palette.accents.orange = [ '#D08770' , '' , '11' , '' ]
-"     let a:palette.accents.purple = [ '#B48EAD' , '' , '5'  , '' ]
-"   endif
-" endfunction
 
 function! Airline_file_no_term()
   if expand("%") == ""
