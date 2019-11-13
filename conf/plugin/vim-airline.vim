@@ -183,7 +183,7 @@ function! s:hunks_fn(type, ...)
 endfunction
 
 function! Airline_hunks_add()
-  return s:hunks_fn(0, "+", " ")
+  return s:hunks_fn(0, " +", " ")
 endfunction
 function! Airline_hunks_modify()
   return s:hunks_fn(1, "~", " ")
