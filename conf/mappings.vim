@@ -1,8 +1,6 @@
 """ mappings.vim
 """ mappings for various modes
 
-""" Unmaps
-
 " Disable C-z suspend
 map  <C-z> <Nop>
 map! <C-z> <Nop>
@@ -11,10 +9,6 @@ map! <C-z> <Nop>
 
 " Disable Ex mode
 nnoremap Q <nop>
-
-" delete while in insert mode
-inoremap <C-d> <C-o>dd
-inoremap <C-c> <C-o>D
 
 " make j and k treat wrapped lines as independent lines
 " https://statico.github.io/vim.html
@@ -38,7 +32,7 @@ vmap > >gv
 vmap < <gv
 
 " quit active
-nnoremap <silent> Q :lclose \| pclose \| confirm q<cr>
+nnoremap <silent> Q :CloseWin<cr>
 
 " quit all
 nnoremap ZQ :confirm qall<cr>
@@ -56,7 +50,7 @@ vnoremap <leader>/ :s/
 vnoremap <leader>? :S/
 
 " Toggle line wrapping
-nnoremap <silent> <leader>W :setlocal wrap!<CR>:setlocal wrap?<CR>
+nnoremap <silent> <leader>w :setlocal wrap!<CR>:setlocal wrap?<CR>
 
 " Insert a space and then paste before/after cursor
 nnoremap <M-o> maDo<esc>p`a
@@ -97,28 +91,52 @@ nnoremap <silent> <esc> :noh \| echo ""<cr>
 
 " Quickly edit a macro
 " See: https://github.com/mhinz/vim-galore#quickly-edit-your-macros
-nnoremap <leader>m :<c-u><c-r><c-r>='let @'. v:register .' = '. string(getreg(v:register))<cr><c-f><left>
+function! g:EditMacro(...)
+  let l:register = v:register
+  if len(a:000) >= 1
+    let l:register = a:0
+  endif
+  let l:str = 'let @' . l:register . ' = ' . string(getreg(l:register))
+  execute "normal :" . l:str . "\<cr>"
+  " execute "nnoremap <leader>MMMMM :" . l:str . "<cr>q:"
+  " normal <leader>MMMMM
+  " nunmap <leader>MMMMM
+  " :<c-u><c-r><c-r>=<cr><c-f><left>
+endfunction
+nnoremap <expr> <leader>ma g:EditMacro("q")
 
 " Force redraw
 " See: https://github.com/mhinz/vim-galore#saner-ctrl-l
 nnoremap <leader>l :nohlsearch<cr>:diffupdate<cr>:syntax sync fromstart<cr><c-l>
 
 " Reload vim configuration
-nnoremap <silent> <leader>R :so ~/.config/nvim/init.vim<return><esc>
+nnoremap <silent> <leader>rr :ReloadConfig<cr>
 
 " goto file under cursor in new tab
 noremap gF <C-w>gf
 
-" Reload vim configuration
-nnoremap <leader>N :call TabToNewWindow()<cr>
+" open tab in new terminal instance
+nnoremap <leader>W :call TabToNewWindow()<cr>
+
+""" Insert Mode
+" emacs-style movements
+inoremap <C-a>  <Home>
+inoremap <C-e>  <End>
+inoremap <C-b>  <Left>
+inoremap <C-f>  <Right>
+inoremap <c-n>  <Down>
+inoremap <c-p>  <Up>
+inoremap <C-d>  <Delete>
+inoremap <M-b>  <S-Left>
+inoremap <M-f>  <S-Right>
+inoremap <M-d>  <C-o>de
 
 """ Command mode
-
 " emacs-style movements
 cnoremap <C-a>  <Home>
 cnoremap <C-b>  <Left>
-cnoremap <C-f>  <Right>
 cnoremap <C-d>  <Delete>
+cnoremap <C-f>  <Right>
 cnoremap <M-b>  <S-Left>
 cnoremap <M-f>  <S-Right>
 cnoremap <C-g>  <C-c>
@@ -194,60 +212,22 @@ vnoremap <silent> <leader>I <esc>:call Interleave()<CR>
 " paste register without overwriting with the original selection
 vnoremap <silent> <expr> p PasteRestore()
 
-"" TComment
-" Toggle comments with <M-/>
-noremap <silent> <M-/> :TComment<Cr>
-
-"" vim-fugitive
-noremap <leader>gA  :Git add --all<cr>
-noremap <leader>gaa :Git add --all<cr>
-noremap <leader>gC  :Gcommit --verbose<cr>
-noremap <leader>gcc :Gcommit --verbose<cr>
-noremap <leader>gca :Gcommit --verbose --all<cr>
-noremap <leader>gL  :Glog<cr>
-noremap <leader>gll :Glog<cr>
-noremap <leader>gpa :Gpush --all<cr>
-noremap <leader>gpp :Gpush<cr>
-noremap <leader>gpl :Gpull<cr>
-noremap <leader>gS  :Gstatus<cr>
-noremap <leader>gss :Gstatus<cr>
-
-noremap <leader>GG  :Git<space>
-noremap <leader>GA  :Git add<space>
-noremap <leader>GC  :Gcommit<space>
-noremap <leader>GF  :Gfetch<space>
-noremap <leader>GL  :Glog<space>
-noremap <leader>GPP :Gpush<space>
-noremap <leader>GPL :Gpull<space>
-noremap <leader>GS  :Gstatus<space>
-
 "" Term
 " launch terminal size 10
 nnoremap <leader>t :10Term<CR>
 
-" Allow hitting <C-S-n> to switch to normal mode in terminal mode
+" switch to normal mode
 tnoremap <C-S-n> <C-\><C-n>
 
+" close terminal window
+tnoremap <C-S-q> <C-\><C-n>:q<cr>
+
 "" Conceal
-nnoremap <silent> <leader>cl :call ToggleConcealLevel()<cr>
-nnoremap <silent> <leader>cc :call ToggleConcealCursor()<cr>
+" nnoremap <silent> <leader>cl :call ToggleConcealLevel()<cr>
+" nnoremap <silent> <leader>cc :call ToggleConcealCursor()<cr>
 
 "" Modeline
 nnoremap <silent> <Leader>ml :call AppendModeline()<CR>
-
-"" Goyo
-nnoremap <silent> <leader>go :Goyo<CR>
-
-"" VCoolor
-nmap <silent> <leader>co :VCoolor<CR>
-
-"" Tagbar
-map <silent> <leader>b :TagbarToggle<Cr>
-map <silent> <leader>B :TagbarOpen fj<Cr>
-
-"" LeaderHelper.vim
-nmap <C-space> :call LeaderHelperPrompt('n')<cr>
-imap <expr> <C-space> LeaderHelperPrompt('n')
 
 "" Between.vim
 " map gb :call Betwixt()<cr>

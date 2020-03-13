@@ -1,11 +1,20 @@
 """ vim-go.vim
 " configuration for the plugin fatih/vim-go
 
-let g:go_term_mode = 'split'
-" let g:go_fmt_command = 'gofmt'
-let g:go_fmt_command = 'goimports'
-let g:go_metalinter_autosave = 1
+" let g:go_term_mode = 'split'
+" " let g:go_fmt_command = 'gofmt'
+" let g:go_fmt_command = 'golangci-lint run --fix'
+
+let g:go_fmt_autosave = 0
+let g:go_metalinter_autosave = 0
+let g:go_gopls_enabled = 0
+
 let g:go_doc_keywordprg_enabled = 0
+
+let g:go_term_enabled = 1
+let g:go_term_mode = "vsplit"
+let g:go_term_height = 20
+let g:go_term_close_on_exit = 1
 
 let g:go_highlight_generate_tags = 1
 let g:go_highlight_format_strings = 1

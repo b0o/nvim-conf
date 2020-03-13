@@ -7,3 +7,5 @@ call tcomment#type#Define('go', tcomment#GetLineC('// %s'))
 call tcomment#type#Define('go_block', g:tcomment#block_fmt_c)
 call tcomment#type#Define('go_inline', g:tcomment#inline_fmt_c)
 
+" Toggle comments with <M-/>
+noremap <silent> <M-/> :TComment<Cr>

@@ -6,13 +6,56 @@ function! PluginClean()
   call map(dein#check_clean(), "delete(v:val, 'rf')")
   call dein#recache_runtimepath()
 endfunction
+command! PluginClean call PluginClean()
+
 function! PluginInstall()
   call PluginClean()
   call dein#install()
 endfunction
+command! PluginInstall call PluginInstall()
+
 function! PluginUpdate()
   call PluginClean()
   call dein#update()
+endfunction
+command! PluginUpdate call PluginUpdate()
+
+function! s:plugin_mgr_headless_init()
+  let g:dein#install_progress_type = 'echo'
+  let g:dein#install_message_type = 'echo'
+endfunction
+
+function! PluginCleanHeadless()
+  call s:plugin_mgr_headless_init()
+  try
+    call PluginClean()
+    echo "\n"
+  catch
+    echo "an error was encountered"
+    cquit
+  endtry
+endfunction
+
+function! PluginInstallHeadless()
+  call s:plugin_mgr_headless_init()
+  try
+    call dein#install()
+    echo "\n"
+  catch
+    echo "an error was encountered"
+    cquit
+  endtry
+endfunction
+
+function! PluginUpdateHeadless()
+  call s:plugin_mgr_headless_init()
+  try
+    call dein#update()
+    echo "\n"
+  catch
+    echo "an error was encountered"
+    cquit
+  endtry
 endfunction
 
 " paste register without overwriting with the original selection
@@ -39,8 +82,8 @@ func! TermEnter(insert)
   endif
 endfunc
 
-" open a terminal window, where 'count' is number of rows and 'insert' specifies
-" whether term should start in insert or normal mode
+" open a terminal window, where 'count' is number of rows and 'insert' specifies whether term
+" should start in insert or normal mode
 function! OpenTerm(args, count, insert)
   let params = split(a:args)
 
@@ -50,10 +93,11 @@ function! OpenTerm(args, count, insert)
 
   exe 'terminal' a:args
   call TermEnter(a:insert)
-endf
+endfunction
+command! -count -nargs=* Term  call OpenTerm(<q-args>, <count>, 1)
+command! -count -nargs=* NTerm call OpenTerm(<q-args>, <count>, 0)
 
-" open help in full-window view. If current buffer is not empty, open a new
-" tab
+" open help in full-window view. If current buffer is not empty, open a new tab
 function! HelpTab(...)
   let cmd = 'tab help %s'
   if bufname('%') == "" && getline(1) == ""
@@ -61,6 +105,7 @@ function! HelpTab(...)
   endif
   exec printf(cmd, join(a:000, ' '))
 endfunction
+command! -nargs=* -complete=help H call HelpTab(<q-args>)
 
 " Open or create a tab at the given tab index
 function! Tabnm(n)
@@ -70,6 +115,50 @@ function! Tabnm(n)
     $tabnew
   endtry
 endfunction
+
+" close current window:
+"   | active window is loclist  -> lclose
+"   | active window is quickfix -> cclose
+"   | _ -> lclose + cclose + q
+function! CloseWin()
+  let l:win = getwininfo(win_getid())[0]
+  let l:ret = 0
+  if l:win.loclist == 1
+    lclose
+    let l:ret = 1
+  endif
+  if l:win.quickfix == 1
+    cclose
+    let l:ret = 1
+  endif
+  if l:ret == 1
+    return
+  endif
+  lclose
+  cclose
+  let l:curwin = nvim_get_current_win()
+  confirm q
+  let l:tabwins = nvim_tabpage_list_wins(0)
+  for l:w in l:tabwins
+    let l:wis = getwininfo(l:w)
+    if len(l:wis) == 0
+      continue
+    endif
+    let l:wi = l:wis[0]
+    if has_key(l:wi.variables, "lc_hover_for_win") && l:wi.variables.lc_hover_for_win == l:curwin
+      call nvim_win_close(l:w, 0)
+      break
+    endif
+  endfor
+endfunction
+command! CloseWin call CloseWin()
+
+" reload vim configuration
+function! ReloadConfig()
+  echom "Reload configuration..."
+  source $cfg
+endfunction
+command! ReloadConfig call ReloadConfig()
 
 " interleave two same-sized contiguous blocks
 " https://vi.stackexchange.com/questions/4575/merge-blocks-by-interleaving-lines
@@ -88,22 +177,28 @@ endfunction
 
 " toggle conceallevel
 function! ToggleConcealLevel()
+  if !has('conceal')
+    return
+  endif
   if &conceallevel
     setlocal conceallevel=0
   else
     setlocal conceallevel=2
   endif
-  echo "conceallevel=" . &conceallevel
+  set conceallevel
 endfunction
 
 " toggle concealcursor
 function! ToggleConcealCursor()
-  if &concealcursor != ""
-    set concealcursor=""
-  else
-    set concealcursor=niv
+  if !has('conceal')
+    return
   endif
-  echo "concealcursor=" . &concealcursor
+  if &concealcursor != ""
+    set concealcursor=
+  else
+    set concealcursor=n
+  endif
+  set concealcursor
 endfunction
 
 " Append modeline after last line in buffer.
@@ -236,12 +331,14 @@ function! CopyMatches(bang, line1, line2, args, wholelines)
   redraw  " so message is seen
   echo msg
 endfunction
+command! -bang -nargs=? -range=% CopyMatches call CopyMatches(<bang>0, <line1>, <line2>, <q-args>, 0)
+command! -bang -nargs=? -range=% CopyLines call CopyMatches(<bang>0, <line1>, <line2>, <q-args>, 1)
 
 " Get Buffer info as JSON (useful for external scripts utilizing neovim-remote)
-func! s:filterFuncrefs(i, elem)
-  return type(a:elem) != v:t_func
-endfunc
 func! BufinfoJSON()
+  func! s:filterFuncrefs(i, elem)
+    return type(a:elem) != v:t_func
+  endfunc
   let l:bufs = getbufinfo()
   let l:i = 0
   for l:buf in l:bufs
@@ -255,8 +352,10 @@ endfunc
 " open a file in a new vim instance
 func! LaunchVimInstance(...)
   let l:paths = join(a:000, " ")
-  exec "silent! !nohup st -x st.nvim -c st_EDITOR zsh -c 'cd $HOME;. $HOME/.zshrc;$HOME/bin/nvim " . l:paths . "' >/dev/null 2>&1 &"
+  " exec "silent! !nohup st -x st.nvim -c st_EDITOR zsh -c 'cd $HOME;. $HOME/.zshrc;$HOME/bin/nvim " . l:paths . "' >/dev/null 2>&1 &"
+  exec "silent! !swaymsg exec \"alacritty -e zsh -c 'cd $HOME;. $HOME/.zshrc;$HOME/bin/nvim " . l:paths . "'\""
 endfunc
+command! -count -nargs=* LaunchVimInstance  call LaunchVimInstance(<q-args>)
 
 " convert the current tab to a new vim instance
 func! TabToNewWindow()

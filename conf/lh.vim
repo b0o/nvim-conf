@@ -88,3 +88,6 @@ func! LeaderHelperPrompt(mode)
   endwhile
 endfunc
 
+nnoremap <leader><leader>      :call LeaderHelperPrompt('n')<cr>
+inoremap <C-x><leader>    <C-o>:call LeaderHelperPrompt('i')<cr>
+vnoremap <C-x><leader>         :call LeaderHelperPrompt('v')<cr>

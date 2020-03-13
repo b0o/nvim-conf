@@ -34,3 +34,6 @@ let g:tagbar_type_go = {
 let g:tagbar_compact=1
 let g:tagbar_map_showproto='t'
 let g:tagbar_show_linenumbers=0
+
+map <silent> <leader>b :TagbarToggle<Cr>
+map <silent> <leader>B :TagbarOpen fj<Cr>

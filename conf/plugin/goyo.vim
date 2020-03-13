@@ -14,3 +14,5 @@ augroup goyo_enter_leave
   autocmd User GoyoEnter nested call <SID>goyo_enter()
   autocmd User GoyoLeave nested call <SID>goyo_leave()
 augroup END
+
+nnoremap <silent> <leader>go :Goyo<CR>

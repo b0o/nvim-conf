@@ -140,9 +140,9 @@ function! s:languageclient_fn(state, ...)
   let l:state = b:languageclient_state
   if l:opts.global == v:true
     if l:opts.exclusive == v:true && (
-    \    s:languageclient_state == b:languageclient_state
-    \ || s:languageclient_state_ft != &ft
-    \ )
+        \    s:languageclient_state == b:languageclient_state
+        \ || s:languageclient_state_ft != &ft
+        \ )
       return ""
     end
     let l:state = s:languageclient_state
@@ -164,6 +164,15 @@ function! Airline_languageclient_on_elsewhere()
 endfunction
 function! Airline_languageclient_wait()
   return s:languageclient_fn(2, { "global": v:true })
+endfunction
+
+function! Airline_dein_progress()
+  let l:prog = dein#get_progress()
+  if len(l:prog) > 0
+    let l:nbsp = " "
+    return l:nbsp . l:prog
+  endif
+  return ""
 endfunction
 
 function! s:hunks_fn(type, ...)
@@ -206,6 +215,11 @@ function! AirlineInit()
         \ 'accent': 'bold',
         \ })
 
+  call airline#parts#define('dein_progress', {
+        \ 'function': 'Airline_dein_progress',
+        \ 'accent': 'blue',
+        \ })
+
   call airline#parts#define('languageclient_off', {
         \ 'function': 'Airline_languageclient_off',
         \ })
@@ -245,13 +259,13 @@ function! AirlineInit()
   let g:airline_section_b = airline#section#create(
         \ ['%{TSServername()}'])
   let g:airline_section_c = airline#section#create(
-        \ ['sudo', 'file_no_term', '%m ', 'branch', 'hunks_add', 'hunks_modify', 'hunks_remove'])
+        \ ['sudo', 'file_no_term', 'dein_progress', '%m ', 'branch', 'hunks_add', 'hunks_modify', 'hunks_remove'])
   let g:airline_section_gutter = airline#section#create(
         \ ['readonly', '%='])
   let g:airline_section_x = airline#section#create(
         \ ['languageclient_on', 'languageclient_on_elsewhere', 'languageclient_wait', 'filetype'])
-  let g:airline_section_y = airline#section#create(
-        \ ['%{tagbar#currenttag("%s","", "s")}'])
+  " let g:airline_section_y = airline#section#create(
+  "       \ ['%{tagbar#currenttag("%s","", "s")}'])
   let g:airline_section_z = airline#section#create(
         \ ['%n ', '%3p%%%4l/%L:%-3v '])
 
