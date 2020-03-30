@@ -15,26 +15,26 @@ let s:cquery_cmd = ['cquery',
   \  . '}'
   \  .
   \  '}' ]
-  " \  '--log-file=~/.local/share/cquery/cquery.log',
+" \  '--log-file=~/.local/share/cquery/cquery.log',
 
 let s:clangd_cmd = ['clangd']
 
 let s:js_ts_cmd = [
   \ 'javascript-typescript-stdio',
   \ ]
-  " \  '--logfile', '~/.local/share/javascript_typescript_langserver/langserver.log',
+" \  '--logfile', '~/.local/share/javascript_typescript_langserver/langserver.log',
 
 let s:hie_cmd = [
   \  'hie-wrapper',
   \ ]
-  " \ '--logfile', '~/.local/share/haskell-ide-engine/hie-wrapper_lcn.log',
+" \ '--logfile', '~/.local/share/haskell-ide-engine/hie-wrapper_lcn.log',
 
 let s:go_cmd = [
   \  'go-langserver',
   \  '-gocodecompletion',
   \ ]
-  " \ '-usebinarypkgcache=0',
-  " \ '-logfile', '~/.local/share/go-langserver/go-langserver.log',
+" \ '-usebinarypkgcache=0',
+" \ '-logfile', '~/.local/share/go-langserver/go-langserver.log',
 
 let s:bingo_cmd = [
   \   'bingo',
@@ -70,40 +70,48 @@ let s:docker_cmd = [
 let g:LanguageClient_serverCommands = {
   \   'bash':           s:bash_cmd,
   \   'sh':             s:bash_cmd,
+  \
   \   'c':              s:cquery_cmd,
   \   'cpp':            s:cquery_cmd,
+  \
   \   'dockerfile':     s:docker_cmd,
+  \
   \   'go':             s:gopls_cmd,
+  \
   \   'haskell':        s:hie_cmd,
+  \
   \   'ocaml':          s:ocaml_cmd,
   \   'reason':         s:ocaml_cmd,
+  \
   \   'javascript.jsx': s:js_ts_cmd,
   \   'typescript':     s:js_ts_cmd,
+  \
   \   'python':         s:pyls_cmd,
+  \
   \   'vim':            s:vim_cmd,
   \ }
 " \   'javascript':     s:js_ts_cmd,
-  " \   'go':             s:gopls_cmd,
-  " \   'go':             s:go_cmd,
+" \   'go':             s:gopls_cmd,
+" \   'go':             s:go_cmd,
 
 " Let ALE handle linting
 let g:LanguageClient_diagnosticsEnable = 0
-let g:LanguageClient_diagnosticsList = "Disabled"
+let g:LanguageClient_diagnosticsList = 'Disabled'
 
 " Fix for https://github.com/autozimu/LanguageClient-neovim/issues/379
 let g:LanguageClient_hasSnippetSupport = 0
 
-let g:LanguageClient_settingsPath = $cfgd . "/languageclient.json"
+let g:LanguageClient_settingsPath = $cfgd . '/languageclient.json'
 
-let g:LanguageClient_windowLogMessageLevel = "Error"
+let g:LanguageClient_windowLogMessageLevel = 'Error'
 
 " LC Settings
 let g:LanguageClient_autoStart = 1
-let g:LanguageClient_hoverPreview = "Always"
+let g:LanguageClient_hoverPreview = 'Always'
 let g:LanguageClient_useFloatingHover = 1
 let g:LanguageClient_completionPreferTextEdit = 0
 
-let g:LanguageClient_trace = "off"  " 'off' | 'messages' | 'verbose'
-let g:LanguageClient_loggingLevel = "Info" " 'Debug' | 'Info' | 'Warn' | 'Error'
-let g:LanguageClient_windowLogMessageLevel = "Error" " 'Debug' | 'Info' | 'Warn' | 'Error'
-let g:LanguageClient_loggingFile = expand("~/.local/share/nvim/language-client.log")
+let g:LanguageClient_trace = 'off'  " 'off' | 'messages' | 'verbose'
+let g:LanguageClient_loggingLevel = 'Info' " 'Debug' | 'Info' | 'Warn' | 'Error'
+let g:LanguageClient_windowLogMessageLevel = 'Error' " 'Debug' | 'Info' | 'Warn' | 'Error'
+let g:LanguageClient_loggingFile = stdpath('cache') . '/language-client.log'
