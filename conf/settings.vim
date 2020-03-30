@@ -77,4 +77,4 @@ endfunction
 call ConcealSetup
 
 let mapleader = "\<space>"
-let maplocalleader = ","
+let maplocalleader = ','

@@ -7,11 +7,11 @@ set completeopt+=preview
 
 let g:deoplete#enable_at_startup = 1
 
-call g:deoplete#custom#option("refresh_always", v:true)
-call g:deoplete#custom#option("auto_refresh_delay", 50)
-call g:deoplete#custom#option("smart_case", v:true)
+call g:deoplete#custom#option('refresh_always', v:true)
+call g:deoplete#custom#option('auto_refresh_delay', 50)
+call g:deoplete#custom#option('smart_case', v:true)
 
-call g:deoplete#custom#source("_", "converters", ['converter_remove_overlap', 'converter_truncate_abbr'])
+call g:deoplete#custom#source('_', 'converters', ['converter_remove_overlap', 'converter_truncate_abbr'])
 
 let g:deoplete#lock_buffer_name_pattern = '\*ku\*'
 

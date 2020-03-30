@@ -2,15 +2,15 @@
 """ plugin manager setup
 
 " dein paths
-let s:dein_dir = $cfgd . "/dein"
-let s:dein_plg = $cfgd . "/dein.vim"
+let s:dein_dir = $cfgd . '/dein'
+let s:dein_plg = $cfgd . '/dein.vim'
 
 " dein configuration options
 let g:dein#install_progress_type = 'none' " displayed in airline
 let g:dein#install_message_type = 'none'
 
 " add dein to rtp
-execute "set runtimepath+=" . s:dein_plg
+execute 'set runtimepath+=' . s:dein_plg
 
 " show dein progress in statusline before airline is loaded
 set statusline=%f\ %{dein#get_progress()}\ %h%w%m%r\ %=%(%l,%c%V\ %=\ %P%)
