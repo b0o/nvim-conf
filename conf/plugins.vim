@@ -177,7 +177,9 @@ if dein#load_state(s:dein_dir)
   call dein#save_state()
 endif
 
-" Merlin is a plugin for OCaml completion
-" It is managed by opam, not dein, so we manually add it to our RTP
-let s:opamshare = substitute(system('opam config var share'),'\n$','','''')
-execute "set runtimepath+=" . s:opamshare . "/merlin/vim"
+if $UID != 0
+  " Merlin is a plugin for OCaml completion
+  " It is managed by opam, not dein, so we manually add it to our RTP
+  let s:opamshare = substitute(system('opam config var share'),'\n$','','''')
+  execute 'set runtimepath+=' . s:opamshare . '/merlin/vim'
+endif
