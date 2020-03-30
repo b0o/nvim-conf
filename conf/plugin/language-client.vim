@@ -19,6 +19,8 @@ let s:cquery_cmd = ['cquery',
 
 let s:clangd_cmd = ['clangd']
 
+let s:ccls_cmd = ['ccls']
+
 let s:js_ts_cmd = [
   \ 'javascript-typescript-stdio',
   \ ]
@@ -71,8 +73,10 @@ let g:LanguageClient_serverCommands = {
   \   'bash':           s:bash_cmd,
   \   'sh':             s:bash_cmd,
   \
-  \   'c':              s:cquery_cmd,
-  \   'cpp':            s:cquery_cmd,
+  \   'c':              s:ccls_cmd,
+  \   'cpp':            s:ccls_cmd,
+  \   'cuda':           s:ccls_cmd,
+  \   'objc':           s:ccls_cmd,
   \
   \   'dockerfile':     s:docker_cmd,
   \
@@ -90,6 +94,7 @@ let g:LanguageClient_serverCommands = {
   \
   \   'vim':            s:vim_cmd,
   \ }
+" \   'c':              s:cquery_cmd,
 " \   'javascript':     s:js_ts_cmd,
 " \   'go':             s:gopls_cmd,
 " \   'go':             s:go_cmd,
