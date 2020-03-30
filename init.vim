@@ -42,4 +42,4 @@ func! s:cpath(...)
   return join([$cfgd] + a:000, '/')
 endfunc
 
-exec join(map(g:nvim_config_files, { _, c -> 'silent! source ' . s:cpath(c) }), ' | ')
+exec join(map(g:nvim_config_files, { _, c -> 'source ' . s:cpath(c) }), ' | ')
