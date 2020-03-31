@@ -33,7 +33,7 @@ let g:LCHoverEnabled = v:true
 " Controls how LCHover information is output:
 " Preview:  A preview window is used to display the output
 " Echo:     Output is echoed
-let g:LCHoverOutput = "Preview" " 'Preview' | 'Echo'
+let g:LCHoverOutput = 'Preview' " 'Preview' | 'Echo'
 
 " Controls the minimum height of the preview window when not focused:
 "   g:LCHoverResize is Never:  this value has no effect
@@ -69,7 +69,7 @@ let g:LCHoverFocusedHeightMax = 8
 "         g:LCHoverUnfocusedHeightMin and g:LCHoverUnfocusedHeightMax.
 "         When focused, the preview window height will be based on
 "         g:LCHoverFocusedHeightMin and g:LCHoverFocusedHeightMax.
-let g:LCHoverResize = "Focus" " 'Always' | 'Never' | 'Focus'
+let g:LCHoverResize = 'Focus' " 'Always' | 'Never' | 'Focus'
 
 " Controls whether the preview window will be hidden when the preview buffer is empty
 let g:LCHoverHideEmpty = v:false
@@ -87,7 +87,7 @@ let g:LCHoverHideEmpty = v:false
 " If the value of this setting is 'Always', the language server's response
 " will be wrapped in fenced code blocks and the filetype will be set to
 " 'markdown'
-let g:LCHoverMarkdown = "Always" " 'Auto' | 'Always' | 'Never'
+let g:LCHoverMarkdown = 'Always' " 'Auto' | 'Always' | 'Never'
 
 " If the preview buffer filetype is markdown, this variable controls whether
 " the window will be automatically scrolled down 1 line to avoid the code
@@ -110,26 +110,26 @@ let g:LCHoverMarkdownAutoscroll = v:true
 " Array items are arrays consisting of the vim command as the first element,
 " followed by arguments to the command as additional elements
 let g:LCHoverBufferCommands = [
-  \   [ "let", "w:airline_disabled=1"       ],
-  \   [ "let", "b:ale_enabled=0"            ],
-  \   [ "let", "b:languageclient_enabled=0" ],
+  \   [ 'let', 'w:airline_disabled=1'       ],
+  \   [ 'let', 'b:ale_enabled=0'            ],
+  \   [ 'let', 'b:languageclient_enabled=0' ],
   \ ]
 
 """ plugin state
 " TODO: use w:lc_hover_for_win to create a separate LCHover window for each
 " source window
 let s:state = {
-  \ "orig_preview_height": v:null,
-  \ "status": 0,
-  \ "cleared": v:false,
-  \ "moved": v:false,
-  \ "lastline": v:null,
-  \ "focus": v:false,
-  \ "filetype": v:null,
-  \ "bufname": v:null,
-  \ "bufnr": -1,
-  \ "serverStatus": v:false,
-  \ "locked": v:false,
+  \ 'orig_preview_height': v:null,
+  \ 'status': 0,
+  \ 'cleared': v:false,
+  \ 'moved': v:false,
+  \ 'lastline': v:null,
+  \ 'focus': v:false,
+  \ 'filetype': v:null,
+  \ 'bufname': v:null,
+  \ 'bufnr': -1,
+  \ 'serverStatus': v:false,
+  \ 'locked': v:false,
   \ }
 
 """ Public Functions
@@ -138,9 +138,9 @@ function! LCHoverEnable()
   if !g:LCHoverEnabled
     let g:LCHoverEnabled = 1
     call s:enableHover()
-    echo "LCHover enabled"
+    echo 'LCHover enabled'
   else
-    echo "LCHover is already enabled"
+    echo 'LCHover is already enabled'
   endif
 endfunction
 command! LCHoverEnable call LCHoverEnable()
@@ -149,9 +149,9 @@ function! LCHoverDisable()
   if g:LCHoverEnabled
     let g:LCHoverEnabled = 0
     call s:disableHover()
-    echo "LCHover disabled"
+    echo 'LCHover disabled'
   else
-    echo "LCHover is already disabled"
+    echo 'LCHover is already disabled'
   endif
 endfunction
 command! LCHoverDisable call LCHoverDisable()
@@ -185,12 +185,12 @@ function! s:buf_get_wins(bufnr)
 endfunction
 
 function! g:LCHover_statusline()
-  let l:statusline = "LCHover"
+  let l:statusline = 'LCHover'
   if s:state.filetype != v:null
-    let l:statusline .= "[" . s:state.filetype . "]"
+    let l:statusline .= '[' . s:state.filetype . ']'
   endif
   if s:state.locked
-    let l:statusline .= " "
+    let l:statusline .= ' '
   endif
   return l:statusline
 endfunction
@@ -250,27 +250,27 @@ function! s:LCHover_handleEvent(event)
   let l:nlines = nvim_buf_line_count(s:state.bufnr)
   let l:md = v:false
 
-  if g:LCHoverMarkdownAutoscroll && nvim_buf_get_option(s:state.bufnr, "filetype") == "markdown"
+  if g:LCHoverMarkdownAutoscroll && nvim_buf_get_option(s:state.bufnr, 'filetype') == 'markdown'
     let l:nlines -= 2
     let l:md = v:true
   endif
 
   let l:height = l:nlines
 
-  if g:LCHoverResize == "Always"
-    if index(["Focus", "Unfocus", "Update", "Clear"], a:event) != -1
+  if g:LCHoverResize == 'Always'
+    if index(['Focus', 'Unfocus', 'Update', 'Clear'], a:event) != -1
       let l:height = s:clamp(g:LCHoverFocusedHeightMin, g:LCHoverFocusedHeightMax, l:nlines)
-    elseif a:event == "Clear"
+    elseif a:event == 'Clear'
       let l:height = g:LCHoverFocusedHeightMin
     endif
-  elseif g:LCHoverResize == "Never"
+  elseif g:LCHoverResize == 'Never'
     let l:height = g:LCHoverUnfocusedHeightMax
-  elseif g:LCHoverResize == "Focus"
-    if index(["Unfocus", "Update"], a:event) != -1
+  elseif g:LCHoverResize == 'Focus'
+    if index(['Unfocus', 'Update'], a:event) != -1
       let l:height = s:clamp(g:LCHoverUnfocusedHeightMin, g:LCHoverUnfocusedHeightMax, l:nlines)
-    elseif a:event == "Clear"
+    elseif a:event == 'Clear'
       let l:height = g:LCHoverUnfocusedHeightMin
-    elseif a:event == "Focus"
+    elseif a:event == 'Focus'
       let l:height = s:clamp(g:LCHoverFocusedHeightMin, g:LCHoverFocusedHeightMax, l:nlines)
     endif
   endif
@@ -291,38 +291,38 @@ endfunction
 
 function! s:LCHover_createBuffer()
   let l:cmds = g:LCHoverBufferCommands + [
-    \   [ "setlocal",
-    \     "nomodifiable",
-    \     "statusline=%!g:LCHover_statusline()",
-    \     "filetype=markdown",
-    \     "buftype=nofile",
-    \     "noswapfile",
-    \     "nonumber",
-    \     "norelativenumber",
-    \     "nomodeline",
-    \     "conceallevel=3",
-    \     "concealcursor=niv",
-    \     "nolist",
+    \   [ 'setlocal',
+    \     'nomodifiable',
+    \     'statusline=%!g:LCHover_statusline()',
+    \     'filetype=markdown',
+    \     'buftype=nofile',
+    \     'noswapfile',
+    \     'nonumber',
+    \     'norelativenumber',
+    \     'nomodeline',
+    \     'conceallevel=3',
+    \     'concealcursor=niv',
+    \     'nolist',
     \   ],
     \ ]
   " TODO: scrolloff doesn't yet have global-local support in NeoVim.
   " See: https://github.com/neovim/neovim/pull/11854
   "      https://github.com/vim/vim/commit/375e3390078e740d3c83b0c118c50d9a920036c7
-  " \     "scrolloff=0",
+  " \     'scrolloff=0',
   let l:cmds += [
-    \   [ "let",
-    \     "w:lc_hover_for_win=" . nvim_get_current_win(),
+    \   [ 'let',
+    \     'w:lc_hover_for_win=' . nvim_get_current_win(),
     \   ],
     \ ]
-  let l:cmdStr = join(map(l:cmds, { k, c -> join(c, "\\ ") }), "|")
+  let l:cmdStr = join(map(l:cmds, { k, c -> join(c, "\\ ") }), '|')
   if s:state.filetype != v:null
-    let s:state.bufname = "__LCHover_" . s:state.filetype . "__"
+    let s:state.bufname = '__LCHover_' . s:state.filetype . '__'
   else
-    let s:state.bufname = "__LCHover__"
+    let s:state.bufname = '__LCHover__'
   endif
-  exec "silent! pedit! +" . l:cmdStr . " " . s:state.bufname
+  exec 'silent! pedit! +' . l:cmdStr . ' ' . s:state.bufname
   let s:state.bufnr = bufnr(s:state.bufname)
-  call nvim_buf_set_keymap(s:state.bufnr, "n", "<C-l>", "g:LCHoverToggleLock()", {"expr": v:true})
+  call nvim_buf_set_keymap(s:state.bufnr, 'n', '<C-l>', 'g:LCHoverToggleLock()', {'expr': v:true})
 endfunction
 
 function! g:LCHoverToggleLock()
@@ -330,10 +330,10 @@ function! g:LCHoverToggleLock()
 endfunction
 
 function! g:LCHoverCb(res)
-  let s:state.filetype = &ft
+  let s:state.filetype = &filetype
   " If we get a valid response with non-empty result, display it
-  if   type(a:res) == v:t_dict        && has_key(a:res, "result")
-  \ && type(a:res.result) == v:t_dict && has_key(a:res.result, "contents")
+  if   type(a:res) == v:t_dict        && has_key(a:res, 'result')
+  \ && type(a:res.result) == v:t_dict && has_key(a:res.result, 'contents')
     let l:msg = []
     if type(a:res.result.contents) == v:t_dict && type(a:res.result.contents.value) == v:t_string
       let l:msg += split(a:res.result.contents.value, "\n")
@@ -345,14 +345,14 @@ function! g:LCHoverCb(res)
       endfor
     endif
     if len(l:msg) > 0
-      if g:LCHoverOutput == "Preview"
+      if g:LCHoverOutput == 'Preview'
         let l:buf_wins = s:buf_get_wins(s:state.bufnr)
         if l:buf_wins.visibleWinid == -1
           call s:LCHover_createBuffer()
         endif
-        if g:LCHoverMarkdown == "Always"
-          if ! ( type(a:res.result.contents) == v:t_dict && has_key(a:res.result.contents, "kind") && a:res.result.contents.kind == "markdown" )
-            let l:msg = ['``` ' . &ft] + l:msg + ['```']
+        if g:LCHoverMarkdown == 'Always'
+          if ! ( type(a:res.result.contents) == v:t_dict && has_key(a:res.result.contents, 'kind') && a:res.result.contents.kind == 'markdown' )
+            let l:msg = ['``` ' . &filetype] + l:msg + ['```']
           endif
         endif
         call s:LCHover_set_lines(l:msg)
@@ -367,7 +367,7 @@ function! g:LCHoverCb(res)
 
   " Clear output
   if s:state.cleared == 0
-    if g:LCHoverOutput == "Preview"
+    if g:LCHoverOutput == 'Preview'
       if g:LCHoverHideEmpty
         silent! pclose
       else
@@ -376,7 +376,7 @@ function! g:LCHoverCb(res)
         endif
       endif
     else
-      echo ""
+      echo ''
     endif
     let s:state.cleared = 1
     let s:state.moved = 0
@@ -385,14 +385,14 @@ endfunction
 
 function! s:LCHover_set_lines(lines)
   if s:state.locked | return | endif
-  let l:event = "Update"
+  let l:event = 'Update'
   if len(a:lines) == 0
-    let l:event = "Clear"
+    let l:event = 'Clear'
   endif
-  call nvim_buf_set_option(s:state.bufnr, "modifiable", v:true)
+  call nvim_buf_set_option(s:state.bufnr, 'modifiable', v:true)
   call nvim_buf_set_lines(s:state.bufnr, 0, -1, v:false, a:lines)
   call s:LCHover_handleEvent(l:event)
-  call nvim_buf_set_option(s:state.bufnr, "modifiable", v:false)
+  call nvim_buf_set_option(s:state.bufnr, 'modifiable', v:false)
 endfunction
 
 function! s:LCHover() abort
@@ -403,7 +403,7 @@ function! s:LCHover() abort
       \ 'character': LSP#character(),
       \ 'handle':    v:false,
       \ }
-    return LanguageClient#Call('textDocument/hover', l:params, function("LCHoverCb"))
+    return LanguageClient#Call('textDocument/hover', l:params, function('LCHoverCb'))
 endfunction
 
 function! LCHoverAliveCb(res)
@@ -414,14 +414,14 @@ function! LCHoverAliveCb(res)
 endfunction
 
 function! s:hold()
-  let l:line = getline(line("."))
-  let l:pos = join(getpos("."), ",")
+  let l:line = getline(line('.'))
+  let l:pos = join(getpos('.'), ',')
   if s:state.moved == 1 && g:LCHoverEnabled == 1
     \ && (l:line != s:state.lastline || l:pos != s:state.lastpos)
     let s:state.lastline = l:line
     let s:state.lastpos = l:pos
     try
-      call LanguageClient#isAlive(function("LCHoverAliveCb"))
+      call LanguageClient#isAlive(function('LCHoverAliveCb'))
     catch | endtry
   endif
 endfunction
@@ -435,7 +435,7 @@ function! s:moved()
   endif
   if l:buf_wins.visibleWinid == l:currWinid " Preview window is selected
     if s:state.focus == 0 " Trigger focus event
-      call s:LCHover_handleEvent("Focus")
+      call s:LCHover_handleEvent('Focus')
       let s:state.focus = 1
     endif
     let s:state.moved = 0
@@ -443,7 +443,7 @@ function! s:moved()
   endif
 
   if s:state.focus == 1 " Trigger unfocus event
-    call s:LCHover_handleEvent("Unfocus")
+    call s:LCHover_handleEvent('Unfocus')
     let s:state.focus = 0
   endif
   let s:state.moved = 1
@@ -456,7 +456,7 @@ function! s:enableHover()
   let s:state.status = 1
   if g:LCHoverFocusedHeightMin >= 0
     let s:state.orig_preview_height = &previewheight
-    exec "set previewheight=" . g:LCHoverFocusedHeightMin
+    exec 'set previewheight=' . g:LCHoverFocusedHeightMin
   endif
   augroup LCHover_textDocumentHover
     autocmd!
@@ -471,7 +471,7 @@ function! s:disableHover()
   endif
   let s:state.status = 0
   if s:state.orig_preview_height
-    exec "set previewheight=" . s:state.orig_preview_height
+    exec 'set previewheight=' . s:state.orig_preview_height
   endif
   augroup! LCHover_textDocumentHover
 endfunction
