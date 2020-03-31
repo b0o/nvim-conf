@@ -250,27 +250,27 @@ function! s:LCHover_handleEvent(event)
   let l:nlines = nvim_buf_line_count(s:state.bufnr)
   let l:md = v:false
 
-  if g:LCHoverMarkdownAutoscroll && nvim_buf_get_option(s:state.bufnr, 'filetype') == 'markdown'
+  if g:LCHoverMarkdownAutoscroll && nvim_buf_get_option(s:state.bufnr, 'filetype') ==? 'markdown'
     let l:nlines -= 2
     let l:md = v:true
   endif
 
   let l:height = l:nlines
 
-  if g:LCHoverResize == 'Always'
+  if g:LCHoverResize ==? 'Always'
     if index(['Focus', 'Unfocus', 'Update', 'Clear'], a:event) != -1
       let l:height = s:clamp(g:LCHoverFocusedHeightMin, g:LCHoverFocusedHeightMax, l:nlines)
-    elseif a:event == 'Clear'
+    elseif a:event ==? 'Clear'
       let l:height = g:LCHoverFocusedHeightMin
     endif
-  elseif g:LCHoverResize == 'Never'
+  elseif g:LCHoverResize ==? 'Never'
     let l:height = g:LCHoverUnfocusedHeightMax
-  elseif g:LCHoverResize == 'Focus'
+  elseif g:LCHoverResize ==? 'Focus'
     if index(['Unfocus', 'Update'], a:event) != -1
       let l:height = s:clamp(g:LCHoverUnfocusedHeightMin, g:LCHoverUnfocusedHeightMax, l:nlines)
-    elseif a:event == 'Clear'
+    elseif a:event ==? 'Clear'
       let l:height = g:LCHoverUnfocusedHeightMin
-    elseif a:event == 'Focus'
+    elseif a:event ==? 'Focus'
       let l:height = s:clamp(g:LCHoverFocusedHeightMin, g:LCHoverFocusedHeightMax, l:nlines)
     endif
   endif
@@ -345,13 +345,13 @@ function! g:LCHoverCb(res)
       endfor
     endif
     if len(l:msg) > 0
-      if g:LCHoverOutput == 'Preview'
+      if g:LCHoverOutput ==? 'Preview'
         let l:buf_wins = s:buf_get_wins(s:state.bufnr)
         if l:buf_wins.visibleWinid == -1
           call s:LCHover_createBuffer()
         endif
-        if g:LCHoverMarkdown == 'Always'
-          if ! ( type(a:res.result.contents) == v:t_dict && has_key(a:res.result.contents, 'kind') && a:res.result.contents.kind == 'markdown' )
+        if g:LCHoverMarkdown ==? 'Always'
+          if ! ( type(a:res.result.contents) ==? v:t_dict && has_key(a:res.result.contents, 'kind') && a:res.result.contents.kind ==? 'markdown' )
             let l:msg = ['``` ' . &filetype] + l:msg + ['```']
           endif
         endif
@@ -367,7 +367,7 @@ function! g:LCHoverCb(res)
 
   " Clear output
   if s:state.cleared == 0
-    if g:LCHoverOutput == 'Preview'
+    if g:LCHoverOutput ==? 'Preview'
       if g:LCHoverHideEmpty
         silent! pclose
       else
