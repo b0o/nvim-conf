@@ -154,11 +154,13 @@ endfunction
 command! CloseWin call CloseWin()
 
 " reload vim configuration
-function! ReloadConfig()
-  echom "Reload configuration..."
-  source $cfg
-endfunction
-command! ReloadConfig call ReloadConfig()
+if !exists('*ReloadConfig')
+  function! ReloadConfig()
+    echom 'Reload configuration...'
+    source $cfg
+  endfunction
+  command! ReloadConfig call ReloadConfig()
+endif
 
 " interleave two same-sized contiguous blocks
 " https://vi.stackexchange.com/questions/4575/merge-blocks-by-interleaving-lines
