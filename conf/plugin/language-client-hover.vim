@@ -186,9 +186,16 @@ function! s:buf_get_wins(bufnr)
 endfunction
 
 function! g:LCHover_statusline()
-  let l:statusline = 'LCHover'
+  let l:statusline = ''
   if s:state.filetype != v:null
     let l:statusline .= '[' . s:state.filetype . ']'
+    if has_key(g:LanguageClient_serverCommands, s:state.filetype)
+      let l:lcCmd = g:LanguageClient_serverCommands[s:state.filetype]
+      if type(l:lcCmd) == v:t_list && len(l:lcCmd) > 0
+        let l:lcCmd = l:lcCmd[0]
+      endif
+      let l:statusline .= ' ' . l:lcCmd
+    endif
   endif
   if s:state.locked
     let l:statusline .= ' '
