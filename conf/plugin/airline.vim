@@ -6,6 +6,8 @@ if !exists('g:airline_symbols')
   let g:airline_symbols = {}
 endif
 
+let g:airline_skip_empty_sections = 1
+
 let g:airline_mode_map = {
     \ '__'     : '-',
     \ 'c'      : 'C',
