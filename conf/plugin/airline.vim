@@ -1,5 +1,6 @@
 """ vim-airline.vim
 " configuration for the plugin vim-airline/vim-airline
+scriptencoding utf-8
 
 if !exists('g:airline_symbols')
   let g:airline_symbols = {}
@@ -54,12 +55,12 @@ let g:airline_left_sep           = s:sym.left_sep
 let g:airline_left_alt_sep       = s:sym.left_alt_sep
 let g:airline_right_sep          = s:sym.right_sep
 let g:airline_right_alt_sep      = s:sym.right_alt_sep
-let g:airline_symbols.branch     = "" "s:sym.branch
+let g:airline_symbols.branch     = '' "s:sym.branch
 let g:airline_symbols.readonly   = s:sym.readonly
 let g:airline_symbols.crypt      = s:sym.crypt
 let g:airline_symbols.linenr     = s:sym.linenr
 let g:airline_symbols.maxlinenr  = s:sym.maxlinenr
-let g:airline_symbols.notexists  = "" "s:sym.notexists
+let g:airline_symbols.notexists  = '' "s:sym.notexists
 let g:airline_symbols.whitespace = s:sym.whitespace
 
 let g:airline#extensions#disable_rtp_load = 1
@@ -89,31 +90,31 @@ let g:airline#extensions#tabline#fnamemod          = ':t'
 
 let g:airline#extensions#hunks#non_zero_only = 1
 " let g:airline#extensions#hunks#hunk_symbols  = ['+', '~', '-']
-let s:uid = expand("$UID")
+let s:uid = expand('$UID')
 
 function! Airline_sudo()
   if s:uid == 0
-    return " "
+    return ' '
   endif
-  return ""
+  return ''
 endfunction
 
 function! Airline_file_no_term()
-  if expand("%") == ""
-    return "[New File]"
+  if expand('%') ==# ''
+    return '[New File]'
   endif
-  if match(expand("%"), "term://") == 0
-    return "Term"
+  if match(expand('%'), 'term://') == 0
+    return 'Term'
   endif
-  return fnamemodify(expand("%"), ":~:.")
+  return fnamemodify(expand('%'), ':~:.')
 endfunction
 
 let s:languageclient_syms = [s:sym.off, s:sym.on, s:sym.wait]
 
 let s:languageclient_state = 0
-let s:languageclient_state_ft = ""
+let s:languageclient_state_ft = ''
 function! s:languageclient_refresh()
-  if !exists("b:languageclient_state")
+  if !exists('b:languageclient_state')
     let b:languageclient_state = 0
   end
   if b:languageclient_state > 0
@@ -130,8 +131,8 @@ endfunction
 " TODO: This doesn't work too well with multiple LC instances per vim instance
 function! s:languageclient_fn(state, ...)
   let l:opts = {
-  \   "global":    v:false,
-  \   "exclusive": v:false,
+  \   'global':    v:false,
+  \   'exclusive': v:false,
   \ }
   if a:0 > 0
     let l:opts = extend(l:opts, a:1)
@@ -141,16 +142,16 @@ function! s:languageclient_fn(state, ...)
   if l:opts.global == v:true
     if l:opts.exclusive == v:true && (
         \    s:languageclient_state == b:languageclient_state
-        \ || s:languageclient_state_ft != &ft
+        \ || s:languageclient_state_ft != &filetype
         \ )
-      return ""
+      return ''
     end
     let l:state = s:languageclient_state
   end
   if a:state == l:state
     return s:languageclient_syms[a:state]
   endif
-  return ""
+  return ''
 endfunction
 
 function! Airline_languageclient_off()
@@ -160,24 +161,24 @@ function! Airline_languageclient_on()
   return s:languageclient_fn(1)
 endfunction
 function! Airline_languageclient_on_elsewhere()
-  return s:languageclient_fn(1, { "global": v:true, "exclusive": v:true })
+  return s:languageclient_fn(1, { 'global': v:true, 'exclusive': v:true })
 endfunction
 function! Airline_languageclient_wait()
-  return s:languageclient_fn(2, { "global": v:true })
+  return s:languageclient_fn(2, { 'global': v:true })
 endfunction
 
 function! Airline_dein_progress()
   let l:prog = dein#get_progress()
   if len(l:prog) > 0
-    let l:nbsp = " "
+    let l:nbsp = ' '
     return l:nbsp . l:prog
   endif
-  return ""
+  return ''
 endfunction
 
 function! s:hunks_fn(type, ...)
-  let l:prefix = ""
-  let l:suffix = ""
+  let l:prefix = ''
+  let l:suffix = ''
   if len(a:000) == 1
     let [l:prefix] = a:000
   elseif len(a:000) == 2
@@ -188,17 +189,17 @@ function! s:hunks_fn(type, ...)
   if l:n > 0
     return l:prefix . l:n . l:suffix
   end
-  return ""
+  return ''
 endfunction
 
 function! Airline_hunks_add()
-  return s:hunks_fn(0, " +", " ")
+  return s:hunks_fn(0, ' +', ' ')
 endfunction
 function! Airline_hunks_modify()
-  return s:hunks_fn(1, "~", " ")
+  return s:hunks_fn(1, '~', ' ')
 endfunction
 function! Airline_hunks_remove()
-  return s:hunks_fn(2, "-")
+  return s:hunks_fn(2, '-')
 endfunction
 
 function! AirlineInit()
@@ -288,7 +289,7 @@ let g:airline#extensions#default#section_truncate_width = {
 
 function! Airline_LanguageClient_state_change(state)
   let b:languageclient_state = a:state
-  let s:languageclient_state_ft = &ft
+  let s:languageclient_state_ft = &filetype
 endfunction
 
 augroup Airline_config
