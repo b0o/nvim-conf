@@ -58,6 +58,7 @@ call ale#Set('go_golangci_lint_package', 0)
 let g:ale_linters = {
   \   'go':         ['gopls', 'golangci-lint', 'revive'],
   \   'haskell':    ['hie'],
+  \   'sh':         ['shellcheck'],
   \   'c':          ['ccls'],
   \   'cpp':        ['ccls'],
   \   'cuda':       ['ccls'],
