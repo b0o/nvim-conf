@@ -3,7 +3,7 @@
 
 let g:org_heading_shade_leading_stars = 0
 
-let g:org_agenda_files = [$ORGDIR . "/index.org"]
+let g:org_agenda_files = [$ORGDIR . '/index.org']
 let g:org_todo_keywords = ['TODO', 'UNREAD', 'RESEARCH', 'INPROGRESS', 'RESEARCHING', 'WAITING', '|', 'DONE', 'READ', 'RESEARCHED', 'DELEGATED']
 let g:org_aggressive_conceal = 1
 
