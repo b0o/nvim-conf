@@ -269,3 +269,34 @@ nnoremap <silent> <leader>k :call LanguageClientHoverToggle()<CR>
 nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
 nnoremap <silent> gD :call LanguageClient#textDocument_definition({"gotoCmd": "tabedit"})<CR>
 nnoremap <silent> <leader>gr :call LanguageClient#textDocument_rename()<CR>
+
+"" vim-fugitive
+nnoremap <leader>gA  :Git add --all<cr>
+nnoremap <leader>gaa :Git add --all<cr>
+nnoremap <leader>gaf :Git add :%<cr>
+
+nnoremap <leader>gC  :Gcommit --verbose<cr>
+nnoremap <leader>gcc :Gcommit --verbose<cr>
+nnoremap <leader>gca :Gcommit --verbose --all<cr>
+
+nnoremap <leader>gL  :Glog<cr>
+nnoremap <leader>gll :Glog<cr>
+
+nnoremap <leader>gpa :Gpush --all<cr>
+nnoremap <leader>gpp :Gpush<cr>
+nnoremap <leader>gpl :Gpull<cr>
+
+nnoremap <leader>gS  :Gstatus<cr>
+nnoremap <leader>gss :Gstatus<cr>
+nnoremap <leader>gst :Gstatus<cr>
+
+nnoremap <leader>gsp :Gsplit<cr>
+
+nnoremap <leader>GG  :Git<space>
+nnoremap <leader>GA  :Git add<space>
+nnoremap <leader>GC  :Gcommit<space>
+nnoremap <leader>GF  :Gfetch<space>
+nnoremap <leader>GL  :Glog<space>
+nnoremap <leader>GPP :Gpush<space>
+nnoremap <leader>GPL :Gpull<space>
+nnoremap <leader>GS  :Gstatus<space>
