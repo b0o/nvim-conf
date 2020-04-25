@@ -220,6 +220,7 @@ vnoremap <silent> <leader>I <esc>:call Interleave()<CR>
 
 "" PasteRestore
 " paste register without overwriting with the original selection
+" use P for original behavior
 vnoremap <silent> <expr> p PasteRestore()
 
 "" Term
