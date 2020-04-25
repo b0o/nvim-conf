@@ -35,7 +35,9 @@ let g:nvim_config_files = [
   \   'conf/plugin/tcomment.vim',
   \   'conf/plugin/ultisnips.vim',
   \   'conf/plugin/vcoolor.vim',
+  \   'conf/plugin/which-key.vim',
   \ ]
+" \   'conf/lh.vim'
 " \   'conf/plugin/firenvim.vim',
 
 func! s:cpath(...)

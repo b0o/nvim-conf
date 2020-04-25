@@ -30,7 +30,8 @@ set backup
 set backupdir=$data/backup
 
 " timing
-set notimeout " don't timeout when entering multi-keystroke mappings
+" set notimeout " don't timeout when entering multi-keystroke mappings
+set timeoutlen=1000 " used by vim-which-key as timeout before showing guide popup
 
 " every 100ms nothing is typed, trigger CursorHold event
 " (which is used by plugins for re-rendering themselves)

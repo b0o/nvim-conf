@@ -202,6 +202,15 @@ nnoremap <silent> <leader>v  :vnew<cr>
 nnoremap <silent> <leader>Vv :vsplit<cr>
 
 """ Plugins/functions
+" vim-which-key
+nnoremap <silent> <leader>         :WhichKey       mapleader<cr>
+vnoremap <silent> <leader>         :WhichKeyVisual mapleader<cr>
+nnoremap <silent> <localleader>    :WhichKey       maplocalleader<cr>
+vnoremap <silent> <localleader>    :WhichKeyVisual maplocalleader<cr>
+nnoremap <silent> g                :WhichKey       'g'<cr>
+vnoremap <silent> g                :WhichKeyVisual 'g'<cr>
+nnoremap <silent> <leader><leader> :WhichKey       nr2char(getchar())<cr>
+vnoremap <silent> <leader><leader> :WhichKeyVisual nr2char(getchar())<cr>
 
 "" Interleave
 " interleave two same-sized contiguous blocks
