@@ -287,9 +287,11 @@ nnoremap <leader>gaf :Git add :%<cr>
 nnoremap <leader>gC  :Gcommit --verbose<cr>
 nnoremap <leader>gcc :Gcommit --verbose<cr>
 nnoremap <leader>gca :Gcommit --verbose --all<cr>
+nnoremap <leader>gcA :Gcommit --verbose --amend<cr>
 
-nnoremap <leader>gL  :Glog<cr>
-nnoremap <leader>gll :Glog<cr>
+nnoremap <leader>gL  :Gclog!<cr>
+nnoremap <leader>gll :Gclog!<cr>
+nnoremap <leader>glL :tabnew \| Gclog<cr>
 
 nnoremap <leader>gpa :Gpush --all<cr>
 nnoremap <leader>gpp :Gpush<cr>
