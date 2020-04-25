@@ -89,22 +89,6 @@ vnoremap <C-M-k> "dy`<"dPjgv
 " Clear search highlight and command-line on esc
 nnoremap <silent> <esc> :noh \| echo ""<cr>
 
-" Quickly edit a macro
-" See: https://github.com/mhinz/vim-galore#quickly-edit-your-macros
-function! g:EditMacro(...)
-  let l:register = v:register
-  if len(a:000) >= 1
-    let l:register = a:0
-  endif
-  let l:str = 'let @' . l:register . ' = ' . string(getreg(l:register))
-  execute "normal :" . l:str . "\<cr>"
-  " execute "nnoremap <leader>MMMMM :" . l:str . "<cr>q:"
-  " normal <leader>MMMMM
-  " nunmap <leader>MMMMM
-  " :<c-u><c-r><c-r>=<cr><c-f><left>
-endfunction
-nnoremap <expr> <leader>ma g:EditMacro("q")
-
 " Force redraw
 " See: https://github.com/mhinz/vim-galore#saner-ctrl-l
 nnoremap <leader>l :nohlsearch<cr>:diffupdate<cr>:syntax sync fromstart<cr><c-l>
