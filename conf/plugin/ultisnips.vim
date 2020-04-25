@@ -1,9 +1,9 @@
 """ ultisnips.vim
 " configuration for the plugin SirVer/ultisnips
 
-let g:UltiSnipsExpandTrigger       = '<C-e>'
-let g:UltiSnipsJumpForwardTrigger  = '<C-e>'
-let g:UltiSnipsJumpBackwardTrigger = '<C-p>'
+let g:UltiSnipsExpandTrigger       = '<Tab>'
+let g:UltiSnipsJumpForwardTrigger  = '<Tab>'
+let g:UltiSnipsJumpBackwardTrigger = '<S-Tab>'
 
 let g:UltiSnipsEditSplit = 'horizontal'
 
