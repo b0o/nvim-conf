@@ -142,10 +142,11 @@ cnoremap <M-f>  <S-Right>
 cnoremap <C-g>  <C-c>
 
 " Make c-n and c-p behave like up/down arrows, i.e. take into account the
-" beginning of the text entered in the command line when jumping
+" beginning of the text entered in the command line when jumping, but only if
+" the pop-up menu (completion menu) is not visible
 " See: https://github.com/mhinz/vim-galore#saner-command-line-history
-cnoremap <c-n>  <down>
-cnoremap <c-p>  <up>
+cnoremap <expr> <c-p> pumvisible() ? "\<C-p>" : "\<up>"
+cnoremap <expr> <c-n> pumvisible() ? "\<C-n>" : "\<down>"
 
 """ Tabs
 
