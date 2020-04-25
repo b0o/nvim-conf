@@ -353,18 +353,17 @@ endfunc
 
 " open a file in a new vim instance
 func! LaunchVimInstance(...)
-  let l:paths = join(a:000, " ")
-  " exec "silent! !nohup st -x st.nvim -c st_EDITOR zsh -c 'cd $HOME;. $HOME/.zshrc;$HOME/bin/nvim " . l:paths . "' >/dev/null 2>&1 &"
-  exec "silent! !swaymsg exec \"alacritty -e zsh -c 'cd $HOME;. $HOME/.zshrc;$HOME/bin/nvim " . l:paths . "'\""
+  let l:paths = join(a:000, ' ')
+  exec 'silent! !$TERMINAL -e /bin/env nvim ' . l:paths
 endfunc
 command! -count -nargs=* LaunchVimInstance  call LaunchVimInstance(<q-args>)
 
 " convert the current tab to a new vim instance
 func! TabToNewWindow()
   let l:quit = 0
-  let l:path = expand("%:p")
-  if l:path == ""
-    echom "No file in buffer"
+  let l:path = expand('%:p')
+  if l:path ==# ''
+    echom 'No file in buffer'
     return
   endif
   if &modified
