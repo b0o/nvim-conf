@@ -40,8 +40,19 @@ let g:nvim_config_files = [
 " \   'conf/lh.vim'
 " \   'conf/plugin/firenvim.vim',
 
-func! s:cpath(...)
+function! s:cpath(...)
   return join([$cfgd] + a:000, '/')
-endfunc
+endfunction
 
-exec join(map(g:nvim_config_files, { _, c -> 'source ' . s:cpath(c) }), ' | ')
+function! s:init()
+for l:f in g:nvim_config_files
+  let l:p = s:cpath(l:f)
+  try
+    exec 'source ' . l:p
+  catch
+    echom 'init.vim: failed loading ' . l:p
+  endtry
+endfor
+endfunction
+
+call s:init()
