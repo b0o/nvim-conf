@@ -5,7 +5,6 @@ let $cfgd  = stdpath('config')
 let $data  = stdpath('data')
 let $cache = stdpath('cache')
 
-" TODO: use dein to load/manage config files/dirs rather than doing it manually here
 let g:nvim_config_files = [
   \   'conf/plugins.vim',
   \   'conf/settings.vim',
@@ -37,8 +36,6 @@ let g:nvim_config_files = [
   \   'conf/plugin/vcoolor.vim',
   \   'conf/plugin/which-key.vim',
   \ ]
-" \   'conf/lh.vim'
-" \   'conf/plugin/firenvim.vim',
 
 function! s:cpath(...)
   return join([$cfgd] + a:000, '/')
