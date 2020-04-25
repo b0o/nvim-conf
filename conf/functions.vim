@@ -59,15 +59,17 @@ function! PluginUpdateHeadless()
 endfunction
 
 " paste register without overwriting with the original selection
-let s:restore_reg = ""
+let g:restore_reg = ''
 function! PasteRestore()
-  let s:restore_reg = @"
+  let g:restore_reg = @"
   return "p@=RestoreRegister()\<cr>"
 endfunction
 function! RestoreRegister()
-  let @" = s:restore_reg
-  if &clipboard == "unnamed"
-    let @* = s:restore_reg
+  let @" = g:restore_reg
+  if &clipboard ==# 'unnamed'
+    let @* = g:restore_reg
+  elseif &clipboard ==# 'unnamedplus'
+    let @+ = g:restore_reg
   endif
   return ''
 endfunction
