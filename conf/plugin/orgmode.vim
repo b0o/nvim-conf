@@ -4,7 +4,14 @@
 let g:org_heading_shade_leading_stars = 0
 
 let g:org_agenda_files = [$ORGDIR . '/index.org']
-let g:org_todo_keywords = ['TODO', 'UNREAD', 'RESEARCH', 'INPROGRESS', 'RESEARCHING', 'WAITING', '|', 'DONE', 'READ', 'RESEARCHED', 'DELEGATED']
+let g:org_todo_keywords = [
+  \   [ 'TODO(t)', 'INPROGRESS(T)', '|', 'DONE(d)' ],
+  \   [ 'UNREAD(u)', 'READING(U)', '|', 'READ(D)' ],
+  \   [ 'RESEARCH(r)', 'RESEARCHING(R)', '|', 'RESEARCHED(e)' ],
+  \   [ 'REPORT(b)', 'BUG(B)', '|', 'FIXED(f)' ],
+  \ ]
+
+  " \ ['TODO', 'UNREAD', 'RESEARCH', 'INPROGRESS', 'RESEARCHING', 'WAITING', '|', 'DONE', 'READ', 'RESEARCHED', 'DELEGATED']
 
 " BUG: breaks headings of depth >= 4; see https://github.com/jceb/vim-orgmode/issues/350
 " let g:org_aggressive_conceal = 1
