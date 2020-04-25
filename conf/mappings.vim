@@ -37,8 +37,8 @@ nnoremap <silent> Q :CloseWin<cr>
 " quit all
 nnoremap ZQ :confirm qall<cr>
 
-" close window (except last one)
-nnoremap <C-w> :close<cr>
+" close tab (except last one)
+nnoremap <C-w> :tabclose<cr>
 
 " save file
 noremap <C-s> :w<cr>
