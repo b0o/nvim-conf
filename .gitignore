@@ -8,4 +8,4 @@ dein.vim
 autoload/gocomplete.vim
 ftplugin/go/gocomplete.vim
 spellfile.*.add*
-pythonx/__pycache__
+pythonx/__pycache__/*
