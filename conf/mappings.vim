@@ -299,6 +299,8 @@ nnoremap <leader>gpa :Gpush --all<cr>
 nnoremap <leader>gpp :Gpush<cr>
 nnoremap <leader>gpl :Gpull<cr>
 
+nnoremap <leader>gR  :Git reset<cr>
+
 nnoremap <leader>gS  :Gstatus<cr>
 nnoremap <leader>gss :Gstatus<cr>
 nnoremap <leader>gst :Gstatus<cr>
