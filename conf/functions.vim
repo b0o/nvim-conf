@@ -31,8 +31,8 @@ function! PluginCleanHeadless()
     call PluginClean()
     echo "\n"
   catch
-    echo "an error was encountered"
-    cquit
+    echo 'an error was encountered'
+    cquit!
   endtry
 endfunction
 
@@ -42,8 +42,8 @@ function! PluginInstallHeadless()
     call dein#install()
     echo "\n"
   catch
-    echo "an error was encountered"
-    cquit
+    echo 'an error was encountered'
+    cquit!
   endtry
 endfunction
 
@@ -53,8 +53,8 @@ function! PluginUpdateHeadless()
     call dein#update()
     echo "\n"
   catch
-    echo "an error was encountered"
-    cquit
+    echo 'an error was encountered'
+    cquit!
   endtry
 endfunction
 
@@ -102,7 +102,7 @@ command! -count -nargs=* NTerm call OpenTerm(<q-args>, <count>, 0)
 " open help in full-window view. If current buffer is not empty, open a new tab
 function! HelpTab(...)
   let cmd = 'tab help %s'
-  if bufname('%') == "" && getline(1) == ""
+  if bufname('%') ==# '' && getline(1) ==# ''
     let cmd = 'help %s | only'
   endif
   exec printf(cmd, join(a:000, ' '))
@@ -112,7 +112,7 @@ command! -nargs=* -complete=help H call HelpTab(<q-args>)
 " Open or create a tab at the given tab index
 function! Tabnm(n)
   try
-    exec "tabn " . a:n
+    exec 'tabn ' . a:n
   catch
     $tabnew
   endtry
@@ -147,7 +147,7 @@ function! CloseWin()
       continue
     endif
     let l:wi = l:wis[0]
-    if has_key(l:wi.variables, "lc_hover_for_win") && l:wi.variables.lc_hover_for_win == l:curwin
+    if has_key(l:wi.variables, 'lc_hover_for_win') && l:wi.variables.lc_hover_for_win == l:curwin
       call nvim_win_close(l:w, 0)
       break
     endif
@@ -168,10 +168,10 @@ endif
 " https://vi.stackexchange.com/questions/4575/merge-blocks-by-interleaving-lines
 function! Interleave()
   " retrieve last selected area position and size
-  let start = line(".")
+  let start = line('.')
   execute "normal! gvo\<esc>"
-  let end = line(".")
-  let [start, end] = sort([start, end], "n")
+  let end = line('.')
+  let [start, end] = sort([start, end], 'n')
   let size = (end - start + 1) / 2
   " and interleave!
   for i in range(size - 1)
@@ -197,7 +197,7 @@ function! ToggleConcealCursor()
   if !has('conceal')
     return
   endif
-  if &concealcursor != ""
+  if &concealcursor !=# ''
     set concealcursor=
   else
     set concealcursor=n
@@ -209,31 +209,31 @@ endfunction
 " Use substitute() instead of printf() to handle '%%s' modeline in LaTeX
 " files.
 function! AppendModeline()
-  let l:modeline = printf(" vim: set ts=%d sw=%d tw=%d %set :",
+  let l:modeline = printf(' vim: set ts=%d sw=%d tw=%d %set :',
         \ &tabstop, &shiftwidth, &textwidth, &expandtab ? '' : 'no')
-  let l:modeline = substitute(&commentstring, "%s", l:modeline, "")
-  call append(line("$"), l:modeline)
+  let l:modeline = substitute(&commentstring, '%s', l:modeline, '')
+  call append(line('$'), l:modeline)
 endfunction
 
 " titlestring servername helper
 function! TSServername()
   let n = matchstr(v:servername, '\c\(\/.*\/\)\zs\(.*\)\ze')
-  return substitute(n, ".*__", "", "")
+  return substitute(n, '.*__', '', '')
 endfunction
 
 " titlestring modified helper
 function! TSModified()
-  return &modified ? "[*]" : ""
+  return &modified ? '[*]' : ''
 endfunction
 
 " titlestring tabs helper
 function! TSTabs()
-  let l:tabs = split(execute("silent tabs"), "\n")
+  let l:tabs = split(execute('silent tabs'), "\n")
   call filter(l:tabs, {idx, val -> match(val, "^Tab page \\d*$") == 0})
   if len(l:tabs) > 1
-    return "[+" . (len(l:tabs) - 1) . "]"
+    return '[+' . (len(l:tabs) - 1) . ']'
   endif
-  return ""
+  return ''
 endfunction
 
 " Jump to first scratch window visible in current tab, or create it.
@@ -243,7 +243,7 @@ function! GoScratch()
   let done = 0
   for i in range(1, winnr('$'))
     execute i . 'wincmd w'
-    if &buftype == 'nofile'
+    if &buftype ==? 'nofile'
       let done = 1
       break
     endif
@@ -266,7 +266,7 @@ endfunction
 " Append line numbers for lines in match to given list.
 function! s:MatchLineNums(numlist, match)
   let newlinecount = len(substitute(a:match, '\n\@!.', '', 'g'))
-  if a:match =~ "\n$"
+  if a:match =~# "\n$"
     let newlinecount -= 1  " do not copy next line after newline
   endif
   call extend(a:numlist, range(line('.'), line('.') + newlinecount))
@@ -321,7 +321,7 @@ function! CopyMatches(bang, line1, line2, args, wholelines)
   let hits = GetMatches(a:line1, a:line2, pattern, a:wholelines, a:bang)
   let msg = 'No non-empty matches'
   if !empty(hits)
-    if reg == '-'
+    if reg ==# '-'
       call GoScratch()
       normal! G0m'
       silent put =hits
