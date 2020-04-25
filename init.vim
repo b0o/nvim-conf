@@ -31,6 +31,7 @@ let g:nvim_config_files = [
   \   'conf/plugin/move.vim',
   \   'conf/plugin/nerdtree.vim',
   \   'conf/plugin/orgmode.vim',
+  \   'conf/plugin/sandwich.vim',
   \   'conf/plugin/tagbar.vim',
   \   'conf/plugin/tcomment.vim',
   \   'conf/plugin/ultisnips.vim',
