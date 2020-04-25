@@ -13,7 +13,6 @@ let g:nvim_config_files = [
   \   'conf/mappings.vim',
   \   'conf/auto.vim',
   \   'conf/interface.vim',
-  \   'conf/lh.vim',
   \   'conf/plugin/airline.vim',
   \   'conf/plugin/ale.vim',
   \   'conf/plugin/clap.vim',
