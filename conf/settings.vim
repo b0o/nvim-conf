@@ -59,9 +59,12 @@ set splitbelow " default horizontal splits to open on bottom
 " command mode behavior
 set wildchar=<Tab>
 
+" folding
+set foldmethod=marker
+set foldlevel=1
+
 " misc
 set modeline " always parse modelines when loading files
-set nofoldenable " disable folding by default
 
 function! ConcealSetup()
   if !has('conceal')
