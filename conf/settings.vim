@@ -58,7 +58,6 @@ set splitbelow " default horizontal splits to open on bottom
 
 " command mode behavior
 set wildchar=<Tab>
-set wildmode=list:longest,list:full
 
 " misc
 set modeline " always parse modelines when loading files
