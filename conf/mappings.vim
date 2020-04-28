@@ -115,6 +115,10 @@ inoremap <M-b>  <S-Left>
 inoremap <M-f>  <S-Right>
 inoremap <M-d>  <C-o>de
 
+" overload tab key to also perform next/prev in popup menus
+inoremap <silent> <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <silent> <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+
 """ Command mode
 " emacs-style movements
 cnoremap <C-a>  <Home>
