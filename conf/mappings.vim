@@ -80,11 +80,11 @@ nnoremap <M-P> i <esc>P
 
 " Duplicate line downwards/upwards
 nnoremap <C-M-j> "dY"dp
-nnoremap <C-M-k> "dY"dPj
+nnoremap <C-M-k> "dY"dP
 
 " Duplicate selection downwards/upwards
-vnoremap <C-M-j> "dy`>"dpgv
-vnoremap <C-M-k> "dy`<"dPjgv
+vnoremap <C-M-j> "dy`<"dPjgv
+vnoremap <C-M-k> "dy`>"dpgv
 
 " Clear search highlight and command-line on esc
 nnoremap <silent> <esc> :noh \| echo ""<cr>
