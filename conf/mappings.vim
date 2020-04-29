@@ -263,10 +263,6 @@ nnoremap <leader>aE :ALEToggle<cr>:let g:ale_enabled<cr>
 nnoremap <leader>as :let g:ale_fix_on_save=!g:ale_fix_on_save<cr>:let g:ale_fix_on_save<cr>
 nnoremap <leader>aS :let g:ale_fix_on_save=0<cr>:let g:ale_fix_on_save<cr>
 
-"" Autocompletion
-imap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
-imap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-
 "" LanguageClient
 nnoremap <silent> <leader>k :call LanguageClientHoverToggle()<CR>
 nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
