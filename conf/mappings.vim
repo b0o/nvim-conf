@@ -305,74 +305,75 @@ nnoremap <leader>GPL :Gpull<space>
 nnoremap <leader>GS  :Gstatus<space>
 
 "" vim-clap
-nnoremap <silent> <localleader>C     :Clap<cr>
-nnoremap <silent> <localleader><localleader> :Clap<cr>
+" map <C-,> to \x1b[21;5~ (F34) in your terminal emulator
+nnoremap <silent> <F34>C     :Clap<cr>
+nnoremap <silent> <F34><F34> :Clap<cr>
 
-nnoremap <silent> <localleader>X     :call clap#floating_win#close()<cr>
-nnoremap <silent> <localleader>xx    :call clap#floating_win#close()<cr>
+nnoremap <silent> <F34>X     :call clap#floating_win#close()<cr>
+nnoremap <silent> <F34>xx    :call clap#floating_win#close()<cr>
 
-nnoremap <silent> <localleader>B     :Clap buffers<cr>
-nnoremap <silent> <localleader>bb    :Clap buffers<cr>
-nnoremap <silent> <localleader>bgc   :Clap bcommits<cr>
-nnoremap <silent> <localleader>bu    :Clap buffers<cr>
-nnoremap <silent> <localleader>bl    :Clap blines<cr>
+nnoremap <silent> <F34>B     :Clap buffers<cr>
+nnoremap <silent> <F34>bb    :Clap buffers<cr>
+nnoremap <silent> <F34>bgc   :Clap bcommits<cr>
+nnoremap <silent> <F34>bu    :Clap buffers<cr>
+nnoremap <silent> <F34>bl    :Clap blines<cr>
 
-nnoremap <silent> <localleader>cc    :Clap command<cr>
-nnoremap <silent> <localleader>cmd   :Clap command<cr>
-nnoremap <silent> <localleader>col   :Clap colors<cr>
-nnoremap <silent> <localleader>ch    :Clap command_history<cr>
-nnoremap <silent> <localleader>h     :Clap command_history<cr>
+nnoremap <silent> <F34>cc    :Clap command<cr>
+nnoremap <silent> <F34>cmd   :Clap command<cr>
+nnoremap <silent> <F34>col   :Clap colors<cr>
+nnoremap <silent> <F34>ch    :Clap command_history<cr>
+nnoremap <silent> <F34>h     :Clap command_history<cr>
 
-nnoremap <silent> <localleader>F     :Clap files<cr>
-nnoremap <silent> <localleader>ff    :Clap files<cr>
-nnoremap <silent> <localleader>fi    :Clap files<cr>
-nnoremap <silent> <localleader>ft    :Clap filetypes<cr>
+nnoremap <silent> <F34>F     :Clap files<cr>
+nnoremap <silent> <F34>ff    :Clap files<cr>
+nnoremap <silent> <F34>fi    :Clap files<cr>
+nnoremap <silent> <F34>ft    :Clap filetypes<cr>
 
-nnoremap <silent> <localleader>G     :Clap grep<cr>
-nnoremap <silent> <localleader>gg    :Clap grep<cr>
-nnoremap <silent> <localleader>gr    :Clap grep<cr>
-nnoremap <silent> <localleader>gc    :Clap commits<cr>
-nnoremap <silent> <localleader>gf    :Clap git_files<cr>
-nnoremap <silent> <localleader>gd    :Clap git_diff_files<cr>
+nnoremap <silent> <F34>G     :Clap grep<cr>
+nnoremap <silent> <F34>gg    :Clap grep<cr>
+nnoremap <silent> <F34>gr    :Clap grep<cr>
+nnoremap <silent> <F34>gc    :Clap commits<cr>
+nnoremap <silent> <F34>gf    :Clap git_files<cr>
+nnoremap <silent> <F34>gd    :Clap git_diff_files<cr>
 
-nnoremap <silent> <localleader>H     :Clap help_tags<cr>
-nnoremap <silent> <localleader>hh    :Clap help_tags<cr>
-nnoremap <silent> <localleader>hi    :Clap history<cr>
-nnoremap <silent> <localleader>hs    :Clap search_history<cr>
-nnoremap <silent> <localleader>h/    :Clap search_history<cr>
-nnoremap <silent> <localleader>/     :Clap search_history<cr>
+nnoremap <silent> <F34>H     :Clap help_tags<cr>
+nnoremap <silent> <F34>hh    :Clap help_tags<cr>
+nnoremap <silent> <F34>hi    :Clap history<cr>
+nnoremap <silent> <F34>hs    :Clap search_history<cr>
+nnoremap <silent> <F34>h/    :Clap search_history<cr>
+nnoremap <silent> <F34>/     :Clap search_history<cr>
 
-nnoremap <silent> <localleader>J     :Clap jumps<cr>
-nnoremap <silent> <localleader>jj    :Clap jumps<cr>
-nnoremap <silent> <localleader>ju    :Clap jumps<cr>
+nnoremap <silent> <F34>J     :Clap jumps<cr>
+nnoremap <silent> <F34>jj    :Clap jumps<cr>
+nnoremap <silent> <F34>ju    :Clap jumps<cr>
 
-nnoremap <silent> <localleader>L     :Clap lines<cr>
-nnoremap <silent> <localleader>li    :Clap lines<cr>
-nnoremap <silent> <localleader>lo    :Clap loclist<cr>
-nnoremap <silent> <localleader>ll    :Clap loclist<cr>
+nnoremap <silent> <F34>L     :Clap lines<cr>
+nnoremap <silent> <F34>li    :Clap lines<cr>
+nnoremap <silent> <F34>lo    :Clap loclist<cr>
+nnoremap <silent> <F34>ll    :Clap loclist<cr>
 
-nnoremap <silent> <localleader>Q     :Clap quickfix<cr>
-nnoremap <silent> <localleader>qq    :Clap quickfix<cr>
-nnoremap <silent> <localleader>qi    :Clap quickfix<cr>
-nnoremap <silent> <localleader>qf    :Clap quickfix<cr>
+nnoremap <silent> <F34>Q     :Clap quickfix<cr>
+nnoremap <silent> <F34>qq    :Clap quickfix<cr>
+nnoremap <silent> <F34>qi    :Clap quickfix<cr>
+nnoremap <silent> <F34>qf    :Clap quickfix<cr>
 
-nnoremap <silent> <localleader>M     :Clap maps<cr>
-nnoremap <silent> <localleader>mm    :Clap maps<cr>
-nnoremap <silent> <localleader>mr    :Clap marks<cr>
-nnoremap <silent> <localleader>mk    :Clap marks<cr>
+nnoremap <silent> <F34>M     :Clap maps<cr>
+nnoremap <silent> <F34>mm    :Clap maps<cr>
+nnoremap <silent> <F34>mr    :Clap marks<cr>
+nnoremap <silent> <F34>mk    :Clap marks<cr>
 
-nnoremap <silent> <localleader>P     :Clap providers<cr>
-nnoremap <silent> <localleader>pp    :Clap providers<cr>
-nnoremap <silent> <localleader>pr    :Clap providers<cr>
+nnoremap <silent> <F34>P     :Clap providers<cr>
+nnoremap <silent> <F34>pp    :Clap providers<cr>
+nnoremap <silent> <F34>pr    :Clap providers<cr>
 
-nnoremap <silent> <localleader>R     :Clap registers<cr>
-nnoremap <silent> <localleader>rr    :Clap registers<cr>
-nnoremap <silent> <localleader>re    :Clap registers<cr>
+nnoremap <silent> <F34>R     :Clap registers<cr>
+nnoremap <silent> <F34>rr    :Clap registers<cr>
+nnoremap <silent> <F34>re    :Clap registers<cr>
 
-nnoremap <silent> <localleader>T     :Clap tags<cr>
-nnoremap <silent> <localleader>tt    :Clap tags<cr>
-nnoremap <silent> <localleader>ta    :Clap tags<cr>
+nnoremap <silent> <F34>T     :Clap tags<cr>
+nnoremap <silent> <F34>tt    :Clap tags<cr>
+nnoremap <silent> <F34>ta    :Clap tags<cr>
 
-nnoremap <silent> <localleader>W     :Clap windows<cr>
-nnoremap <silent> <localleader>ww    :Clap windows<cr>
-nnoremap <silent> <localleader>wi    :Clap windows<cr>
+nnoremap <silent> <F34>W     :Clap windows<cr>
+nnoremap <silent> <F34>ww    :Clap windows<cr>
+nnoremap <silent> <F34>wi    :Clap windows<cr>
