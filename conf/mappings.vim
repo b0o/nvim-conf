@@ -60,8 +60,8 @@ nnoremap <M-O> maDO<esc>p`a
 vnoremap <leader>y  "+y
 nnoremap <leader>Y  "+yg_
 nnoremap <leader>yy "+yy
-vnoremap <C-y>  "+y
-nnoremap <C-y>  "+y
+nnoremap <expr> <C-y> pumvisible() ? "\<C-y>" : '"+yy'
+vnoremap <expr> <C-y> pumvisible() ? "\<C-y>" : '"+y'
 
 " yank path of current file to system clipboard
 nnoremap <silent> <leader>yp :let @+ = expand("%:p")<cr>:echom "Copied " . @+<cr>
