@@ -118,6 +118,12 @@ function! Tabnm(n)
   endtry
 endfunction
 
+function! CloseBufWins(bufid)
+  for l:w in win_findbuf(a:bufid)
+    call nvim_win_close(l:w, 0)
+  endfor
+endfunction
+
 " close current window:
 "   | active window is loclist  -> lclose
 "   | active window is quickfix -> cclose
