@@ -152,6 +152,7 @@ if dein#load_state(s:dein_dir)
   call dein#add('inkarkat/vim-SyntaxRange')
   call dein#add('rbong/vim-buffest')
   call dein#add('liuchengxu/vim-which-key')
+  call dein#add('junegunn/fzf.vim')
   " call dein#add('glacambre/firenvim', { 'hook_post_update': 'call firenvim#install(0)' })
 
   " file management

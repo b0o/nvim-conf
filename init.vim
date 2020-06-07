@@ -17,6 +17,7 @@ let g:nvim_config_files = [
   \   'conf/plugin/clap.vim',
   \   'conf/plugin/denite.vim',
   \   'conf/plugin/deoplete.vim',
+  \   'conf/plugin/fzf.vim',
   \   'conf/plugin/gitgutter.vim',
   \   'conf/plugin/go.vim',
   \   'conf/plugin/goyo.vim',
