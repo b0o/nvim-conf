@@ -8,7 +8,7 @@ let g:clap_search_box_border_style = 'nil'
 
 let g:clap_insert_mode_only = 1
 let g:clap_open_action = {}
-let g:clap_open_action['F36']    = 'tab split' " map <C-Cr> to \x1b[23;5~ (F36) in your terminal emulator
+let g:clap_open_action['F12']    = 'tab split' " map <C-Cr> to ^[[24~ (F12) in your terminal emulator
 let g:clap_open_action['ctrl-t'] = 'tab split'
 let g:clap_open_action['ctrl-x'] = 'split'
 let g:clap_open_action['ctrl-s'] = 'split'
