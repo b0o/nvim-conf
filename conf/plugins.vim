@@ -123,6 +123,9 @@ if dein#load_state(s:dein_dir)
   call dein#add('tpope/vim-markdown')
   " call dein#add('plasticboy/vim-markdown')
 
+  " graphviz (dot)
+  call dein#add('liuchengxu/graphviz.vim')
+
   " NGINX
   call dein#add('chr4/nginx.vim')
 
