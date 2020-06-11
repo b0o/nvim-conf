@@ -103,31 +103,41 @@ noremap gF <C-w>gf
 nnoremap <leader>W :call TabToNewWindow()<cr>
 
 """ Insert Mode
-" emacs-style movements
+" emacs-style motion & killing
 inoremap <C-a>  <Home>
 inoremap <C-e>  <End>
 inoremap <C-b>  <Left>
 inoremap <C-f>  <Right>
-inoremap <c-n>  <Down>
-inoremap <c-p>  <Up>
-inoremap <C-d>  <Delete>
+inoremap <C-n>  <Down>
 inoremap <M-b>  <S-Left>
 inoremap <M-f>  <S-Right>
 inoremap <M-d>  <C-o>de
+inoremap <C-k>  <C-o>D
+inoremap <C-p>  <Up>
+inoremap <C-d>  <Delete>
+
+" restore support for digraphs to M-k
+inoremap <M-k>  <C-k>
 
 " overload tab key to also perform next/prev in popup menus
 inoremap <silent> <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <silent> <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
 """ Command mode
-" emacs-style movements
-cnoremap <C-a>  <Home>
-cnoremap <C-b>  <Left>
-cnoremap <C-d>  <Delete>
-cnoremap <C-f>  <Right>
-cnoremap <M-b>  <S-Left>
-cnoremap <M-f>  <S-Right>
-cnoremap <C-g>  <C-c>
+" emacs-style motion & killing
+cnoremap         <C-a> <Home>
+cnoremap         <C-b> <Left>
+cnoremap         <C-d> <Delete>
+cnoremap         <C-f> <Right>
+cnoremap         <C-g> <C-c>
+cnoremap         <C-k> <C-\>e(" ".getcmdline())[:getcmdpos()-1][1:]<Cr>
+cnoremap         <M-f> <C-\>eCmdlineMoveWord( 1, 0)<Cr>
+cnoremap         <M-b> <C-\>eCmdlineMoveWord(-1, 0)<Cr>
+cnoremap         <M-d> <C-\>eCmdlineMoveWord( 1, 1)<Cr>
+cnoremap <M-Backspace> <C-\>eCmdlineMoveWord(-1, 1)<Cr>
+
+" restore support for digraphs to M-k
+cnoremap <M-k>  <C-k>
 
 " Make c-n and c-p behave like up/down arrows, i.e. take into account the
 " beginning of the text entered in the command line when jumping, but only if
