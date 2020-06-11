@@ -1,5 +1,4 @@
 """ plugins.vim
-""" plugin manager setup
 
 " dein paths
 let s:dein_dir = $cfgd . '/dein'
@@ -52,12 +51,14 @@ if dein#load_state(s:dein_dir)
   call dein#add('AndrewRadev/splitjoin.vim')
   call dein#add('matze/vim-move')
   call dein#add('andymass/vim-matchup')
+  call dein#add('b0o/vim-shot-f')
 
-  " Style
+  " Code Style
   call dein#add('editorconfig/editorconfig-vim')
 
   " Git
   call dein#add('tpope/vim-fugitive')
+  call dein#add('tpope/vim-rhubarb')
   call dein#add('airblade/vim-gitgutter')
   call dein#add('christoomey/vim-conflicted')
 
@@ -66,6 +67,13 @@ if dein#load_state(s:dein_dir)
   call dein#add('Shougo/deoplete.nvim')
   call dein#add('Shougo/neco-syntax')
   call dein#add('Shougo/neco-vim')
+  call dein#add('deoplete-plugins/deoplete-zsh')
+  call dein#add('SevereOverfl0w/deoplete-github')
+  call dein#add('fszymanski/deoplete-emoji')
+  call dein#add('autozimu/LanguageClient-neovim', {
+        \ 'rev': 'next',
+        \ 'build': 'bash -c "./install.sh > /tmp/LanguageClient-neovim_build.log 2> /tmp/LanguageClient-neovim_build.err.log"',
+        \ })
 
   " Snippets
   call dein#add('SirVer/ultisnips')
@@ -76,11 +84,7 @@ if dein#load_state(s:dein_dir)
   call dein#add('majutsushi/tagbar')
   call dein#add('liuchengxu/vista.vim')
 
-  " multi-language completions
-  call dein#add('autozimu/LanguageClient-neovim', {
-    \ 'rev': 'next',
-    \ 'build': 'bash -c "./install.sh > /tmp/LanguageClient-neovim_build.log 2> /tmp/LanguageClient-neovim_build.err.log"',
-    \ })
+  """ multi-language completions
 
   " JavaScript
   call dein#add('pangloss/vim-javascript')
@@ -158,27 +162,29 @@ if dein#load_state(s:dein_dir)
   call dein#add('pechorin/any-jump.vim')
   call dein#add('inkarkat/vim-SyntaxRange')
   call dein#add('rbong/vim-buffest')
+  call dein#add('junegunn/vim-peekaboo')
   call dein#add('liuchengxu/vim-which-key')
+  call dein#add('farmergreg/vim-lastplace')
   call dein#add('junegunn/fzf.vim')
+
   " call dein#add('glacambre/firenvim', { 'hook_post_update': 'call firenvim#install(0)' })
 
-  " file management
+  " File management
   call dein#add('preservim/nerdtree')
   call dein#add('jistr/vim-nerdtree-tabs')
   call dein#add('Xuyuanp/nerdtree-git-plugin')
 
-  " Themes
-  call dein#add('arcticicestudio/nord-vim')
-  call dein#add('chriskempson/base16-vim')
-
   " Vim Plugin Development
   call dein#add('tpope/vim-scriptease')
   call dein#add('junegunn/vader.vim')
+  call dein#add('gerw/vim-HiLinkTrace')
 
   " Local plugins
   call dein#local('~/.config/nvim/bundle', {}, [
-    \ 'dense-analysis/ale'
+    \ 'b0o/vim-man'
     \ ])
+  " \ 'dense-analysis/ale',
+  " \ 'deris/vim-shot-f',
   " \ 'b0o/jupyterkernel.vim'
   " \ 'b0o/builder.vim',
   " \ 'b0o/quicktemplate.vim',
