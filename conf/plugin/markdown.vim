@@ -20,4 +20,5 @@ let g:markdown_fenced_languages = [
   \   'golang=go',
   \   'ocaml',
   \   'man',
+  \   'dot',
   \ ]
