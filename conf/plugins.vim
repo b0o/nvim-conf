@@ -62,7 +62,7 @@ if dein#load_state(s:dein_dir)
   call dein#add('christoomey/vim-conflicted')
 
   " Auto Completion, linting, etc
-  " call dein#add('w0rp/ale')
+  call dein#add('dense-analysis/ale')
   call dein#add('Shougo/deoplete.nvim')
   call dein#add('Shougo/neco-syntax')
   call dein#add('Shougo/neco-vim')
