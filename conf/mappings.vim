@@ -151,6 +151,8 @@ cnoremap <expr> <c-n> pumvisible() ? "\<C-n>" : "\<down>"
 " Navigate left/right through tabs
 noremap <silent> <M-'> :tabn<cr>
 noremap <silent> <M-;> :tabp<cr>
+tnoremap <silent> <M-'> <C-\><C-n>:tabn<cr>
+tnoremap <silent> <M-;> <C-\><C-n>:tabp<cr>
 
 " Rearrange tabs
 noremap <silent> <M-"> :+tabm<cr>
