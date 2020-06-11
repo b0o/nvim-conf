@@ -1,9 +1,12 @@
 """ mappings.vim
-""" mappings for various modes
 
 " Disable C-z suspend
 map  <C-z> <Nop>
 map! <C-z> <Nop>
+
+" Disable C-c warning
+map  <C-c> <Nop>
+map! <C-c> <Nop>
 
 """ General
 
@@ -159,8 +162,8 @@ noremap <silent> <M-"> :+tabm<cr>
 noremap <silent> <M-:> :-tabm<cr>
 
 " Open/close tabs
-noremap <silent> <M-cr> :tabnew<cr>
-noremap <silent> <M-backspace> :tabclose<cr>
+noremap <silent> <M-Cr> :tabnew<cr>
+noremap <silent> <M-Backspace> :tabclose<cr>
 
 " Navigation through tabs by index
 noremap <silent> <M-1> :call Tabnm(1)<cr>
@@ -212,10 +215,12 @@ nnoremap <silent> g                :WhichKey       'g'<cr>
 vnoremap <silent> g                :WhichKeyVisual 'g'<cr>
 nnoremap <silent> <leader><leader> :WhichKey       nr2char(getchar())<cr>
 vnoremap <silent> <leader><leader> :WhichKeyVisual nr2char(getchar())<cr>
+nnoremap <silent> <F34>            :WhichKey       '<F34>'<cr>
 
 " need to 'nore' map certain builtin 'g' bindings, otherwise WhichKey doesn't
 " pass them through to vim
 nnoremap gq gq
+nnoremap gg gg
 
 "" Interleave
 " interleave two same-sized contiguous blocks
@@ -237,9 +242,10 @@ tnoremap <C-S-n> <C-\><C-n>
 " close terminal window
 tnoremap <C-S-q> <C-\><C-n>:q<cr>
 
-"" Conceal
-" nnoremap <silent> <leader>cl :call ToggleConcealLevel()<cr>
-" nnoremap <silent> <leader>cc :call ToggleConcealCursor()<cr>
+tnoremap <C-n> <C-n>
+tnoremap <C-p> <C-p>
+tnoremap <M-n> <M-n>
+tnoremap <M-p> <M-p>
 
 "" Modeline
 nnoremap <silent> <Leader>ml :call AppendModeline()<CR>
@@ -251,6 +257,7 @@ nnoremap <silent> <Leader>ml :call AppendModeline()<CR>
 " map <leader>t :GhcModType<return><esc>
 
 "" vim-go
+" TODO: only apply these mappings in go files
 nnoremap <silent> <leader>gd :GoDef()<Cr>
 nnoremap <silent> <leader>gf :GoFmt<Cr>
 nnoremap          <leader>gi :GoImport<space>
@@ -278,6 +285,7 @@ nnoremap <leader>aS :let g:ale_fix_on_save=0<cr>:let g:ale_fix_on_save<cr>
 "" LanguageClient
 nnoremap <silent> <leader>k :call LanguageClientHoverToggle()<CR>
 nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
+nnoremap <silent> gr :call LanguageClient#textDocument_references()<CR>
 nnoremap <silent> gD :call LanguageClient#textDocument_definition({"gotoCmd": "tabedit"})<CR>
 nnoremap <silent> <leader>gr :call LanguageClient#textDocument_rename()<CR>
 
@@ -315,6 +323,7 @@ nnoremap <leader>GL  :Glog<space>
 nnoremap <leader>GPP :Gpush<space>
 nnoremap <leader>GPL :Gpull<space>
 nnoremap <leader>GS  :Gstatus<space>
+" TODO: <leader> gX / gxx -> close all fugitive windows
 
 "" vim-clap
 " map <C-,> to \x1b[21;5~ (F34) in your terminal emulator
@@ -339,6 +348,7 @@ nnoremap <silent> <F34>h     :Clap command_history<cr>
 nnoremap <silent> <F34>F     :Clap files<cr>
 nnoremap <silent> <F34>ff    :Clap files<cr>
 nnoremap <silent> <F34>fi    :Clap files<cr>
+nnoremap <silent> <F34><c-f> :Clap files<cr>
 nnoremap <silent> <F34>ft    :Clap filetypes<cr>
 
 nnoremap <silent> <F34>G     :Clap grep<cr>
@@ -389,3 +399,19 @@ nnoremap <silent> <F34>ta    :Clap tags<cr>
 nnoremap <silent> <F34>W     :Clap windows<cr>
 nnoremap <silent> <F34>ww    :Clap windows<cr>
 nnoremap <silent> <F34>wi    :Clap windows<cr>
+
+"" fzf
+nnoremap <silent> <C-f><C-f> :Files<cr>
+nnoremap <silent> <C-f>f     :Files<cr>
+nnoremap <silent> <C-f><C-g> :GFiles<cr>
+nnoremap <silent> <C-f>gg    :GFiles<cr>
+nnoremap <silent> <C-f>gf    :GFiles<cr>
+nnoremap <silent> <C-f><C-b> :Buffers<cr>
+nnoremap <silent> <C-f>b     :Buffers<cr>
+nnoremap <silent> <C-f><C-a> :Ag<cr>
+nnoremap <silent> <C-f>a     :Ag<cr>
+nnoremap <silent> <C-f>gc    :Commits<cr>
+nnoremap <silent> <C-f><C-c> :Commands<cr>
+nnoremap <silent> <C-f>c     :Commands<cr>
+nnoremap <silent> <C-f><C-m> :Maps<cr>
+nnoremap <silent> <C-f>m     :Maps<cr>
