@@ -17,6 +17,7 @@ set hlsearch " keep matches highlighted after searching
 set incsearch " show matches while typing
 set magic " change set of special search characters
 set inccommand=nosplit " when typing a :s/foo/bar/g command, show live preview
+set shortmess-=S " show search count message
 
 " indentation
 set tabstop=2
