@@ -1,5 +1,5 @@
-""" vim-clap.vim
-""" configuration for the plugin liuchengxu/vim-clap
+""" clap.vim
+" configuration for the plugin liuchengxu/vim-clap
 
 let g:clap_layout = { 'relative': 'editor' }
 
@@ -15,8 +15,9 @@ let g:clap_open_action['ctrl-s'] = 'split'
 let g:clap_open_action['ctrl-v'] = 'vsplit'
 
 function! s:clap_user_maps()
-  imap <silent> <buffer> <nowait> <c-n> <c-j>
-  imap <silent> <buffer> <nowait> <c-p> <c-k>
+  imap <silent> <buffer> <nowait> <C-n> <C-j>
+  imap <silent> <buffer> <nowait> <C-p> <C-k>
+  imap <silent> <buffer> <nowait> <C-g> <C-c>
 endfunction
 
 augroup clap_user_maps
