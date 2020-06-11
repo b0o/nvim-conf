@@ -1,3 +1,4 @@
+scriptencoding utf-8
 syntax enable
 
 set title " set and update terminal title
@@ -34,25 +35,25 @@ set termguicolors " enable true color mode for terminals that support it
 set guifont=InputMono\ Nerd\ Font:h15
 let g:Powerline_symbols = 'fancy'
 
-" use g:colorscheme as the colorscheme name, defaulting to nord
+" use g:colorscheme as the colorscheme name, defaulting to lavi
 " useful cases when launching an instance of vim from within a specifically
 " themed terminal window via command-line arguments
-if exists("g:colorscheme")
+if exists('g:colorscheme')
   let s:colorscheme = g:colorscheme
-elseif !exists("g:colors_name") || g:colors_name == "default" || g:colors_name == "unknown"
-  let s:colorscheme = "lavi"
+elseif !exists('g:colors_name') || g:colors_name ==? 'default' || g:colors_name ==? 'unknown'
+  let s:colorscheme = 'lavi'
 endif
 
 " set/reset custom colorscheme settings
 function! Setcolorscheme()
   " set background=dark
-  exec "set titlestring=" . g:vim_titlestring
-  if exists("s:colorscheme")
-    let g:airline_theme = substitute(s:colorscheme, "-", "_", "")
+  exec 'set titlestring=' . g:vim_titlestring
+  if exists('s:colorscheme')
+    let g:airline_theme = substitute(s:colorscheme, '-', '_', '')
     try
-      exec "colorscheme " . s:colorscheme
+      exec 'colorscheme ' . s:colorscheme
     catch
-      echom "Error: Unable to set colorscheme " . s:colorscheme . "\n"
+      echom 'Error: Unable to set colorscheme ' . s:colorscheme . "\n"
     endtry
   endif
   redraw
@@ -60,8 +61,8 @@ endfunction
 
 " Highlight the window, for use with dirciple
 function! HighlightWindow()
-  exec "set titlestring=" . g:vim_titlestring_hi
-  if exists("#goyo")
+  exec 'set titlestring=' . g:vim_titlestring_hi
+  if exists('#goyo')
     hi Normal ctermfg=lightgreen guifg=#A3BE8C
   else
     hi LineNr ctermfg=black ctermbg=2 guifg=#000000 guibg=#A3BE8C

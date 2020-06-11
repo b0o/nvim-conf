@@ -148,14 +148,14 @@ call s:hi('Underline', '', '', '', '', s:underline, '')
 
 "+--- Editor ---+
 call s:hi('ColorColumn', '', g:lavi_gui[1], 'NONE', g:lavi_term[1], '', '')
-call s:hi('Cursor', g:lavi_gui[0], g:lavi_gui[4], '', 'NONE', '', '')
+call s:hi('Cursor', '', g:lavi_gui[4], '', 'NONE', '', '')
 call s:hi('CursorLine', '', g:lavi_gui[1], 'NONE', g:lavi_term[1], 'NONE', '')
 call s:hi('Error', g:lavi_gui[0], g:lavi_gui[11], '', g:lavi_term[11], '', '')
 call s:hi('iCursor', g:lavi_gui[0], g:lavi_gui[4], '', 'NONE', '', '')
-call s:hi('LineNr', g:lavi_gui[3], g:lavi_gui[0], g:lavi_term[3], 'NONE', '', '')
+call s:hi('LineNr', g:lavi_gui[3], '', g:lavi_term[3], 'NONE', '', '')
 call s:hi('MatchParen', g:lavi_gui[8], g:lavi_gui[3], g:lavi_term[8], g:lavi_term[3], '', '')
 call s:hi('NonText', g:lavi_gui[2], '', g:lavi_term[3], '', '', '')
-call s:hi('Normal', g:lavi_gui[4], g:lavi_gui[0], 'NONE', 'NONE', '', '')
+call s:hi('Normal', g:lavi_gui[4], '', 'NONE', 'NONE', '', '')
 call s:hi('PMenu', g:lavi_gui[4], g:lavi_gui[2], 'NONE', g:lavi_term[1], 'NONE', '')
 call s:hi('PmenuSbar', g:lavi_gui[4], g:lavi_gui[2], 'NONE', g:lavi_term[1], '', '')
 call s:hi('PMenuSel', g:lavi_gui[8], g:lavi_gui[3], g:lavi_term[8], g:lavi_term[3], '', '')
@@ -201,13 +201,13 @@ endif
 "+--- Gutter ---+
 call s:hi('CursorColumn', '', g:lavi_gui[1], 'NONE', g:lavi_term[1], '', '')
 if g:lavi_cursor_line_number_background == 0
-  call s:hi('CursorLineNr', g:lavi_gui[4], g:lavi_gui[0], 'NONE', '', '', '')
+  call s:hi('CursorLineNr', g:lavi_gui[4], '', 'NONE', '', '', '')
 else
   call s:hi('CursorLineNr', g:lavi_gui[4], g:lavi_gui[1], 'NONE', g:lavi_term[1], '', '')
 endif
 call s:hi('Folded', g:lavi_gui[3], g:lavi_gui[1], g:lavi_term[3], g:lavi_term[1], s:bold, '')
-call s:hi('FoldColumn', g:lavi_gui[3], g:lavi_gui[0], g:lavi_term[3], 'NONE', '', '')
-call s:hi('SignColumn', g:lavi_gui[1], g:lavi_gui[0], g:lavi_term[1], 'NONE', '', '')
+call s:hi('FoldColumn', g:lavi_gui[3], 'NONE', g:lavi_term[3], 'NONE', '', '')
+call s:hi('SignColumn', g:lavi_gui[1], 'NONE', g:lavi_term[1], 'NONE', '', '')
 
 "+--- Navigation ---+
 call s:hi('Directory', g:lavi_gui[8], '', g:lavi_term[8], 'NONE', '', '')
@@ -238,7 +238,7 @@ call s:hi('TabLineSel', g:lavi_gui[8], g:lavi_gui[3], g:lavi_term[8], g:lavi_ter
 call s:hi('Title', g:lavi_gui[4], '', 'NONE', '', 'NONE', '')
 
 if g:lavi_bold_vertical_split_line == 0
-  call s:hi('VertSplit', g:lavi_gui[2], g:lavi_gui[0], g:lavi_term[3], 'NONE', 'NONE', '')
+  call s:hi('VertSplit', g:lavi_gui[2], '', g:lavi_term[3], 'NONE', 'NONE', '')
 else
   call s:hi('VertSplit', g:lavi_gui[2], g:lavi_gui[1], g:lavi_term[3], g:lavi_term[1], 'NONE', '')
 endif
@@ -355,10 +355,10 @@ hi! link dtLocaleValue Keyword
 hi! link dtTypeValue Keyword
 
 if g:lavi_uniform_diff_background == 0
-  call s:hi('DiffAdd', g:lavi_gui[14], g:lavi_gui[0], g:lavi_term[14], 'NONE', 'inverse', '')
-  call s:hi('DiffChange', g:lavi_gui[13], g:lavi_gui[0], g:lavi_term[13], 'NONE', 'inverse', '')
-  call s:hi('DiffDelete', g:lavi_gui[11], g:lavi_gui[0], g:lavi_term[11], 'NONE', 'inverse', '')
-  call s:hi('DiffText', g:lavi_gui[9], g:lavi_gui[0], g:lavi_term[9], 'NONE', 'inverse', '')
+  call s:hi('DiffAdd', g:lavi_gui[14], '', g:lavi_term[14], 'NONE', 'inverse', '')
+  call s:hi('DiffChange', g:lavi_gui[13], '', g:lavi_term[13], 'NONE', 'inverse', '')
+  call s:hi('DiffDelete', g:lavi_gui[11], '', g:lavi_term[11], 'NONE', 'inverse', '')
+  call s:hi('DiffText', g:lavi_gui[9], '', g:lavi_term[9], 'NONE', 'inverse', '')
 else
   call s:hi('DiffAdd', g:lavi_gui[14], g:lavi_gui[1], g:lavi_term[14], g:lavi_term[1], '', '')
   call s:hi('DiffChange', g:lavi_gui[13], g:lavi_gui[1], g:lavi_term[13], g:lavi_term[1], '', '')

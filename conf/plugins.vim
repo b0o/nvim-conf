@@ -30,7 +30,11 @@ if dein#load_state(s:dein_dir)
 
   " Interface
   call dein#add('vim-airline/vim-airline')
+
+  " Themes
   call dein#add('vim-airline/vim-airline-themes')
+  call dein#add('chriskempson/base16-vim')
+  call dein#add('dawikur/base16-vim-airline-themes')
 
   " Editing & Motion
   call dein#add('machakann/vim-swap')
