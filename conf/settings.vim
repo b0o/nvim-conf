@@ -44,6 +44,30 @@ set matchtime=2 " show matching parens/brackets for 200ms
 " clipboard
 set clipboard+=unnamedplus " Enable yanking between vim sessions and system
 
+if exists('$WAYLAND_DISPLAY')
+  " Wayland clipboard provider that strips carriage returns (GTK3 issue).
+  " This is needed because currently there's an issue where GTK3 applications on
+  " Wayland contain carriage returns at the end of the lines (this is a root
+  " issue that needs to be fixed).
+  " See also:
+  " - https://github.com/neovim/neovim/issues/10223#issuecomment-521952122
+  " - https://github.com/neovim/neovim/issues/10223
+  " - https://bugzilla.mozilla.org/show_bug.cgi?id=1547595
+  " - https://gitlab.gnome.org/GNOME/gtk/-/issues/2307
+  let g:clipboard = {
+        \   'name': 'wayland-strip-carriage',
+        \   'copy': {
+        \      '+': 'wl-copy --foreground --type text/plain',
+        \      '*': 'wl-copy --foreground --type text/plain --primary',
+        \    },
+        \   'paste': {
+        \      '+': {-> systemlist('wl-paste | sed -e "s/\r$//"')},
+        \      '*': {-> systemlist('wl-paste --primary | sed -e "s/\r$//"')},
+        \   },
+        \   'cache_enabled': 1,
+        \ }
+endif
+
 " buffers/tabs
 set switchbuf=usetab,newtab
 
