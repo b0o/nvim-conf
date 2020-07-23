@@ -90,6 +90,7 @@ if dein#load_state(s:dein_dir)
   call dein#add('pangloss/vim-javascript')
   call dein#add('mxw/vim-jsx')
   call dein#add('styled-components/vim-styled-components')
+  call dein#add('mattn/emmet-vim')
 
   " jq
   call dein#add('vito-c/jq.vim')

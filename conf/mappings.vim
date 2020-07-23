@@ -415,3 +415,10 @@ nnoremap <silent> <C-f><C-c> :Commands<cr>
 nnoremap <silent> <C-f>c     :Commands<cr>
 nnoremap <silent> <C-f><C-m> :Maps<cr>
 nnoremap <silent> <C-f>m     :Maps<cr>
+
+"" emmet.vim
+let g:user_emmet_leader_key='<C-z>'
+
+nmap <C-z><C-z> <C-z>,
+imap <C-z><C-z> <C-z>,
+vmap <C-z><C-z> <C-z>,
