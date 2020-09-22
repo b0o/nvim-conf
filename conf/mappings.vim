@@ -30,6 +30,13 @@ map <M-H> HK
 " make `W` behave as vanilla `w`
 nnoremap W w
 
+" move to the end of the previous word
+nnoremap <M-b> ge
+
+" insert a single character
+" https://vim.fandom.com/wiki/Insert_a_single_character
+nnoremap <silent> <M-i> :exec "normal i".nr2char(getchar())."\e"<CR>
+
 " Indent visual selection without clearing selection
 vmap > >gv
 vmap < <gv
