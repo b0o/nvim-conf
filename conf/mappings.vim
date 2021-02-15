@@ -301,35 +301,35 @@ nnoremap <leader>gA  :Git add --all<cr>
 nnoremap <leader>gaa :Git add --all<cr>
 nnoremap <leader>gaf :Git add :%<cr>
 
-nnoremap <leader>gC  :Gcommit --verbose<cr>
-nnoremap <leader>gcc :Gcommit --verbose<cr>
-nnoremap <leader>gca :Gcommit --verbose --all<cr>
-nnoremap <leader>gcA :Gcommit --verbose --amend<cr>
+nnoremap <leader>gC  :Git commit --verbose<cr>
+nnoremap <leader>gcc :Git commit --verbose<cr>
+nnoremap <leader>gca :Git commit --verbose --all<cr>
+nnoremap <leader>gcA :Git commit --verbose --amend<cr>
 
 nnoremap <leader>gL  :Gclog!<cr>
 nnoremap <leader>gll :Gclog!<cr>
 nnoremap <leader>glL :tabnew \| Gclog<cr>
 
-nnoremap <leader>gpa :Gpush --all<cr>
-nnoremap <leader>gpp :Gpush<cr>
-nnoremap <leader>gpl :Gpull<cr>
+nnoremap <leader>gpa :Git push --all<cr>
+nnoremap <leader>gpp :Git push<cr>
+nnoremap <leader>gpl :Git pull<cr>
 
 nnoremap <leader>gR  :Git reset<cr>
 
-nnoremap <leader>gS  :Gstatus<cr>
-nnoremap <leader>gss :Gstatus<cr>
-nnoremap <leader>gst :Gstatus<cr>
+nnoremap <leader>gS  :Git status<cr>
+nnoremap <leader>gss :Git status<cr>
+nnoremap <leader>gst :Git status<cr>
 
 nnoremap <leader>gsp :Gsplit<cr>
 
 nnoremap <leader>GG  :Git<space>
 nnoremap <leader>GA  :Git add<space>
-nnoremap <leader>GC  :Gcommit<space>
-nnoremap <leader>GF  :Gfetch<space>
-nnoremap <leader>GL  :Glog<space>
-nnoremap <leader>GPP :Gpush<space>
-nnoremap <leader>GPL :Gpull<space>
-nnoremap <leader>GS  :Gstatus<space>
+nnoremap <leader>GC  :Git commit<space>
+nnoremap <leader>GF  :Git fetch<space>
+nnoremap <leader>GL  :Git log<space>
+nnoremap <leader>GPP :Git push<space>
+nnoremap <leader>GPL :Git pull<space>
+nnoremap <leader>GS  :Git status<space>
 " TODO: <leader> gX / gxx -> close all fugitive windows
 
 "" vim-clap
