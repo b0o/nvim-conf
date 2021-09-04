@@ -20,6 +20,6 @@ Assuming the directory doesn't yet exist, clone this repo to `$HOME/.config/nvim
 $ git clone github.com/b0o/dotfiles-nvim ~/.config/nvim
 ```
 
-Then open vim and run `:PluginInstall`.
+Then open vim and run `:PackerInstall`.
 
-To update plugins, use `:PluginUpdate`.
+To update plugins, use `:PackerUpdate`.
