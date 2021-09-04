@@ -1,11 +1,11 @@
-" Copyright (C) 2019-present Maddison Hellstrom <maddy@na.ai>
+" Copyright (C) 2019-2021 Maddison Hellstrom <maddy@na.ai>
 "
 " Vim script based on https://github.com/arcticicestudio/nord-vim
 " Copyright (C) 2016-2019 Arctic Ice Studio <development@arcticicestudio.com>
 " Copyright (C) 2016-2019 Sven Greb <development@svengreb.de>
 
 " Project: Lavi Vim
-" Repository: https://github.com/b0o/lavi
+" Repository: https://github.com/b0o/nvim-conf
 " License: MIT
 
 if v:version > 580
@@ -24,15 +24,15 @@ let g:lavi_gui = {}
 let g:lavi_gui[0]  = '#463E57' " background
 
 let g:lavi_gui[1]  = '#2F2A38' " normal black
-let g:lavi_gui[2]  = '#625B71' " medium black
-let g:lavi_gui[3]  = '#6F6680' " bright black
+let g:lavi_gui[2]  = '#4C435C' " medium black
+let g:lavi_gui[3]  = '#8977A8' " bright black
 
 let g:lavi_gui[4]  = '#FFF1E0' " foreground
 let g:lavi_gui[5]  = '#EEE6FF' " normal white
 let g:lavi_gui[6]  = '#ffffff' " bright white
 
-let g:lavi_gui[7]  = '#2BEDC0' " bright cyan
-let g:lavi_gui[8]  = '#3FC4C4' " normal cyan
+let g:lavi_gui[7]  = '#3FC4C4' " normal cyan
+let g:lavi_gui[8]  = '#2BEDC0' " bright cyan
 
 let g:lavi_gui[9]  = '#80BDFF' " normal blue
 let g:lavi_gui[10] = '#7583FF' " bright blue
@@ -42,7 +42,9 @@ let g:lavi_gui[12] = '#F2637E' " bright red
 
 let g:lavi_gui[13] = '#FFD080' " normal yellow
 let g:lavi_gui[14] = '#6EEB84' " normal green
-let g:lavi_gui[15] = '#B891FF' " normal magenta
+let g:lavi_gui[15] = '#B98AFF' " normal magenta
+
+let g:lavi_gui[16] = '#B891FF'
 
 let g:lavi_term = {}
 
@@ -62,6 +64,7 @@ let g:lavi_term[12] = '11'
 let g:lavi_term[13] = '3'
 let g:lavi_term[14] = '2'
 let g:lavi_term[15] = '5'
+let g:lavi_term[16] = 'NONE'
 
 let g:lavi_gui3_bright = '#7E7490'
 
@@ -175,7 +178,24 @@ call s:hi('TermCursorNC', '', g:lavi_gui[1], '', g:lavi_term[1], '', '')
 
 "+- Vim 8 Terminal Colors -+
 if has('terminal')
-  let g:terminal_ansi_colors = [g:lavi_gui[1], g:lavi_gui[11], g:lavi_gui[14], g:lavi_gui[13], g:lavi_gui[9], g:lavi_gui[15], g:lavi_gui[8], g:lavi_gui[5], g:lavi_gui[3], g:lavi_gui[11], g:lavi_gui[14], g:lavi_gui[13], g:lavi_gui[9], g:lavi_gui[15], g:lavi_gui[7], g:lavi_gui[6]]
+  let g:terminal_ansi_colors = [
+  \   g:lavi_gui[1],
+  \   g:lavi_gui[11],
+  \   g:lavi_gui[14],
+  \   g:lavi_gui[13],
+  \   g:lavi_gui[9],
+  \   g:lavi_gui[15],
+  \   g:lavi_gui[8],
+  \   g:lavi_gui[5],
+  \   g:lavi_gui[3],
+  \   g:lavi_gui[11],
+  \   g:lavi_gui[14],
+  \   g:lavi_gui[13],
+  \   g:lavi_gui[9],
+  \   g:lavi_gui[15],
+  \   g:lavi_gui[7],
+  \   g:lavi_gui[6]
+  \ ]
 endif
 
 "+- Neovim Terminal Colors -+

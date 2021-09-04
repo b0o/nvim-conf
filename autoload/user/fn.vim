@@ -1,70 +1,151 @@
-""" functions.vim
-""" function definitions
+" TODO: Clean up this mess
 
-"" dein helper functions
-function! PluginClean()
-  call map(dein#check_clean(), "delete(v:val, 'rf')")
-  call dein#recache_runtimepath()
-endfunction
-command! PluginClean call PluginClean()
+" function! s:getPluginManager()
+"   " dein
+"   try
+"     let _ = funcref('dein#install')
+"     return 'dein'
+"   catch | endtry
 
-function! PluginInstall()
-  call PluginClean()
-  call dein#install()
-endfunction
-command! PluginInstall call PluginInstall()
+"   " packer
+"   try
+"     luado require 'packer'
+"     return 'packer'
+"   catch | endtry
 
-function! PluginUpdate()
-  call PluginClean()
-  call dein#update()
-endfunction
-command! PluginUpdate call PluginUpdate()
+"   return ''
+" endfunction
 
-function! s:plugin_mgr_headless_init()
-  let g:dein#install_progress_type = 'echo'
-  let g:dein#install_message_type = 'echo'
-endfunction
+" let s:pluginManager = s:getPluginManager()
 
-function! PluginCleanHeadless()
-  call s:plugin_mgr_headless_init()
-  try
-    call PluginClean()
-    echo "\n"
-  catch
-    echo 'an error was encountered'
-    cquit!
-  endtry
-endfunction
+" if s:pluginManager ==# 'dein'
+"   function! user#fn#pluginClean()
+"     call map(dein#check_clean(), "delete(v:val, 'rf')")
+"     call dein#recache_runtimepath()
+"   endfunction
 
-function! PluginInstallHeadless()
-  call s:plugin_mgr_headless_init()
-  try
-    call dein#install()
-    echo "\n"
-  catch
-    echo 'an error was encountered'
-    cquit!
-  endtry
-endfunction
+"   function! user#fn#pluginInstall()
+"     call user#fn#pluginClean()
+"     call dein#install()
+"     UpdateRemotePlugins
+"   endfunction
 
-function! PluginUpdateHeadless()
-  call s:plugin_mgr_headless_init()
-  try
-    call dein#update()
-    echo "\n"
-  catch
-    echo 'an error was encountered'
-    cquit!
-  endtry
-endfunction
+"   function! user#fn#pluginUpdate()
+"     call user#fn#pluginClean()
+"     call dein#update()
+"     UpdateRemotePlugins
+"   endfunction
+
+"   function! s:plugin_mgr_headless_init()
+"     let g:dein#install_progress_type = 'echo'
+"     let g:dein#install_message_type = 'echo'
+"   endfunction
+
+"   function! user#fn#pluginCleanHeadless()
+"     call s:plugin_mgr_headless_init()
+"     try
+"       call user#fn#pluginClean()
+"       echo "\n"
+"     catch
+"       echo 'an error was encountered'
+"       cquit!
+"     endtry
+"   endfunction
+
+"   function! user#fn#pluginInstallHeadless()
+"     call s:plugin_mgr_headless_init()
+"     try
+"       call dein#install()
+"       echo "\n"
+"       UpdateRemotePlugins
+"       echo "\n"
+"     catch
+"       echo 'an error was encountered'
+"       cquit!
+"     endtry
+"   endfunction
+
+"   function! user#fn#pluginUpdateHeadless()
+"     call s:plugin_mgr_headless_init()
+"     try
+"       call dein#update()
+"       echo "\n"
+"       UpdateRemotePlugins
+"       echo "\n"
+"     catch
+"       echo 'an error was encountered'
+"       cquit!
+"     endtry
+"   endfunction
+
+" elseif s:pluginManager ==# 'packer'
+"   function! user#fn#pluginClean()
+"     call map(dein#check_clean(), "delete(v:val, 'rf')")
+"     call dein#recache_runtimepath()
+"   endfunction
+
+"   function! user#fn#pluginInstall()
+"     call user#fn#pluginClean()
+"     call dein#install()
+"     UpdateRemotePlugins
+"   endfunction
+
+"   function! user#fn#pluginUpdate()
+"     call user#fn#pluginClean()
+"     call dein#update()
+"     UpdateRemotePlugins
+"   endfunction
+
+"   function! s:plugin_mgr_headless_init()
+"     let g:dein#install_progress_type = 'echo'
+"     let g:dein#install_message_type = 'echo'
+"   endfunction
+
+"   function! user#fn#pluginCleanHeadless()
+"     call s:plugin_mgr_headless_init()
+"     try
+"       call user#fn#pluginClean()
+"       echo "\n"
+"     catch
+"       echo 'an error was encountered'
+"       cquit!
+"     endtry
+"   endfunction
+
+"   function! user#fn#pluginInstallHeadless()
+"     call s:plugin_mgr_headless_init()
+"     try
+"       call dein#install()
+"       echo "\n"
+"       UpdateRemotePlugins
+"       echo "\n"
+"     catch
+"       echo 'an error was encountered'
+"       cquit!
+"     endtry
+"   endfunction
+
+"   function! user#fn#pluginUpdateHeadless()
+"     call s:plugin_mgr_headless_init()
+"     try
+"       call dein#update()
+"       echo "\n"
+"       UpdateRemotePlugins
+"       echo "\n"
+"     catch
+"       echo 'an error was encountered'
+"       cquit!
+"     endtry
+"   endfunction
+" endif
 
 " paste register without overwriting with the original selection
 let g:restore_reg = ''
-function! PasteRestore()
+function! user#fn#pasteRestore()
   let g:restore_reg = @"
-  return "p@=RestoreRegister()\<cr>"
+  return "p@=user#fn#restoreRegister()\<cr>"
 endfunction
-function! RestoreRegister()
+function! user#fn#restoreRegister()
   let @" = g:restore_reg
   if &clipboard ==# 'unnamed'
     let @* = g:restore_reg
@@ -75,42 +156,40 @@ function! RestoreRegister()
 endfunction
 
 " function to be called upon entering a terminal buffer
-func! TermEnter(insert)
+function! user#fn#termEnter(insert)
   setlocal nospell
+  if get(g:, 'termenter_disable', 0) == 1
+    return
+  end
   if a:insert == 1
     startinsert
   else
     stopinsert
   endif
-endfunc
+endfunction
 
 " open a terminal window, where 'count' is number of rows and 'insert' specifies whether term
 " should start in insert or normal mode
-function! OpenTerm(args, count, insert)
+function! user#fn#openTerm(args, count, insert, bang)
   let params = split(a:args)
-
-  let cmd = 'new'
+  let cmd = a:bang ? 'tabnew' : 'new'
   let cmd = a:count ? a:count . cmd : cmd
   exe cmd
-
   exe 'terminal' a:args
-  call TermEnter(a:insert)
+  call user#fn#termEnter(a:insert)
 endfunction
-command! -count -nargs=* Term  call OpenTerm(<q-args>, <count>, 1)
-command! -count -nargs=* NTerm call OpenTerm(<q-args>, <count>, 0)
 
-" open help in full-window view. If current buffer is not empty, open a new tab
-function! HelpTab(...)
-  let cmd = 'tab help %s'
-  if bufname('%') ==# '' && getline(1) ==# ''
-    let cmd = 'help %s | only'
+" Run one command if the current tabpage is empty, otherwise run a different
+function! user#fn#tabcmd(if_not_empty, if_empty, ...)
+  let l:cmd = a:if_not_empty
+  if len(tabpagebuflist()) == 1 && bufname('%') ==# '' && getline(1) ==# ''
+    let l:cmd = a:if_empty
   endif
   exec printf(cmd, join(a:000, ' '))
 endfunction
-command! -nargs=* -complete=help H call HelpTab(<q-args>)
 
 " Open or create a tab at the given tab index
-function! Tabnm(n)
+function! user#fn#tabnm(n)
   try
     exec 'tabn ' . a:n
   catch
@@ -118,8 +197,13 @@ function! Tabnm(n)
   endtry
 endfunction
 
-function! CloseBufWins(bufid)
+function! user#fn#closeBufWins(bufid)
   for l:w in win_findbuf(a:bufid)
+    let l:cfg = nvim_win_get_config(l:w)
+    " XXX: don't close floating wins
+    if has_key(l:cfg, 'relative') && l:cfg.relative !=# ''
+      continue
+    endif
     call nvim_win_close(l:w, 0)
   endfor
 endfunction
@@ -128,7 +212,7 @@ endfunction
 "   | active window is loclist  -> lclose
 "   | active window is quickfix -> cclose
 "   | _ -> lclose + cclose + q
-function! CloseWin()
+function! user#fn#closeWin()
   let l:win = getwininfo(win_getid())[0]
   let l:ret = 0
   if l:win.loclist == 1
@@ -159,20 +243,44 @@ function! CloseWin()
     endif
   endfor
 endfunction
-command! CloseWin call CloseWin()
 
 " reload vim configuration
 if !exists('*ReloadConfig')
-  function! ReloadConfig()
+  function! user#fn#reloadConfig()
     echom 'Reload configuration...'
-    source $cfg
+    source $nvim_cfg
   endfunction
-  command! ReloadConfig call ReloadConfig()
 endif
+
+function! user#fn#reloadConfigFile(bang, file)
+  let l:f = expand('%:p')
+  if len(a:file) > 0
+    " simplify and strip any leading . / .. from path
+    let l:f = substitute(simplify(a:file), '^\(\.\{1,2}\|\/\)*\/', '', '')
+    " resolve path relative to configuration directory
+  endif
+
+  " let l:loaded = split(execute("scriptnames"), "\n"))
+  let l:loaded = map(split(execute('scriptnames'), "\n"), { _, v -> resolve(expand(split(v, " ")[1])) })
+
+  echom 'l:f "' . l:f . '"...' . '(bang: ' . a:bang . ')'
+
+  for l:rp in map(split(&runtimepath, ','), { _, v -> resolve(expand(v)) })
+    let l:f = resolve(l:rp . '/' . l:f)
+    if index(l:loaded, l:f) >= 0
+      echom 'found: ' . l:f
+    endif
+  endfor
+
+
+  " echom 'Reload configuration file "' . l:f . '"...' . '(bang: ' . a:bang . ')'
+  " exec 'runtime ' . l:f
+  " source $cfg
+endfunction
 
 " interleave two same-sized contiguous blocks
 " https://vi.stackexchange.com/questions/4575/merge-blocks-by-interleaving-lines
-function! Interleave()
+function! user#fn#interleave()
   " retrieve last selected area position and size
   let start = line('.')
   execute "normal! gvo\<esc>"
@@ -186,7 +294,7 @@ function! Interleave()
 endfunction
 
 " toggle conceallevel
-function! ToggleConcealLevel()
+function! user#fn#toggleConcealLevel()
   if !has('conceal')
     return
   endif
@@ -199,7 +307,7 @@ function! ToggleConcealLevel()
 endfunction
 
 " toggle concealcursor
-function! ToggleConcealCursor()
+function! user#fn#toggleConcealCursor()
   if !has('conceal')
     return
   endif
@@ -214,38 +322,17 @@ endfunction
 " Append modeline after last line in buffer.
 " Use substitute() instead of printf() to handle '%%s' modeline in LaTeX
 " files.
-function! AppendModeline()
+function! user#fn#appendModeline()
   let l:modeline = printf(' vim: set ts=%d sw=%d tw=%d %set :',
         \ &tabstop, &shiftwidth, &textwidth, &expandtab ? '' : 'no')
   let l:modeline = substitute(&commentstring, '%s', l:modeline, '')
   call append(line('$'), l:modeline)
 endfunction
 
-" titlestring servername helper
-function! TSServername()
-  let n = matchstr(v:servername, '\c\(\/.*\/\)\zs\(.*\)\ze')
-  return substitute(n, '.*__', '', '')
-endfunction
-
-" titlestring modified helper
-function! TSModified()
-  return &modified ? '[*]' : ''
-endfunction
-
-" titlestring tabs helper
-function! TSTabs()
-  let l:tabs = split(execute('silent tabs'), "\n")
-  call filter(l:tabs, {idx, val -> match(val, "^Tab page \\d*$") == 0})
-  if len(l:tabs) > 1
-    return '[+' . (len(l:tabs) - 1) . ']'
-  endif
-  return ''
-endfunction
-
 " Jump to first scratch window visible in current tab, or create it.
 " This is useful to accumulate results from successive operations.
 " Global function that can be called from other scripts.
-function! GoScratch()
+function! user#fn#goScratch()
   let done = 0
   for i in range(1, winnr('$'))
     execute i . 'wincmd w'
@@ -261,7 +348,7 @@ function! GoScratch()
 endfunction
 
 " Append match, with line number as prefix if wanted.
-function! s:Matcher(hits, match, linenums, subline)
+function! s:matcher(hits, match, linenums, subline)
   if !empty(a:match)
     let prefix = a:linenums ? printf('%3d  ', a:subline) : ''
     call add(a:hits, prefix . a:match)
@@ -270,7 +357,7 @@ function! s:Matcher(hits, match, linenums, subline)
 endfunction
 
 " Append line numbers for lines in match to given list.
-function! s:MatchLineNums(numlist, match)
+function! s:matchLineNums(numlist, match)
   let newlinecount = len(substitute(a:match, '\n\@!.', '', 'g'))
   if a:match =~# "\n$"
     let newlinecount -= 1  " do not copy next line after newline
@@ -284,7 +371,7 @@ endfunction
 " This works with multiline matches.
 " Work on a copy of buffer so unforeseen problems don't change it.
 " Global function that can be called from other scripts.
-function! GetMatches(line1, line2, pattern, wholelines, linenums)
+function! user#fn#getMatches(line1, line2, pattern, wholelines, linenums)
   let savelz = &lazyredraw
   set lazyredraw
   let lines = getline(1, line('$'))
@@ -296,9 +383,9 @@ function! GetMatches(line1, line2, pattern, wholelines, linenums)
   let sub = a:line1 . ',' . a:line2 . 's/' . escape(a:pattern, '/')
   if a:wholelines
     let numlist = []  " numbers of lines containing a match
-    let rep = '/\=s:MatchLineNums(numlist, submatch(0))/e'
+    let rep = '/\=s:matchLineNums(numlist, submatch(0))/e'
   else
-    let rep = '/\=s:Matcher(hits, submatch(0), a:linenums, line("."))/e'
+    let rep = '/\=s:matcher(hits, submatch(0), a:linenums, line("."))/e'
   endif
   silent execute sub . rep . (&gdefault ? '' : 'g')
   close
@@ -320,15 +407,15 @@ endfunction
 " If 'wholelines' is 1, whole lines containing a match are returned.
 " Works with multiline matches. Works with a range (default is whole file).
 " Search pattern is given in argument, or is the last-used search pattern.
-function! CopyMatches(bang, line1, line2, args, wholelines)
+function! user#fn#copyMatches(bang, line1, line2, args, wholelines)
   let l = matchlist(a:args, '^\%(\([a-zA-Z"*+-]\)\%($\|\s\+\)\)\?\(.*\)')
   let reg = empty(l[1]) ? '+' : l[1]
   let pattern = empty(l[2]) ? @/ : l[2]
-  let hits = GetMatches(a:line1, a:line2, pattern, a:wholelines, a:bang)
+  let hits = user#fn#getMatches(a:line1, a:line2, pattern, a:wholelines, a:bang)
   let msg = 'No non-empty matches'
   if !empty(hits)
     if reg ==# '-'
-      call GoScratch()
+      call user#fn#goScratch()
       normal! G0m'
       silent put =hits
       " Jump to first line of hits and scroll to middle.
@@ -341,14 +428,12 @@ function! CopyMatches(bang, line1, line2, args, wholelines)
   redraw  " so message is seen
   echo msg
 endfunction
-command! -bang -nargs=? -range=% CopyMatches call CopyMatches(<bang>0, <line1>, <line2>, <q-args>, 0)
-command! -bang -nargs=? -range=% CopyLines call CopyMatches(<bang>0, <line1>, <line2>, <q-args>, 1)
 
 " Get Buffer info as JSON (useful for external scripts utilizing neovim-remote)
-func! BufinfoJSON()
-  func! s:filterFuncrefs(i, elem)
+function! user#fn#bufinfoJSON()
+  function! s:filterFuncrefs(i, elem)
     return type(a:elem) != v:t_func
-  endfunc
+  endfunction
   let l:bufs = getbufinfo()
   let l:i = 0
   for l:buf in l:bufs
@@ -357,17 +442,16 @@ func! BufinfoJSON()
     let l:i += 1
   endfor
   return json_encode(l:bufs)
-endfunc
+endfunction
 
 " open a file in a new vim instance
-func! LaunchVimInstance(...)
+function! user#fn#launchVimInstance(...)
   let l:paths = join(a:000, ' ')
-  exec 'silent! !$TERMINAL -e /bin/env nvim ' . l:paths
-endfunc
-command! -count -nargs=* LaunchVimInstance  call LaunchVimInstance(<q-args>)
+  exec 'silent! !$TERMINAL -e /usr/bin/env nvim ' . l:paths
+endfunction
 
-" convert the current tab to a new vim instance
-func! TabToNewWindow()
+" move the current window to a new terminal instance
+function! user#fn#windowToNewTerminal()
   let l:quit = 0
   let l:path = expand('%:p')
   if l:path ==# ''
@@ -411,12 +495,11 @@ func! TabToNewWindow()
         break
     endwhile
   endtry
-
-  call LaunchVimInstance(l:path)
+  call user#fn#launchVimInstance(l:path)
   if l:quit == 1
     confirm quit!
   endif
-endfunc
+endfunction
 
 function! s:split_cmdline(cmdline, cmdpos)
   let l:res = [
@@ -427,7 +510,7 @@ function! s:split_cmdline(cmdline, cmdpos)
 endfunction
 
 " emacs-style word-wise movement/deletion in command-line mode
-function! CmdlineMoveWord(dir, del)
+function! user#fn#cmdlineMoveWord(dir, del)
   let l:cmdline = getcmdline()
   let l:cmdpos = getcmdpos()
   let l:pat = '^\s*\W*\S\{-}\($\|\w\@<=\([^a-zA-Z0-9]\|\s\|\>\)\@<=\)'
@@ -464,4 +547,12 @@ function! CmdlineMoveWord(dir, del)
     endif
   endif
   throw 'invalid direction ' . a:dir
+endfunction
+
+" TODO: replace with https://gist.github.com/b0o/441152003be2dab037e4260af0520819
+" window swapping
+function! user#fn#windowSwapInDirection(dir)
+  call WindowSwap#MarkWindowSwap()
+  exec 'wincmd ' . a:dir
+  call WindowSwap#DoWindowSwap()
 endfunction
