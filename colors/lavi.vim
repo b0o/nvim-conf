@@ -46,6 +46,12 @@ let g:lavi_gui[15] = '#B98AFF' " normal magenta
 
 let g:lavi_gui[16] = '#B891FF'
 
+" Extended
+let g:lavi_gui[17] = '#ff9969' " normal orange
+
+let g:lavi_gui["3_bright"] = '#7E7490'
+let g:lavi_gui_3_bright = g:lavi_gui["3_bright"]
+
 let g:lavi_term = {}
 
 let g:lavi_term[0]  = 'NONE'
@@ -66,7 +72,8 @@ let g:lavi_term[14] = '2'
 let g:lavi_term[15] = '5'
 let g:lavi_term[16] = 'NONE'
 
-let g:lavi_gui3_bright = '#7E7490'
+let g:colors_gui = g:lavi_gui
+let g:colors_term = g:lavi_term
 
 if !exists('g:lavi_bold')
   let g:lavi_bold = 1
@@ -268,7 +275,7 @@ endif
 "+----------------------+
 call s:hi('Boolean', g:lavi_gui[9], '', g:lavi_term[9], '', '', '')
 call s:hi('Character', g:lavi_gui[14], '', g:lavi_term[14], '', '', '')
-call s:hi('Comment', g:lavi_gui3_bright, '', g:lavi_term[3], '', s:italicize_comments, '')
+call s:hi('Comment', g:lavi_gui["3_bright"], '', g:lavi_term[3], '', s:italicize_comments, '')
 call s:hi('Conditional', g:lavi_gui[9], '', g:lavi_term[9], '', '', '')
 call s:hi('Constant', g:lavi_gui[4], '', 'NONE', '', '', '')
 call s:hi('Define', g:lavi_gui[9], '', g:lavi_term[9], '', '', '')
@@ -529,7 +536,7 @@ hi! link vimFunction Function
 hi! link vimUserFunc Function
 
 call s:hi('xmlAttrib', g:lavi_gui[7], '', g:lavi_term[7], '', '', '')
-call s:hi('xmlCdataStart', g:lavi_gui3_bright, '', g:lavi_term[3], '', s:bold, '')
+call s:hi('xmlCdataStart', g:lavi_gui["3_bright"], '', g:lavi_term[3], '', s:bold, '')
 call s:hi('xmlNamespace', g:lavi_gui[7], '', g:lavi_term[7], '', '', '')
 hi! link xmlAttribPunct Delimiter
 hi! link xmlCdata Comment

@@ -35,10 +35,16 @@ vim.cmd([[
   augroup END
 ]])
 
-
 vim.cmd([[
-  augroup ManMaps
+  augroup commentary_opts
+    autocmd FileType * :let b:commentary_startofline = 1
     autocmd!
-    autocmd FileType man lua vim_man_mapfn(vim.api.nvim_get_current_buf())
   augroup END
 ]])
+
+-- vim.cmd([[
+--   augroup ManMaps
+--     autocmd!
+--     autocmd FileType man lua vim_man_mapfn(vim.api.nvim_get_current_buf())
+--   augroup END
+-- ]])

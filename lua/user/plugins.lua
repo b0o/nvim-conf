@@ -5,115 +5,144 @@ if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
   vim.fn.execute('!git clone https://github.com/wbthomason/packer.nvim ' .. install_path)
 end
 
-local use = require('packer').use
-require('packer').startup(function()
-  use 'wbthomason/packer.nvim' -- Package manager
-  use 'tpope/vim-fugitive' -- Git commands in nvim
-  use 'tpope/vim-rhubarb' -- Fugitive-companion to interact with github
-  use 'tpope/vim-commentary' -- "gc" to comment visual regions/lines
-  use 'ludovicchabant/vim-gutentags' -- Automatic tags management
-  -- UI to select things (files, grep results, open buffers...)
-  use {
-    'nvim-telescope/telescope.nvim',
-    requires = {
-      { 'nvim-lua/popup.nvim' },
-      { 'nvim-lua/plenary.nvim' },
-    }
-  }
-  use 'joshdick/onedark.vim' -- Theme inspired by Atom
-  use 'itchyny/lightline.vim' -- Fancier statusline
-  -- Add indentation guides even on blank lines
-  -- XXX: https://github.com/lukas-reineke/indent-blankline.nvim/issues/74
-  -- use 'lukas-reineke/indent-blankline.nvim'
-  -- Add git related info in the signs columns and popups
-  use { 'lewis6991/gitsigns.nvim', requires = { 'nvim-lua/plenary.nvim' } }
-  -- Highlight, edit, and navigate code using a fast incremental parsing library
-  use 'nvim-treesitter/nvim-treesitter'
-  -- Additional textobjects for treesitter
-  use 'nvim-treesitter/nvim-treesitter-textobjects'
-  use 'neovim/nvim-lspconfig' -- Collection of configurations for built-in LSP client
-  use 'hrsh7th/nvim-compe' -- Autocompletion plugin
-  use 'L3MON4D3/LuaSnip' -- Snippets plugin
+local packer = require('packer')
+local use = packer.use
 
-  --- Migrate
-  use 'chriskempson/base16-vim'
-  use 'christoomey/vim-tmux-navigator'
-  use 'wesQ3/vim-windowswap'
-  use 'chaoren/vim-wordmotion'
-  use 'mg979/vim-visual-multi'
-  use 'kana/vim-textobj-user'
-  use 'kana/vim-textobj-line'
-  use 'kana/vim-textobj-fold'
-  use 'kana/vim-textobj-indent'
-  use 'coderifous/textobj-word-column.vim'
-  use 'tpope/vim-surround'
-  use 'tpope/vim-repeat'
-  use 'tpope/vim-abolish'
-  use 'tpope/vim-speeddating'
-  use 'AndrewRadev/splitjoin.vim'
-  use 'matze/vim-move'
-  use 'andymass/vim-matchup'
-  use 'b0o/vim-shot-f'
-  use 'triglav/vim-visual-increment'
-  use 'terryma/vim-expand-region'
-  use 'wellle/visual-split.vim'
-  use 'mbbill/undotree'
-  use 'godlygeek/tabular'
-  use 'gpanders/editorconfig.nvim'
-  use 'christoomey/vim-conflicted'
-  use 'b0o/shellcheck-extras.vim'
-  use 'liuchengxu/vista.vim'
-  use 'rescript-lang/vim-rescript'
-  use 'Akin909/vim-dune'
-  use 'mboughaba/i3config.vim'
-  use 'alx741/vinfo'
-  use 'KabbAmine/vCoolor.vim'
-  use {
-    'rrethy/vim-hexokinase',
-    run = 'make hexokinase'
-  }
-  use 'chrisbra/Recover.vim'
-  use {
-    'mattn/gist-vim',
-    requires = 'mattn/webapi-vim'
-  }
-  use 'tpope/vim-eunuch'
-  use 'folke/which-key.nvim'
-
+local function uselocal(p, ...)
   local git_projects_dir = os.getenv('GIT_PROJECTS_DIR')
   if git_projects_dir ~= nil then
-    use { git_projects_dir .. '/vim-man' }
-    use { git_projects_dir .. '/extended-scrolloff.vim' }
-    use { git_projects_dir .. '/mapx.lua' }
-    use { git_projects_dir .. '/vim-buffest' }
+    use { git_projects_dir .. '/' .. p, ... }
   end
-  --- /Migrate
+end
 
-  --- New
+packer.init({
+  max_jobs = tonumber(vim.fn.system("nproc")) or 8,
+})
+
+packer.startup(function()
+   -- Package management
+  use 'wbthomason/packer.nvim'
+
+  -- Config
+  uselocal 'mapx.nvim'
+
+  -- UI
+  use 'Famiu/feline.nvim'
+  use 'kyazdani42/nvim-web-devicons'
+  -- use 'itchyny/lightline.vim'
+  use 'chriskempson/base16-vim'
   use 'ericbn/vim-relativize'
+  use 'folke/which-key.nvim'
+  use 'joshdick/onedark.vim'
+  use 'liuchengxu/vista.vim'
+  use {
+    'nvim-telescope/telescope.nvim',
+    requires = { 'nvim-lua/popup.nvim', 'nvim-lua/plenary.nvim' }
+  }
+  -- XXX: https://github.com/lukas-reineke/indent-blankline.nvim/issues/74
+  -- use 'lukas-reineke/indent-blankline.nvim'
+
+  -- Editing
+  use 'AndrewRadev/splitjoin.vim'
+  use 'andymass/vim-matchup'
+  use 'b0o/vim-shot-f'
+  use 'chaoren/vim-wordmotion'
+  use 'coderifous/textobj-word-column.vim'
+  use 'godlygeek/tabular'
+  use 'kana/vim-textobj-fold'
+  use 'kana/vim-textobj-indent'
+  use 'kana/vim-textobj-line'
+  use 'kana/vim-textobj-user'
+  use 'matze/vim-move'
+  use 'mg979/vim-visual-multi'
+  use 'sgur/vim-textobj-parameter'
+  use 'terryma/vim-expand-region'
+  use 'tpope/vim-abolish'
+  use 'tpope/vim-commentary'
+  use 'tpope/vim-repeat'
+  use 'tpope/vim-speeddating'
+  use 'tpope/vim-surround'
+  use 'triglav/vim-visual-increment'
+  use 'wellle/visual-split.vim'
+  -- uselocal 'extended-scrolloff.vim'
+  uselocal 'vim-buffest'
+
+  -- Backup, Undo
+  use 'chrisbra/Recover.vim'
+  use 'mbbill/undotree'
+
+  -- Treesitter
+  use 'nvim-treesitter/nvim-treesitter'
+  use 'nvim-treesitter/nvim-treesitter-textobjects'
+
+  -- LSP
+  use 'neovim/nvim-lspconfig'
+  use 'folke/lsp-colors.nvim'
+  use 'folke/trouble.nvim'
+  use 'nvim-lua/lsp-status.nvim'
+  use 'glepnir/lspsaga.nvim'
+
+  -- Code Style, Formatting, Linting
+  use 'editorconfig/editorconfig-vim'
+  use 'b0o/shellcheck-extras.vim'
+
+  -- Git
+  use 'christoomey/vim-conflicted'
+  use 'tpope/vim-fugitive'
+  use 'tpope/vim-rhubarb'
+  use { 'lewis6991/gitsigns.nvim', requires = 'nvim-lua/plenary.nvim' }
+  use { 'mattn/gist-vim', requires = 'mattn/webapi-vim' }
+
+  -- System
+  use 'tpope/vim-eunuch'
+
+  -- Tooling
+  use 'ludovicchabant/vim-gutentags'
+
+  -- Code Completion
+  use 'L3MON4D3/LuaSnip'
+  use 'hrsh7th/nvim-compe'
+
+  -- Window Movement and Management
+  use 'christoomey/vim-tmux-navigator'
+  use 'wesQ3/vim-windowswap'
+
+  -- Language-specific
+  use 'Akin909/vim-dune'
+  use 'mboughaba/i3config.vim'
+  use 'rescript-lang/vim-rescript'
+
+  -- Documentation
+  use 'alx741/vinfo'
+  uselocal 'vim-man'
+
+  -- Color
+  use 'KabbAmine/vCoolor.vim'
+  use { 'rrethy/vim-hexokinase', run = 'make hexokinase' }
+
+  --- Vim Plugin Development
+  use 'bfredl/nvim-luadev'
+
+  -- Misc
   use { 'lewis6991/impatient.nvim', rocks = 'mpack' }
-  --- /New
+
+  -- Local
 end)
 
---Set statusbar
-vim.g.lightline = {
-  -- colorscheme = 'onedark', -- TODO
-  active = { left = { { 'mode', 'paste' }, { 'gitbranch', 'readonly', 'filename', 'modified' } } },
-  component_function = { gitbranch = 'fugitive#head' },
-}
+-- itchyny/lightline.vim
+-- vim.g.lightline = {
+--   -- colorscheme = 'onedark', -- TODO
+--   active = { left = { { 'mode', 'paste' }, { 'gitbranch', 'readonly', 'filename', 'modified' } } },
+--   component_function = { gitbranch = 'fugitive#head' },
+-- }
 
--- Gitsigns
-require('gitsigns').setup {
-  signs = {
-    add = { hl = 'GitGutterAdd', text = '+' },
-    change = { hl = 'GitGutterChange', text = '~' },
-    delete = { hl = 'GitGutterDelete', text = '_' },
-    topdelete = { hl = 'GitGutterDelete', text = '‾' },
-    changedelete = { hl = 'GitGutterChange', text = '~' },
-  },
-}
+-- Famiu/feline.nvim
+-- require('feline').setup {}
 
--- Telescope
+-- lewis6991/gitsigns.nvim
+require('gitsigns').setup {}
+
+-- nvim-telescope/telescope.nvim
 require('telescope').setup {
   defaults = {
     mappings = {
@@ -122,70 +151,6 @@ require('telescope').setup {
         ['<C-u>'] = false,
         ['<M-n>'] = require('telescope.actions').cycle_history_next,
         ['<M-p>'] = require('telescope.actions').cycle_history_next,
-      },
-    },
-  },
-}
-
--- LSP settings
-local lsp = require'lspconfig'
-local on_attach = function(_, bufnr)
-  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-  _G.nvim_lsp_mapfn(bufnr)
-end
-
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities.textDocument.completion.completionItem.snippetSupport = true
-
--- Enable the following language servers
-local servers = { 'clangd', 'rust_analyzer', 'pyright', 'tsserver' }
-for _, server in ipairs(servers) do
-  lsp[server].setup {
-    on_attach = on_attach,
-    capabilities = capabilities,
-  }
-end
-
--- Lua language server
--- Make runtime files discoverable to the server
-local runtime_path = vim.split(package.path, ';')
-table.insert(runtime_path, 'lua/?.lua')
-table.insert(runtime_path, 'lua/?/init.lua')
-
-lsp.sumneko_lua.setup {
-  cmd = {
-    '/usr/lib/lua-language-server/lua-language-server',
-    '-E', '/usr/share/lua-language-server/main.lua',
-    '--logpath="' .. vim.fn.stdpath('cache') .. '/lua-language-server/log"',
-    '--metapath="' .. vim.fn.stdpath('cache') .. '/lua-language-server/meta"',
-  },
-  on_attach = on_attach,
-  capabilities = capabilities,
-  settings = {
-    Lua = {
-      runtime = {
-        -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
-        version = 'LuaJIT',
-        -- Setup your lua path
-        path = runtime_path,
-      },
-      diagnostics = {
-        -- Get the language server to recognize the `vim` global
-        globals = {
-          'vim',
-          -- mapx.lua:
-          'map', 'nmap', 'vmap', 'xmap', 'smap', 'omap', 'imap', 'lmap', 'cmap', 'tmap',
-          'noremap', 'nnoremap', 'vnoremap', 'xnoremap', 'snoremap', 'onoremap',
-          'inoremap', 'lnoremap', 'cnoremap', 'tnoremap', 'mapbang', 'noremapbang',
-        },
-      },
-      workspace = {
-        -- Make the server aware of Neovim runtime files
-        library = vim.api.nvim_get_runtime_file('', true),
-      },
-      -- Do not send telemetry data containing a randomized but unique identifier
-      telemetry = {
-        enable = false,
       },
     },
   },
@@ -275,11 +240,6 @@ local check_back_space = function()
   end
 end
 
----- Use (s-)tab to:
--- move to prev/next item in completion menuone
--- jump to prev/next snippet's placeholder
-
------- Migrate
 ---- b0o/vim-man
 -- prevent /usr/share/nvim/runtime/plugin/man.vim from initializing
 vim.g.loaded_man = 1
@@ -308,7 +268,7 @@ require('which-key').setup {
   plugins = {
     spelling = {
       enabled = true,
-      suggestions = 20,
+      suggestions = 30,
     },
   },
 }
@@ -316,17 +276,31 @@ require('which-key').setup {
 ---- b0o/vim-shot-f
 local shotf_cterm = 'lightcyan'
 local shotf_gui   = '#7CFFE4'
-vim.g.shot_f_highlight_graph = 'ctermfg=' .. shotf_cterm .. ' ctermbg=NONE cterm=bold guifg=' .. shotf_gui .. ' guibg=NONE gui=underline'
-vim.g.shot_f_highlight_blank = 'ctermfg=NONE ctermbg=' .. shotf_cterm .. ' cterm=NONE guifg=NONE guibg=' .. shotf_gui .. ' gui=underline'
+vim.g.shot_f_highlight_graph = table.concat({
+  'cterm=bold',
+  'ctermbg=NONE',
+  'ctermfg=' .. shotf_cterm,
+  'gui=underline',
+  'guibg=NONE',
+  'guifg=' .. shotf_gui,
+}, " ")
+vim.g.shot_f_highlight_blank = table.concat({
+  'cterm=bold',
+  'ctermbg=' .. shotf_cterm,
+  'ctermfg=NONE',
+  'gui=underline',
+  'guibg=' .. shotf_gui,
+  'guifg=NONE',
+}, " ")
 
 ---- KabbAmine/vCoolor.vim
 vim.g.vcoolor_lowercase = 0
 vim.g.vcoolor_disable_mappings = 1
-
 -- Use yad as the color picker (Linux)
-vim.g.vcoolor_custom_picker = 'yad --title="Color Picker" --color --splash --on-top --skip-taskbar --init-color='
-
------ /Migrate
-
------ Added
------ /Added
+if vim.fn.has('unix') then
+  vim.g.vcoolor_custom_picker = table.concat({
+    'yad',
+    '-title="Color Picker" --color', '-splash', '-on-top',
+    '-skip-taskbar', '-init-color='
+  }, " ")
+end
