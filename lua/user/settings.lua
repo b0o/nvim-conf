@@ -19,11 +19,11 @@ vim.o.breakindent = true
 vim.o.ignorecase = true
 vim.o.smartcase = true
 
-vim.o.ignorecase = true   -- ignore case when searching
-vim.o.smartcase = true    -- don't ignore case if user types an uppercase letter
-vim.o.hlsearch = true     -- keep matches highlighted after searching
-vim.o.incsearch = true    -- show matches while typing
-vim.o.magic = true        -- change set of special search characters
+vim.o.ignorecase = true -- ignore case when searching
+vim.o.smartcase = true -- don't ignore case if user types an uppercase letter
+vim.o.hlsearch = true -- keep matches highlighted after searching
+vim.o.incsearch = true -- show matches while typing
+vim.o.magic = true -- change set of special search characters
 
 vim.o.inccommand = 'nosplit' -- when typing a :s/foo/bar/g command, show live preview
 
@@ -42,16 +42,13 @@ vim.o.splitbelow = true -- default horizontal splits to open on bottom
 
 vim.o.wildchar = 9 -- equivalent to 'set wildchar=<Tab>'
 
-vim.o.completeopt = 'menuone,noselect'
-
 vim.o.modeline = true -- always parse modelines when loading files
-
 
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ','
 
 vim.o.title = true
-vim.cmd([[
+vim.cmd [[
   function! g:TitlestringModified()
     return &modified ? '[*]' : ''
   endfunction
@@ -63,7 +60,7 @@ vim.cmd([[
     endif
     return ''
   endfunction
-]])
+]]
 vim.o.titlestring = '%t%{TitlestringModified()}%{TitlestringTabs()}'
 
 vim.o.cursorline = true
@@ -76,13 +73,19 @@ vim.o.showmatch = true
 
 vim.o.scrolloff = 5
 
-vim.cmd([[
+vim.cmd [[
   set guicursor=n-v-c:block-Cursor
   set guicursor+=n-v-c:blinkon0
-]])
+]]
 
-vim.o.list = true
-vim.o.listchars = 'eol:⌐,tab:⋅ ,trail:~,extends:»,precedes:«'
+vim.opt.list = true
+vim.opt.listchars = {
+  eol = '⌐',
+  tab = '',
+  trail = '~',
+  extends = '»',
+  precedes = '«',
+}
 
 vim.o.termguicolors = true
 
@@ -94,13 +97,16 @@ if vim.g.colorscheme == nil then
   end
 end
 
-if vim.fn.exists('g:colorscheme') then
-  -- let g:airline_theme = substitute(g:colorscheme, '-', '_', 'g')
-  vim.cmd([[
+if vim.fn.exists 'g:colorscheme' then
+  vim.cmd [[
     try
       exec 'colorscheme ' . g:colorscheme
     catch
       echom 'Error: Unable to set colorscheme ' . g:colorscheme . "\n"
     endtry
-  ]])
+  ]]
 end
+
+-- Filetypes
+-- disable default man.vim mappings
+vim.g.no_man_maps = 1

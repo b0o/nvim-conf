@@ -1,6 +1,8 @@
-local lsp = require('feline.providers.lsp')
-local vi_mode_utils = require('feline.providers.vi_mode')
-local defaults = require('feline.defaults')
+local feline = require 'feline'
+local lsp = require 'feline.providers.lsp'
+local vi_mode_utils = require 'feline.providers.vi_mode'
+local defaults = require 'feline.defaults'
+require 'user.statusline.lsp'
 
 local g = vim.g
 local b = vim.b
@@ -23,38 +25,40 @@ local colors = {
   white = colors_gui['5'] or defaults.white,
   yellow = colors_gui['13'] or defaults.yellow,
 
-  butter = "#fffacf",
-  milk = "#fdf6e3",
-  cream = "#e6dac3",
-  cashew = "#CEB999",
-  almond = "#a6875a",
-  cocoa = "#3b290e",
+  butter = '#fffacf',
+  milk = '#fdf6e3',
+  cream = '#e6dac3',
+  cashew = '#CEB999',
+  almond = '#a6875a',
+  cocoa = '#3b290e',
 
-  licorice = "#483270",
-  lavender = "#d7b0ff",
-  velvet = "#d7cfe6",
-  anise = "#C5A7FF",
-  hydrangea = "#ca7fff",
-  blush = "#F6D7FF",
-  powder = "#e9d9ee",
+  licorice = '#483270',
+  lavender = '#d7b0ff',
+  velvet = '#d7cfe6',
+  anise = '#C5A7FF',
+  hydrangea = '#ca7fff',
+  blush = '#F6D7FF',
+  powder = '#e9d9ee',
 
-  evergreen = "#9fdfb4",
+  evergreen = '#9fdfb4',
 
-  snow = "#e4fffe",
-  ice = "#a4e2e0",
-  mint = "#a2e0ca",
+  snow = '#e4fffe',
+  ice = '#a4e2e0',
+  mint = '#a2e0ca',
 
-  nectar = "#f0f070",
-  cayenne = "#ff7a75",
-  yam = "#e86f54",
-  pumpkin = "#ff9969",
-  rose = "#b32e29",
+  nectar = '#f0f070',
+  cayenne = '#ff7a75',
+  yam = '#e86f54',
+  pumpkin = '#ff9969',
+  rose = '#b32e29',
 
-  grey2 = "#222222",
-  grey5 = "#888888",
-  grey8 = "#dddddd",
+  grey2 = '#222222',
+  grey5 = '#777777',
+  grey6 = '#aaaaaa',
+  grey7 = '#cccccc',
+  grey8 = '#dddddd',
 
-  deep_lavender = "#705987",
+  deep_lavender = '#705987',
 }
 
 local separators = {
@@ -77,7 +81,7 @@ local separators = {
   left_rounded_thin = '',
   right_rounded = '',
   right_rounded_thin = '',
-  circle = '●'
+  circle = '●',
 }
 
 local vi_mode_colors = {
@@ -95,11 +99,11 @@ local vi_mode_colors = {
   ['COMMAND'] = colors.green,
   ['SHELL'] = colors.green,
   ['TERM'] = colors.green,
-  ['NONE'] = colors.yellow
+  ['NONE'] = colors.yellow,
 }
 
 local config = {
-  preset = "default",
+  preset = 'default',
 
   colors = colors,
   separators = separators,
@@ -123,167 +127,187 @@ local config = {
 
   components = {
     active = {},
-    inactive = {}
-  }
+    inactive = {},
+  },
 }
 
 config.components.active[1] = {
-    {
-        provider = '▊ ',
-        hl = {
-            fg = 'skyblue'
-        }
+  {
+    provider = '▊ ',
+    hl = { fg = 'skyblue' },
+  },
+  {
+    provider = 'vi_mode',
+    hl = function()
+      return {
+        name = vi_mode_utils.get_mode_highlight_name(),
+        fg = vi_mode_utils.get_mode_color(),
+        style = 'bold',
+      }
+    end,
+    right_sep = ' ',
+  },
+  --   {
+  --     provider = require'mapx'.getMode,
+  --     hl = { fg = white, style = 'bold' },
+  --     left_sep = ' ',
+  --     right_sep = ' ',
+  --   },
+  {
+    provider = 'file_info',
+    hl = {
+      fg = 'white',
+      bg = 'violet',
+      style = 'bold',
     },
-    {
-        provider = 'vi_mode',
-        hl = function()
-            return {
-                name = vi_mode_utils.get_mode_highlight_name(),
-                fg = vi_mode_utils.get_mode_color(),
-                style = 'bold'
-            }
-        end,
-        right_sep = ' '
+    left_sep = {
+      ' ',
+      'slant_left_2',
+      { str = ' ', hl = { bg = 'violet', fg = 'NONE' } },
     },
-    {
-        provider = 'file_info',
-        hl = {
-            fg = 'white',
-            bg = 'violet',
-            style = 'bold'
-        },
-        left_sep = {
-            ' ', 'slant_left_2',
-            {str = ' ', hl = {bg = 'violet', fg = 'NONE'}}
-        },
-        right_sep = {'slant_right_2', ' '}
+    right_sep = { 'slant_right_2', ' ' },
+  },
+  {
+    provider = 'file_size',
+    enabled = function()
+      return fn.getfsize(fn.expand '%:p') > 0
+    end,
+    right_sep = {
+      ' ',
+      { str = 'slant_left_2_thin', hl = { fg = 'fg', bg = 'bg' } },
     },
-    {
-        provider = 'file_size',
-        enabled = function() return fn.getfsize(fn.expand('%:p')) > 0 end,
-        right_sep = {
-            ' ',
-            {
-                str = 'slant_left_2_thin',
-                hl = {
-                    fg = 'fg',
-                    bg = 'bg'
-                }
-            },
-        }
+  },
+  {
+    provider = 'position',
+    left_sep = ' ',
+    right_sep = {
+      ' ',
+      { str = 'slant_right_2_thin', hl = { fg = 'fg', bg = 'bg' } },
     },
-    {
-        provider = 'position',
-        left_sep = ' ',
-        right_sep = {
-            ' ',
-            {
-                str = 'slant_right_2_thin',
-                hl = {
-                    fg = 'fg',
-                    bg = 'bg'
-                }
-            }
-        }
-    },
-    {
-        provider = 'diagnostic_errors',
-        enabled = function() return lsp.diagnostics_exist('Error') end,
-        hl = { fg = 'red' }
-    },
-    {
-        provider = 'diagnostic_warnings',
-        enabled = function() return lsp.diagnostics_exist('Warning') end,
-        hl = { fg = 'yellow' }
-    },
-    {
-        provider = 'diagnostic_hints',
-        enabled = function() return lsp.diagnostics_exist('Hint') end,
-        hl = { fg = 'cyan' }
-    },
-    {
-        provider = 'diagnostic_info',
-        enabled = function() return lsp.diagnostics_exist('Information') end,
-        hl = { fg = 'skyblue' }
-    }
+  },
+  {
+    provider = 'diagnostic_errors',
+    enabled = function()
+      return lsp.diagnostics_exist 'Error'
+    end,
+    hl = { fg = 'red' },
+  },
+  {
+    provider = 'diagnostic_warnings',
+    enabled = function()
+      return lsp.diagnostics_exist 'Warning'
+    end,
+    hl = { fg = 'yellow' },
+  },
+  {
+    provider = 'diagnostic_hints',
+    enabled = function()
+      return lsp.diagnostics_exist 'Hint'
+    end,
+    hl = { fg = 'cyan' },
+  },
+  {
+    provider = 'diagnostic_info',
+    enabled = function()
+      return lsp.diagnostics_exist 'Information'
+    end,
+    hl = { fg = 'skyblue' },
+  },
 }
 
 config.components.active[2] = {
-    {
-        provider = 'git_branch',
-        hl = {
-            fg = 'white',
-            bg = 'black',
-            style = 'bold'
-        },
-        right_sep = function()
-            local val = {hl = {fg = 'NONE', bg = 'black'}}
-            if b.gitsigns_status_dict then val.str = ' ' else val.str = '' end
-            return val
-        end
+  {
+    provider = 'lsp_progress',
+    hl = { fg = 'blush', bold = false },
+  },
+}
+
+config.components.active[3] = {
+  {
+    provider = 'lsp_clients_running',
+    hl = { fg = 'green' },
+    right_sep = ' ',
+  },
+  {
+    provider = 'lsp_clients_starting',
+    hl = { fg = 'skyblue' },
+    right_sep = ' ',
+  },
+  {
+    provider = 'lsp_clients_exited_ok',
+    hl = { fg = 'grey6' },
+    right_sep = ' ',
+  },
+  {
+    provider = 'lsp_clients_exited_err',
+    hl = { fg = 'red' },
+    right_sep = ' ',
+  },
+  {
+    provider = 'git_branch',
+    hl = {
+      fg = 'white',
+      style = 'bold',
     },
-    {
-        provider = 'git_diff_added',
-        hl = {
-            fg = 'green',
-            bg = 'black'
-        }
+    right_sep = ' ',
+    left_sep = ' ',
+  },
+  {
+    provider = 'git_diff_added',
+    hl = {
+      fg = 'green',
     },
-    {
-        provider = 'git_diff_changed',
-        hl = {
-            fg = 'orange',
-            bg = 'black'
-        }
+  },
+  {
+    provider = 'git_diff_changed',
+    hl = {
+      fg = 'orange',
     },
-    {
-        provider = 'git_diff_removed',
-        hl = {
-            fg = 'red',
-            bg = 'black'
-        },
-        right_sep = function()
-            local val = {hl = {fg = 'NONE', bg = 'black'}}
-            if b.gitsigns_status_dict then val.str = ' ' else val.str = '' end
-            return val
-        end
+  },
+  {
+    provider = 'git_diff_removed',
+    hl = {
+      fg = 'red',
     },
-    {
-        provider = 'line_percentage',
-        hl = {
-            style = 'bold'
-        },
-        left_sep = '  ',
-        right_sep = ' '
+    right_sep = ' ',
+  },
+  {
+    provider = 'line_percentage',
+    hl = {
+      style = 'bold',
     },
-    {
-        provider = 'scroll_bar',
-        hl = {
-            fg = 'skyblue',
-            style = 'bold'
-        }
-    }
+    left_sep = ' ',
+    right_sep = ' ',
+  },
+  {
+    provider = 'scroll_bar',
+    hl = {
+      fg = 'skyblue',
+      style = 'bold',
+    },
+  },
 }
 
 config.components.inactive[1] = {
-    {
-        provider = '▊   ',
-        hl = {
-            fg = 'deep_lavender'
-        }
+  {
+    provider = '▊   ',
+    hl = {
+      fg = 'deep_lavender',
     },
-    {
-        provider = 'file_info',
-        hl = {
-            fg = 'white',
-            bg = 'deep_lavender',
-        },
-        left_sep = {
-            ' ', 'slant_left_2',
-            {str = ' ', hl = {bg = 'deep_lavender', fg = 'NONE'}}
-        },
-        right_sep = {'slant_right_2', ' '}
+  },
+  {
+    provider = 'file_info',
+    hl = {
+      fg = 'white',
+      bg = 'deep_lavender',
     },
+    left_sep = {
+      ' ',
+      'slant_left_2',
+      { str = ' ', hl = { bg = 'deep_lavender', fg = 'NONE' } },
+    },
+    right_sep = { 'slant_right_2', ' ' },
+  },
 }
 
-require('feline').setup(config)
+feline.setup(config)

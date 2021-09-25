@@ -1,6 +1,4 @@
 command! -nargs=+ -complete=command Put pu=execute(\"<args>\")
-command! -bang -nargs=+ -complete=command Puts
-  \ if "<bang>" ==# "!" | vertical new | else | new | endif | pu=execute(\"<args>\")
 
 command! PluginClean call user#fn#pluginClean()
 command! PluginInstall call user#fn#pluginInstall()
@@ -15,7 +13,8 @@ command! -bang -count -nargs=* Vterm call user#fn#openTerm(<q-args>, <count>, 0,
 command! -bang -count -nargs=* Vnterm call user#fn#openTerm(<q-args>, <count>, 0, <bang>0)
 
 command! -nargs=* -complete=help H call user#fn#tabcmd('tab help %s', 'help %s | only', <q-args>)
-command! -nargs=* -bar -complete=customlist,man#completion#run M call user#fn#tabcmd('tabe | Man %s | only', 'Man %s | only', <q-args>)
+command! -nargs=* -bar -complete=customlist,man#complete Man lua require'user.fn'.man('', <q-args>)
+command! -nargs=* -bar -complete=customlist,man#complete M lua require'user.fn'.man('tab', <q-args>)
 
 command! CloseWin call user#fn#closeWin()
 command! ReloadConfig call user#fn#reloadConfig()

@@ -549,10 +549,22 @@ function! user#fn#cmdlineMoveWord(dir, del)
   throw 'invalid direction ' . a:dir
 endfunction
 
-" TODO: replace with https://gist.github.com/b0o/441152003be2dab037e4260af0520819
-" window swapping
-function! user#fn#windowSwapInDirection(dir)
-  call WindowSwap#MarkWindowSwap()
-  exec 'wincmd ' . a:dir
-  call WindowSwap#DoWindowSwap()
+function! user#fn#manSectionMove(direction, mode, count)
+  norm! m'
+  if a:mode ==# 'v'
+    norm! gv
+  endif
+  let i = 0
+  while i < a:count
+    let i += 1
+    " saving current position
+    let line = line('.')
+    let col  = col('.')
+    let pos = search('^\a\+', 'W'.a:direction)
+    " if there are no more matches, return to last position
+    if pos == 0
+      call cursor(line, col)
+      return
+    endif
+  endwhile
 endfunction

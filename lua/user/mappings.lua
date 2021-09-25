@@ -1,6 +1,11 @@
-local m = require'mapx'.setup{ global = true, whichkey = true }
+-- stylua: ignore start
+local fn = require'user.fn'
+local m = require'mapx'.setup{ global = true, whichkey = true, debug = vim.g.mapxDebug or false }
+
 local silent = m.silent
 local expr = m.expr
+
+local curry, icurry = fn.curry, fn.icurry
 
 -- Disable C-z suspend
 map     ([[<C-z>]], [[<Nop>]])
@@ -29,8 +34,8 @@ nnoremap ([[W]], [[w]], "Move full word forward")
 nnoremap ([[<M-b>]], [[ge]], "Move to the end of the previous word")
 
 -- https://vim.fandom.com/wiki/Insert_a_single_character
-nnoremap ([[<M-i>]], [[:exec "normal i".nr2char(getchar())."\e"<Cr>]], silent, "Insert a single character")
-nnoremap ([[<M-a>]], [[:exec "normal a".nr2char(getchar())."\e"<Cr>]], silent, "Insert a single character")
+nnoremap ([[<M-S-i>]], [[:exec "normal i".nr2char(getchar())."\e"<Cr>]], silent, "Insert a single character")
+nnoremap ([[<M-S-a>]], [[:exec "normal a".nr2char(getchar())."\e"<Cr>]], silent, "Insert a single character")
 
 vnoremap ([[>]], [[>gv]], "Indent")
 vnoremap ([[<]], [[<gv]], "De-Indent")
@@ -51,7 +56,7 @@ vnoremap ([[<leader>/]], [[:s/]],  "Substitute")
 vnoremap ([[<leader>?]], [[:S/]],  "Substitute (rev)")
 
 -- Toggle line wrapping
-nnoremap ({[[<leader>wr]], [[<leader>ww]]}, [[:setlocal wrap!<Cr>:setlocal wrap?<Cr>]], silent, "Toggle wrap")
+nnoremap ({[[<leader>W]], [[<leader>ww]]}, [[:setlocal wrap!<Cr>:setlocal wrap?<Cr>]], silent, "Toggle wrap")
 
 nnoremap ([[<M-o>]], [[m'Do<esc>p`']], "Insert a space and then paste before/after cursor")
 nnoremap ([[<M-O>]], [[m'DO<esc>p`']], "Insert a space and then paste before/after cursor")
@@ -83,8 +88,16 @@ nnoremap ([[<C-M-k>]], [["dY"dP]])
 vnoremap ([[<C-M-j>]], [["dy`<"dPjgv]])
 vnoremap ([[<C-M-k>]], [["dy`>"dpgv]])
 
--- Clear search highlight and command-line on esc
-nnoremap ([[<esc>]], [[:noh \| echo ""<Cr>]], silent)
+
+-- Clear UI state:
+-- - Clear search highlight
+-- - Clear command-line
+-- - Close floating windows
+nnoremap ([[<Esc>]], function()
+  vim.cmd("nohlsearch")
+  fn.closeFloatWins()
+  vim.cmd("echo ''")
+end, silent)
 
 -- Force redraw
 -- See: https://github.com/mhinz/vim-galore#saner-ctrl-l
@@ -97,7 +110,7 @@ nnoremap ([[<leader>rr]], [[:lua require'user.fn'.reload()<Cr>]], silent, "Reloa
 noremap ([[gF]], [[<C-w>gf]], "Go to file under cursor (new tab)")
 
 -- open tab in new terminal instance
-nnoremap ([[<leader>W]], [[:call user#fn#windowToNewTerminal()<Cr>]], "Move window to new terminal")
+-- nnoremap ([[<leader>W]], [[:call user#fn#windowToNewTerminal()<Cr>]], "Move window to new terminal")
 
 -- conceal
 nnoremap ([[<leader>cl]], [[:call user#fn#toggleConcealLevel()<Cr>]], silent, "Toggle conceal level")
@@ -128,12 +141,12 @@ vim.cmd([[
   let @k=''
   let @l=''
 ]])
-nnoremap ([[<F30>]], [["ldd:let @k=@k.@l \| let @l=@k<cr>]], silent)
-nnoremap ([[<F24>]], [[:if @l != "" \| let @k=@l \| end<cr>"KgP:let @l=@k<cr>:let @k=""<cr>]], silent)
+nnoremap ([[<F30>]], [["ldd:let @k=@k.@l | let @l=@k<cr>]], silent)
+nnoremap ([[<F24>]], [[:if @l != "" | let @k=@l | end<cr>"KgP:let @l=@k<cr>:let @k=""<cr>]], silent)
 
 -- overload tab key to also perform next/prev in popup menus
-inoremap ([[<Tab>]],   [[pumvisible() ? "\<C-n>" : "\<Tab>"]], silent, expr)
-inoremap ([[<S-Tab>]], [[pumvisible() ? "\<C-p>" : "\<S-Tab>"]], silent, expr)
+-- inoremap ([[<Tab>]],   [[pumvisible() ? "\<C-n>" : "\<Tab>"]], silent, expr)
+-- inoremap ([[<S-Tab>]], [[pumvisible() ? "\<C-p>" : "\<S-Tab>"]], silent, expr)
 
 -- emacs-style motion & editing in command mode
 cnoremap ([[<C-a>]], [[<Home>]])
@@ -159,11 +172,12 @@ cnoremap ([[<c-n>]], [[pumvisible() ? "\<C-n>" : "\<down>"]], expr)
 
 --"" Tabs
 
--- Navigate left/right through tabs
-noremap ([[<M-'>]], [[:tabn<Cr>]], silent)
-noremap ([[<M-;>]], [[:tabp<Cr>]], silent)
-tnoremap ([[<M-'>]], [[<C-\><C-n>:tabn<Cr>]], silent)
-tnoremap ([[<M-;>]], [[<C-\><C-n>:tabp<Cr>]], silent)
+-- Navigate tabs
+noremap  ([[<M-'>]], [[:tabn<Cr>]],           silent, "Tabs: Goto next")
+noremap  ([[<M-;>]], [[:tabp<Cr>]],           silent, "Tabs: Goto prev")
+tnoremap ([[<M-'>]], [[<C-\><C-n>:tabn<Cr>]], silent, "Tabs: goto next")
+tnoremap ([[<M-;>]], [[<C-\><C-n>:tabp<Cr>]], silent, "Tabs: goto prev")
+noremap  ([[<M-a>]], [[g<Tab>]],              silent, "Tabs: Goto last accessed")
 
 -- Rearrange tabs
 noremap ([[<M-">]], [[:+tabm<Cr>]], silent)
@@ -184,12 +198,6 @@ noremap ([[<M-7>]], [[:call user#fn#tabnm(7)<Cr>]], silent)
 noremap ([[<M-8>]], [[:call user#fn#tabnm(8)<Cr>]], silent)
 noremap ([[<M-9>]], [[:call user#fn#tabnm(9)<Cr>]], silent)
 noremap ([[<M-0>]], [[:call user#fn#tabnm(10)<Cr>]], silent)
-
--- Swap splits (lol)
-noremap ([[<M-left>]],  [[:call user#fn#windowSwapInDirection('h')<Cr>]], silent)
-noremap ([[<M-down>]],  [[:call user#fn#windowSwapInDirection('j')<Cr>]], silent)
-noremap ([[<M-up>]],    [[:call user#fn#windowSwapInDirection('k')<Cr>]], silent)
-noremap ([[<M-right>]], [[:call user#fn#windowSwapInDirection('l')<Cr>]], silent)
 
 -- Alt+[hjkl] to navigate through splits in terminal mode
 tnoremap ([[<M-h>]], [[<C-\><C-n><C-w>h]])
@@ -274,58 +282,24 @@ nmap     ([[<M-j>]], [[:TmuxNavigateDown<cr>]],  silent)
 nmap     ([[<M-k>]], [[:TmuxNavigateUp<cr>]],    silent)
 nmap     ([[<M-l>]], [[:TmuxNavigateRight<cr>]], silent)
 
----- L3MON4D3/LuaSnip TODO
--- local luasnip = require 'luasnip'
-
--- _G.tab_complete = function()
---   if vim.fn.pumvisible() == 1 then
---     return '<C-n>'
---   elseif luasnip.expand_or_jumpable() then
---     return '<Plug>luasnip-expand-or-jump'
---   elseif check_back_space() then
---     return '<Tab>'
---   else
---     return vim.fn['compe#complete']()
---   end
--- end
-
--- _G.s_tab_complete = function()
---   if vim.fn.pumvisible() == 1 then
---     return '<C-p>'
---   elseif luasnip.jumpable(-1) then
---     return '<Plug>luasnip-jump-prev'
---   else
---     return '<S-Tab>'
---   end
--- end
-
--- Map tab to the above tab complete functiones
-imap    ([[<Tab>]],   [[v:lua.tab_complete()]],   expr)
-smap    ([[<Tab>]],   [[v:lua.tab_complete()]],   expr)
-imap    ([[<S-Tab>]], [[v:lua.s_tab_complete()]], expr)
-smap    ([[<S-Tab>]], [[v:lua.s_tab_complete()]], expr)
-
----- hrsh7th/nvim-compe TODO
-imap    ([[<cr>]],      [[compe#confirm("<cr>")]], expr)
-imap    ([[<c-space>]], [[compe#complete()]],      expr)
 
 ---- nvim-telescope/telescope.nvim TODO: In-telescope maps
 m.group("silent", function()
   m.nname("<C-f>", "Telescope")
-  nnoremap ({[[<C-f>b]], [[<C-f><C-b>]]}, [[:lua require('telescope.builtin').buffers()<Cr>]],                         "Telescope: Buffers")
-  nnoremap ({[[<C-f>f]], [[<C-f><C-f>]]}, [[:lua require('telescope.builtin').find_files({previewer = false})<Cr>]],   "Telescope: Files")
-  nnoremap ({[[<C-f>h]], [[<C-f><C-h>]]}, [[:lua require('telescope.builtin').help_tags()<CR>]],                       "Telescope: Help tags")
-  nnoremap ({[[<C-f>t]], [[<C-f><C-t>]]}, [[:lua require('telescope.builtin').tags()<CR>]],                            "Telescope: Tags")
-  nnoremap ({[[<C-f>a]], [[<C-f><C-a>]]}, [[:lua require('telescope.builtin').grep_string()<CR>]],                     "Telescope: Grep for string")
-  nnoremap ({[[<C-f>p]], [[<C-f><C-p>]]}, [[:lua require('telescope.builtin').live_grep()<CR>]],                       "Telescope: Live grep")
-  nnoremap ({[[<C-f>o]], [[<C-f><C-o>]]}, [[:lua require('telescope.builtin').oldfiles()<CR>]],                        "Telescope: Old files")
+  nnoremap ({[[<C-f>b]], [[<C-f><C-b>]]}, icurry(require('telescope.builtin').buffers),                         "Telescope: Buffers")
+  nnoremap ({[[<C-f>f]], [[<C-f><C-f>]]}, icurry(require('telescope.builtin').find_files, {previewer = false}), "Telescope: Files")
+  nnoremap ({[[<C-f>h]], [[<C-f><C-h>]]}, icurry(require('telescope.builtin').help_tags),                       "Telescope: Help tags")
+  nnoremap ({[[<C-f>t]], [[<C-f><C-t>]]}, icurry(require('telescope.builtin').tags),                            "Telescope: Tags")
+  nnoremap ({[[<C-f>a]], [[<C-f><C-a>]]}, icurry(require('telescope.builtin').grep_string),                     "Telescope: Grep for string")
+  nnoremap ({[[<C-f>p]], [[<C-f><C-p>]]}, icurry(require('telescope.builtin').live_grep),                       "Telescope: Live grep")
+  nnoremap ({[[<C-f>o]], [[<C-f><C-o>]]}, icurry(require('telescope.builtin').oldfiles),                        "Telescope: Old files")
 
   m.nname("<M-f>", "Telescope-Buffer")
-  nnoremap ({[[<M-f>b]], [[<M-f><M-b>]]}, [[:lua require('telescope.builtin').current_buffer_fuzzy_find()<Cr>]],       "Telescope: Buffer (fuzzy)")
-  nnoremap ({[[<M-f>t]], [[<M-f><M-t>]]}, [[:lua require('telescope.builtin').tags({only_current_buffer = true}<Cr>]], "Telescope: Tags (buffer)")
+  nnoremap ({[[<M-f>b]], [[<M-f><M-b>]]}, icurry(require('telescope.builtin').current_buffer_fuzzy_find),          "Telescope: Buffer (fuzzy)")
+  nnoremap ({[[<M-f>t]], [[<M-f><M-t>]]}, icurry(require('telescope.builtin').tags ,{only_current_buffer = true}), "Telescope: Tags (buffer)")
 end)
 
----- neovim/nvim-lspconfig TODO
+---- neovim/nvim-lspconfig
 m.nname("<leader>l", "LSP")
 nnoremap ([[<leader>li]], [[:LspInfo<Cr>]],    "LSP: Show LSP information")
 nnoremap ([[<leader>lr]], [[:LspRestart<Cr>]], "LSP: Restart LSP")
@@ -333,40 +307,46 @@ nnoremap ([[<leader>ls]], [[:LspStart<Cr>]],   "LSP: Start LSP")
 nnoremap ([[<leader>lS]], [[:LspStop<Cr>]],    "LSP: Stop LSP")
 
 _G.nvim_lsp_mapfn = function(bufnr)
-  m.group({ buffer = bufnr, silent = true }, function()
+  local user_lsp = require'user.lsp'
 
+  m.group({ buffer = bufnr, silent = true }, function()
     m.nname("<localleader>g", "LSP-Goto")
-    nnoremap ({[[<localleader>gd]], [[gd]]},       [[<cmd>lua vim.lsp.buf.definition()<Cr>]],              "LSP: Goto definition")
-    nnoremap ([[<localleader>gD]],                 [[<cmd>lua vim.lsp.buf.declaration()<Cr>]],             "LSP: Goto declaration")
-    nnoremap ([[<localleader>gi]],                 [[<cmd>lua vim.lsp.buf.implementation()<Cr>]],          "LSP: Goto implementation")
-    nnoremap ([[<localleader>gt]],                 [[<cmd>lua vim.lsp.buf.type_definition()<Cr>]],         "LSP: Goto type definition")
-    nnoremap ([[<localleader>gr]],                 [[<cmd>lua vim.lsp.buf.references()<Cr>]],              "LSP: Goto references")
+    nnoremap ({[[<localleader>gd]], [[gd]]}, icurry(vim.lsp.buf.definition),      "LSP: Goto definition")
+    nnoremap ({[[<localleader>gd]], [[gd]]}, icurry(vim.lsp.buf.definition),      "LSP: Goto definition")
+    nnoremap ([[<localleader>gD]],           icurry(vim.lsp.buf.declaration),     "LSP: Goto declaration")
+    nnoremap ([[<localleader>gi]],           icurry(vim.lsp.buf.implementation),  "LSP: Goto implementation")
+    nnoremap ([[<localleader>gt]],           icurry(vim.lsp.buf.type_definition), "LSP: Goto type definition")
+    nnoremap ([[<localleader>gr]],           icurry(vim.lsp.buf.references),      "LSP: Goto references")
 
     m.nname("<localleader>w", "LSP-Workspace")
-    nnoremap ([[<localleader>wa]],                 [[<cmd>lua vim.lsp.buf.add_workspace_folder()<Cr>]],    "LSP: Add workspace folder")
-    nnoremap ([[<localleader>wr]],                 [[<cmd>lua vim.lsp.buf.remove_workspace_folder()<Cr>]], "LSP: Rm workspace folder")
-    nnoremap ([[<localleader>wl]],                 [[<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<Cr>]], "LSP: List workspace folders")
+    nnoremap ([[<localleader>wa]], icurry(vim.lsp.buf.add_workspace_folder),    "LSP: Add workspace folder")
+    nnoremap ([[<localleader>wr]], icurry(vim.lsp.buf.remove_workspace_folder), "LSP: Rm workspace folder")
 
-    nnoremap ([[<localleader>R]],                  [[<cmd>lua vim.lsp.buf.rename()<Cr>]],                  "LSP: Rename")
+    nnoremap ([[<localleader>wl]], function() fn.inspect(vim.lsp.buf.list_workspace_folders()) end, "LSP: List workspace folders")
 
-    nnoremap ([[<localleader>A]], [[<cmd>lua vim.lsp.buf.code_action()<Cr>]],       "LSP: Code action")
-    vnoremap ([[<localleader>A]], [[<cmd>lua vim.lsp.buf.range_code_action()<CR>]], "LSP: Code action (range)")
+    nnoremap ([[<localleader>R]],  icurry(vim.lsp.buf.rename), "LSP: Rename")
 
-    nnoremap ([[<localleader>F]], [[<cmd>lua vim.lsp.buf.formatting()<CR>]], "LSP: Format")
+    nnoremap ({[[<localleader>A]], [[<localleader>ca]]}, icurry(vim.lsp.buf.code_action),       "LSP: Code action")
+    vnoremap ({[[<localleader>A]], [[<localleader>ca]]}, icurry(vim.lsp.buf.range_code_action), "LSP: Code action (range)")
+
+    nnoremap ([[<localleader>F]], icurry(vim.lsp.buf.formatting),       "LSP: Format")
+    vnoremap ([[<localleader>F]], icurry(vim.lsp.buf.range_formatting), "LSP: Format (range)")
+
+    m.nname("<localleader>s", "LSP-Save")
+    nnoremap ([[<localleader>S]],  user_lsp.fmtOnSave,               "LSP: Toggle format on save")
+    nnoremap ([[<localleader>ss]], user_lsp.fmtOnSave,               "LSP: Toggle format on save")
+    nnoremap ([[<localleader>se]], curry(user_lsp.fmtOnSave, true),  "LSP: Enable format on save")
+    nnoremap ([[<localleader>sd]], curry(user_lsp.fmtOnSave, false), "LSP: Disable format on save")
 
     local function gotoDiag(dir, sev)
-      return function ()
-        local opts = { enable_popup = true, severity = sev }
-        if dir == -1 then
-          vim.lsp.diagnostic.goto_prev(opts)
-        else
-          vim.lsp.diagnostic.goto_next(opts)
-        end
-      end
+      return curry(
+        vim.diagnostic["goto_" .. (dir == -1 and "prev" or "next")],
+        { enable_popup = true, severity = sev }
+      )
     end
     m.nname("<localleader>d", "LSP-Diagnostics")
-    nnoremap ({[[<localleader>di]], [[<leader>e]]},  [[<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<Cr>]], "LSP: Show diagnostics (floatwin)")
-    nnoremap ({[[<localleader>dI]], [[<leader>q]]},  [[<cmd>lua vim.lsp.diagnostic.set_loclist()<Cr>]],           "LSP: Show diagnostics (loclist)")
+    nnoremap ([[<localleader>di]],                        icurry(vim.diagnostic.show_line_diagnostics), "LSP: Show diagnostics")
+    nnoremap ({[[<localleader>dI]], [[<localleader>T]]},  icurry(require'trouble'.toggle),              "LSP: Toggle Trouble")
 
     nnoremap ({[[<localleader>dd]], [[[d]]}, gotoDiag(-1),            "LSP: Goto prev diagnostic")
     nnoremap ({[[<localleader>dD]], [[]d]]}, gotoDiag(1),             "LSP: Goto next diagnostic")
@@ -376,62 +356,16 @@ _G.nvim_lsp_mapfn = function(bufnr)
     nnoremap ({[[<localleader>dE]], [[]e]]}, gotoDiag(1,  "Error"),   "LSP: Goto next diagnostic (error)")
 
     m.nname("<localleader>s", "LSP-Search")
-    nnoremap ({[[<localleader>so]], [[<leader>so]]}, [[<cmd>lua require('telescope.builtin').lsp_document_symbols()<Cr>]],      "LSP: Telescope symbol search")
+    nnoremap ({[[<localleader>so]], [[<leader>so]]}, icurry(require('telescope.builtin').lsp_document_symbols), "LSP: Telescope symbol search")
 
-    m.nname("<localleader>s", "LSP-Hover")
-    nnoremap ({[[<localleader>ho]], [[<C-d>]]},      [[<cmd>lua vim.lsp.buf.hover()<Cr>]])
-    -- nnoremap ([[<C-k>]],      [[<cmd>lua vim.lsp.buf.signature_help()<Cr>]],                             opts)
-
-    ---- glepnir/lspsaga.nvim
-  end)
-  m.group({ ft = "LspSagaCodeAction" }, silent, function()
-    map({
-      [[<Esc>]], [[q]], [[Q]], [[<C-c>]], [[<C-d>]], [[<C-g>]]
-    }, require'lspsaga.codeaction'.quit_action_window, "LSPSaga: Close CodeAction window")
-
-    map([[<Tab>]],   function()
-      local c = vim.fn.getpos(".")[2]
-      local l = vim.api.nvim_buf_line_count(0)
-      vim.fn.cursor(c == l and 1 or c + 1, 2)
-    end, "LSPSaga: Next action")
-
-    map([[<S-Tab>]], function()
-      local c = vim.fn.getpos(".")[2]
-      vim.fn.cursor(c == 2 and '$' or c - 1, 2)
-    end, "LSPSaga: Prev action")
-
-    local function selectAction(n, doAction)
-      return function()
-        vim.fn.cursor(n + 2, 2)
-        if doAction then require'lspsaga.codeaction'.do_code_action() end
-      end
-    end
-
-    map([[1]],      selectAction(1),       "LSPSaga: Select action 1")
-    map([[2]],      selectAction(2),       "LSPSaga: Select action 2")
-    map([[3]],      selectAction(3),       "LSPSaga: Select action 3")
-    map([[4]],      selectAction(4),       "LSPSaga: Select action 4")
-    map([[5]],      selectAction(5),       "LSPSaga: Select action 5")
-    map([[6]],      selectAction(6),       "LSPSaga: Select action 6")
-    map([[7]],      selectAction(7),       "LSPSaga: Select action 7")
-    map([[8]],      selectAction(8),       "LSPSaga: Select action 8")
-    map([[9]],      selectAction(9),       "LSPSaga: Select action 9")
-    map([[10]],     selectAction(10),      "LSPSaga: Select action 10")
-
-    map([[<M-1>]],  selectAction(1, true), "LSPSaga: Do action 1")
-    map([[<M-2>]],  selectAction(2, true), "LSPSaga: Do action 2")
-    map([[<M-3>]],  selectAction(3, true), "LSPSaga: Do action 3")
-    map([[<M-4>]],  selectAction(4, true), "LSPSaga: Do action 4")
-    map([[<M-5>]],  selectAction(5, true), "LSPSaga: Do action 5")
-    map([[<M-6>]],  selectAction(6, true), "LSPSaga: Do action 6")
-    map([[<M-7>]],  selectAction(7, true), "LSPSaga: Do action 7")
-    map([[<M-8>]],  selectAction(8, true), "LSPSaga: Do action 8")
-    map([[<M-9>]],  selectAction(9, true), "LSPSaga: Do action 9")
-    map([[<M-10>]], selectAction(10, true), "LSPSaga: Do action 10")
+    m.nname("<localleader>h", "LSP-Hover")
+    nnoremap ([[<localleader>hs]], icurry(vim.lsp.buf.signature_help), "LSP: Signature help")
+    nnoremap ([[<localleader>ho]], icurry(vim.lsp.buf.hover),          "LSP: Hover")
+    nnoremap ([[<M-i>]],           icurry(vim.lsp.buf.hover),          "LSP: Hover")
+    inoremap ([[<M-i>]],           icurry(vim.lsp.buf.hover),          "LSP: Hover")
+    nnoremap ([[<M-S-i>]],         user_lsp.peekDefinition,            "LSP: Peek definition")
   end)
 end
-
----- glepnir/lspsaga.nvim
 
 ---- tpope/vim-fugitive
 m.nname("<leader>g",  "Fugitive")
@@ -449,7 +383,7 @@ nnoremap ([[<leader>gcA]], [[:Git commit --verbose --amend<Cr>]], "Fugitive: Com
 m.nname("<leader>gl", "Fugitive-Log")
 nnoremap ([[<leader>gL]],  [[:Gclog!<Cr>]],                       "Fugitive: Log")
 nnoremap ([[<leader>gll]], [[:Gclog!<Cr>]],                       "Fugitive: Log")
-nnoremap ([[<leader>glL]], [[:tabnew \| Gclog<Cr>]],              "Fugitive: Log (tab)")
+nnoremap ([[<leader>glL]], [[:tabnew | Gclog<Cr>]],               "Fugitive: Log (tab)")
 
 m.nname("<leader>gp", "Fugitive-Push-Pull")
 nnoremap ([[<leader>gpa]], [[:Git push --all<Cr>]],               "Fugitive: Push all")
@@ -479,227 +413,153 @@ nnoremap ([[<leader>GPL]], [[:Git pull<Cr>]],                     "Fugitive: Pul
 nnoremap ([[<leader>ut]], [[:UndotreeToggle<Cr>]], "Undotree: Toggle")
 
 -- godlygeek/tabular
-m.nname("<leader>a", "Align")
-m.vname("<leader>a", "Align")
-nmap ([[<Leader>a=]],       [[:Tabularize /=<Cr>]],    "Tabular: Align on =")
-vmap ([[<Leader>a=]],       [[:Tabularize /=<Cr>]],    "Tabular: Align on =")
-nmap ([[<Leader>a:]],       [[:Tabularize /:\zs<Cr>]], "Tabular: Align on :")
-vmap ([[<Leader>a:]],       [[:Tabularize /:\zs<Cr>]], "Tabular: Align on :")
-nmap ([[<Leader>a,]],       [[:Tabularize /,<Cr>]],    "Tabular: Align on ,")
-vmap ([[<Leader>a,]],       [[:Tabularize /,<Cr>]],    "Tabular: Align on ,")
-nmap ([[<Leader>a.]],       [[:Tabularize /\.<Cr>]],   "Tabular: Align on .")
-vmap ([[<Leader>a.]],       [[:Tabularize /\.<Cr>]],   "Tabular: Align on .")
-nmap ([[<Leader>a-]],       [[:Tabularize /-<Cr>]],    "Tabular: Align on -")
-vmap ([[<Leader>a-]],       [[:Tabularize /-<Cr>]],    "Tabular: Align on -")
-nmap ([[<Leader>a+]],       [[:Tabularize /+<Cr>]],    "Tabular: Align on +")
-vmap ([[<Leader>a+]],       [[:Tabularize /+<Cr>]],    "Tabular: Align on +")
-nmap ([[<Leader>a*]],       [[:Tabularize /\*<Cr>]],   "Tabular: Align on *")
-vmap ([[<Leader>a*]],       [[:Tabularize /\*<Cr>]],   "Tabular: Align on *")
-nmap ([[<Leader>a/]],       [[:Tabularize /\/<Cr>]],   "Tabular: Align on /")
-vmap ([[<Leader>a/]],       [[:Tabularize /\/<Cr>]],   "Tabular: Align on /")
-nmap ([[<Leader>a(]],       [[:Tabularize /(<Cr>]],    "Tabular: Align on (")
-vmap ([[<Leader>a(]],       [[:Tabularize /(<Cr>]],    "Tabular: Align on (")
-nmap ([[<Leader>a)]],       [[:Tabularize /)<Cr>]],    "Tabular: Align on )")
-vmap ([[<Leader>a)]],       [[:Tabularize /)<Cr>]],    "Tabular: Align on )")
-nmap ("<Leader>a[",         [[:Tabularize /\[<Cr>]],   "Tabular: Align on [")
-vmap ("<Leader>a[",         [[:Tabularize /\[<Cr>]],   "Tabular: Align on [")
-nmap ([[<Leader>a\<]],      [[:Tabularize /\<<Cr>]],   "Tabular: Align on <")
-vmap ([[<Leader>a\<]],      [[:Tabularize /\<<Cr>]],   "Tabular: Align on <")
-nmap ([[<Leader>a>]],       [[:Tabularize /\><Cr>]],   "Tabular: Align on >")
-vmap ([[<Leader>a>]],       [[:Tabularize /\><Cr>]],   "Tabular: Align on >")
-nmap ([[<Leader>a`]],       [[:Tabularize /`<Cr>]],    "Tabular: Align on `")
-vmap ([[<Leader>a`]],       [[:Tabularize /`<Cr>]],    "Tabular: Align on `")
-nmap ([[<Leader>a"]],       [[:Tabularize /"<Cr>]],    'Tabular: Align on "')
-vmap ([[<Leader>a"]],       [[:Tabularize /"<Cr>]],    'Tabular: Align on "')
-nmap ([[<Leader>a']],       [[:Tabularize /'<Cr>]],    "Tabular: Align on '")
-vmap ([[<Leader>a']],       [[:Tabularize /'<Cr>]],    "Tabular: Align on '")
-nmap ([[<Leader>a<Space>]], [[:Tabularize / <Cr>]],    "Tabular: Align on Space")
-vmap ([[<Leader>a<Space>]], [[:Tabularize / <Cr>]],    "Tabular: Align on Space")
+nmap ([[<Leader>a]], ":Tabularize /", "Tabularize")
+vmap ([[<Leader>a]], ":Tabularize /", "Tabularize")
 
 -- b0o/vim-man
 m.group({ "silent", ft = "man" }, function()
   -- open manpage tag (e.g. isatty(3)) in current buffer
-  nnoremap ([[<C-]>]],   [[:call man#get_page_from_cword('horizontal', v:count)<CR>]])
+  nnoremap ([[<C-]>]], function() require'user.fn'.man('', vim.fn.expand('<cword>')) end,      "Man: Open tag in current buffer")
+  nnoremap ([[<M-]>]], function() require'user.fn'.man('tab', vim.fn.expand('<cword>')) end,   "Man: Open tag in new tab")
+  nnoremap ([[}]],     function() require'user.fn'.man('split', vim.fn.expand('<cword>')) end, "Man: Open tag in new split")
 
-  -- open manpage tag in new tab
-  nnoremap ([[<M-]>]],   [[<c-w>s<c-w>T:call man#get_page_from_cword('tab', v:count)<CR>]])
-  nnoremap ([[<C-M-]>]], [[<c-w>s<c-w>T:call man#get_page_from_cword('tab', v:count)<CR>]])
-
+  -- TODO
   -- go back to previous manpage
-  nnoremap ([[<C-t>]],   [[:call man#pop_page()<CR>]])
-  nnoremap ([[<C-o>]],   [[:call man#pop_page()<CR>]])
-  nnoremap ([[<M-o>]],   [[<C-o>]])
+--   nnoremap ([[<C-t>]],   [[:call man#pop_page))
+--   nnoremap ([[<C-o>]],   [[:call man#pop_page()<CR>]])
+--   nnoremap ([[<M-o>]],   [[<C-o>]])
 
   -- navigate to next/prev section
-  nnoremap ("[[",        [[:<C-u>call man#section#move('b', 'n', v:count1)<CR>]])
-  nnoremap ("]]",        [[:<C-u>call man#section#move('' , 'n', v:count1)<CR>]])
-  xnoremap ("[[",        [[:<C-u>call man#section#move('b', 'v', v:count1)<CR>]])
-  xnoremap ("]]",        [[:<C-u>call man#section#move('' , 'v', v:count1)<CR>]])
+  nnoremap ("[[", [[:<C-u>call user#fn#manSectionMove('b', 'n', v:count1)<CR>]], "Man: Goto prev section")
+  nnoremap ("]]", [[:<C-u>call user#fn#manSectionMove('' , 'n', v:count1)<CR>]], "Man: Goto next section")
+  xnoremap ("[[", [[:<C-u>call user#fn#manSectionMove('b', 'v', v:count1)<CR>]], "Man: Goto prev section")
+  xnoremap ("]]", [[:<C-u>call user#fn#manSectionMove('' , 'v', v:count1)<CR>]], "Man: Goto next section")
 
   -- navigate to next/prev manpage tag
-  nnoremap ([[<tab>]],   [[:call search('\(\w\+(\w\+)\)', 's')<CR>]])
-  nnoremap ([[<S-tab>]], [[:call search('\(\w\+(\w\+)\)', 'sb')<CR>]])
+  nnoremap ([[<Tab>]],   [[:call search('\(\w\+(\w\+)\)', 's')<CR>]],  "Man: Goto next tag")
+  nnoremap ([[<S-Tab>]], [[:call search('\(\w\+(\w\+)\)', 'sb')<CR>]], "Man: Goto prev tag")
 
   -- search from beginning of line (useful for finding command args like -h)
-  nnoremap ([[g/]], [[/^\s*\zs]])
+  nnoremap ([[g/]], [[/^\s*\zs]], { silent = false }, "Man: Start BOL search")
 end)
 
 ---- KabbAmine/vCoolor.vim
-nmap([[<leader>co]], [[:VCoolor<CR>]], silent)
+nmap([[<leader>co]], [[:VCoolor<CR>]], silent, "Open VCooler color picker")
 
----- TODO
+---- kyazdani42/nvim-tree.lua
+nmap([[<C-\>]], [[:NvimTreeToggle<CR>]], silent, "Nvim-Tree: Toggle")
 
--- "" ale.vim
--- nnoremap <leader>af :ALEFix<Cr>
--- nnoremap <leader>al :ALELint<Cr>
+m.group({ ft = "NvimTree" }, function()
+  local function withSelected(cmd, fmt)
+    return function()
+      local file = require'nvim-tree.lib'.get_node_at_cursor().absolute_path
+      cmd = fmt and (cmd):format(file) or ("%s %s"):format(cmd, file)
+      local tab_open = vim.g.nvim_tree_tab_open
+      if tab_open == 1 then
+        vim.g.nvim_tree_tab_open = 0
+      end
+      vim.cmd(cmd)
+      if tab_open == 1 then
+        vim.defer_fn(function()
+          vim.g.nvim_tree_tab_open = tab_open
+        end, 500)
+      end
+    end
+  end
+  nnoremap ([[ga]], withSelected("Git add"),             "Nvim-Tree: Git add")
+  nnoremap ([[gr]], withSelected("Git reset --quiet"),   "Nvim-Tree: Git reset")
+  nnoremap ([[gb]], withSelected("tabnew | Git blame"),  "Nvim-Tree: Git blame")
+  nnoremap ([[gd]], withSelected("tabnew | Gdiffsplit"), "Nvim-Tree: Git diff")
+end)
 
--- nmap ]a <Plug>(ale_next_wrap)
--- nmap [a <Plug>(ale_previous_wrap)
--- nmap ]e <Plug>(ale_next_wrap_error)
--- nmap [e <Plug>(ale_previous_wrap_error)
--- nmap ]w <Plug>(ale_next_wrap_warning)
--- nmap [w <Plug>(ale_previous_wrap_warning)
+---- sindrets/winshift.nvim
+nnoremap ([[<Leader>M]], [[<Cmd>WinShift<Cr>]], "WinShift: Start")
 
--- nnoremap <leader>ad :ALEDisable<Cr>:let g:ale_enabled<Cr>
--- nnoremap <leader>ae :ALEEnable<Cr>:let g:ale_enabled<Cr>
--- nnoremap <leader>aD :ALEToggle<Cr>:let g:ale_enabled<Cr>
--- nnoremap <leader>aE :ALEToggle<Cr>:let g:ale_enabled<Cr>
--- nnoremap <leader>as :let g:ale_fix_on_save=!g:ale_fix_on_save<Cr>:let g:ale_fix_on_save<Cr>
--- nnoremap <leader>aS :let g:ale_fix_on_save=0<Cr>:let g:ale_fix_on_save<Cr>
+-- Testing out Mapx mini-modes
+-- m.mode('test', function()
+--   map("gH", ":echo 'Hello'<Cr>")
+--   map("gx", m.exitMode)
+-- end)
+-- map("<Leader>mt", function() m.enterMode("test") end)
 
--- "" LCD
--- " nnoremap <silent> <leader>k :call LCDToggle()<Cr>
--- "
--- " nnoremap <leader>lk :call LanguageClient#textDocument_hover()<Cr>
--- " nnoremap <leader>lg :call LanguageClient#textDocument_definition()<Cr>
--- " nnoremap <leader>lG :call LanguageClient#textDocument_definition({"gotoCmd": "tabedit"})<Cr>
--- " nnoremap <leader>lr :call LanguageClient#textDocument_rename()<Cr>
--- " nnoremap <leader>lf :call LanguageClient#textDocument_formatting()<Cr>
--- " nnoremap <leader>lb :call LanguageClient#textDocument_references()<Cr>
--- " nnoremap <leader>la :call LanguageClient#textDocument_codeAction()<Cr>
--- " nnoremap <leader>ls :call LanguageClient#textDocument_documentSymbol()<Cr>
--- " nnoremap <leader>lm :call LanguageClient_contextMenu()<Cr>
+---- bfredl/nvim-luadev
+-- m.group({ ft = "lua" }, function()
+--   nmap([[zx]], function() print("lua: x") end)
+--   nmap([[zy]], function() print("lua: y") end)
+--   nmap([[zz]], function() print("lua: z") end)
+-- end)
+-- m.group({ ft = "yaml" }, function()
+--   nmap([[zx]], function() print("yaml: x") end)
+--   nmap([[zy]], function() print("yaml: y") end)
+--   nmap([[zz]], function() print("yaml: z") end)
+-- end)
+-- m.group({ ft = { "lua", "yaml" } }, function()
+--   nmap([[zw]], function() print("luayaml: w") end)
+-- end)
+-- m.audone()
+-- function! g:Luadev_setup()
+--   if exists('b:luadev_did_setup')
+--     return
+--   endif
 
--- " nmap <silent> gd         <leader>lg
--- " nmap <silent> gD         <leader>lG
--- " nmap <silent> gr         <leader>lb
--- " nmap <silent> <leader>gr <leader>lr
--- "
--- " nmap <silent> <M-S-k>    <leader>lk
+--   nmap <buffer> <F12> :Luadev<Cr><Plug>(Luadev-RunLine)
+--   vmap <buffer> <F12> :Luadev<Cr><Plug>(Luadev-Run)
+--   nmap <buffer> <F13> :Luadev<Cr><Plug>(Luadev-RunWord)
+--   imap <buffer> <C-r> <Plug>(Luadev-Complete)
+--   imap <buffer> <F12> <Esc><F12>a
+--   imap <buffer> <F13> <Esc><F13>a
 
--- "" vim-clap
--- " map <C-,> to \x1b[21;5~ (F34) in your terminal emulator
--- nnoremap <silent> <F34>C     :Clap<Cr>
--- nnoremap <silent> <F34><F34> :Clap<Cr>
+--   let b:luadev_did_setup = 1
+-- endfunction
 
--- nnoremap <silent> <F34>X     :call clap#floating_win#close()<Cr>
--- nnoremap <silent> <F34>xx    :call clap#floating_win#close()<Cr>
+-- augroup luadev_setup
+--   autocmd!
+--   autocmd BufEnter *.lua call g:Luadev_setup()
+-- augroup END
+-- end
+--
+--   m.group({ ft = "LspSagaCodeAction" }, silent, function()
+--     map({
+--       [[<Esc>]], [[q]], [[Q]], [[<C-c>]], [[<C-d>]], [[<C-g>]]
+--     }, require'lspsaga.codeaction'.quit_action_window, "LSPSaga: Close CodeAction window")
 
--- nnoremap <silent> <F34>B     :Clap buffers<Cr>
--- nnoremap <silent> <F34>bb    :Clap buffers<Cr>
--- nnoremap <silent> <F34>bgc   :Clap bcommits<Cr>
--- nnoremap <silent> <F34>bu    :Clap buffers<Cr>
--- nnoremap <silent> <F34>bl    :Clap blines<Cr>
+--     map([[<Tab>]],   function()
+--       local c = vim.fn.getpos(".")[2]
+--       local l = vim.api.nvim_buf_line_count(0)
+--       vim.fn.cursor({c == l and 1 or c + 1, 2})
+--     end, "LSPSaga: Next action")
 
--- nnoremap <silent> <F34>cc    :Clap command<Cr>
--- nnoremap <silent> <F34>cmd   :Clap command<Cr>
--- nnoremap <silent> <F34>col   :Clap colors<Cr>
--- nnoremap <silent> <F34>ch    :Clap command_history<Cr>
--- nnoremap <silent> <F34>h     :Clap command_history<Cr>
+--     map([[<S-Tab>]], function()
+--       local c = vim.fn.getpos(".")[2]
+--       vim.fn.cursor({c == 2 and '$' or c - 1, 2})
+--     end, "LSPSaga: Prev action")
 
--- nnoremap <silent> <F34>F     :Clap files<Cr>
--- nnoremap <silent> <F34>ff    :Clap files<Cr>
--- nnoremap <silent> <F34>fi    :Clap files<Cr>
--- nnoremap <silent> <F34><c-f> :Clap files<Cr>
--- nnoremap <silent> <F34>ft    :Clap filetypes<Cr>
+--     local function selectAction(n, doAction)
+--       return function()
+--         vim.fn.cursor({n + 2, 2})
+--         if doAction then require'lspsaga.codeaction'.do_code_action() end
+--       end
+--     end
 
--- nnoremap <silent> <F34>G     :Clap grep<Cr>
--- nnoremap <silent> <F34>gg    :Clap grep<Cr>
--- nnoremap <silent> <F34>gr    :Clap grep<Cr>
--- nnoremap <silent> <F34>gc    :Clap commits<Cr>
--- nnoremap <silent> <F34>gf    :Clap git_files<Cr>
--- nnoremap <silent> <F34>gd    :Clap git_diff_files<Cr>
+--     map([[1]],      selectAction(1),       "LSPSaga: Select action 1")
+--     map([[2]],      selectAction(2),       "LSPSaga: Select action 2")
+--     map([[3]],      selectAction(3),       "LSPSaga: Select action 3")
+--     map([[4]],      selectAction(4),       "LSPSaga: Select action 4")
+--     map([[5]],      selectAction(5),       "LSPSaga: Select action 5")
+--     map([[6]],      selectAction(6),       "LSPSaga: Select action 6")
+--     map([[7]],      selectAction(7),       "LSPSaga: Select action 7")
+--     map([[8]],      selectAction(8),       "LSPSaga: Select action 8")
+--     map([[9]],      selectAction(9),       "LSPSaga: Select action 9")
+--     map([[10]],     selectAction(10),      "LSPSaga: Select action 10")
 
--- nnoremap <silent> <F34>H     :Clap help_tags<Cr>
--- nnoremap <silent> <F34>hh    :Clap help_tags<Cr>
--- nnoremap <silent> <F34>hi    :Clap history<Cr>
--- nnoremap <silent> <F34>hs    :Clap search_history<Cr>
--- nnoremap <silent> <F34>h/    :Clap search_history<Cr>
--- nnoremap <silent> <F34>/     :Clap search_history<Cr>
-
--- nnoremap <silent> <F34>J     :Clap jumps<Cr>
--- nnoremap <silent> <F34>jj    :Clap jumps<Cr>
--- nnoremap <silent> <F34>ju    :Clap jumps<Cr>
-
--- nnoremap <silent> <F34>L     :Clap lines<Cr>
--- nnoremap <silent> <F34>li    :Clap lines<Cr>
--- nnoremap <silent> <F34>lo    :Clap loclist<Cr>
--- nnoremap <silent> <F34>ll    :Clap loclist<Cr>
-
--- nnoremap <silent> <F34>Q     :Clap quickfix<Cr>
--- nnoremap <silent> <F34>qq    :Clap quickfix<Cr>
--- nnoremap <silent> <F34>qi    :Clap quickfix<Cr>
--- nnoremap <silent> <F34>qf    :Clap quickfix<Cr>
-
--- nnoremap <silent> <F34>M     :Clap maps<Cr>
--- nnoremap <silent> <F34>mm    :Clap maps<Cr>
--- nnoremap <silent> <F34>mr    :Clap marks<Cr>
--- nnoremap <silent> <F34>mk    :Clap marks<Cr>
-
--- nnoremap <silent> <F34>P     :Clap providers<Cr>
--- nnoremap <silent> <F34>pp    :Clap providers<Cr>
--- nnoremap <silent> <F34>pr    :Clap providers<Cr>
-
--- nnoremap <silent> <F34>R     :Clap registers<Cr>
--- nnoremap <silent> <F34>rr    :Clap registers<Cr>
--- nnoremap <silent> <F34>re    :Clap registers<Cr>
-
--- nnoremap <silent> <F34>T     :Clap tags<Cr>
--- nnoremap <silent> <F34>tt    :Clap tags<Cr>
--- nnoremap <silent> <F34>ta    :Clap tags<Cr>
-
--- nnoremap <silent> <F34>W     :Clap windows<Cr>
--- nnoremap <silent> <F34>ww    :Clap windows<Cr>
--- nnoremap <silent> <F34>wi    :Clap windows<Cr>
-
--- "" fzf
--- nnoremap <silent> <C-f><C-f> :Files<Cr>
--- nnoremap <silent> <C-f>f     :Files<Cr>
--- nnoremap <silent> <C-f><C-g> :GFiles<Cr>
--- nnoremap <silent> <C-f>gg    :GFiles<Cr>
--- nnoremap <silent> <C-f>gf    :GFiles<Cr>
--- nnoremap <silent> <C-f><C-b> :Buffers<Cr>
--- nnoremap <silent> <C-f>b     :Buffers<Cr>
--- nnoremap <silent> <C-f><C-a> :Ag<Cr>
--- nnoremap <silent> <C-f>a     :Ag<Cr>
--- nnoremap <silent> <C-f>gc    :Commits<Cr>
--- nnoremap <silent> <C-f><C-c> :Commands<Cr>
--- nnoremap <silent> <C-f>c     :Commands<Cr>
--- nnoremap <silent> <C-f><C-m> :Maps<Cr>
--- nnoremap <silent> <C-f>m     :Maps<Cr>
-
--- "" emmet.vim
--- let g:user_emmet_leader_key='<C-z>'
-
--- nmap <C-z><C-z> <C-z>,
--- imap <C-z><C-z> <C-z>,
--- vmap <C-z><C-z> <C-z>,
-
--- "" LuaTree (nvim-tree.lua.vim)
--- nnoremap <leader>N :LuaTreeToggle<Cr>
--- nnoremap <leader>nn :LuaTreeToggle<Cr>
-
--- "" VSplit
--- xmap <leader>vsr <Plug>(Visual-Split-VSResize)
--- xmap <leader>vss <Plug>(Visual-Split-VSSplit)
--- xmap <leader>vsa <Plug>(Visual-Split-VSSplitAbove)
--- xmap <leader>vsb <Plug>(Visual-Split-VSSplitBelow)
--- nmap <leader>vsr <Plug>(Visual-Split-Resize)
--- nmap <leader>vss <Plug>(Visual-Split-Split)
--- nmap <leader>vsa <Plug>(Visual-Split-SplitAbove)
--- nmap <leader>vsb <Plug>(Visual-Split-SplitBelow)
-
--- "" vim-expand-region
--- nmap - <Plug>(expand_region_shrink)
--- vmap - <Plug>(expand_region_shrink)
--- ]])
+--     map([[<M-1>]],  selectAction(1, true), "LSPSaga: Do action 1")
+--     map([[<M-2>]],  selectAction(2, true), "LSPSaga: Do action 2")
+--     map([[<M-3>]],  selectAction(3, true), "LSPSaga: Do action 3")
+--     map([[<M-4>]],  selectAction(4, true), "LSPSaga: Do action 4")
+--     map([[<M-5>]],  selectAction(5, true), "LSPSaga: Do action 5")
+--     map([[<M-6>]],  selectAction(6, true), "LSPSaga: Do action 6")
+--     map([[<M-7>]],  selectAction(7, true), "LSPSaga: Do action 7")
+--     map([[<M-8>]],  selectAction(8, true), "LSPSaga: Do action 8")
+--     map([[<M-9>]],  selectAction(9, true), "LSPSaga: Do action 9")
+--     map([[<M-10>]], selectAction(10, true), "LSPSaga: Do action 10")
+--   end)
