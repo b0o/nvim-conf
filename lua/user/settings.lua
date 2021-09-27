@@ -12,7 +12,7 @@ vim.wo.relativenumber = true
 
 vim.o.hidden = true
 
-vim.o.mouse = 'a'
+vim.o.mouse = 'n'
 
 vim.o.breakindent = true
 
