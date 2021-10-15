@@ -2,7 +2,9 @@ local feline = require 'feline'
 local lsp = require 'feline.providers.lsp'
 local vi_mode_utils = require 'feline.providers.vi_mode'
 local defaults = require 'feline.defaults'
+
 require 'user.statusline.lsp'
+require 'user.statusline.dap'
 
 local g = vim.g
 local b = vim.b
@@ -129,6 +131,8 @@ local config = {
     active = {},
     inactive = {},
   },
+
+  custom_providers = require'user.statusline.providers'.providers
 }
 
 config.components.active[1] = {
@@ -223,6 +227,16 @@ config.components.active[2] = {
 }
 
 config.components.active[3] = {
+  {
+    provider = 'dap_clients_attached',
+    hl = { fg = 'green' },
+    right_sep = ' ',
+  },
+  --   {
+  --     provider = 'dap_clients_detached',
+  --     hl = { fg = 'grey6' },
+  --     right_sep = ' ',
+  --   },
   {
     provider = 'lsp_clients_running',
     hl = { fg = 'green' },

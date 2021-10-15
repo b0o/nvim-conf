@@ -12,7 +12,8 @@ command! -bang -count -nargs=* Nterm call user#fn#openTerm(<q-args>, <count>, 0,
 command! -bang -count -nargs=* Vterm call user#fn#openTerm(<q-args>, <count>, 0, <bang>0)
 command! -bang -count -nargs=* Vnterm call user#fn#openTerm(<q-args>, <count>, 0, <bang>0)
 
-command! -nargs=* -complete=help H call user#fn#tabcmd('tab help %s', 'help %s | only', <q-args>)
+command! -nargs=* -complete=help H lua require'user.fn'.help(<q-args>)
+" command! -nargs=* -complete=help H call user#fn#tabcmd('tab help %s', 'help %s | only', <q-args>)
 command! -nargs=* -bar -complete=customlist,man#complete Man lua require'user.fn'.man('', <q-args>)
 command! -nargs=* -bar -complete=customlist,man#complete M lua require'user.fn'.man('tab', <q-args>)
 

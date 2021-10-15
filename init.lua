@@ -5,9 +5,9 @@ end
 
 require 'user.settings'
 require 'user.fn'
+require 'user.mappings'
 require 'user.plugins'
 require 'user.plugins.plugins'
-require 'user.mappings'
 require 'user.autocmds'
 require 'user.statusline'
 require 'user.lsp'

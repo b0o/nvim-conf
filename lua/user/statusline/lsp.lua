@@ -1,3 +1,7 @@
+local M = {
+  clients = { running = {}, exited = {} },
+}
+
 local lsp_status = require 'lsp-status'
 local messages = require('lsp-status/messaging').messages
 
@@ -18,10 +22,6 @@ local icons = {
 local aliases = {
   pyls_ms = 'MPLS',
   sumneko_lua = 'LuaLS',
-}
-
-local M = {
-  clients = { running = {}, exited = {} },
 }
 
 local function getClientData(client)
@@ -125,14 +125,14 @@ function M.status_clients(status)
   end
 end
 
-local add_provider = require('feline.providers').add_provider
+local register = require'user.statusline.providers'.register
 
-add_provider('lsp_clients', M.status_clients())
-add_provider('lsp_clients_running', M.status_clients 'running')
-add_provider('lsp_clients_starting', M.status_clients 'starting')
-add_provider('lsp_clients_exited', M.status_clients 'exited')
-add_provider('lsp_clients_exited_ok', M.status_clients 'exited_ok')
-add_provider('lsp_clients_exited_err', M.status_clients 'exited_err')
-add_provider('lsp_progress', M.status_progress)
+register('lsp_clients', M.status_clients())
+register('lsp_clients_running', M.status_clients 'running')
+register('lsp_clients_starting', M.status_clients 'starting')
+register('lsp_clients_exited', M.status_clients 'exited')
+register('lsp_clients_exited_ok', M.status_clients 'exited_ok')
+register('lsp_clients_exited_err', M.status_clients 'exited_err')
+register('lsp_progress', M.status_progress)
 
 return M

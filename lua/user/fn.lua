@@ -136,17 +136,18 @@ function M.getRuntimePath()
   return runtime_path
 end
 
--- This isn't truly currying, but 'curry' is shorter than 'partial_apply' and
--- the goal is to save characters
-function M.curry(fn, ...)
+-- bind a function to some arguments and return a new function (the thunk) that
+-- can be called later.
+-- Useful for setting up callbacks without anonymous functions.
+function M.thunk(fn, ...)
   local bound = { ... }
   return function(...)
     return fn(unpack(vim.list_extend(vim.list_extend({}, bound), { ... })))
   end
 end
 
--- Like curry, but arguments passed to the returned function will be ignored
-function M.icurry(fn, ...)
+-- Like thunk(), but arguments passed to the thunk are ignored.
+function M.ithunk(fn, ...)
   local bound = { ... }
   return function()
     return fn(unpack(bound))
@@ -179,7 +180,7 @@ function M.man(dest, ...)
     if vim.fn.bufname(0) == '' and vim.fn.line '$' == 1 and vim.fn.getline(1) == '' then
       prefix = ''
     end
-    vim.cmd(prefix .. 'call man#read_page("' .. page .. '")')
+    vim.cmd(prefix .. 'file ' .. page .. ' | call man#read_page("' .. page .. '")')
   end
 end
 
@@ -191,6 +192,60 @@ function M.closeFloatWins()
       vim.api.nvim_win_close(win, false)
     end
   end
+end
+
+-- Open a Help topic
+--  - If a blank buffer is focused, open it there
+--  - Otherwise, open in a new tab
+function M.help(...)
+  for _, topic in ipairs({...}) do
+    if vim.fn.bufname() == '' and vim.api.nvim_buf_line_count(0) == 1 and vim.fn.getline(1) == '' then
+      local win = vim.api.nvim_get_current_win()
+      vim.cmd('help')
+      vim.api.nvim_win_close(win, false)
+    else
+      vim.cmd('tab help ' .. topic)
+    end
+  end
+end
+
+-- lazyTable returns a placeholder table and defers callback cb until someone
+-- tries to access or iterate the table in some way, at which point cb will be
+-- called and its result becomes the value of the table.
+--
+-- To work, requires LuaJIT compiled with -DLUAJIT_ENABLE_LUA52COMPAT.
+-- If not, the result of the callback will be returned immediately.
+-- See: https://luajit.org/extensions.html
+function M.lazyTable(cb)
+  -- Check if Lua 5.2 compatability is available by testing whether goto is a
+  -- valid identifier name, which is not the case in 5.2.
+  if loadstring('local goto = true') ~= nil then
+    return cb()
+  end
+  local t = { data = nil }
+  local init = function()
+    if t.data == nil then
+      t.data = cb()
+      assert(type(t.data) == "table", "lazy_config: expected callback to return value of type table")
+    end
+  end
+  t.__len = function()
+    init()
+    return #t.data
+  end
+  t.__index = function(_, key)
+    init()
+    return t.data[key]
+  end
+  t.__pairs = function()
+    init()
+    return pairs(t.data)
+  end
+  t.__ipairs = function()
+    init()
+    return ipairs(t.data)
+  end
+  return setmetatable({}, t)
 end
 
 return M

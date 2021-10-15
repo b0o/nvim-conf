@@ -44,6 +44,7 @@ vim.g.matchup_matchparen_offscreen = { method = 'popup' }
 
 ---- christoomey/vim-tmux-navigator
 vim.g.tmux_navigator_no_mappings = 1
+vim.g.tmux_navigator_preserve_zoom = 1
 
 ---- mbbill/undotree
 vim.g.undotree_SetFocusWhenToggle = 1
@@ -96,17 +97,12 @@ if vim.fn.has 'unix' then
 end
 
 ---- kyazdani42/nvim-tree.lua
-vim.g.nvim_tree_auto_init = 0
 vim.g.nvim_tree_ignore = { '.git', 'node_modules', '.cache' }
 vim.g.nvim_tree_indent_markers = 1
 vim.g.nvim_tree_git_hl = 1
 vim.g.nvim_tree_highlight_opened_files = 1
-vim.g.nvim_tree_tab_open = 1
-vim.g.nvim_tree_auto_resize = 0
 vim.g.nvim_tree_add_trailing = 1
 vim.g.nvim_tree_group_empty = 1
-vim.g.nvim_tree_lsp_diagnostics = 1
-vim.g.nvim_tree_update_cwd = 1
 vim.g.nvim_tree_respect_buf_cwd = 1
 vim.g.nvim_tree_refresh_wait = 500
 vim.g.nvim_tree_icons = {
@@ -139,6 +135,7 @@ vim.g.nvim_tree_icons = {
   },
 }
 _G.nvim_tree_highlights = function()
+  print 'hl'
   local colors_gui = vim.g.colors_gui or {}
   for hi, c in pairs {
     NvimTreeGitDirty = colors_gui['13'] or 'yellow',
@@ -151,3 +148,20 @@ _G.nvim_tree_highlights = function()
     vim.cmd(('highlight %s guifg=%s'):format(hi, c))
   end
 end
+
+require('nvim-tree').setup {
+  auto_close = true,
+  open_on_tab = true,
+  hijack_cursor = true,
+  update_cwd = true,
+  diagnostics = {
+    enable = true,
+  },
+  auto_resize = false,
+  update_focused_file = {
+    enable = true,
+  },
+  system_open = {
+    cmd = 'xdg-open',
+  },
+}

@@ -47,6 +47,10 @@ vim.o.modeline = true -- always parse modelines when loading files
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ','
 
+-- vim.o.foldmethod = 'expr'
+-- vim.o.foldlevelstart = 99
+-- vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
+
 vim.o.title = true
 vim.cmd [[
   function! g:TitlestringModified()

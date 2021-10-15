@@ -1,3 +1,4 @@
+finish
 " This is a re-implementation of kyazdani42/nvim-tree.lua/plugin/tree.vim
 " which avoids starting NvimTree until explicitly requested by the user.
 if !has('nvim-0.5') || exists('g:loaded_tree_override') | finish | endif

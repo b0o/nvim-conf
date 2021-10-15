@@ -8,11 +8,16 @@ end
 local packer = require 'packer'
 local use = packer.use
 
-local function uselocal(p, ...)
-  local git_projects_dir = os.getenv 'GIT_PROJECTS_DIR'
-  if git_projects_dir ~= nil then
-    use { git_projects_dir .. '/' .. p, ... }
+local function uselocal(p)
+  if type(p) ~= "table" then
+    p = { p }
   end
+  local git_projects_dir = os.getenv 'GIT_PROJECTS_DIR'
+  if git_projects_dir == nil then
+    return
+  end
+  p[1] = git_projects_dir .. '/' .. p[1]
+  use(p)
 end
 
 packer.init {
@@ -24,7 +29,12 @@ packer.startup(function()
   use 'wbthomason/packer.nvim'
 
   -- Config
-  uselocal 'mapx.nvim'
+  uselocal {
+    'mapx.nvim',
+--     config = function()
+--       require'user.mappings'
+--     end,
+  }
 
   -- UI
   use 'Famiu/feline.nvim'
@@ -35,8 +45,7 @@ packer.startup(function()
   use 'kyazdani42/nvim-web-devicons'
   use 'liuchengxu/vista.vim'
   use 'lukas-reineke/indent-blankline.nvim'
-  --   use 'kyazdani42/nvim-tree.lua'
-  uselocal 'nvim-tree.lua'
+  use 'kyazdani42/nvim-tree.lua'
   use {
     'nvim-telescope/telescope.nvim',
     requires = { 'nvim-lua/popup.nvim', 'nvim-lua/plenary.nvim' },
@@ -72,7 +81,10 @@ packer.startup(function()
   use 'mbbill/undotree'
 
   -- Treesitter
-  use 'nvim-treesitter/nvim-treesitter'
+  use {
+    'nvim-treesitter/nvim-treesitter',
+    run = ':TSUpdate',
+  }
   use 'nvim-treesitter/nvim-treesitter-textobjects'
   use 'nvim-treesitter/playground'
 
@@ -84,6 +96,7 @@ packer.startup(function()
   use 'nvim-lua/lsp-status.nvim'
   use 'onsails/lspkind-nvim'
   use 'ray-x/lsp_signature.nvim'
+  uselocal 'schemastore.nvim'
 
   -- Code Style, Formatting, Linting
   use 'editorconfig/editorconfig-vim'
@@ -120,8 +133,13 @@ packer.startup(function()
     branch = 'cmp',
   }
 
+  -- Debugging
+  use 'mfussenegger/nvim-dap'
+  use 'jbyuki/one-small-step-for-vimkind' -- Lua DAP adapter, a.k.a. osv
+
   -- Window Movement and Management
-  use 'christoomey/vim-tmux-navigator'
+  uselocal 'vim-tmux-navigator'
+--   use 'christoomey/vim-tmux-navigator'
   use 'sindrets/winshift.nvim'
 
   -- Language-specific
@@ -144,3 +162,7 @@ packer.startup(function()
   -- Misc
   use { 'lewis6991/impatient.nvim', rocks = 'mpack' }
 end)
+
+packer.use_rocks {
+  'base64',
+}

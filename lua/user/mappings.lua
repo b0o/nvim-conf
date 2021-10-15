@@ -1,12 +1,19 @@
--- stylua: ignore start
-local fn = require'user.fn'
-local m = require'mapx'.setup{ global = true, whichkey = true, debug = vim.g.mapxDebug or false }
+local M = {}
+
+local fn = require 'user.fn'
+local thunk, ithunk = fn.thunk, fn.ithunk
+
+local m = require('mapx').setup {
+  global = true,
+  whichkey = true,
+  enableCountArg = false,
+  debug = vim.g.mapxDebug or false,
+}
 
 local silent = m.silent
 local expr = m.expr
 
-local curry, icurry = fn.curry, fn.icurry
-
+-- stylua: ignore start
 -- Disable C-z suspend
 map     ([[<C-z>]], [[<Nop>]])
 mapbang ([[<C-z>]], [[<Nop>]])
@@ -22,8 +29,8 @@ nnoremap ([[q:]], [[<Nop>]])
 nnoremap ([[q/]], [[<Nop>]])
 nnoremap ([[q?]], [[<Nop>]])
 
-noremap ([[j]], function(count) return count > 1 and "j" or "gj" end, silent, expr)
-noremap ([[k]], function(count) return count > 0 and "k" or "gk" end, silent, expr)
+noremap ([[j]], function() return vim.v.count > 1 and "j" or "gj" end, silent, expr)
+noremap ([[k]], function() return vim.v.count > 0 and "k" or "gk" end, silent, expr)
 noremap ([[J]], [[5j]])
 noremap ([[K]], [[5k]])
 
@@ -70,7 +77,8 @@ nnoremap ([[<C-y>]], [[pumvisible() ? "\<C-y>" : '"+yy']], expr)
 vnoremap ([[<C-y>]], [[pumvisible() ? "\<C-y>" : '"+y']], expr)
 
 -- yank path of current file to system clipboard
-nnoremap ([[<leader>yp]], [[:let @+ = expand("%:p")<Cr>:echom "Copied " . @+<Cr>]], silent, "Yank file path to system clipboard")
+nnoremap ([[<leader>yp]], [[:let @+ = expand("%:p")<Cr>:echom "Copied " . @+<Cr>]], silent, "Yank file path")
+nnoremap ([[<leader>y:]], [[:let @+=@:<Cr>:echom "Copied " . @+<Cr>]], silent, "Yank last command")
 
 -- Paste from system clipboard
 vnoremap ([[<C-p>]], [["+p]])
@@ -175,8 +183,8 @@ cnoremap ([[<c-n>]], [[pumvisible() ? "\<C-n>" : "\<down>"]], expr)
 -- Navigate tabs
 noremap  ([[<M-'>]], [[:tabn<Cr>]],           silent, "Tabs: Goto next")
 noremap  ([[<M-;>]], [[:tabp<Cr>]],           silent, "Tabs: Goto prev")
-tnoremap ([[<M-'>]], [[<C-\><C-n>:tabn<Cr>]], silent, "Tabs: goto next")
-tnoremap ([[<M-;>]], [[<C-\><C-n>:tabp<Cr>]], silent, "Tabs: goto prev")
+tnoremap ([[<M-'>]], ithunk(vim.cmd, "tabn"), silent, "Tabs: goto next")
+tnoremap ([[<M-;>]], ithunk(vim.cmd, "tabp"), silent, "Tabs: goto prev")
 noremap  ([[<M-a>]], [[g<Tab>]],              silent, "Tabs: Goto last accessed")
 
 -- Rearrange tabs
@@ -256,12 +264,108 @@ tnoremap ([[<M-p>]], [[<M-p>]])
 nnoremap ([[<Leader>ml]], [[:call AppendModeline()<Cr>]], silent, "Append modeline with current settings")
 
 ------ Filetypes
+---- Lua
 m.group(silent, { ft = "lua" }, function()
   nmap     ([[<leader><Enter>]], require'user.fn'.luarun, "Lua: Eval line")
   xmap     ([[<leader><Enter>]], require'user.fn'.luarun, "Lua: Eval selection")
   nmap     ([[<leader><F12>]],   "<Cmd>Put lua require'user.fn'.luarun()<Cr>", "Lua: Eval line (Append)")
   xmap     ([[<leader><F12>]],   "<Cmd>Put lua require'user.fn'.luarun()<Cr>", "Lua: Eval selection (Append)")
 end)
+
+---- Man
+m.group({ "silent", ft = "man" }, function()
+  -- open manpage tag (e.g. isatty(3)) in current buffer
+  nnoremap ([[<C-]>]], function() require'user.fn'.man('', vim.fn.expand('<cword>')) end,      "Man: Open tag in current buffer")
+  nnoremap ([[<M-]>]], function() require'user.fn'.man('tab', vim.fn.expand('<cword>')) end,   "Man: Open tag in new tab")
+  nnoremap ([[}]],     function() require'user.fn'.man('split', vim.fn.expand('<cword>')) end, "Man: Open tag in new split")
+
+  -- TODO
+  -- go back to previous manpage
+--   nnoremap ([[<C-t>]],   [[:call man#pop_page))
+--   nnoremap ([[<C-o>]],   [[:call man#pop_page()<CR>]])
+--   nnoremap ([[<M-o>]],   [[<C-o>]])
+
+  -- navigate to next/prev section
+  nnoremap ("[[", [[:<C-u>call user#fn#manSectionMove('b', 'n', v:count1)<CR>]], "Man: Goto prev section")
+  nnoremap ("]]", [[:<C-u>call user#fn#manSectionMove('' , 'n', v:count1)<CR>]], "Man: Goto next section")
+  xnoremap ("[[", [[:<C-u>call user#fn#manSectionMove('b', 'v', v:count1)<CR>]], "Man: Goto prev section")
+  xnoremap ("]]", [[:<C-u>call user#fn#manSectionMove('' , 'v', v:count1)<CR>]], "Man: Goto next section")
+
+  -- navigate to next/prev manpage tag
+  nnoremap ([[<Tab>]],   [[:call search('\(\w\+(\w\+)\)', 's')<CR>]],  "Man: Goto next tag")
+  nnoremap ([[<S-Tab>]], [[:call search('\(\w\+(\w\+)\)', 'sb')<CR>]], "Man: Goto prev tag")
+
+  -- search from beginning of line (useful for finding command args like -h)
+  nnoremap ([[g/]], [[/^\s*\zs]], { silent = false }, "Man: Start BOL search")
+end)
+
+------ LSP
+m.nname("<leader>l", "LSP")
+nnoremap ([[<leader>li]], [[:LspInfo<Cr>]],    "LSP: Show LSP information")
+nnoremap ([[<leader>lr]], [[:LspRestart<Cr>]], "LSP: Restart LSP")
+nnoremap ([[<leader>ls]], [[:LspStart<Cr>]],   "LSP: Start LSP")
+nnoremap ([[<leader>lS]], [[:LspStop<Cr>]],    "LSP: Stop LSP")
+
+M.on_lsp_attach = function(bufnr)
+  local user_lsp = require'user.lsp'
+
+  m.group({ buffer = bufnr, silent = true }, function()
+    m.nname("<localleader>g", "LSP-Goto")
+    nnoremap ({[[<localleader>gd]], [[gd]]}, vim.lsp.buf.definition,      "LSP: Goto definition")
+    nnoremap ({[[<localleader>gd]], [[gd]]}, vim.lsp.buf.definition,      "LSP: Goto definition")
+    nnoremap ([[<localleader>gD]],           vim.lsp.buf.declaration,     "LSP: Goto declaration")
+    nnoremap ([[<localleader>gi]],           vim.lsp.buf.implementation,  "LSP: Goto implementation")
+    nnoremap ([[<localleader>gt]],           vim.lsp.buf.type_definition, "LSP: Goto type definition")
+    nnoremap ([[<localleader>gr]],           vim.lsp.buf.references,      "LSP: Goto references")
+
+    m.nname("<localleader>w", "LSP-Workspace")
+    nnoremap ([[<localleader>wa]], vim.lsp.buf.add_workspace_folder,    "LSP: Add workspace folder")
+    nnoremap ([[<localleader>wr]], vim.lsp.buf.remove_workspace_folder, "LSP: Rm workspace folder")
+
+    nnoremap ([[<localleader>wl]], function() fn.inspect(vim.lsp.buf.list_workspace_folders()) end, "LSP: List workspace folders")
+
+    nnoremap ([[<localleader>R]],  vim.lsp.buf.rename, "LSP: Rename")
+
+    nnoremap ({[[<localleader>A]], [[<localleader>ca]]}, vim.lsp.buf.code_action,       "LSP: Code action")
+    vnoremap ({[[<localleader>A]], [[<localleader>ca]]}, vim.lsp.buf.range_code_action, "LSP: Code action (range)")
+
+    nnoremap ([[<localleader>F]], vim.lsp.buf.formatting,       "LSP: Format")
+    vnoremap ([[<localleader>F]], vim.lsp.buf.range_formatting, "LSP: Format (range)")
+
+    m.nname("<localleader>s", "LSP-Save")
+    nnoremap ([[<localleader>S]],  user_lsp.setFmtOnSave,               "LSP: Toggle format on save")
+    nnoremap ([[<localleader>ss]], user_lsp.setFmtOnSave,               "LSP: Toggle format on save")
+    nnoremap ([[<localleader>se]], thunk(user_lsp.setFmtOnSave, true),  "LSP: Enable format on save")
+    nnoremap ([[<localleader>sd]], thunk(user_lsp.setFmtOnSave, false), "LSP: Disable format on save")
+
+    local function gotoDiag(dir, sev)
+      return thunk(
+        vim.diagnostic["goto_" .. (dir == -1 and "prev" or "next")],
+        { enable_popup = true, severity = sev }
+      )
+    end
+    m.nname("<localleader>d", "LSP-Diagnostics")
+    nnoremap ([[<localleader>di]],                        vim.diagnostic.show_line_diagnostics, "LSP: Show diagnostics")
+    nnoremap ({[[<localleader>dI]], [[<localleader>T]]},  require'trouble'.toggle,              "LSP: Toggle Trouble")
+
+    nnoremap ({[[<localleader>dd]], [[[d]]}, gotoDiag(-1),            "LSP: Goto prev diagnostic")
+    nnoremap ({[[<localleader>dD]], [[]d]]}, gotoDiag(1),             "LSP: Goto next diagnostic")
+    nnoremap ({[[<localleader>dw]], [[[w]]}, gotoDiag(-1, "Warning"), "LSP: Goto prev diagnostic (warning)")
+    nnoremap ({[[<localleader>dW]], [[]w]]}, gotoDiag(1,  "Warning"), "LSP: Goto next diagnostic (warning)")
+    nnoremap ({[[<localleader>de]], [[[e]]}, gotoDiag(-1, "Error"),   "LSP: Goto prev diagnostic (error)")
+    nnoremap ({[[<localleader>dE]], [[]e]]}, gotoDiag(1,  "Error"),   "LSP: Goto next diagnostic (error)")
+
+    m.nname("<localleader>s", "LSP-Search")
+    nnoremap ({[[<localleader>so]], [[<leader>so]]}, require('telescope.builtin').lsp_document_symbols, "LSP: Telescope symbol search")
+
+    m.nname("<localleader>h", "LSP-Hover")
+    nnoremap ([[<localleader>hs]], vim.lsp.buf.signature_help, "LSP: Signature help")
+    nnoremap ([[<localleader>ho]], vim.lsp.buf.hover,          "LSP: Hover")
+    nnoremap ([[<M-i>]],           vim.lsp.buf.hover,          "LSP: Hover")
+    inoremap ([[<M-i>]],           vim.lsp.buf.hover,          "LSP: Hover")
+    nnoremap ([[<M-S-i>]],         user_lsp.peekDefinition,    "LSP: Peek definition")
+  end)
+end
 
 ------ Plugins
 ---- wbthomason/packer.nvim
@@ -282,90 +386,21 @@ nmap     ([[<M-j>]], [[:TmuxNavigateDown<cr>]],  silent)
 nmap     ([[<M-k>]], [[:TmuxNavigateUp<cr>]],    silent)
 nmap     ([[<M-l>]], [[:TmuxNavigateRight<cr>]], silent)
 
-
 ---- nvim-telescope/telescope.nvim TODO: In-telescope maps
 m.group("silent", function()
   m.nname("<C-f>", "Telescope")
-  nnoremap ({[[<C-f>b]], [[<C-f><C-b>]]}, icurry(require('telescope.builtin').buffers),                         "Telescope: Buffers")
-  nnoremap ({[[<C-f>f]], [[<C-f><C-f>]]}, icurry(require('telescope.builtin').find_files, {previewer = false}), "Telescope: Files")
-  nnoremap ({[[<C-f>h]], [[<C-f><C-h>]]}, icurry(require('telescope.builtin').help_tags),                       "Telescope: Help tags")
-  nnoremap ({[[<C-f>t]], [[<C-f><C-t>]]}, icurry(require('telescope.builtin').tags),                            "Telescope: Tags")
-  nnoremap ({[[<C-f>a]], [[<C-f><C-a>]]}, icurry(require('telescope.builtin').grep_string),                     "Telescope: Grep for string")
-  nnoremap ({[[<C-f>p]], [[<C-f><C-p>]]}, icurry(require('telescope.builtin').live_grep),                       "Telescope: Live grep")
-  nnoremap ({[[<C-f>o]], [[<C-f><C-o>]]}, icurry(require('telescope.builtin').oldfiles),                        "Telescope: Old files")
+  nnoremap ({[[<C-f>b]], [[<C-f><C-b>]]}, require('telescope.builtin').buffers,                                 "Telescope: Buffers")
+  nnoremap ({[[<C-f>h]], [[<C-f><C-h>]]}, require('telescope.builtin').help_tags,                               "Telescope: Help tags")
+  nnoremap ({[[<C-f>t]], [[<C-f><C-t>]]}, require('telescope.builtin').tags,                                    "Telescope: Tags")
+  nnoremap ({[[<C-f>a]], [[<C-f><C-a>]]}, require('telescope.builtin').grep_string,                             "Telescope: Grep for string")
+  nnoremap ({[[<C-f>p]], [[<C-f><C-p>]]}, require('telescope.builtin').live_grep,                               "Telescope: Live grep")
+  nnoremap ({[[<C-f>o]], [[<C-f><C-o>]]}, require('telescope.builtin').oldfiles,                                "Telescope: Old files")
+  nnoremap ({[[<C-f>f]], [[<C-f><C-f>]]}, ithunk(require('telescope.builtin').find_files, {previewer = false}), "Telescope: Files")
 
   m.nname("<M-f>", "Telescope-Buffer")
-  nnoremap ({[[<M-f>b]], [[<M-f><M-b>]]}, icurry(require('telescope.builtin').current_buffer_fuzzy_find),          "Telescope: Buffer (fuzzy)")
-  nnoremap ({[[<M-f>t]], [[<M-f><M-t>]]}, icurry(require('telescope.builtin').tags ,{only_current_buffer = true}), "Telescope: Tags (buffer)")
+  nnoremap ({[[<M-f>b]], [[<M-f><M-b>]]}, require('telescope.builtin').current_buffer_fuzzy_find,                  "Telescope: Buffer (fuzzy)")
+  nnoremap ({[[<M-f>t]], [[<M-f><M-t>]]}, ithunk(require('telescope.builtin').tags ,{only_current_buffer = true}), "Telescope: Tags (buffer)")
 end)
-
----- neovim/nvim-lspconfig
-m.nname("<leader>l", "LSP")
-nnoremap ([[<leader>li]], [[:LspInfo<Cr>]],    "LSP: Show LSP information")
-nnoremap ([[<leader>lr]], [[:LspRestart<Cr>]], "LSP: Restart LSP")
-nnoremap ([[<leader>ls]], [[:LspStart<Cr>]],   "LSP: Start LSP")
-nnoremap ([[<leader>lS]], [[:LspStop<Cr>]],    "LSP: Stop LSP")
-
-_G.nvim_lsp_mapfn = function(bufnr)
-  local user_lsp = require'user.lsp'
-
-  m.group({ buffer = bufnr, silent = true }, function()
-    m.nname("<localleader>g", "LSP-Goto")
-    nnoremap ({[[<localleader>gd]], [[gd]]}, icurry(vim.lsp.buf.definition),      "LSP: Goto definition")
-    nnoremap ({[[<localleader>gd]], [[gd]]}, icurry(vim.lsp.buf.definition),      "LSP: Goto definition")
-    nnoremap ([[<localleader>gD]],           icurry(vim.lsp.buf.declaration),     "LSP: Goto declaration")
-    nnoremap ([[<localleader>gi]],           icurry(vim.lsp.buf.implementation),  "LSP: Goto implementation")
-    nnoremap ([[<localleader>gt]],           icurry(vim.lsp.buf.type_definition), "LSP: Goto type definition")
-    nnoremap ([[<localleader>gr]],           icurry(vim.lsp.buf.references),      "LSP: Goto references")
-
-    m.nname("<localleader>w", "LSP-Workspace")
-    nnoremap ([[<localleader>wa]], icurry(vim.lsp.buf.add_workspace_folder),    "LSP: Add workspace folder")
-    nnoremap ([[<localleader>wr]], icurry(vim.lsp.buf.remove_workspace_folder), "LSP: Rm workspace folder")
-
-    nnoremap ([[<localleader>wl]], function() fn.inspect(vim.lsp.buf.list_workspace_folders()) end, "LSP: List workspace folders")
-
-    nnoremap ([[<localleader>R]],  icurry(vim.lsp.buf.rename), "LSP: Rename")
-
-    nnoremap ({[[<localleader>A]], [[<localleader>ca]]}, icurry(vim.lsp.buf.code_action),       "LSP: Code action")
-    vnoremap ({[[<localleader>A]], [[<localleader>ca]]}, icurry(vim.lsp.buf.range_code_action), "LSP: Code action (range)")
-
-    nnoremap ([[<localleader>F]], icurry(vim.lsp.buf.formatting),       "LSP: Format")
-    vnoremap ([[<localleader>F]], icurry(vim.lsp.buf.range_formatting), "LSP: Format (range)")
-
-    m.nname("<localleader>s", "LSP-Save")
-    nnoremap ([[<localleader>S]],  user_lsp.fmtOnSave,               "LSP: Toggle format on save")
-    nnoremap ([[<localleader>ss]], user_lsp.fmtOnSave,               "LSP: Toggle format on save")
-    nnoremap ([[<localleader>se]], curry(user_lsp.fmtOnSave, true),  "LSP: Enable format on save")
-    nnoremap ([[<localleader>sd]], curry(user_lsp.fmtOnSave, false), "LSP: Disable format on save")
-
-    local function gotoDiag(dir, sev)
-      return curry(
-        vim.diagnostic["goto_" .. (dir == -1 and "prev" or "next")],
-        { enable_popup = true, severity = sev }
-      )
-    end
-    m.nname("<localleader>d", "LSP-Diagnostics")
-    nnoremap ([[<localleader>di]],                        icurry(vim.diagnostic.show_line_diagnostics), "LSP: Show diagnostics")
-    nnoremap ({[[<localleader>dI]], [[<localleader>T]]},  icurry(require'trouble'.toggle),              "LSP: Toggle Trouble")
-
-    nnoremap ({[[<localleader>dd]], [[[d]]}, gotoDiag(-1),            "LSP: Goto prev diagnostic")
-    nnoremap ({[[<localleader>dD]], [[]d]]}, gotoDiag(1),             "LSP: Goto next diagnostic")
-    nnoremap ({[[<localleader>dw]], [[[w]]}, gotoDiag(-1, "Warning"), "LSP: Goto prev diagnostic (warning)")
-    nnoremap ({[[<localleader>dW]], [[]w]]}, gotoDiag(1,  "Warning"), "LSP: Goto next diagnostic (warning)")
-    nnoremap ({[[<localleader>de]], [[[e]]}, gotoDiag(-1, "Error"),   "LSP: Goto prev diagnostic (error)")
-    nnoremap ({[[<localleader>dE]], [[]e]]}, gotoDiag(1,  "Error"),   "LSP: Goto next diagnostic (error)")
-
-    m.nname("<localleader>s", "LSP-Search")
-    nnoremap ({[[<localleader>so]], [[<leader>so]]}, icurry(require('telescope.builtin').lsp_document_symbols), "LSP: Telescope symbol search")
-
-    m.nname("<localleader>h", "LSP-Hover")
-    nnoremap ([[<localleader>hs]], icurry(vim.lsp.buf.signature_help), "LSP: Signature help")
-    nnoremap ([[<localleader>ho]], icurry(vim.lsp.buf.hover),          "LSP: Hover")
-    nnoremap ([[<M-i>]],           icurry(vim.lsp.buf.hover),          "LSP: Hover")
-    inoremap ([[<M-i>]],           icurry(vim.lsp.buf.hover),          "LSP: Hover")
-    nnoremap ([[<M-S-i>]],         user_lsp.peekDefinition,            "LSP: Peek definition")
-  end)
-end
 
 ---- tpope/vim-fugitive
 m.nname("<leader>g",  "Fugitive")
@@ -416,54 +451,24 @@ nnoremap ([[<leader>ut]], [[:UndotreeToggle<Cr>]], "Undotree: Toggle")
 nmap ([[<Leader>a]], ":Tabularize /", "Tabularize")
 vmap ([[<Leader>a]], ":Tabularize /", "Tabularize")
 
--- b0o/vim-man
-m.group({ "silent", ft = "man" }, function()
-  -- open manpage tag (e.g. isatty(3)) in current buffer
-  nnoremap ([[<C-]>]], function() require'user.fn'.man('', vim.fn.expand('<cword>')) end,      "Man: Open tag in current buffer")
-  nnoremap ([[<M-]>]], function() require'user.fn'.man('tab', vim.fn.expand('<cword>')) end,   "Man: Open tag in new tab")
-  nnoremap ([[}]],     function() require'user.fn'.man('split', vim.fn.expand('<cword>')) end, "Man: Open tag in new split")
-
-  -- TODO
-  -- go back to previous manpage
---   nnoremap ([[<C-t>]],   [[:call man#pop_page))
---   nnoremap ([[<C-o>]],   [[:call man#pop_page()<CR>]])
---   nnoremap ([[<M-o>]],   [[<C-o>]])
-
-  -- navigate to next/prev section
-  nnoremap ("[[", [[:<C-u>call user#fn#manSectionMove('b', 'n', v:count1)<CR>]], "Man: Goto prev section")
-  nnoremap ("]]", [[:<C-u>call user#fn#manSectionMove('' , 'n', v:count1)<CR>]], "Man: Goto next section")
-  xnoremap ("[[", [[:<C-u>call user#fn#manSectionMove('b', 'v', v:count1)<CR>]], "Man: Goto prev section")
-  xnoremap ("]]", [[:<C-u>call user#fn#manSectionMove('' , 'v', v:count1)<CR>]], "Man: Goto next section")
-
-  -- navigate to next/prev manpage tag
-  nnoremap ([[<Tab>]],   [[:call search('\(\w\+(\w\+)\)', 's')<CR>]],  "Man: Goto next tag")
-  nnoremap ([[<S-Tab>]], [[:call search('\(\w\+(\w\+)\)', 'sb')<CR>]], "Man: Goto prev tag")
-
-  -- search from beginning of line (useful for finding command args like -h)
-  nnoremap ([[g/]], [[/^\s*\zs]], { silent = false }, "Man: Start BOL search")
-end)
-
 ---- KabbAmine/vCoolor.vim
 nmap([[<leader>co]], [[:VCoolor<CR>]], silent, "Open VCooler color picker")
 
 ---- kyazdani42/nvim-tree.lua
 nmap([[<C-\>]], [[:NvimTreeToggle<CR>]], silent, "Nvim-Tree: Toggle")
+nmap([[<M-\>]], function()
+  if vim.fn.bufname() == "NvimTree" then
+    vim.cmd([[wincmd p]])
+  else
+    vim.cmd([[NvimTreeFocus]])
+  end
+end, silent, "Nvim-Tree: Toggle Focus")
 
 m.group({ ft = "NvimTree" }, function()
   local function withSelected(cmd, fmt)
     return function()
       local file = require'nvim-tree.lib'.get_node_at_cursor().absolute_path
-      cmd = fmt and (cmd):format(file) or ("%s %s"):format(cmd, file)
-      local tab_open = vim.g.nvim_tree_tab_open
-      if tab_open == 1 then
-        vim.g.nvim_tree_tab_open = 0
-      end
-      vim.cmd(cmd)
-      if tab_open == 1 then
-        vim.defer_fn(function()
-          vim.g.nvim_tree_tab_open = tab_open
-        end, 500)
-      end
+      vim.cmd(fmt and (cmd):format(file) or ("%s %s"):format(cmd, file))
     end
   end
   nnoremap ([[ga]], withSelected("Git add"),             "Nvim-Tree: Git add")
@@ -472,94 +477,59 @@ m.group({ ft = "NvimTree" }, function()
   nnoremap ([[gd]], withSelected("tabnew | Gdiffsplit"), "Nvim-Tree: Git diff")
 end)
 
+---- mfussenegger/nvim-dap
+
+local function dap_pre()
+  nnoremap([[<leader>D]], function()
+    require'user.dap'.launch(vim.bo.filetype)
+  end, "DAP: Launch")
+end
+dap_pre()
+
+M.on_dap_attach = function()
+  local dap = require'dap'
+  local dap_ui_vars = require'dap.ui.variables'
+  local dap_ui_widgets = require'dap.ui.widgets'
+
+  nnoremap([[<leader>D]], function()
+    require'user.dap'.close(vim.bo.filetype)
+  end, "DAP: Disconnect")
+
+  local breakpointCond = function() dap.set_breakpoint(vim.fn.input('Breakpoint condition: '))end
+
+  local toggleRepl = function() dap.repl.toggle({}, " vsplit")vim.fn.wincmd('l') end
+
+  m.nname([[<leader>d]], "DAP")
+  nnoremap([[<leader>dR]],  dap.restart,                                          "DAP: Restart")
+  nnoremap([[<leader>dh]],  dap.toggle_breakpoint,                                "DAP: Toggle breakpoint")
+  nnoremap([[<leader>dH]],  breakpointCond,                                       "DAP: Set breakpoint condition")
+  nnoremap([[<leader>de]],  ithunk(dap.set_exception_breakpoints, {"all"}),       "DAP: Break on exception")
+  nnoremap([[<leader>dr]],  toggleRepl,                                           "DAP: Toggle REPL")
+  nnoremap([[<leader>di]],  dap_ui_vars.hover,                                    "DAP: Hover variables")
+  nnoremap([[<leader>di]],  dap_ui_vars.visual_hover,                             "DAP: Hover variables (visual)")
+  nnoremap([[<leader>d?]],  dap_ui_vars.scopes,                                   "DAP: Scopes")
+  nnoremap([[<leader>dk]],  dap.up,                                               "DAP: Up")
+  nnoremap([[<leader>dj]],  dap.down,                                             "DAP: Down")
+  nnoremap([[<leader>di]],  dap_ui_widgets.hover,                                 "DAP: Hover")
+  nnoremap([[<leader>d?]],  dap_ui_widgets.centered_float, dap_ui_widgets.scopes, "DAP: Scopes")
+
+--   nnoremap([[<leader>dR]],  ithunk(dap.disconnect, {restart = false, terminateDebuggee = false}), "DAP: Restart")
+
+  nnoremap({ [[<leader>dso]], [[<c-k>]] }, dap.step_out,  "DAP: Step out")
+  nnoremap({ [[<leader>dsi]], [[<c-l>]] }, dap.step_into, "DAP: Step into")
+  nnoremap({ [[<leader>dsO]], [[<c-j>]] }, dap.step_over, "DAP: Step over")
+  nnoremap({ [[<leader>dsc]], [[<c-h>]] }, dap.continue,  "DAP: Continue")
+
+  -- nnoremap([[<leader>da]],  require"debugHelper".attach()<CR>')
+  -- nnoremap([[<leader>dA]],  require"debugHelper".attachToRemote()<CR>')
+end
+
+M.on_dap_detach = function()
+  -- TODO
+end
+
 ---- sindrets/winshift.nvim
-nnoremap ([[<Leader>M]], [[<Cmd>WinShift<Cr>]], "WinShift: Start")
+nnoremap ([[<Leader>M]],  [[<Cmd>WinShift<Cr>]], "WinShift: Start")
+nnoremap ([[<Leader>mm]], [[<Cmd>WinShift<Cr>]], "WinShift: Start")
 
--- Testing out Mapx mini-modes
--- m.mode('test', function()
---   map("gH", ":echo 'Hello'<Cr>")
---   map("gx", m.exitMode)
--- end)
--- map("<Leader>mt", function() m.enterMode("test") end)
-
----- bfredl/nvim-luadev
--- m.group({ ft = "lua" }, function()
---   nmap([[zx]], function() print("lua: x") end)
---   nmap([[zy]], function() print("lua: y") end)
---   nmap([[zz]], function() print("lua: z") end)
--- end)
--- m.group({ ft = "yaml" }, function()
---   nmap([[zx]], function() print("yaml: x") end)
---   nmap([[zy]], function() print("yaml: y") end)
---   nmap([[zz]], function() print("yaml: z") end)
--- end)
--- m.group({ ft = { "lua", "yaml" } }, function()
---   nmap([[zw]], function() print("luayaml: w") end)
--- end)
--- m.audone()
--- function! g:Luadev_setup()
---   if exists('b:luadev_did_setup')
---     return
---   endif
-
---   nmap <buffer> <F12> :Luadev<Cr><Plug>(Luadev-RunLine)
---   vmap <buffer> <F12> :Luadev<Cr><Plug>(Luadev-Run)
---   nmap <buffer> <F13> :Luadev<Cr><Plug>(Luadev-RunWord)
---   imap <buffer> <C-r> <Plug>(Luadev-Complete)
---   imap <buffer> <F12> <Esc><F12>a
---   imap <buffer> <F13> <Esc><F13>a
-
---   let b:luadev_did_setup = 1
--- endfunction
-
--- augroup luadev_setup
---   autocmd!
---   autocmd BufEnter *.lua call g:Luadev_setup()
--- augroup END
--- end
---
---   m.group({ ft = "LspSagaCodeAction" }, silent, function()
---     map({
---       [[<Esc>]], [[q]], [[Q]], [[<C-c>]], [[<C-d>]], [[<C-g>]]
---     }, require'lspsaga.codeaction'.quit_action_window, "LSPSaga: Close CodeAction window")
-
---     map([[<Tab>]],   function()
---       local c = vim.fn.getpos(".")[2]
---       local l = vim.api.nvim_buf_line_count(0)
---       vim.fn.cursor({c == l and 1 or c + 1, 2})
---     end, "LSPSaga: Next action")
-
---     map([[<S-Tab>]], function()
---       local c = vim.fn.getpos(".")[2]
---       vim.fn.cursor({c == 2 and '$' or c - 1, 2})
---     end, "LSPSaga: Prev action")
-
---     local function selectAction(n, doAction)
---       return function()
---         vim.fn.cursor({n + 2, 2})
---         if doAction then require'lspsaga.codeaction'.do_code_action() end
---       end
---     end
-
---     map([[1]],      selectAction(1),       "LSPSaga: Select action 1")
---     map([[2]],      selectAction(2),       "LSPSaga: Select action 2")
---     map([[3]],      selectAction(3),       "LSPSaga: Select action 3")
---     map([[4]],      selectAction(4),       "LSPSaga: Select action 4")
---     map([[5]],      selectAction(5),       "LSPSaga: Select action 5")
---     map([[6]],      selectAction(6),       "LSPSaga: Select action 6")
---     map([[7]],      selectAction(7),       "LSPSaga: Select action 7")
---     map([[8]],      selectAction(8),       "LSPSaga: Select action 8")
---     map([[9]],      selectAction(9),       "LSPSaga: Select action 9")
---     map([[10]],     selectAction(10),      "LSPSaga: Select action 10")
-
---     map([[<M-1>]],  selectAction(1, true), "LSPSaga: Do action 1")
---     map([[<M-2>]],  selectAction(2, true), "LSPSaga: Do action 2")
---     map([[<M-3>]],  selectAction(3, true), "LSPSaga: Do action 3")
---     map([[<M-4>]],  selectAction(4, true), "LSPSaga: Do action 4")
---     map([[<M-5>]],  selectAction(5, true), "LSPSaga: Do action 5")
---     map([[<M-6>]],  selectAction(6, true), "LSPSaga: Do action 6")
---     map([[<M-7>]],  selectAction(7, true), "LSPSaga: Do action 7")
---     map([[<M-8>]],  selectAction(8, true), "LSPSaga: Do action 8")
---     map([[<M-9>]],  selectAction(9, true), "LSPSaga: Do action 9")
---     map([[<M-10>]], selectAction(10, true), "LSPSaga: Do action 10")
---   end)
+return M

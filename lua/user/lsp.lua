@@ -3,6 +3,7 @@ local lsp_status = require 'lsp-status'
 local null_ls = require 'null-ls'
 local user_lsp_status = require 'user.statusline.lsp'
 local nvim_cmp_lsp = require 'cmp_nvim_lsp'
+local lazyTable = require('user.fn').lazyTable
 
 local M = {
   fmtOnSaveEnabled = false,
@@ -49,6 +50,12 @@ local lua_lsp_conf = require('lua-dev').setup {
             'tnoremap',
             'mapbang',
             'noremapbang',
+
+            -- Mulberry BDD
+            'Describe',
+            'It',
+            'Expect',
+            'Which',
           },
         },
         telemetry = {
@@ -64,7 +71,7 @@ local lsp_servers = {
   'bashls',
   'ccls',
   'cssls',
-  'denols',
+  --   'denols', -- TODO: Prevent denols from starting in NodeJS projects
   'dockerls',
   'dotls',
   {
@@ -76,6 +83,12 @@ local lsp_servers = {
   'html',
   {
     'jsonls',
+    formatting = false,
+    cmd = {
+      'node',
+      '/usr/lib/code/extensions/json-language-features/server/dist/node/jsonServerMain.js',
+      '--stdio',
+    },
     commands = {
       Format = {
         function()
@@ -83,6 +96,11 @@ local lsp_servers = {
         end,
       },
     },
+    settings = lazyTable(function()
+      return {
+        json = { schemas = require('schemastore').json.schemas() },
+      }
+    end),
   },
   'null-ls',
   'ocamllsp',
@@ -99,12 +117,14 @@ local lsp_servers = {
   'rnix',
   'sqls',
   lua_lsp_conf,
-  'tsserver',
+  {
+    'tsserver',
+    formatting = false,
+  },
   'vimls',
   'yamlls',
 }
 
--- TODO
 local null_ls_config = {
   formatting = {
     'eslint_d',
@@ -116,10 +136,10 @@ local null_ls_config = {
     'shfmt',
     'stylelint',
     'stylua',
-    {
-      'trim_whitespace',
-      filetypes = {},
-    },
+    --     {
+    --       'trim_whitespace',
+    --       filetypes = {},
+    --     },
   },
   diagnostics = {
     'eslint_d',
@@ -129,6 +149,11 @@ local null_ls_config = {
   code_actions = {
     'gitsigns',
   },
+}
+
+local fmtTriggers = {
+  default = 'BufWritePre',
+  sh = 'BufWritePost',
 }
 
 -- Enables/disables format on save
@@ -141,7 +166,12 @@ function M.setFmtOnSave(val, silent)
     'autocmd!',
   }
   if M.fmtOnSaveEnabled then
-    table.insert(au, 'autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()')
+    table.insert(
+      au,
+      ('autocmd %s <buffer> lua vim.lsp.buf.formatting_sync()'):format(
+        fmtTriggers[vim.o.filetype] or fmtTriggers.default
+      )
+    )
   end
   table.insert(au, 'augroup END')
   vim.cmd(table.concat(au, '\n'))
@@ -166,7 +196,7 @@ local function on_attach(client, bufnr)
   end
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   user_lsp_status.on_attach(client)
-  _G.nvim_lsp_mapfn(bufnr)
+  require('user.mappings').on_lsp_attach(bufnr)
 end
 
 local function on_exit(code, signal, id)
@@ -264,16 +294,7 @@ vim.lsp.handlers['textDocument/definition'] = function(_, result)
   end
 end
 
-local border = {
-  { '╭' },
-  { '─' },
-  { '╮' },
-  { '│' },
-  { '╯' },
-  { '─' },
-  { '╰' },
-  { '│' },
-}
+local border = { { '╭' }, { '─' }, { '╮' }, { '│' }, { '╯' }, { '─' }, { '╰' }, { '│' } }
 
 vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = border })
 vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = border })
