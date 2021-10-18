@@ -377,8 +377,9 @@ nmap     ([[<leader>pu]], [[:PackerUpdate<Cr>]])
 nmap     ([[<leader>ps]], [[:PackerSync<Cr>]])
 nmap     ([[<leader>pl]], [[:PackerLoad<Cr>]])
 
----- tpope/vim-commentary
-map      ([[<M-/>]], [[:Commentary<Cr>]], silent)
+---- numToStr/Comment.nvim
+map      ([[<M-/>]], [[gcc]],      silent)
+imap     ([[<M-/>]], [[v:count == 0 ? '<Esc><Cmd>set operatorfunc=v:lua.___comment_gcc<Cr>g@$a' : '<Esc><Cmd>lua ___comment_count_gcc()<Cr>a']], silent, expr)
 
 ---- christoomey/vim-tmux-navigator
 nmap     ([[<M-h>]], [[:TmuxNavigateLeft<cr>]],  silent)
