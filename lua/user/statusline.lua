@@ -228,15 +228,10 @@ config.components.active[2] = {
 
 config.components.active[3] = {
   {
-    provider = 'dap_clients_attached',
+    provider = 'dap_clients',
     hl = { fg = 'green' },
     right_sep = ' ',
   },
-  --   {
-  --     provider = 'dap_clients_detached',
-  --     hl = { fg = 'grey6' },
-  --     right_sep = ' ',
-  --   },
   {
     provider = 'lsp_clients_running',
     hl = { fg = 'green' },

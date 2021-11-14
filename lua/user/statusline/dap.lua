@@ -15,10 +15,8 @@ function M.status_clients()
   end
 end
 
-local register = require'user.statusline.providers'.register
+local register = require('user.statusline.providers').register
 
 register('dap_clients', M.status_clients())
-register('dap_clients_attached', M.status_clients 'attached')
-register('dap_clients_detached', M.status_clients 'detached')
 
 return M
