@@ -27,8 +27,8 @@ end
 vim.cmd [[
   augroup user_trouble
     autocmd!
-    autocmd InsertEnter * lua require'user.plugins.trouble'.disableAutoOpenClose()
-    autocmd InsertLeave * lua require'user.plugins.trouble'.restoreAutoOpenClose()
+    autocmd InsertEnter * lua require'user.plugin.trouble'.disableAutoOpenClose()
+    autocmd InsertLeave * lua require'user.plugin.trouble'.restoreAutoOpenClose()
   augroup END
 ]]
 

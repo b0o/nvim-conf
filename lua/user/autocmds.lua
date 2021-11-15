@@ -43,7 +43,7 @@ vim.cmd [[
   augroup user_gitsigns
     autocmd!
     " Work around for https://github.com/lewis6991/gitsigns.nvim/issues/264
-    autocmd SessionLoadPost * lua vim.defer_fn(require'gitsigns'.refresh, 150)
+    autocmd SessionLoadPost * autocmd BufEnter * ++once lua vim.defer_fn(require'gitsigns'.refresh, 150)
   augroup END
 ]]
 
