@@ -37,8 +37,12 @@ vim.o.clipboard = 'unnamedplus' -- Enable yanking between vim sessions and syste
 
 vim.o.switchbuf = 'usetab,newtab'
 
+vim.o.sessionoptions = 'globals,blank,buffers,curdir,folds,help,tabpages,winsize'
+
 vim.o.splitright = true -- default vertical splits to open on right
 vim.o.splitbelow = true -- default horizontal splits to open on bottom
+
+vim.o.eadirection = 'hor'
 
 vim.o.wildchar = 9 -- equivalent to 'set wildchar=<Tab>'
 
@@ -114,3 +118,6 @@ end
 -- Filetypes
 -- disable default man.vim mappings
 vim.g.no_man_maps = 1
+
+-- Automatically equalize window sizes when Neovim is resized
+require('user.fn').autoresizeEnable()

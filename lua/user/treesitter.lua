@@ -78,3 +78,6 @@ require('nvim-treesitter.configs').setup {
     },
   },
 }
+
+-- romgrk/nvim-treesitter-context
+require('treesitter-context').setup {}

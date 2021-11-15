@@ -24,25 +24,28 @@ dap.adapters.nlua = function(callback, config)
   callback { type = 'server', host = config.host, port = config.port }
 end
 M.nlua_launch = function()
-  require'osv'.launch(lua_conf)
+  require('osv').launch(lua_conf)
 end
 M.launchers.nlua = function()
---   require('osv').launch(lua_conf)
+  --   require('osv').launch(lua_conf)
   local terminal = (os.getenv 'TERMINAL') or 'alacritty'
   local cmd = {
     terminal,
-    '-e', 'nvim',
-    '--cmd', 'set noswapfile',
-    '-c', 'lua require"user.dap".nlua_launch()',
+    '-e',
+    'nvim',
+    '--cmd',
+    'set noswapfile',
+    '-c',
+    'lua require"user.dap".nlua_launch()',
     '+' .. vim.fn.getcurpos()[2],
-    vim.fn.expand('%:p'),
+    vim.fn.expand '%:p',
   }
   M.job = vim.fn.jobstart(cmd)
   vim.wait(500, function()
     vim.fn.system(('nc -z %s %d'):format(lua_conf.host, lua_conf.port))
     return vim.v.shell_error == 0
   end)
-  vim.cmd('sleep 500m')
+  vim.cmd 'sleep 500m'
 end
 M.closers.nlua = function()
   require('osv').stop()
@@ -72,7 +75,7 @@ dap.configurations.javascript = {
 M.launchers.chrome = function()
   vim.fn.system('lsof -i :' .. js_chrome_conf.port)
   if vim.v.shell_error == 0 then
-    print("Already started")
+    print 'Already started'
     return
   end
   local cmd = {
@@ -106,7 +109,7 @@ M.launchers.chrome = function()
     </html>
   ]]
 
-  table.insert(cmd, ('"data:text/html;base64,%s"'):format(require'base64'.encode(html)))
+  table.insert(cmd, ('"data:text/html;base64,%s"'):format(require('base64').encode(html)))
   M.job = vim.fn.jobstart(cmd)
 end
 
@@ -126,7 +129,7 @@ dap.listeners.after['event_exited']['user'] = function()
   end
 end
 
-dap.listeners.after['event_terminated']['user'] = function(session, body)
+dap.listeners.after['event_terminated']['user'] = function()
   if is_attached then
     require('user.mappings').on_dap_detach()
     is_attached = false

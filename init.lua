@@ -5,8 +5,10 @@ end
 
 require 'user.settings'
 require 'user.fn'
+require 'user.commands'
 require 'user.mappings'
 require 'user.plugins'
+require 'user.plugins.init'
 require 'user.plugins.plugins'
 require 'user.autocmds'
 require 'user.statusline'

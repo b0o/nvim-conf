@@ -9,7 +9,7 @@ local packer = require 'packer'
 local use = packer.use
 
 local function uselocal(p)
-  if type(p) ~= "table" then
+  if type(p) ~= 'table' then
     p = { p }
   end
   local git_projects_dir = os.getenv 'GIT_PROJECTS_DIR'
@@ -31,9 +31,9 @@ packer.startup(function()
   -- Config
   uselocal {
     'mapx.nvim',
---     config = function()
---       require'user.mappings'
---     end,
+    --     config = function()
+    --       require'user.mappings'
+    --     end,
   }
 
   -- UI
@@ -41,11 +41,13 @@ packer.startup(function()
   use 'chriskempson/base16-vim'
   use 'ericbn/vim-relativize'
   use 'folke/which-key.nvim'
-  use 'joshdick/onedark.vim'
   use 'kyazdani42/nvim-web-devicons'
   use 'liuchengxu/vista.vim'
   use 'lukas-reineke/indent-blankline.nvim'
-  use 'kyazdani42/nvim-tree.lua'
+  use 'luukvbaal/stabilize.nvim'
+  use {
+    'kyazdani42/nvim-tree.lua',
+  }
   use {
     'nvim-telescope/telescope.nvim',
     requires = { 'nvim-lua/popup.nvim', 'nvim-lua/plenary.nvim' },
@@ -66,7 +68,6 @@ packer.startup(function()
   use 'mg979/vim-visual-multi'
   use 'numToStr/Comment.nvim'
   use 'sgur/vim-textobj-parameter'
-  use 'terryma/vim-expand-region'
   use 'tpope/vim-abolish'
   use 'tpope/vim-repeat'
   use 'tpope/vim-speeddating'
@@ -87,15 +88,17 @@ packer.startup(function()
   }
   use 'nvim-treesitter/nvim-treesitter-textobjects'
   use 'nvim-treesitter/playground'
+  use 'romgrk/nvim-treesitter-context'
 
   -- LSP
-  use 'neovim/nvim-lspconfig'
+  -- use 'neovim/nvim-lspconfig'
   use 'folke/lsp-colors.nvim'
   use 'folke/trouble.nvim'
   use 'jose-elias-alvarez/null-ls.nvim'
   use 'nvim-lua/lsp-status.nvim'
   use 'onsails/lspkind-nvim'
   use 'ray-x/lsp_signature.nvim'
+  uselocal 'nvim-lspconfig'
   uselocal 'schemastore.nvim'
 
   -- Code Style, Formatting, Linting
@@ -137,10 +140,11 @@ packer.startup(function()
   use 'mfussenegger/nvim-dap'
   use 'jbyuki/one-small-step-for-vimkind' -- Lua DAP adapter, a.k.a. osv
 
-  -- Window Movement and Management
-  uselocal 'vim-tmux-navigator'
---   use 'christoomey/vim-tmux-navigator'
+  -- Windows and Sessions
+  use 'christoomey/vim-tmux-navigator'
   use 'sindrets/winshift.nvim'
+  use 'Shatur/neovim-session-manager'
+  -- use 'ingram1107/souvenir.nvim'
 
   -- Language-specific
   use 'Akin909/vim-dune'
@@ -161,6 +165,7 @@ packer.startup(function()
 
   -- Misc
   use { 'lewis6991/impatient.nvim', rocks = 'mpack' }
+  use 'nathom/filetype.nvim'
 end)
 
 packer.use_rocks {

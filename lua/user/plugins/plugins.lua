@@ -10,7 +10,8 @@ require('indent_blankline').setup {
 require('gitsigns').setup {}
 
 ---- nvim-telescope/telescope.nvim
-require('telescope').setup {
+local telescope = require 'telescope'
+telescope.setup {
   defaults = {
     mappings = {
       i = {
@@ -22,6 +23,7 @@ require('telescope').setup {
     },
   },
 }
+telescope.load_extension 'sessions'
 
 ---- sindrets/winshift.nvim
 require('winshift').setup {
@@ -80,6 +82,35 @@ vim.g.shot_f_highlight_blank = table.concat({
   'guifg=NONE',
 }, ' ')
 
+local comment_state = {}
+
+---- numToStr/Comment.nvim
+require('Comment').setup {
+  pre_hook = function(ctx)
+    if ctx.cmotion >= 3 and ctx.cmotion <= 5 then
+      comment_state.marks = {
+        vim.api.nvim_buf_get_mark(0, '<'),
+        vim.api.nvim_buf_get_mark(0, '>'),
+      }
+    else
+      comment_state.marks = {}
+    end
+  end,
+
+  post_hook = function(ctx)
+    inspect { ctx = ctx, comment_state = comment_state }
+    vim.schedule(function()
+      if #comment_state.marks > 0 then
+        print(1)
+        vim.api.nvim_buf_set_mark(0, '<', comment_state.marks[1][1], comment_state.marks[1][2], {})
+        vim.api.nvim_buf_set_mark(0, '>', comment_state.marks[2][1], comment_state.marks[2][2], {})
+        comment_state.marks = {}
+        vim.cmd [[normal gv]]
+      end
+    end)
+  end,
+}
+
 ---- KabbAmine/vCoolor.vim
 vim.g.vcoolor_lowercase = 0
 vim.g.vcoolor_disable_mappings = 1
@@ -97,7 +128,6 @@ if vim.fn.has 'unix' then
 end
 
 ---- kyazdani42/nvim-tree.lua
-vim.g.nvim_tree_ignore = { '.git', 'node_modules', '.cache' }
 vim.g.nvim_tree_indent_markers = 1
 vim.g.nvim_tree_git_hl = 1
 vim.g.nvim_tree_highlight_opened_files = 1
@@ -133,9 +163,13 @@ vim.g.nvim_tree_icons = {
     warning = '',
     error = '',
   },
+  -- view = {
+  --   mappings = {
+  --     custom_only = true,
+  --   },
+  -- },
 }
 _G.nvim_tree_highlights = function()
-  print 'hl'
   local colors_gui = vim.g.colors_gui or {}
   for hi, c in pairs {
     NvimTreeGitDirty = colors_gui['13'] or 'yellow',
@@ -164,4 +198,22 @@ require('nvim-tree').setup {
   system_open = {
     cmd = 'xdg-open',
   },
+  filters = {
+    custom = { '.git', 'node_modules', '.cache' },
+  },
 }
+
+-- luukvbaal/stabilize.nvim
+require('stabilize').setup()
+
+-- Shatur/neovim-session-manager
+require('session_manager').setup {
+  -- Automatically load last session on startup is started without arguments.
+  autoload_last_session = false,
+  -- Automatically save last session on exit.
+  autosave_last_session = false,
+}
+
+-- require('souvenir').setup {
+--   session_path = vim.fn.stdpath('data') .. '/souvenirs/'
+-- }

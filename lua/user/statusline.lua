@@ -7,7 +7,6 @@ require 'user.statusline.lsp'
 require 'user.statusline.dap'
 
 local g = vim.g
-local b = vim.b
 local fn = vim.fn
 
 local colors_gui = g.colors_gui or {}
@@ -132,7 +131,7 @@ local config = {
     inactive = {},
   },
 
-  custom_providers = require'user.statusline.providers'.providers
+  custom_providers = require('user.statusline.providers').providers,
 }
 
 config.components.active[1] = {

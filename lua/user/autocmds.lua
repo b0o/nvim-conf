@@ -40,8 +40,18 @@ vim.cmd [[
 ]]
 
 vim.cmd [[
+  augroup user_gitsigns
+    autocmd!
+    " Work around for https://github.com/lewis6991/gitsigns.nvim/issues/264
+    autocmd SessionLoadPost * lua vim.defer_fn(require'gitsigns'.refresh, 150)
+  augroup END
+]]
+
+vim.cmd [[
   augroup user_nvim_tree
     autocmd!
     autocmd FileType NvimTree lua _G.nvim_tree_highlights()
+    " Unfocus NvimTree before changing tabs so that tabline titles are more meaningful
+    autocmd TabLeave NvimTree wincmd p
   augroup END
 ]]
