@@ -47,7 +47,7 @@ end
 -- print + vim.inspect
 function M.inspect(...)
   for _, v in ipairs { ... } do
-    print(vim.inspect(v))
+    print(vim.inspect(v, { depth = math.huge }))
   end
 end
 
@@ -295,45 +295,6 @@ function M.help(...)
   end
 end
 
--- lazyTable returns a placeholder table and defers callback cb until someone
--- tries to access or iterate the table in some way, at which point cb will be
--- called and its result becomes the value of the table.
---
--- To work, requires LuaJIT compiled with -DLUAJIT_ENABLE_LUA52COMPAT.
--- If not, the result of the callback will be returned immediately.
--- See: https://luajit.org/extensions.html
-function M.lazyTable(cb)
-  -- Check if Lua 5.2 compatability is available by testing whether goto is a
-  -- valid identifier name, which is not the case in 5.2.
-  if loadstring 'local goto = true' ~= nil then
-    return cb()
-  end
-  local t = { data = nil }
-  local init = function()
-    if t.data == nil then
-      t.data = cb()
-      assert(type(t.data) == 'table', 'lazy_config: expected callback to return value of type table')
-    end
-  end
-  t.__len = function()
-    init()
-    return #t.data
-  end
-  t.__index = function(_, key)
-    init()
-    return t.data[key]
-  end
-  t.__pairs = function()
-    init()
-    return pairs(t.data)
-  end
-  t.__ipairs = function()
-    init()
-    return ipairs(t.data)
-  end
-  return setmetatable({}, t)
-end
-
 ---- Shatur/neovim-session-manager
 -- Wrapper functions which persist and load additional state with the session,
 -- such as whether nvim-tree is open.
@@ -350,9 +311,13 @@ function M.sessionSave()
     require('nvim-tree').close()
   end
 
+  require('treesitter-context').disable()
+
   vim.g.SessionMeta = vim.inspect(meta)
   require('session_manager').save_current_session()
   vim.g.SessionMeta = nil
+
+  require('treesitter-context').enable()
 
   if meta.nvimTreeOpen then
     require('nvim-tree').open()
@@ -363,12 +328,13 @@ function M.sessionSave()
 end
 
 -- Load the session associated with the CWD
--- TODO: Reload Gitsigns
 function M.sessionLoad()
   local cb = M.newCallback(function()
     local meta = loadstring('return ' .. (vim.g.SessionMeta or '{}'))()
+    vim.g.SessionMeta = nil
 
     vim.schedule(function()
+      require('user.tabline').restore_tabpage_titles()
       if meta.nvimTreeOpen then
         require('nvim-tree').open()
       end
@@ -377,16 +343,16 @@ function M.sessionLoad()
       elseif meta.focused and vim.api.nvim_win_is_valid(meta.focused) then
         vim.api.nvim_set_current_win(meta.focused)
       end
+      require('treesitter-context').enable()
     end)
-
-    vim.g.SessionMeta = nil
   end)
 
+  vim.cmd(([[
+    autocmd! SessionLoadPost * ++once lua require('user.fn').callback(%s)
+  ]]):format(cb))
+
   require('treesitter-context').disable()
-  local session = require('session_manager.utils').dir_to_session_filename(vim.fn.getcwd())
-  vim.cmd(([[autocmd! SessionLoadPost * ++once lua require('user.fn').callback(%s)]]):format(cb))
-  require('session_manager.utils').load_session(session, false)
-  -- require('treesitter-context').enable()
+  require('session_manager').load_current_dir_session(false)
 end
 
 function M.setWinfix(set, ...)
@@ -454,6 +420,7 @@ function M.autoresizeToggle()
   end
 end
 
+-- Convert a number to a utf8 string
 function M.utf8(decimal)
   if decimal < 128 then
     return string.char(decimal)
@@ -473,6 +440,8 @@ function M.utf8(decimal)
   return table.concat(charbytes)
 end
 
+-- For each { k = v } in keys, return a table that when indexed by any k' such
+-- that tolower(k') == tolower(k) returns utf8(v)
 function M.utf8keys(keys)
   for k, v in pairs(keys) do
     keys[k] = nil
@@ -484,5 +453,141 @@ function M.utf8keys(keys)
     end,
   })
 end
+
+-- Replace occurrences of ${k} with v in tmpl for each { k = v } in data
+function M.template(tmpl, data)
+  local res = tmpl
+  for k, v in pairs(data) do
+    res = res:gsub('${' .. k .. '}', v)
+  end
+  return res
+end
+
+-- lazyTable returns a placeholder table and defers callback cb until someone
+-- tries to access or iterate the table in some way, at which point cb will be
+-- called and its result becomes the value of the table.
+--
+-- To work, requires LuaJIT compiled with -DLUAJIT_ENABLE_LUA52COMPAT.
+-- If not, the result of the callback will be returned immediately.
+-- See: https://luajit.org/extensions.html
+function M.lazyTable(cb)
+  -- Check if Lua 5.2 compatability is available by testing whether goto is a
+  -- valid identifier name, which is not the case in 5.2.
+  if loadstring 'local goto = true' ~= nil then
+    return cb()
+  end
+  local t = { data = nil }
+  local init = function()
+    if t.data == nil then
+      t.data = cb()
+      assert(type(t.data) == 'table', 'lazy_config: expected callback to return value of type table')
+    end
+  end
+  t.__len = function()
+    init()
+    return #t.data
+  end
+  t.__index = function(_, key)
+    init()
+    return t.data[key]
+  end
+  t.__pairs = function()
+    init()
+    return pairs(t.data)
+  end
+  t.__ipairs = function()
+    init()
+    return ipairs(t.data)
+  end
+  return setmetatable({}, t)
+end
+
+------- lazy
+--- via https://github.com/tjdevries/lazy.nvim
+
+---- Require on index.
+-- Will only require the module after the first index of a module.
+-- Only works for modules that export a table.
+M.require_on_index = function(require_path)
+  return setmetatable({}, {
+    __index = function(_, key)
+      return require(require_path)[key]
+    end,
+
+    __newindex = function(_, key, value)
+      require(require_path)[key] = value
+    end,
+  })
+end
+
+---- Requires only when you call the _module_ itself.
+-- If you want to require an exported value from the module,
+-- see instead |lazy.require_on_exported_call()|
+M.require_on_module_call = function(require_path)
+  return setmetatable({}, {
+    __call = function(_, ...)
+      return require(require_path)(...)
+    end,
+  })
+end
+
+---- Require when an exported method is called.
+-- Creates a new function. Cannot be used to compare functions,
+-- set new values, etc. Only useful for waiting to do the require until you actually
+-- call the code.
+--
+--   -- This is not loaded yet
+--   local lazy_mod = lazy.require_on_exported_call('my_module')
+--   local lazy_func = lazy_mod.exported_func
+--
+--   -- ... some time later
+--   lazy_func(42)  -- <- Only loads the module now
+M.require_on_exported_call = function(require_path)
+  return setmetatable({}, {
+    __index = function(_, k)
+      return function(...)
+        return require(require_path)[k](...)
+      end
+    end,
+  })
+end
+
+---- memoization
+
+-- memotable gets an index from target and caches the result, returning the
+-- cached version on future lookups.
+--
+-- Setting an index on memotable passes the value through to target and
+-- updates the cache.
+--
+-- This only makes sense for targets who themselves have metatables that do
+-- work on __index; if target is a plain table, this is unnecessary overhead.
+M.memotable = function(target)
+  return setmetatable({}, {
+    __index = function(self, k)
+      local v = target[k]
+      rawset(self, k, v)
+      return v
+    end,
+    __newindex = function(self, k, v)
+      rawset(self, k, v)
+      target[k] = v
+    end,
+  })
+end
+
+-- TODO
+-- M.memofn = function(fn)
+--   local mt = M.memotable({}, {
+--     __index = function(k, v)
+--       -- ...
+--     end
+--   })
+--   return setmetatable({}, {
+--     __call = function(_, arg1, ...)
+--       return mt[arg1](...)
+--     end
+--   })
+-- end
 
 return M

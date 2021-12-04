@@ -56,20 +56,10 @@ vim.g.maplocalleader = ','
 -- vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
 
 vim.o.title = true
-vim.cmd [[
-  function! g:TitlestringModified()
-    return &modified ? '[*]' : ''
-  endfunction
-  function! g:TitlestringTabs()
-    let l:tabs = split(execute('silent tabs'), "\n")
-    call filter(l:tabs, {idx, val -> match(val, "^Tab page \\d*$") == 0})
-    if len(l:tabs) > 1
-      return '[+' . (len(l:tabs) - 1) . ']'
-    endif
-    return ''
-  endfunction
-]]
-vim.o.titlestring = '%t%{TitlestringModified()}%{TitlestringTabs()}'
+vim.o.titlestring = '%{luaeval("require[[user.tabline]].titlestring()")}'
+
+vim.o.showtabline = 2
+vim.o.tabline = "%!luaeval('require[[user.tabline]].tabline()')"
 
 vim.o.cursorline = true
 

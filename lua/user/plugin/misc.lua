@@ -1,9 +1,11 @@
 ---- lukas-reineke/indent-blankline.nvim
 vim.cmd [[highlight link IndentBlanklineSpaceChar Comment]]
-vim.g.indent_blankline_show_whitespace = true
-vim.g.indent_blankline_show_end_of_line = true
 require('indent_blankline').setup {
+  show_whitespace = true,
+  show_end_of_line = true,
+  use_treesitter = true,
   buftype_exclude = { 'terminal' },
+  filetype_exclude = { 'help' },
 }
 
 ---- lewis6991/gitsigns.nvim
@@ -28,10 +30,6 @@ vim.g.move_key_modifier = 'C'
 
 vim.g.matchup_matchparen_offscreen = { method = 'popup' }
 
----- christoomey/vim-tmux-navigator
-vim.g.tmux_navigator_no_mappings = 1
-vim.g.tmux_navigator_preserve_zoom = 1
-
 ---- mbbill/undotree
 vim.g.undotree_SetFocusWhenToggle = 1
 vim.g.undotree_DiffCommand = 'delta'
@@ -41,9 +39,7 @@ require('stabilize').setup()
 
 -- Shatur/neovim-session-manager
 require('session_manager').setup {
-  -- Automatically load last session on startup is started without arguments.
-  autoload_last_session = false,
-  -- Automatically save last session on exit.
+  autoload_mode = require('session_manager.config').AutoloadMode.Disabled,
   autosave_last_session = false,
 }
 

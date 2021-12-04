@@ -49,13 +49,20 @@ packer.startup(function()
     'kyazdani42/nvim-tree.lua',
   }
   use {
+    'VonHeikemen/fine-cmdline.nvim',
+    requires = { 'MunifTanjim/nui.nvim' },
+  }
+
+  -- Telescope
+  use {
     'nvim-telescope/telescope.nvim',
     requires = { 'nvim-lua/popup.nvim', 'nvim-lua/plenary.nvim' },
   }
+  use 'kyoh86/telescope-windows.nvim'
 
   -- Editing
   use 'AndrewRadev/splitjoin.vim'
-  use 'andymass/vim-matchup'
+  -- use 'andymass/vim-matchup'
   use 'b0o/vim-shot-f'
   use 'chaoren/vim-wordmotion'
   use 'coderifous/textobj-word-column.vim'
@@ -88,7 +95,11 @@ packer.startup(function()
   }
   use 'nvim-treesitter/nvim-treesitter-textobjects'
   use 'nvim-treesitter/playground'
-  use 'romgrk/nvim-treesitter-context'
+  use {
+    -- 'romgrk/nvim-treesitter-context' -- TODO: Revert when PR #81 is merged
+    'b0o/nvim-treesitter-context',
+    branch = 'ensure-buffer-exists',
+  }
 
   -- LSP
   -- use 'neovim/nvim-lspconfig'
@@ -141,7 +152,7 @@ packer.startup(function()
   use 'jbyuki/one-small-step-for-vimkind' -- Lua DAP adapter, a.k.a. osv
 
   -- Windows and Sessions
-  use 'christoomey/vim-tmux-navigator'
+  use 'aserowy/tmux.nvim'
   use 'sindrets/winshift.nvim'
   use 'Shatur/neovim-session-manager'
   -- use 'ingram1107/souvenir.nvim'
@@ -165,6 +176,8 @@ packer.startup(function()
 
   -- Misc
   use { 'lewis6991/impatient.nvim', rocks = 'mpack' }
+  -- TODO: Manually pull when PR #51 is merged:
+  -- https://github.com/nathom/filetype.nvim/pull/51
   use 'nathom/filetype.nvim'
 end)
 

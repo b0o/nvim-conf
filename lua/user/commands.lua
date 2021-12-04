@@ -72,6 +72,10 @@ local command, cabbrev = fn.command, fn.cabbrev
 -- ---- tpope/vim-eunuch
 -- mapx.cmd( { 'Cx', ':Chmod +x' }
 
+------ Abbreviations
+cabbrev('LI', 'lua inspect')
+
+------ User Commands
 command { '-nargs=+', '-complete=command', 'Put', "pu=execute('<args>')" }
 command {
   '-nargs=+',

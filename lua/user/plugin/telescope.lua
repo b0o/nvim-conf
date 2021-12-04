@@ -15,3 +15,4 @@ telescope.setup {
 }
 
 telescope.load_extension 'sessions'
+telescope.load_extension 'windows'

@@ -1,5 +1,5 @@
 local M = {}
--- print(1, vim.fn.reltimefloat(vim.fn.reltime()))
+-- print(2, vim.fn.reltimefloat(vim.fn.reltime()))
 
 local fn = require 'user.fn'
 local thunk, ithunk = fn.thunk, fn.ithunk
@@ -135,6 +135,7 @@ inoremap ([[<M-b>]], [[<S-Left>]], "Goto word backward")
 inoremap ([[<M-f>]], [[<S-Right>]], "Goto word forward")
 inoremap ([[<C-d>]], [[<Delete>]], "Kill char forward")
 inoremap ([[<M-d>]], [[<C-o>de]], "Kill word forward")
+inoremap ([[<M-Backspace>]], [[<C-o>dB]], "Kill word backward")
 inoremap ([[<C-k>]], [[<C-o>D]], "Kill to end of line")
 
 inoremap ([[<M-k>]], [[<C-k>]], "Insert digraph")
@@ -334,8 +335,8 @@ M.on_lsp_attach = function(bufnr)
 
     nnoremap ([[<localleader>R]],  vim.lsp.buf.rename, "LSP: Rename")
 
-    nnoremap ({[[<localleader>A]], [[<localleader>ca]]}, vim.lsp.buf.code_action,       "LSP: Code action")
-    vnoremap ({[[<localleader>A]], [[<localleader>ca]]}, vim.lsp.buf.range_code_action, "LSP: Code action (range)")
+    nnoremap ({[[<localleader>A]], [[<localleader>ca]]}, ithunk(vim.lsp.buf.code_action),       "LSP: Code action")
+    vnoremap ({[[<localleader>A]], [[<localleader>ca]]}, ithunk(vim.lsp.buf.range_code_action), "LSP: Code action (range)")
 
     nnoremap ([[<localleader>F]], ithunk(vim.lsp.buf.formatting),       "LSP: Format")
     vnoremap ([[<localleader>F]], ithunk(vim.lsp.buf.range_formatting), "LSP: Format (range)")
@@ -344,8 +345,8 @@ M.on_lsp_attach = function(bufnr)
     m.nname("<localleader>s", "LSP-Save")
     nnoremap ([[<localleader>S]],  user_lsp.setFmtOnSave,               "LSP: Toggle format on save")
     nnoremap ([[<localleader>ss]], user_lsp.setFmtOnSave,               "LSP: Toggle format on save")
-    nnoremap ([[<localleader>se]], thunk(user_lsp.setFmtOnSave, true),  "LSP: Enable format on save")
-    nnoremap ([[<localleader>sd]], thunk(user_lsp.setFmtOnSave, false), "LSP: Disable format on save")
+    nnoremap ([[<localleader>se]], ithunk(user_lsp.setFmtOnSave, true),  "LSP: Enable format on save")
+    nnoremap ([[<localleader>sd]], ithunk(user_lsp.setFmtOnSave, false), "LSP: Disable format on save")
 
   -- print(6, vim.fn.reltimefloat(vim.fn.reltime()))
     local function gotoDiag(dir, sev)
@@ -365,6 +366,9 @@ M.on_lsp_attach = function(bufnr)
     nnoremap ({[[<localleader>dW]], [[]w]]}, gotoDiag(1,  "Warning"), "LSP: Goto next diagnostic (warning)")
     nnoremap ({[[<localleader>de]], [[[e]]}, gotoDiag(-1, "Error"),   "LSP: Goto prev diagnostic (error)")
     nnoremap ({[[<localleader>dE]], [[]e]]}, gotoDiag(1,  "Error"),   "LSP: Goto next diagnostic (error)")
+
+    nnoremap (']t', ithunk(require("trouble").next,     {skip_groups = true, jump = true}), "Trouble: Next")
+    nnoremap ('[t', ithunk(require("trouble").previous, {skip_groups = true, jump = true}), "Trouble: Previous")
 
   -- print(8, vim.fn.reltimefloat(vim.fn.reltime()))
     m.nname("<localleader>s", "LSP-Search")
@@ -395,23 +399,27 @@ nmap     ([[<leader>pl]], [[:PackerLoad<Cr>]], "Packer load")
 map      ([[<M-/>]], [[gcc<Esc>]], silent) -- Toggle line comment
 inoremap ([[<M-/>]], [[v:count == 0 ? '<Esc><Cmd>set operatorfunc=v:lua.___comment_gcc<Cr>g@$a' : '<Esc><Cmd>lua ___comment_count_gcc()<Cr>a']], silent, expr, "Toggle line comment")
 
----- christoomey/vim-tmux-navigator
-nmap     ([[<M-h>]], [[:TmuxNavigateLeft<cr>]],  silent, "Goto window/tmux pane left")
-nmap     ([[<M-j>]], [[:TmuxNavigateDown<cr>]],  silent, "Goto window/tmux pane down")
-nmap     ([[<M-k>]], [[:TmuxNavigateUp<cr>]],    silent, "Goto window/tmux pane up")
-nmap     ([[<M-l>]], [[:TmuxNavigateRight<cr>]], silent, "Goto window/tmux pane right")
+---- aserowy/tmux.nvim
+local tmux = require("tmux")
+nmap     ([[<M-h>]], ithunk(tmux.move_left),   silent, "Goto window/tmux pane left")
+nmap     ([[<M-j>]], ithunk(tmux.move_bottom), silent, "Goto window/tmux pane down")
+nmap     ([[<M-k>]], ithunk(tmux.move_top),    silent, "Goto window/tmux pane up")
+nmap     ([[<M-l>]], ithunk(tmux.move_right),  silent, "Goto window/tmux pane right")
 
 ---- nvim-telescope/telescope.nvim TODO: In-telescope maps
 m.group("silent", function()
   m.nname("<C-f>", "Telescope")
-  nnoremap ({[[<C-f>b]], [[<C-f><C-b>]]}, require('telescope.builtin').buffers,                                 "Telescope: Buffers")
-  nnoremap ({[[<C-f>h]], [[<C-f><C-h>]]}, require('telescope.builtin').help_tags,                               "Telescope: Help tags")
-  nnoremap ({[[<C-f>t]], [[<C-f><C-t>]]}, require('telescope.builtin').tags,                                    "Telescope: Tags")
-  nnoremap ({[[<C-f>a]], [[<C-f><C-a>]]}, require('telescope.builtin').grep_string,                             "Telescope: Grep for string")
-  nnoremap ({[[<C-f>p]], [[<C-f><C-p>]]}, require('telescope.builtin').live_grep,                               "Telescope: Live grep")
-  nnoremap ({[[<C-f>o]], [[<C-f><C-o>]]}, require('telescope.builtin').oldfiles,                                "Telescope: Old files")
-  nnoremap ({[[<C-f>f]], [[<C-f><C-f>]]}, ithunk(require('telescope.builtin').find_files, {previewer = false}), "Telescope: Files")
-  nnoremap ({[[<C-f>s]], [[<C-f><C-s>]]}, require('telescope').extensions.sessions.sessions,                    "Telescope: Sessions")
+  nnoremap ([[<C-f>b]], ithunk(require('telescope.builtin').buffers),                           "Telescope: Buffers")
+
+  nnoremap ({[[<C-f>h]], [[<C-f><C-h>]]}, ithunk(require('telescope.builtin').help_tags),                       "Telescope: Help tags")
+  nnoremap ({[[<C-f>t]], [[<C-f><C-t>]]}, ithunk(require('telescope.builtin').tags),                            "Telescope: Tags")
+  nnoremap ({[[<C-f>a]], [[<C-f><C-a>]]}, ithunk(require('telescope.builtin').grep_string),                     "Telescope: Grep for string")
+  nnoremap ({[[<C-f>p]], [[<C-f><C-p>]]}, ithunk(require('telescope.builtin').live_grep),                       "Telescope: Live grep")
+  nnoremap ({[[<C-f>o]], [[<C-f><C-o>]]}, ithunk(require('telescope.builtin').oldfiles),                        "Telescope: Old files")
+  nnoremap ({[[<C-f>f]], [[<C-f><C-f>]]}, ithunk(require('telescope.builtin').find_files), "Telescope: Files")
+  nnoremap ([[<C-f>b]],                   ithunk(require('telescope.builtin').builtin),                         "Telescope: Pickers")
+  nnoremap ({[[<C-f>s]], [[<C-f><C-s>]]}, ithunk(require('telescope').extensions.sessions.sessions),            "Telescope: Sessions")
+  nnoremap ({[[<C-f>w]], [[<C-f><C-w>]]}, ithunk(require('telescope').extensions.windows.windows, {}),              "Telescope: Windows")
 
   m.nname("<M-f>", "Telescope-Buffer")
   nnoremap ({[[<M-f>b]], [[<M-f><M-b>]]}, require('telescope.builtin').current_buffer_fuzzy_find,                  "Telescope: Buffer (fuzzy)")
@@ -547,6 +555,18 @@ end
 ---- sindrets/winshift.nvim
 nnoremap ([[<Leader>M]],  [[<Cmd>WinShift<Cr>]], "WinShift: Start")
 nnoremap ([[<Leader>mm]], [[<Cmd>WinShift<Cr>]], "WinShift: Start")
+
+---- VonHeikemen/fine-cmdline.nvim
+local fcl = require'fine-cmdline'
+noremap  ([[<leader>:]], fcl.open, "FineCmdline: Open")
+
+M.fine_cmdline = function()
+  m.group("buffer", function()
+    inoremap ([[<C-g>]], fcl.fn.close, "FineCmdline: Close")
+    imap ([[<c-p>]], [[pumvisible() ? "\<C-p>" : "\<up>"]],   expr)
+    imap ([[<c-n>]], [[pumvisible() ? "\<C-n>" : "\<down>"]], expr)
+  end)
+end
 
 -- print(3, vim.fn.reltimefloat(vim.fn.reltime()))
 return M

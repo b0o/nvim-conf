@@ -1,7 +1,7 @@
 local lsp_status = require 'lsp-status'
 local user_lsp_status = require 'user.statusline.lsp'
 local nvim_cmp_lsp = require 'cmp_nvim_lsp'
-local lazyTable = require('user.fn').lazyTable
+local fn = require 'user.fn'
 
 local M = {
   fmtOnSaveEnabled = false,
@@ -9,63 +9,66 @@ local M = {
   signs = { Error = ' ', Warn = ' ', Hint = ' ', Info = ' ' },
 }
 
-local luals_conf = require('lua-dev').setup {
-  library = {
-    vimruntime = true,
-    types = true,
-    plugins = true,
-  },
-  lspconfig = {
-    cmd = {
-      'lua-language-server',
-      '-E',
-      '/usr/lib/lua-language-server/main.lua',
-      '--logpath="' .. vim.fn.stdpath 'cache' .. '/lua-language-server/log"',
-      '--metapath="' .. vim.fn.stdpath 'cache' .. '/lua-language-server/meta"',
+local luals_conf = vim.tbl_extend(
+  'keep',
+  { 'sumneko_lua' },
+  require('lua-dev').setup {
+    library = {
+      vimruntime = true,
+      types = true,
+      plugins = true,
     },
-    settings = {
-      Lua = {
-        diagnostics = {
-          globals = {
-            -- Mapx.nvim globals
-            'map',
-            'nmap',
-            'vmap',
-            'xmap',
-            'smap',
-            'omap',
-            'imap',
-            'lmap',
-            'cmap',
-            'tmap',
-            'noremap',
-            'nnoremap',
-            'vnoremap',
-            'xnoremap',
-            'snoremap',
-            'onoremap',
-            'inoremap',
-            'lnoremap',
-            'cnoremap',
-            'tnoremap',
-            'mapbang',
-            'noremapbang',
+    lspconfig = {
+      cmd = {
+        'lua-language-server',
+        '-E',
+        '/usr/lib/lua-language-server/main.lua',
+        '--logpath="' .. vim.fn.stdpath 'cache' .. '/lua-language-server/log"',
+        '--metapath="' .. vim.fn.stdpath 'cache' .. '/lua-language-server/meta"',
+      },
+      settings = {
+        Lua = {
+          diagnostics = {
+            globals = {
+              -- Mapx.nvim globals
+              'map',
+              'nmap',
+              'vmap',
+              'xmap',
+              'smap',
+              'omap',
+              'imap',
+              'lmap',
+              'cmap',
+              'tmap',
+              'noremap',
+              'nnoremap',
+              'vnoremap',
+              'xnoremap',
+              'snoremap',
+              'onoremap',
+              'inoremap',
+              'lnoremap',
+              'cnoremap',
+              'tnoremap',
+              'mapbang',
+              'noremapbang',
 
-            -- Mulberry BDD
-            'Describe',
-            'It',
-            'Expect',
-            'Which',
+              -- Mulberry BDD
+              'Describe',
+              'It',
+              'Expect',
+              'Which',
+            },
           },
-        },
-        telemetry = {
-          enable = false,
+          telemetry = {
+            enable = false,
+          },
         },
       },
     },
-  },
-}
-luals_conf[1] = 'sumneko_lua'
+  }
+)
 
 local lsp_servers = {
   'bashls',
@@ -96,7 +99,7 @@ local lsp_servers = {
         end,
       },
     },
-    settings = lazyTable(function()
+    settings = fn.lazyTable(function()
       return {
         json = { schemas = require('schemastore').json.schemas() },
       }
@@ -104,7 +107,27 @@ local lsp_servers = {
   },
   'null-ls',
   'ocamllsp',
-  'pylsp',
+  {
+    'pylsp',
+    cmd = {
+      'pylsp',
+      '-v',
+      '--log-file',
+      vim.fn.stdpath 'cache' .. '/pylsp.log',
+    },
+    settings = {
+      pylsp = {
+        plugins = {
+          pylint = { enabled = true },
+          yapf = { enabled = true },
+
+          pycodestyle = { enabled = false },
+          autopep8 = { enabled = false },
+          pydocstyle = { enabled = false },
+        },
+      },
+    },
+  },
   {
     'rescriptls',
     cmd = {
@@ -178,44 +201,6 @@ local trouble_config = {
   auto_close = true,
 }
 
----- jose-elias-alvarez/null-ls.nvim
-local null_ls_config = {
-  formatting = {
-    'eslint_d',
-    'gofmt',
-    'goimports',
-    'nixfmt',
-    {
-      'prettier',
-      filetypes = {
-        'css',
-        'scss',
-        'less',
-        'html',
-        'yaml',
-        'markdown',
-        'graphql',
-      },
-    },
-    'shellharden',
-    'shfmt',
-    'stylelint',
-    'stylua',
-    --     {
-    --       'trim_whitespace',
-    --       filetypes = {},
-    --     },
-  },
-  diagnostics = {
-    'eslint_d',
-    'shellcheck',
-    'stylelint',
-  },
-  code_actions = {
-    'gitsigns',
-  },
-}
-
 local function on_attach(client, bufnr)
   if client.resolved_capabilities.document_formatting then
     M.setFmtOnSave(true, true)
@@ -265,32 +250,33 @@ function M.peekDefinition()
   end)
 end
 
-local function gen_null_ls_config()
-  local cfg = { sources = {} }
-  for kind, sources in pairs(null_ls_config) do
-    for _, s in ipairs(sources) do
-      local name = s
-      local opts
-      if type(s) == 'table' then
-        name = s[1]
-        opts = {}
-        for k, v in pairs(s) do
-          if k ~= 1 then
-            opts[k] = v
-          end
-        end
-      end
-      local source = require('null-ls').builtins[kind][name]
-      if opts ~= nil then
-        source = source.with(opts)
-      end
-      table.insert(cfg.sources, source)
+function M.code_action_listener()
+  local context = { diagnostics = vim.lsp.diagnostic.get_line_diagnostics() }
+  local params = vim.lsp.util.make_range_params()
+  params.context = context
+  vim.lsp.buf_request(0, 'textDocument/codeAction', params, function(err, actions, result)
+    if err or not result or not result.bufnr then
+      return
     end
-  end
-  return cfg
+    vim.fn.sign_unplace('user_lsp', { buffer = result.bufnr })
+    if
+      not actions
+      or #actions == 0
+      or not result.params
+      or not result.params.range
+      or not result.params.range.start
+      or not result.params.range.start.line
+    then
+      return
+    end
+    vim.fn.sign_place(1, 'user_lsp', 'DiagnosticSignInfo', result.bufnr, {
+      lnum = result.params.range.start.line + 1,
+    })
+  end)
 end
 
 local function lsp_init()
+  vim.lsp.set_log_level 'info'
   for k, v in ipairs(lsp_handlers) do
     vim.lsp.handlers[k] = v
   end
@@ -300,7 +286,7 @@ local function lsp_init()
     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = '' })
   end
 
-  require('null-ls').config(gen_null_ls_config())
+  require('null-ls').config(require 'user.plugin.null-ls')
   require('lspkind').init(lspkind_config)
   require('lsp_signature').setup(lsp_signature_config)
   require('trouble').setup(trouble_config)
