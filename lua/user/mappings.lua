@@ -1,5 +1,4 @@
 local M = {}
--- print(2, vim.fn.reltimefloat(vim.fn.reltime()))
 
 local fn = require 'user.fn'
 local thunk, ithunk = fn.thunk, fn.ithunk
@@ -175,7 +174,6 @@ cnoremap ([[<c-p>]], [[pumvisible() ? "\<C-p>" : "\<up>"]], expr) -- History pre
 cnoremap ([[<c-n>]], [[pumvisible() ? "\<C-n>" : "\<down>"]], expr) -- History next
 
 --"" Tabs
--- print(2, vim.fn.reltimefloat(vim.fn.reltime()))
 
 -- Navigate tabs
 -- Go to a tab by index; If it doesn't exist, create a new tab
@@ -312,12 +310,9 @@ M.on_lsp_attach = function(bufnr)
     return
   end
   lsp_attached_bufs[bufnr] = true
-  -- print(1, vim.fn.reltimefloat(vim.fn.reltime()))
   local user_lsp = require'user.lsp'
-  -- print(2, vim.fn.reltimefloat(vim.fn.reltime()))
 
   m.group({ buffer = bufnr, silent = true }, function()
-  -- print(3, vim.fn.reltimefloat(vim.fn.reltime()))
     m.nname("<localleader>g", "LSP-Goto")
     nnoremap ({[[<localleader>gd]], [[gd]]}, vim.lsp.buf.definition,      "LSP: Goto definition")
     nnoremap ({[[<localleader>gd]], [[gd]]}, vim.lsp.buf.definition,      "LSP: Goto definition")
@@ -326,7 +321,6 @@ M.on_lsp_attach = function(bufnr)
     nnoremap ([[<localleader>gt]],           vim.lsp.buf.type_definition, "LSP: Goto type definition")
     nnoremap ([[<localleader>gr]],           vim.lsp.buf.references,      "LSP: Goto references")
 
-  -- print(4, vim.fn.reltimefloat(vim.fn.reltime()))
     m.nname("<localleader>w", "LSP-Workspace")
     nnoremap ([[<localleader>wa]], vim.lsp.buf.add_workspace_folder,    "LSP: Add workspace folder")
     nnoremap ([[<localleader>wr]], vim.lsp.buf.remove_workspace_folder, "LSP: Rm workspace folder")
@@ -341,36 +335,61 @@ M.on_lsp_attach = function(bufnr)
     nnoremap ([[<localleader>F]], ithunk(vim.lsp.buf.formatting),       "LSP: Format")
     vnoremap ([[<localleader>F]], ithunk(vim.lsp.buf.range_formatting), "LSP: Format (range)")
 
-  -- print(5, vim.fn.reltimefloat(vim.fn.reltime()))
     m.nname("<localleader>s", "LSP-Save")
     nnoremap ([[<localleader>S]],  user_lsp.setFmtOnSave,               "LSP: Toggle format on save")
     nnoremap ([[<localleader>ss]], user_lsp.setFmtOnSave,               "LSP: Toggle format on save")
     nnoremap ([[<localleader>se]], ithunk(user_lsp.setFmtOnSave, true),  "LSP: Enable format on save")
     nnoremap ([[<localleader>sd]], ithunk(user_lsp.setFmtOnSave, false), "LSP: Disable format on save")
 
-  -- print(6, vim.fn.reltimefloat(vim.fn.reltime()))
     local function gotoDiag(dir, sev)
-      return thunk(
-        vim.diagnostic["goto_" .. (dir == -1 and "prev" or "next")],
-        { enable_popup = true, severity = sev }
-      )
+      return function()
+        local _dir = dir
+        local args = {
+          enable_popup = true,
+          severity = vim.diagnostic.severity[sev]
+        }
+        if _dir == "first" or _dir == "last" then
+          args.wrap = false
+          if dir == "first" then
+            args.cursor_position = { 1, 1 }
+            _dir = "next"
+          else
+            args.cursor_position = { vim.api.nvim_buf_line_count(0) - 1, 1 }
+            _dir = "prev"
+          end
+        end
+        vim.diagnostic["goto_" .. _dir](args)
+      end
     end
     m.nname("<localleader>d", "LSP-Diagnostics")
-    nnoremap ([[<localleader>di]],                        vim.diagnostic.show,     "LSP: Show diagnostics")
-    nnoremap ({[[<localleader>dI]], [[<localleader>T]]},  require'trouble'.toggle, "LSP: Toggle Trouble")
+    nnoremap ([[<localleader>ds]],                        vim.diagnostic.show,     "LSP: Show diagnostics")
+    nnoremap ({[[<localleader>dt]], [[<localleader>T]]},  require'trouble'.toggle, "LSP: Toggle Trouble")
 
-  -- print(7, vim.fn.reltimefloat(vim.fn.reltime()))
-    nnoremap ({[[<localleader>dd]], [[[d]]}, gotoDiag(-1),            "LSP: Goto prev diagnostic")
-    nnoremap ({[[<localleader>dD]], [[]d]]}, gotoDiag(1),             "LSP: Goto next diagnostic")
-    nnoremap ({[[<localleader>dw]], [[[w]]}, gotoDiag(-1, "Warning"), "LSP: Goto prev diagnostic (warning)")
-    nnoremap ({[[<localleader>dW]], [[]w]]}, gotoDiag(1,  "Warning"), "LSP: Goto next diagnostic (warning)")
-    nnoremap ({[[<localleader>de]], [[[e]]}, gotoDiag(-1, "Error"),   "LSP: Goto prev diagnostic (error)")
-    nnoremap ({[[<localleader>dE]], [[]e]]}, gotoDiag(1,  "Error"),   "LSP: Goto next diagnostic (error)")
+    nnoremap ({[[<localleader>dd]], [[[d]]}, gotoDiag("prev"),          "LSP: Goto prev diagnostic")
+    nnoremap ({[[<localleader>dD]], [[]d]]}, gotoDiag("next"),          "LSP: Goto next diagnostic")
+    nnoremap ({[[<localleader>dh]], [[[h]]}, gotoDiag("prev", "HINT"),  "LSP: Goto prev hint")
+    nnoremap ({[[<localleader>dH]], [[]h]]}, gotoDiag("next", "HINT"),  "LSP: Goto next hint")
+    nnoremap ({[[<localleader>di]], [[[i]]}, gotoDiag("prev", "INFO"),  "LSP: Goto prev info")
+    nnoremap ({[[<localleader>dI]], [[]i]]}, gotoDiag("next", "INFO"),  "LSP: Goto next info")
+    nnoremap ({[[<localleader>dw]], [[[w]]}, gotoDiag("prev", "WARN"),  "LSP: Goto prev warning")
+    nnoremap ({[[<localleader>dW]], [[]w]]}, gotoDiag("next", "WARN"),  "LSP: Goto next warning")
+    nnoremap ({[[<localleader>de]], [[[e]]}, gotoDiag("prev", "ERROR"), "LSP: Goto prev error")
+    nnoremap ({[[<localleader>dE]], [[]e]]}, gotoDiag("next", "ERROR"), "LSP: Goto next error")
+
+    nnoremap ([[[D]], gotoDiag("first"),          "LSP: Goto first diagnostic")
+    nnoremap ([[]D]], gotoDiag("last"),           "LSP: Goto last diagnostic")
+    nnoremap ([[[H]], gotoDiag("first", "HINT"),  "LSP: Goto first hint")
+    nnoremap ([[]H]], gotoDiag("last",  "HINT"),  "LSP: Goto last hint")
+    nnoremap ([[[I]], gotoDiag("first", "INFO"),  "LSP: Goto first info")
+    nnoremap ([[]I]], gotoDiag("last",  "INFO"),  "LSP: Goto last info")
+    nnoremap ([[[W]], gotoDiag("first", "WARN"),  "LSP: Goto first warning")
+    nnoremap ([[]W]], gotoDiag("last",  "WARN"),  "LSP: Goto last warning")
+    nnoremap ([[[E]], gotoDiag("first", "ERROR"), "LSP: Goto first error")
+    nnoremap ([[]E]], gotoDiag("last",  "ERROR"), "LSP: Goto last error")
 
     nnoremap (']t', ithunk(require("trouble").next,     {skip_groups = true, jump = true}), "Trouble: Next")
     nnoremap ('[t', ithunk(require("trouble").previous, {skip_groups = true, jump = true}), "Trouble: Previous")
 
-  -- print(8, vim.fn.reltimefloat(vim.fn.reltime()))
     m.nname("<localleader>s", "LSP-Search")
     nnoremap ({[[<localleader>so]], [[<leader>so]]}, require('telescope.builtin').lsp_document_symbols, "LSP: Telescope symbol search")
 
@@ -380,20 +399,21 @@ M.on_lsp_attach = function(bufnr)
     nnoremap ([[<M-i>]],           vim.lsp.buf.hover,          "LSP: Hover")
     inoremap ([[<M-i>]],           vim.lsp.buf.hover,          "LSP: Hover")
     nnoremap ([[<M-S-i>]],         user_lsp.peekDefinition,    "LSP: Peek definition")
-  -- print(9, vim.fn.reltimefloat(vim.fn.reltime()))
   end)
-  -- print(10, vim.fn.reltimefloat(vim.fn.reltime()))
 end
 
 ------ Plugins
+---- folke/which-key.nvim
+nnoremap ([[<leader><leader>]], [[:WhichKey<Cr>]], "WhichKey: Show all")
+
 ---- wbthomason/packer.nvim
 m.nname("<leader>p", "Packer")
-nmap     ([[<leader>pC]], [[:PackerClean<Cr>]], "Packer clean")
-nmap     ([[<leader>pc]], [[:PackerCompile<Cr>]], "Packer compile")
-nmap     ([[<leader>pi]], [[:PackerInstall<Cr>]], "Packer install")
-nmap     ([[<leader>pu]], [[:PackerUpdate<Cr>]], "Packer update")
-nmap     ([[<leader>ps]], [[:PackerSync<Cr>]], "Packer sync")
-nmap     ([[<leader>pl]], [[:PackerLoad<Cr>]], "Packer load")
+nnoremap ([[<leader>pC]], [[:PackerClean<Cr>]], "Packer clean")
+nnoremap ([[<leader>pc]], [[:PackerCompile<Cr>]], "Packer compile")
+nnoremap ([[<leader>pi]], [[:PackerInstall<Cr>]], "Packer install")
+nnoremap ([[<leader>pu]], [[:PackerUpdate<Cr>]], "Packer update")
+nnoremap ([[<leader>ps]], [[:PackerSync<Cr>]], "Packer sync")
+nnoremap ([[<leader>pl]], [[:PackerLoad<Cr>]], "Packer load")
 
 ---- numToStr/Comment.nvim
 map      ([[<M-/>]], [[gcc<Esc>]], silent) -- Toggle line comment
@@ -568,5 +588,4 @@ M.fine_cmdline = function()
   end)
 end
 
--- print(3, vim.fn.reltimefloat(vim.fn.reltime()))
 return M
