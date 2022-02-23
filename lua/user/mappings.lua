@@ -17,8 +17,11 @@ local expr = m.expr
 -- Configure your terminal emulator to send the unicode codepoint for each
 -- given key sequence
 local xk = fn.utf8keys {
-  ['<C-S-n>'] = 0xff00,
-  ['<C-S-q>'] = 0xff01,
+  [ [[<C-S-q>]] ] = 0xff01,
+  [ [[<C-S-n>]] ] = 0xff02,
+  [ [[<C-\>]] ] = 0x00f0,
+  [ [[<C-S-\>]] ] = 0x00f1,
+  [ [[<M-S-\>]] ] = 0x00f2,
 }
 
 -- stylua: ignore start
@@ -99,8 +102,6 @@ nnoremap ([[<C-M-k>]], [["dY"dP]], "Duplicate line upwards")
 vnoremap ([[<C-M-j>]], [["dy`<"dPjgv]], "Duplicate selection downwards")
 vnoremap ([[<C-M-k>]], [["dy`>"dpgv]], "Duplicate selection upwards")
 
-vnoremap ([[<leader>z]], [[1z=]], "Fix spelling under cursor")
-
 -- Clear UI state:
 -- - Clear search highlight
 -- - Clear command-line
@@ -137,7 +138,9 @@ inoremap ([[<M-d>]], [[<C-o>de]], "Kill word forward")
 inoremap ([[<M-Backspace>]], [[<C-o>dB]], "Kill word backward")
 inoremap ([[<C-k>]], [[<C-o>D]], "Kill to end of line")
 
+-- non-ascii stuff
 inoremap ([[<M-k>]], [[<C-k>]], "Insert digraph")
+nnoremap ([[gxa]],   [[ga]], "Show char code in decimal, hexadecimal and octal")
 
 -- nano-like kill buffer
 -- TODO
@@ -172,6 +175,39 @@ cnoremap ([[<M-k>]], [[<C-k>]]) -- Insert digraph
 -- See: https://github.com/mhinz/vim-galore#saner-command-line-history
 cnoremap ([[<c-p>]], [[pumvisible() ? "\<C-p>" : "\<up>"]], expr) -- History prev
 cnoremap ([[<c-n>]], [[pumvisible() ? "\<C-n>" : "\<down>"]], expr) -- History next
+cmap ([[<M-/>]], [[pumvisible() ? "\<C-y>" : "\<M-/>"]], expr) -- Accept completion suggestion
+cmap ([[]], [[pumvisible() ? "\<C-y>\<Tab>" : ""]], expr) -- <C-/>: Accept completion suggestion and continue completion
+
+local function cursorLock(lock)
+  return function()
+    if not lock or vim.w.cursor_lock == lock then
+      vim.w.cursor_lock = nil
+      vim.cmd(([[
+        augroup user_cursor_lock_%d
+          autocmd!
+        augroup END
+      ]]):format(vim.api.nvim_get_current_win()))
+
+      print("Cursor lock disabled")
+      return
+    end
+
+    vim.w.cursor_lock = lock
+    vim.cmd("silent normal z" .. lock)
+    vim.cmd(([[
+      augroup user_cursor_lock_%d
+        autocmd!
+        autocmd CursorMoved <buffer> lua if vim.w.cursor_lock then vim.cmd("silent normal z" .. vim.w.cursor_lock) end
+      augroup END
+    ]]):format(vim.api.nvim_get_current_win()))
+
+    print("Cursor lock enabled")
+  end
+end
+
+nnoremap ([[<leader>zt]], cursorLock("t"), silent, "Toggle cursor lock (top)")
+nnoremap ([[<leader>zz]], cursorLock("z"), silent, "Toggle cursor lock (middle)")
+nnoremap ([[<leader>zb]], cursorLock("b"), silent, "Toggle cursor lock (bottom)")
 
 --"" Tabs
 
@@ -189,9 +225,9 @@ end
 
 noremap  ([[<M-'>]],   [[:tabn<Cr>]],                silent, "Tabs: Goto next")
 noremap  ([[<M-;>]],   [[:tabp<Cr>]],                silent, "Tabs: Goto prev")
-tnoremap ([[<M-'>]],   [[:tabn<Cr>]],                silent) -- Tabs: goto next
-tnoremap ([[<M-;>]],   [[:tabp<Cr>]],                silent) -- Tabs: goto prev
-noremap  ([[<M-S-a>]], [[execute "wincmd g\<Tab>"]], silent, "Tabs: Goto last accessed")
+tnoremap ([[<M-'>]],   [[<C-\><C-n>:tabn<Cr>]],                silent) -- Tabs: goto next
+tnoremap ([[<M-;>]],   [[<C-\><C-n>:tabp<Cr>]],                silent) -- Tabs: goto prev
+noremap  ([[<M-S-a>]], [[:execute "wincmd g\<Tab>"<Cr>]], silent, "Tabs: Goto last accessed")
 noremap  ([[<M-a>]], [[:wincmd p<Cr>]], silent, "Panes: Goto previously focused")
 
 noremap ([[<M-1>]], tabnm(1),  silent, "Goto tab 1")
@@ -253,9 +289,8 @@ nnoremap ([[<leader>t]], [[:10Term<Cr>]], silent, "New term (split)")
 -- map <C-S-q> to \x1b[15;5~ (F29) in your terminal emulator
 -- tnoremap ([[<F29>]], [[<C-\><C-n>:q<Cr>]]) -- Close terminal
 
-tnoremap (xk["<C-S-q>"], [[<C-\><C-n>:q<Cr>]]) -- Close terminal
-tnoremap (xk["<C-S-n>"], [[<C-\><C-n>]]) -- Enter Normal mode
-
+tnoremap (xk[[<C-S-q>]], [[<C-\><C-n>:q<Cr>]]) -- Close terminal
+tnoremap (xk[[<C-S-n>]], [[<C-\><C-n>]]) -- Enter Normal mode
 tnoremap ([[<C-n>]], [[<C-n>]])
 tnoremap ([[<C-p>]], [[<C-p>]])
 tnoremap ([[<M-n>]], [[<M-n>]])
@@ -306,38 +341,42 @@ nnoremap ([[<leader>lS]], [[:LspStop<Cr>]],    "LSP: Stop LSP")
 
 local lsp_attached_bufs = {}
 M.on_lsp_attach = function(bufnr)
-  if lsp_attached_bufs[bufnr] then
+  if lsp_attached_bufs[bufnr] or not vim.api.nvim_buf_is_valid(bufnr) then
     return
   end
   lsp_attached_bufs[bufnr] = true
   local user_lsp = require'user.lsp'
 
   m.group({ buffer = bufnr, silent = true }, function()
+    if not vim.api.nvim_buf_is_valid(bufnr) then
+      return
+    end
+
     m.nname("<localleader>g", "LSP-Goto")
-    nnoremap ({[[<localleader>gd]], [[gd]]}, vim.lsp.buf.definition,      "LSP: Goto definition")
-    nnoremap ({[[<localleader>gd]], [[gd]]}, vim.lsp.buf.definition,      "LSP: Goto definition")
-    nnoremap ([[<localleader>gD]],           vim.lsp.buf.declaration,     "LSP: Goto declaration")
-    nnoremap ([[<localleader>gi]],           vim.lsp.buf.implementation,  "LSP: Goto implementation")
-    nnoremap ([[<localleader>gt]],           vim.lsp.buf.type_definition, "LSP: Goto type definition")
-    nnoremap ([[<localleader>gr]],           vim.lsp.buf.references,      "LSP: Goto references")
+    nnoremap ({[[<localleader>gd]], [[gd]]}, ithunk(vim.lsp.buf.definition),      "LSP: Goto definition")
+    nnoremap ({[[<localleader>gd]], [[gd]]}, ithunk(vim.lsp.buf.definition),      "LSP: Goto definition")
+    nnoremap ([[<localleader>gD]],           ithunk(vim.lsp.buf.declaration),     "LSP: Goto declaration")
+    nnoremap ([[<localleader>gi]],           ithunk(vim.lsp.buf.implementation),  "LSP: Goto implementation")
+    nnoremap ([[<localleader>gt]],           ithunk(vim.lsp.buf.type_definition), "LSP: Goto type definition")
+    nnoremap ([[<localleader>gr]],           ithunk(vim.lsp.buf.references),      "LSP: Goto references")
 
     m.nname("<localleader>w", "LSP-Workspace")
-    nnoremap ([[<localleader>wa]], vim.lsp.buf.add_workspace_folder,    "LSP: Add workspace folder")
-    nnoremap ([[<localleader>wr]], vim.lsp.buf.remove_workspace_folder, "LSP: Rm workspace folder")
+    nnoremap ([[<localleader>wa]], ithunk(vim.lsp.buf.add_workspace_folder),    "LSP: Add workspace folder")
+    nnoremap ([[<localleader>wr]], ithunk(vim.lsp.buf.remove_workspace_folder), "LSP: Rm workspace folder")
 
     nnoremap ([[<localleader>wl]], function() fn.inspect(vim.lsp.buf.list_workspace_folders()) end, "LSP: List workspace folders")
 
-    nnoremap ([[<localleader>R]],  vim.lsp.buf.rename, "LSP: Rename")
+    nnoremap ([[<localleader>R]],  ithunk(vim.lsp.buf.rename), "LSP: Rename")
 
     nnoremap ({[[<localleader>A]], [[<localleader>ca]]}, ithunk(vim.lsp.buf.code_action),       "LSP: Code action")
     vnoremap ({[[<localleader>A]], [[<localleader>ca]]}, ithunk(vim.lsp.buf.range_code_action), "LSP: Code action (range)")
 
-    nnoremap ([[<localleader>F]], ithunk(vim.lsp.buf.formatting),       "LSP: Format")
-    vnoremap ([[<localleader>F]], ithunk(vim.lsp.buf.range_formatting), "LSP: Format (range)")
+    nnoremap ([[<localleader>F]], ithunk(require'user.lsp'.buf_formatting_sync), "LSP: Format")
+    vnoremap ([[<localleader>F]], ithunk(vim.lsp.buf.range_formatting),          "LSP: Format (range)")
 
     m.nname("<localleader>s", "LSP-Save")
-    nnoremap ([[<localleader>S]],  user_lsp.setFmtOnSave,               "LSP: Toggle format on save")
-    nnoremap ([[<localleader>ss]], user_lsp.setFmtOnSave,               "LSP: Toggle format on save")
+    nnoremap ([[<localleader>S]],  ithunk(user_lsp.setFmtOnSave),        "LSP: Toggle format on save")
+    nnoremap ([[<localleader>ss]], ithunk(user_lsp.setFmtOnSave),        "LSP: Toggle format on save")
     nnoremap ([[<localleader>se]], ithunk(user_lsp.setFmtOnSave, true),  "LSP: Enable format on save")
     nnoremap ([[<localleader>sd]], ithunk(user_lsp.setFmtOnSave, false), "LSP: Disable format on save")
 
@@ -362,8 +401,8 @@ M.on_lsp_attach = function(bufnr)
       end
     end
     m.nname("<localleader>d", "LSP-Diagnostics")
-    nnoremap ([[<localleader>ds]],                        vim.diagnostic.show,     "LSP: Show diagnostics")
-    nnoremap ({[[<localleader>dt]], [[<localleader>T]]},  require'trouble'.toggle, "LSP: Toggle Trouble")
+    nnoremap ([[<localleader>ds]],                        ithunk(vim.diagnostic.show),      "LSP: Show diagnostics")
+    nnoremap ({[[<localleader>dt]], [[<localleader>T]]},  ithunk(require'trouble'.toggle), "LSP: Toggle Trouble")
 
     nnoremap ({[[<localleader>dd]], [[[d]]}, gotoDiag("prev"),          "LSP: Goto prev diagnostic")
     nnoremap ({[[<localleader>dD]], [[]d]]}, gotoDiag("next"),          "LSP: Goto next diagnostic")
@@ -394,11 +433,11 @@ M.on_lsp_attach = function(bufnr)
     nnoremap ({[[<localleader>so]], [[<leader>so]]}, require('telescope.builtin').lsp_document_symbols, "LSP: Telescope symbol search")
 
     m.nname("<localleader>h", "LSP-Hover")
-    nnoremap ([[<localleader>hs]], vim.lsp.buf.signature_help, "LSP: Signature help")
-    nnoremap ([[<localleader>ho]], vim.lsp.buf.hover,          "LSP: Hover")
-    nnoremap ([[<M-i>]],           vim.lsp.buf.hover,          "LSP: Hover")
-    inoremap ([[<M-i>]],           vim.lsp.buf.hover,          "LSP: Hover")
-    nnoremap ([[<M-S-i>]],         user_lsp.peekDefinition,    "LSP: Peek definition")
+    nnoremap ([[<localleader>hs]], ithunk(vim.lsp.buf.signature_help), "LSP: Signature help")
+    nnoremap ([[<localleader>ho]], ithunk(vim.lsp.buf.hover),          "LSP: Hover")
+    nnoremap ([[<M-i>]],           ithunk(vim.lsp.buf.hover),          "LSP: Hover")
+    inoremap ([[<M-i>]],           ithunk(vim.lsp.buf.hover),          "LSP: Hover")
+    nnoremap ([[<M-S-i>]],         ithunk(user_lsp.peekDefinition),    "LSP: Peek definition")
   end)
 end
 
@@ -428,22 +467,32 @@ nmap     ([[<M-l>]], ithunk(tmux.move_right),  silent, "Goto window/tmux pane ri
 
 ---- nvim-telescope/telescope.nvim TODO: In-telescope maps
 m.group("silent", function()
-  m.nname("<C-f>", "Telescope")
-  nnoremap ([[<C-f>b]], ithunk(require('telescope.builtin').buffers),                           "Telescope: Buffers")
+  local t = require'telescope'
+  local tb = require'telescope.builtin'
+  local tx = t.extensions
 
-  nnoremap ({[[<C-f>h]], [[<C-f><C-h>]]}, ithunk(require('telescope.builtin').help_tags),                       "Telescope: Help tags")
-  nnoremap ({[[<C-f>t]], [[<C-f><C-t>]]}, ithunk(require('telescope.builtin').tags),                            "Telescope: Tags")
-  nnoremap ({[[<C-f>a]], [[<C-f><C-a>]]}, ithunk(require('telescope.builtin').grep_string),                     "Telescope: Grep for string")
-  nnoremap ({[[<C-f>p]], [[<C-f><C-p>]]}, ithunk(require('telescope.builtin').live_grep),                       "Telescope: Live grep")
-  nnoremap ({[[<C-f>o]], [[<C-f><C-o>]]}, ithunk(require('telescope.builtin').oldfiles),                        "Telescope: Old files")
-  nnoremap ({[[<C-f>f]], [[<C-f><C-f>]]}, ithunk(require('telescope.builtin').find_files), "Telescope: Files")
-  nnoremap ([[<C-f>b]],                   ithunk(require('telescope.builtin').builtin),                         "Telescope: Pickers")
-  nnoremap ({[[<C-f>s]], [[<C-f><C-s>]]}, ithunk(require('telescope').extensions.sessions.sessions),            "Telescope: Sessions")
-  nnoremap ({[[<C-f>w]], [[<C-f><C-w>]]}, ithunk(require('telescope').extensions.windows.windows, {}),              "Telescope: Windows")
+  m.nname([[<C-f>]], "Telescope")
+  nnoremap ([[<C-f>b]], ithunk(tb.buffers),                      "Telescope: Buffers")
 
-  m.nname("<M-f>", "Telescope-Buffer")
-  nnoremap ({[[<M-f>b]], [[<M-f><M-b>]]}, require('telescope.builtin').current_buffer_fuzzy_find,                  "Telescope: Buffer (fuzzy)")
-  nnoremap ({[[<M-f>t]], [[<M-f><M-t>]]}, ithunk(require('telescope.builtin').tags ,{only_current_buffer = true}), "Telescope: Tags (buffer)")
+  nnoremap ({[[<C-f>h]], [[<C-f><C-h>]]}, ithunk(tb.help_tags),  "Telescope: Help tags")
+  nnoremap ({[[<C-f>t]], [[<C-f><C-t>]]}, ithunk(tb.tags),       "Telescope: Tags")
+  nnoremap ({[[<C-f>a]], [[<C-f><C-a>]]}, ithunk(tb.grep_string),"Telescope: Grep for string")
+  nnoremap ({[[<C-f>p]], [[<C-f><C-p>]]}, ithunk(tb.live_grep),  "Telescope: Live grep")
+  nnoremap ({[[<C-f>o]], [[<C-f><C-o>]]}, ithunk(tb.oldfiles),   "Telescope: Old files")
+  nnoremap ([[<C-f>b]],                   ithunk(tb.builtin),    "Telescope: Pickers")
+  nnoremap ({[[<C-f>f]], [[<C-f><C-f>]]}, ithunk(tb.find_files), "Telescope: Files")
+
+  local txw = tx.windows
+  nnoremap ({[[<C-f>w]], [[<C-f><C-w>]]}, ithunk(txw.windows, {}), "Telescope: Windows")
+
+  local txgw = tx.git_worktree
+  m.nname([[<C-f>g]], "Telescope-Git")
+  nnoremap ([[<C-f>gw]], ithunk(txgw.git_worktrees), "Telescope: Git worktrees")
+  nnoremap ([[<C-f>gW]], ithunk(txgw.git_worktrees), "Telescope: Git worktree create")
+
+  m.nname([[<M-f>]], "Telescope-Buffer")
+  nnoremap ({[[<M-f>b]], [[<M-f><M-b>]]}, tb.current_buffer_fuzzy_find,                  "Telescope: Buffer (fuzzy)")
+  nnoremap ({[[<M-f>t]], [[<M-f><M-t>]]}, ithunk(tb.tags ,{only_current_buffer = true}), "Telescope: Tags (buffer)")
 end)
 
 ---- tpope/vim-fugitive
@@ -488,6 +537,31 @@ nnoremap ([[<leader>GL]],  [[:Git log<Cr>]],                      "Fugitive: Log
 nnoremap ([[<leader>GPP]], [[:Git push<Cr>]],                     "Fugitive: Push")
 nnoremap ([[<leader>GPL]], [[:Git pull<Cr>]],                     "Fugitive: Pull")
 
+-- lewis6991/gitsigns.nvim
+M.on_gistsigns_attach = function(bufnr)
+  local gs = package.loaded.gitsigns
+  m.group({ buffer = bufnr, silent = true }, function()
+    nnoremap([[<leader>hs]],  ithunk(gs.stage_hunk),                "Gitsigns: Stage hunk")
+    vnoremap([[<leader>hs]],  ithunk(gs.stage_hunk),                "Gitsigns: Stage selected hunk(s)")
+    nnoremap([[<leader>hr]],  ithunk(gs.reset_hunk),                "Gitsigns: Reset hunk")
+    vnoremap([[<leader>hr]],  ithunk(gs.reset_hunk),                "Gitsigns: Reset selected hunk(s)")
+    nnoremap([[<leader>hS]],  ithunk(gs.stage_buffer),              "Gitsigns: Stage buffer")
+    nnoremap([[<leader>hR]],  ithunk(gs.reset_buffer),              "Gitsigns: Reset buffer")
+    nnoremap([[<leader>hu]],  ithunk(gs.undo_stage_hunk),           "Gitsigns: Undo stage hunk")
+    nnoremap([[<leader>hp]],  ithunk(gs.preview_hunk),              "Gitsigns: Preview hunk")
+    nnoremap([[<leader>hb]],  ithunk(gs.blame_line, {full=true}),   "Gitsigns: Blame hunk")
+    nnoremap([[<leader>htb]], ithunk(gs.toggle_current_line_blame), "Gitsigns: Toggle current line blame")
+    nnoremap([[<leader>hd]],  ithunk(gs.diffthis),                  "Gitsigns: Diff this")
+    nnoremap([[<leader>hD]],  ithunk(gs.diffthis, "~"),             "Gitsigns: Diff this against last commit")
+    nnoremap([[<leader>htd]], ithunk(gs.toggle_deleted),            "Gitsigns: Toggle deleted")
+
+    nnoremap ("]c", "&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", "Gitsigns: Next hunk", expr)
+    nnoremap ("[c", "&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", "Gitsigns: Prev hunk", expr)
+    onoremap([[ih]], ":<C-U>Gitsigns select_hunk<CR>",              "[TextObj] Gitsigns: Inner hunk")
+    xnoremap([[ih]], ":<C-U>Gitsigns select_hunk<CR>",              "[TextObj] Gitsigns: Inner hunk")
+  end)
+end
+
 -- mbbill/undotree
 nnoremap ([[<leader>ut]], [[:UndotreeToggle<Cr>]], "Undotree: Toggle")
 
@@ -499,14 +573,10 @@ vmap ([[<Leader>a]], ":Tabularize /", "Tabularize")
 nmap([[<leader>co]], [[:VCoolor<CR>]], silent, "Open VCooler color picker")
 
 ---- kyazdani42/nvim-tree.lua
-nmap([[<C-\>]], [[:NvimTreeToggle<CR>]], silent, "Nvim-Tree: Toggle")
-nmap([[<M-\>]], function()
-  if vim.fn.bufname() == "NvimTree" then
-    vim.cmd([[wincmd p]])
-  else
-    vim.cmd([[NvimTreeFocus]])
-  end
-end, silent, "Nvim-Tree: Toggle Focus")
+nmap(xk[[<C-S-\>]], [[:NvimTreeToggle<CR>]], silent, "Nvim-Tree: Toggle")
+nmap(xk[[<C-\>]],
+  fn.filetypeCommand( "NvimTree", thunk(vim.cmd, [[wincmd p]]), thunk(vim.cmd, [[NvimTreeFocus]])),
+  silent, "Nvim-Tree: Toggle Focus")
 
 m.group({ ft = "NvimTree" }, function()
   local function withSelected(cmd, fmt)
@@ -521,8 +591,24 @@ m.group({ ft = "NvimTree" }, function()
   nnoremap ([[gd]], withSelected("tabnew | Gdiffsplit"), "Nvim-Tree: Git diff")
 end)
 
----- mfussenegger/nvim-dap
+-- stevearc/aerial.nvim
+nmap(xk[[<M-S-\>]], function()
+  if require"aerial".is_open() or require"aerial.util".is_aerial_buffer() then
+    require"aerial".close()
+  else
+    require"aerial".open()
+  end
+end, silent, "Aerial: Toggle")
 
+nmap([[<M-\>]],
+  fn.filetypeCommand("aerial", ithunk(vim.cmd, [[wincmd p]]), ithunk(vim.cmd, [[AerialOpen]])),
+  silent, "Sidebar: Toggle Focus")
+
+m.group({ ft = "SidebarNvim" }, function()
+  nmap([[<Cr>]], "e")
+end)
+
+---- mfussenegger/nvim-dap
 local function dap_pre()
   nnoremap([[<leader>D]], function()
     require'user.dap'.launch(vim.bo.filetype)
@@ -587,5 +673,9 @@ M.fine_cmdline = function()
     imap ([[<c-n>]], [[pumvisible() ? "\<C-n>" : "\<down>"]], expr)
   end)
 end
+
+---- chentau/marks.nvim
+nmap     ([[<M-m>]],  [[m;]], "Mark: create next")
+nnoremap ([[]"]],  [[[']],    "Mark: goto previous")
 
 return M

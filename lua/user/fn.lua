@@ -305,10 +305,10 @@ function M.sessionSave()
     nvimTreeFocused = false,
   }
 
-  if require('nvim-tree.view').win_open() then
+  if require('nvim-tree.view').is_visible() then
     meta.nvimTreeOpen = true
     meta.nvimTreeFocused = vim.fn.bufname(vim.fn.bufnr()) == 'NvimTree'
-    require('nvim-tree').close()
+    require('nvim-tree.view').close()
   end
 
   require('treesitter-context').disable()
@@ -422,6 +422,9 @@ end
 
 -- Convert a number to a utf8 string
 function M.utf8(decimal)
+  if type(decimal) == "string" then
+    decimal = vim.fn.char2nr(decimal)
+  end
   if decimal < 128 then
     return string.char(decimal)
   end
@@ -450,6 +453,9 @@ function M.utf8keys(keys)
   return setmetatable(keys, {
     __index = function(self, k)
       return rawget(self, string.lower(k))
+    end,
+    __call = function(self, k)
+      return self[k]
     end,
   })
 end
@@ -589,5 +595,17 @@ end
 --     end
 --   })
 -- end
+
+M.filetypeCommand = function(ft, ifMatch, ifNotMatch)
+  return function()
+    if vim.bo.filetype == ft then
+      ifMatch()
+    else
+      if type(ifNotMatch) == "function" then
+        ifNotMatch()
+      end
+    end
+  end
+end
 
 return M

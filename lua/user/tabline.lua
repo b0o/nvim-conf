@@ -152,7 +152,7 @@ function M.titlestring(t, sel)
   return ts
 end
 
-function M.tabline()
+local function tabline()
   local tabpages = vim.api.nvim_list_tabpages()
   local current_tabpage = vim.api.nvim_get_current_tabpage()
   local s = ''
@@ -182,6 +182,14 @@ function M.tabline()
   end
   s = s .. '%#TabLineFill#%T'
   return s
+end
+
+function M.tabline()
+  local ok, res = pcall(tabline)
+  if ok then
+    return res
+  end
+  return ''
 end
 
 vim.cmd(template(
@@ -240,6 +248,7 @@ function M.do_rename_tab()
     },
     win_options = {
       winhighlight = 'Normal:Normal',
+      signcolumn = 'no'
     },
     buf_options = {
       buflisted = false,

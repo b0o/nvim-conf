@@ -28,34 +28,56 @@ require('nvim-treesitter.configs').setup {
         -- You can use the capture groups defined in textobjects.scm
         ['af'] = '@function.outer',
         ['if'] = '@function.inner',
-        ['ac'] = '@class.outer',
-        ['ic'] = '@class.inner',
-        ['ia'] = '@parameter.inner',
-        ['aa'] = '@parameter.outer',
+        ['ip'] = '@parameter.inner',
+        ['ap'] = '@parameter.outer',
+        ['ib'] = '@block.inner',
+        ['ab'] = '@block.outer',
+        ['im'] = '@class.inner', -- m as in "(M)odule"
+        ['am'] = '@class.outer',
+        ['aa'] = '@call.outer', -- a as in "function (A)pplication"
+        ['ia'] = '@call.inner',
+        ['a/'] = '@comment.outer',
+        ['i/'] = '@comment.outer',
       },
     },
     move = {
       enable = true,
       set_jumps = true, -- whether to set jumps in the jumplist
       goto_next_start = {
-        [']m'] = '@function.outer',
-        [']]'] = '@class.outer',
-        [']a'] = '@parameter.outer',
+        [']f'] = '@function.outer',
+        [']m'] = '@class.outer',
+        [']p'] = '@parameter.outer',
+        [']]'] = '@block.outer',
+        [']b'] = '@block.outer',
+        [']a'] = '@call.outer',
+        [']/'] = '@comment.outer',
       },
       goto_next_end = {
-        [']M'] = '@function.outer',
-        [']['] = '@class.outer',
-        [']A'] = '@parameter.outer',
+        [']F'] = '@function.outer',
+        [']M'] = '@class.outer',
+        [']P'] = '@parameter.outer',
+        [']['] = '@block.outer',
+        [']B'] = '@block.outer',
+        [']A'] = '@call.outer',
+        [']\\'] = '@comment.outer',
       },
       goto_previous_start = {
-        ['[m'] = '@function.outer',
-        ['[['] = '@class.outer',
-        ['[a'] = '@parameter.outer',
+        ['[f'] = '@function.outer',
+        ['[m'] = '@class.outer',
+        ['[p'] = '@parameter.outer',
+        ['[['] = '@block.outer',
+        ['[b'] = '@block.outer',
+        ['[a'] = '@call.outer',
+        ['[/'] = '@comment.outer',
       },
       goto_previous_end = {
-        ['[M'] = '@function.outer',
-        ['[]'] = '@class.outer',
-        ['[A'] = '@parameter.outer',
+        ['[F'] = '@function.outer',
+        ['[M'] = '@class.outer',
+        ['[P'] = '@parameter.outer',
+        ['[]'] = '@block.outer',
+        ['[B'] = '@block.outer',
+        ['[A'] = '@call.outer',
+        ['[\\'] = '@comment.outer',
       },
     },
   },
@@ -80,4 +102,29 @@ require('nvim-treesitter.configs').setup {
 }
 
 -- romgrk/nvim-treesitter-context
-require('treesitter-context').setup {}
+require('treesitter-context').setup {
+  enable = true,
+  throttle = true,
+  max_lines = vim.o.scrolloff - 1,
+  patterns = {
+    -- default = {
+    --   'class',
+    --   'function',
+    --   'method',
+    -- },
+    rescript = {
+      'block',
+      'type_declaration',
+      'call_expression',
+      'let_binding',
+      'jsx_element',
+    },
+    ocaml = {
+      'module_definition',
+      'type_definition',
+      'let_binding',
+      'match_expression',
+      'body',
+    },
+  },
+}

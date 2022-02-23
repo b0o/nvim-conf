@@ -62,3 +62,13 @@ vim.cmd [[
     autocmd TabLeave NvimTree wincmd p
   augroup END
 ]]
+
+-- vim.cmd [[
+--   augroup user_hlslens
+--     autocmd!
+--     autocmd User visual_multi_start echom "a"
+--     autocmd User visual_multi_exit echom "b"
+--     " autocmd User visual_multi_start lua require('user.plugins.hlslens').vmlens.start()
+--     " autocmd User visual_multi_exit lua require('user.plugins.hlslens').vmlens.stop()
+--   augroup END
+-- ]]

@@ -2,6 +2,8 @@ local lsp_status = require 'lsp-status'
 local user_lsp_status = require 'user.statusline.lsp'
 local nvim_cmp_lsp = require 'cmp_nvim_lsp'
 local fn = require 'user.fn'
+local root_pattern = require('lspconfig.util').root_pattern
+local notify = require 'notify'
 
 local M = {
   fmtOnSaveEnabled = false,
@@ -105,8 +107,10 @@ local lsp_servers = {
       }
     end),
   },
-  'null-ls',
-  'ocamllsp',
+  {
+    'ocamllsp',
+    root_dir = root_pattern('*.opam', 'esy.json', 'package.json', '.git', '.merlin'),
+  },
   {
     'pylsp',
     cmd = {
@@ -118,7 +122,7 @@ local lsp_servers = {
     settings = {
       pylsp = {
         plugins = {
-          pylint = { enabled = true },
+          pylint = { enabled = true, args = { '-j0' } },
           yapf = { enabled = true },
           pycodestyle = { enabled = false },
           autopep8 = { enabled = false },
@@ -131,7 +135,9 @@ local lsp_servers = {
     'rescriptls',
     cmd = {
       'node',
-      vim.fn.stdpath 'data' .. '/site/pack/packer/start/vim-rescript/server/out/server.js',
+      '--inspect',
+      vim.env.GIT_PROJECTS_DIR .. '/rescript-vscode/server/out/server.js',
+      -- vim.fn.stdpath 'data' .. '/site/pack/packer/start/vim-rescript/server/out/server.js',
       '--stdio',
     },
   },
@@ -188,6 +194,23 @@ local lsp_handlers = {
 
   ['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = M.border }),
   ['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = M.border }),
+
+  ['window/showMessage'] = function(_, result, ctx)
+    local client = vim.lsp.get_client_by_id(ctx.client_id)
+    local lvl = ({
+      'ERROR',
+      'WARN',
+      'INFO',
+      'DEBUG',
+    })[result.type]
+    notify({ result.message }, lvl, {
+      title = 'LSP | ' .. client.name,
+      timeout = 10000,
+      keep = function()
+        return lvl == 'ERROR' or lvl == 'WARN'
+      end,
+    })
+  end,
 }
 
 ---- onsails/lspkind-nvim
@@ -209,7 +232,8 @@ local function on_attach(client, bufnr)
     M.setFmtOnSave(true, true)
   end
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-  user_lsp_status.on_attach(client)
+  user_lsp_status.on_attach(client, bufnr)
+  require('aerial').on_attach(client, bufnr)
   vim.schedule(function()
     require('user.mappings').on_lsp_attach(bufnr)
   end)
@@ -217,6 +241,44 @@ end
 
 local function on_exit(code, signal, id)
   user_lsp_status.on_exit(code, signal, id)
+end
+
+local format_mark_ns = vim.api.nvim_create_namespace ''
+
+-- workaround for https://github.com/neovim/neovim/issues/14645
+-- via: https://github.com/neovim/neovim/issues/14645#issuecomment-891009309
+function M.buf_formatting_sync()
+  -- local bufnr = vim.api.nvim_win_get_buf(0)
+  -- local line_count = vim.api.nvim_buf_line_count(bufnr)
+  -- local windows = vim.fn.win_findbuf(bufnr)
+  -- local marks = {}
+  --
+  -- for _, window in ipairs(windows) do
+  --   local line, col = unpack(vim.api.nvim_win_get_cursor(window))
+  --   inspect { line = line, col = col, window = window }
+  --   marks[window] = vim.api.nvim_buf_set_extmark(bufnr, format_mark_ns, line - 1, col, {})
+  -- end
+  --
+  -- inspect { marks = marks }
+
+  vim.lsp.buf.formatting_sync(nil, 10000)
+
+  -- for _, window in ipairs(windows) do
+  --   local mark = marks[window]
+  --   local line, col = unpack(vim.api.nvim_buf_get_extmark_by_id(bufnr, format_mark_ns, mark, {}))
+  --   inspect { window = window, line = line, col = col, mark = mark }
+  --   if line and col then
+  --     inspect { window = window, { line + 1, col } }
+  --     if line >= line_count then
+  --       inspect({skip=true})
+  --       goto continue
+  --     end
+  --     vim.api.nvim_win_set_cursor(window, { line + 1, col })
+  --     ::continue::
+  --   end
+  -- end
+  --
+  -- vim.api.nvim_buf_clear_namespace(bufnr, format_mark_ns, 0, -1)
 end
 
 -- Enables/disables format on save
@@ -231,7 +293,7 @@ function M.setFmtOnSave(val, silent)
   if M.fmtOnSaveEnabled then
     table.insert(
       au,
-      ('autocmd %s <buffer> lua vim.lsp.buf.formatting_sync()'):format(
+      ('autocmd %s <buffer> lua require"user.lsp".buf_formatting_sync()'):format(
         fmtTriggers[vim.o.filetype] or fmtTriggers.default
       )
     )
@@ -257,7 +319,7 @@ function M.code_action_listener()
   local context = { diagnostics = vim.lsp.diagnostic.get_line_diagnostics() }
   local params = vim.lsp.util.make_range_params()
   params.context = context
-  vim.lsp.buf_request(0, 'textDocument/codeAction', params, function(err, actions, result)
+  pcall(vim.lsp.buf_request, 0, 'textDocument/codeAction', params, function(err, actions, result)
     if err or not result or not result.bufnr then
       return
     end
@@ -279,7 +341,8 @@ function M.code_action_listener()
 end
 
 local function lsp_init()
-  vim.lsp.set_log_level 'info'
+  -- vim.lsp.set_log_level 'trace'
+  vim.lsp.set_log_level 'warn'
   for k, v in pairs(lsp_handlers) do
     vim.lsp.handlers[k] = v
   end
@@ -289,7 +352,7 @@ local function lsp_init()
     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = '' })
   end
 
-  require('null-ls').config(require 'user.plugin.null-ls')
+  require('null-ls').setup(vim.tbl_extend('force', require 'user.plugin.null-ls', { on_attach = on_attach }))
   require('lspkind').init(lspkind_config)
   require('lsp_signature').setup(lsp_signature_config)
   require('trouble').setup(trouble_config)

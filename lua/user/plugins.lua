@@ -16,6 +16,7 @@ local function uselocal(p)
   if git_projects_dir == nil then
     return
   end
+  p[1] = string.gsub(p[1], '.*/', '')
   p[1] = git_projects_dir .. '/' .. p[1]
   use(p)
 end
@@ -36,18 +37,26 @@ packer.startup(function()
     --     end,
   }
 
+  -- Meta
+  use 'nvim-lua/plenary.nvim'
+
+  -- Colorschemes
+  use 'chriskempson/base16-vim'
+  use 'dracula/vim'
+
   -- UI
   use 'Famiu/feline.nvim'
-  use 'chriskempson/base16-vim'
   use 'ericbn/vim-relativize'
   use 'folke/which-key.nvim'
   use 'kyazdani42/nvim-web-devicons'
   use 'liuchengxu/vista.vim'
   use 'lukas-reineke/indent-blankline.nvim'
   use 'luukvbaal/stabilize.nvim'
-  use {
-    'kyazdani42/nvim-tree.lua',
-  }
+  use 'kevinhwang91/nvim-hlslens'
+  use 'kyazdani42/nvim-tree.lua'
+  use 'rcarriga/nvim-notify'
+  uselocal 'stevearc/aerial.nvim'
+  -- use 'sidebar-nvim/sidebar.nvim'
   use {
     'VonHeikemen/fine-cmdline.nvim',
     requires = { 'MunifTanjim/nui.nvim' },
@@ -56,7 +65,7 @@ packer.startup(function()
   -- Telescope
   use {
     'nvim-telescope/telescope.nvim',
-    requires = { 'nvim-lua/popup.nvim', 'nvim-lua/plenary.nvim' },
+    requires = { 'nvim-lua/popup.nvim' },
   }
   use 'kyoh86/telescope-windows.nvim'
 
@@ -81,6 +90,8 @@ packer.startup(function()
   use 'tpope/vim-surround'
   use 'triglav/vim-visual-increment'
   use 'wellle/visual-split.vim'
+  use 'vigoux/architext.nvim'
+  use 'chentau/marks.nvim'
   uselocal 'vim-buffest'
   -- uselocal 'extended-scrolloff.vim'
 
@@ -95,11 +106,8 @@ packer.startup(function()
   }
   use 'nvim-treesitter/nvim-treesitter-textobjects'
   use 'nvim-treesitter/playground'
-  use {
-    -- 'romgrk/nvim-treesitter-context' -- TODO: Revert when PR #81 is merged
-    'b0o/nvim-treesitter-context',
-    branch = 'ensure-buffer-exists',
-  }
+  use 'romgrk/nvim-treesitter-context'
+  use 'nkrkv/nvim-treesitter-rescript'
 
   -- LSP
   -- use 'neovim/nvim-lspconfig'
@@ -109,18 +117,19 @@ packer.startup(function()
   use 'nvim-lua/lsp-status.nvim'
   use 'onsails/lspkind-nvim'
   use 'ray-x/lsp_signature.nvim'
-  uselocal 'nvim-lspconfig'
-  uselocal 'schemastore.nvim'
+  use 'neovim/nvim-lspconfig'
+  use 'b0o/schemastore.nvim'
 
   -- Code Style, Formatting, Linting
   use 'editorconfig/editorconfig-vim'
-  use 'b0o/shellcheck-extras.vim'
 
   -- Git
   use 'christoomey/vim-conflicted'
   use 'tpope/vim-fugitive'
   use 'tpope/vim-rhubarb'
-  use { 'lewis6991/gitsigns.nvim', requires = 'nvim-lua/plenary.nvim' }
+  use 'lewis6991/gitsigns.nvim'
+  use 'tanvirtin/vgit.nvim'
+  use 'ThePrimeagen/git-worktree.nvim'
   use { 'mattn/gist-vim', requires = 'mattn/webapi-vim' }
 
   -- System
@@ -142,18 +151,15 @@ packer.startup(function()
   use 'saadparwaiz1/cmp_luasnip'
   use 'ray-x/cmp-treesitter'
   use 'f3fora/cmp-spell'
-  use {
-    'andersevenrud/compe-tmux',
-    branch = 'cmp',
-  }
+  use 'andersevenrud/cmp-tmux'
 
   -- Debugging
   use 'mfussenegger/nvim-dap'
   use 'jbyuki/one-small-step-for-vimkind' -- Lua DAP adapter, a.k.a. osv
 
   -- Windows and Sessions
-  use 'aserowy/tmux.nvim'
   use 'sindrets/winshift.nvim'
+  use 'aserowy/tmux.nvim'
   use 'Shatur/neovim-session-manager'
   -- use 'ingram1107/souvenir.nvim'
 
@@ -162,6 +168,7 @@ packer.startup(function()
   use 'mboughaba/i3config.vim'
   use 'rescript-lang/vim-rescript'
   use 'aouelete/sway-vim-syntax'
+  use 'fatih/vim-go'
 
   -- Documentation
   use 'alx741/vinfo'
@@ -176,8 +183,6 @@ packer.startup(function()
 
   -- Misc
   use { 'lewis6991/impatient.nvim', rocks = 'mpack' }
-  -- TODO: Manually pull when PR #51 is merged:
-  -- https://github.com/nathom/filetype.nvim/pull/51
   use 'nathom/filetype.nvim'
 end)
 

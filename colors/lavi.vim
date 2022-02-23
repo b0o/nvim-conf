@@ -123,6 +123,10 @@ if !exists('g:lavi_cursor_line_number_background')
   let g:lavi_cursor_line_number_background = 0
 endif
 
+if !exists('g:lavi_cursor_line_sign_background')
+  let g:lavi_cursor_line_sign_background = 0
+endif
+
 if !exists('g:lavi_bold_vertical_split_line')
   let g:lavi_bold_vertical_split_line = 0
 endif
@@ -230,7 +234,10 @@ call s:hi('CursorColumn', '', g:lavi_gui[1], 'NONE', g:lavi_term[1], '', '')
 if g:lavi_cursor_line_number_background == 0
   call s:hi('CursorLineNr', g:lavi_gui[4], '', 'NONE', '', '', '')
 else
-  call s:hi('CursorLineNr', g:lavi_gui[4], g:lavi_gui[1], 'NONE', g:lavi_term[1], '', '')
+  call s:hi('CursorLineNr', g:lavi_gui[4], g:lavi_gui[2], 'NONE', g:lavi_term[1], '', '')
+endif
+if g:lavi_cursor_line_sign_background == 1
+  call s:hi('CursorLineSign', '', g:lavi_gui[15], 'NONE', g:lavi_term[15], '', '')
 endif
 call s:hi('Folded', g:lavi_gui[3], g:lavi_gui[1], g:lavi_term[3], g:lavi_term[1], s:bold, '')
 call s:hi('FoldColumn', g:lavi_gui[3], 'NONE', g:lavi_term[3], 'NONE', '', '')
@@ -675,3 +682,9 @@ hi! link VimwikiList markdownListMarker
 " YAML
 " > stephpy/vim-yaml
 call s:hi('yamlKey', g:lavi_gui[7], '', g:lavi_term[7], '', '', '')
+
+" chentau/marks.nvim
+" call s:hi('MarkSignHL', g:lavi_gui[3], '', g:lavi_term[8], '', s:bold..s:italic, '')
+
+" MarkSignNumHL
+" MarkVirtTextHL

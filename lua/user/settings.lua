@@ -31,7 +31,7 @@ vim.o.updatetime = 250
 vim.o.timeoutlen = 1000
 vim.o.matchtime = 2 -- show matching parens/brackets for 200ms
 
-vim.o.signcolumn = 'yes'
+-- vim.o.signcolumn = 'auto:4'
 
 vim.o.clipboard = 'unnamedplus' -- Enable yanking between vim sessions and system
 
@@ -87,13 +87,19 @@ vim.opt.listchars = {
 
 vim.o.termguicolors = true
 
-if vim.g.colorscheme == nil then
-  if vim.env.COLORSCHEME ~= nil then
+if not vim.g.colorscheme then
+  if vim.env.COLORSCHEME then
     vim.g.colorscheme = vim.env.COLORSCHEME
-  elseif vim.g.colors_name ~= nil or vim.g.colors_name == 'default' or vim.g.colors_name == 'unknown' then
+  elseif vim.g.colors_name ~= nil then
+    vim.g.colorscheme = vim.g.colors_name
+  else
     vim.g.colorscheme = 'lavi'
   end
 end
+
+vim.g.lavi_italic = 1
+-- vim.g.lavi_cursor_line_number_background = 1
+vim.g.lavi_cursor_line_sign_background = 1
 
 if vim.fn.exists 'g:colorscheme' then
   vim.cmd [[
