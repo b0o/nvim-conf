@@ -608,4 +608,11 @@ M.filetypeCommand = function(ft, ifMatch, ifNotMatch)
   end
 end
 
+M.getPathSeparator = function()
+  if vim.fn.exists '+shellslash' == 1 and vim.o.shellslash then
+    return [[\]]
+  end
+  return '/'
+end
+
 return M

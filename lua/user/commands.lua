@@ -145,3 +145,29 @@ cabbrev('SL', 'SessionLoad')
 ------ Plugins
 ---- tpope/vim-eunuch
 command { 'Cx', ':Chmod +x' }
+
+M.cmp.copy = function(input)
+  local sep = fn.getPathSeparator()
+  local prefix = vim.fn.expand '%:p:h' .. sep
+  local files = vim.fn.glob(prefix .. input .. '*', false, true)
+  files = vim.tbl_map(function(file)
+    return string.sub(file, #prefix + 1) .. (vim.fn.isdirectory(file) == 1 and sep or '')
+  end, files)
+  table.insert(files, '..' .. sep)
+  return table.concat(files, '\n')
+end
+
+command {
+  '-nargs=1',
+  '-bar',
+  '-bang',
+  "-complete=custom,v:lua.require'user.commands'.cmp.copy",
+  'Copy',
+  'saveas<bang> %:h/<args>',
+}
+
+------ Abbreviations
+cabbrev('LI', 'lua inspect')
+cabbrev('Cp', 'Copy')
+
+return M
