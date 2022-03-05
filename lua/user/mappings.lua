@@ -537,17 +537,24 @@ nnoremap ([[<leader>GL]],  [[:Git log<Cr>]],                      "Fugitive: Log
 nnoremap ([[<leader>GPP]], [[:Git push<Cr>]],                     "Fugitive: Push")
 nnoremap ([[<leader>GPL]], [[:Git pull<Cr>]],                     "Fugitive: Pull")
 
+local function gitsigns_visual_op(op)
+  return function()
+    return require('gitsigns')[op]({ vim.fn.line("."), vim.fn.line("v") })
+  end
+end
+
 -- lewis6991/gitsigns.nvim
 M.on_gistsigns_attach = function(bufnr)
-  local gs = package.loaded.gitsigns
   m.group({ buffer = bufnr, silent = true }, function()
+    local gs = require'gitsigns'
     nnoremap([[<leader>hs]],  ithunk(gs.stage_hunk),                "Gitsigns: Stage hunk")
-    vnoremap([[<leader>hs]],  ithunk(gs.stage_hunk),                "Gitsigns: Stage selected hunk(s)")
     nnoremap([[<leader>hr]],  ithunk(gs.reset_hunk),                "Gitsigns: Reset hunk")
-    vnoremap([[<leader>hr]],  ithunk(gs.reset_hunk),                "Gitsigns: Reset selected hunk(s)")
+    nnoremap([[<leader>hu]],  ithunk(gs.undo_stage_hunk),           "Gitsigns: Undo stage hunk")
+    vnoremap([[<leader>hs]],  gitsigns_visual_op"stage_hunk",       "Gitsigns: Stage selected hunk(s)")
+    vnoremap([[<leader>hr]],  gitsigns_visual_op"reset_hunk",       "Gitsigns: Reset selected hunk(s)")
+    vnoremap([[<leader>hu]],  gitsigns_visual_op"undo_stage_hunk",  "Gitsigns: Undo stage hunk")
     nnoremap([[<leader>hS]],  ithunk(gs.stage_buffer),              "Gitsigns: Stage buffer")
     nnoremap([[<leader>hR]],  ithunk(gs.reset_buffer),              "Gitsigns: Reset buffer")
-    nnoremap([[<leader>hu]],  ithunk(gs.undo_stage_hunk),           "Gitsigns: Undo stage hunk")
     nnoremap([[<leader>hp]],  ithunk(gs.preview_hunk),              "Gitsigns: Preview hunk")
     nnoremap([[<leader>hb]],  ithunk(gs.blame_line, {full=true}),   "Gitsigns: Blame hunk")
     nnoremap([[<leader>htb]], ithunk(gs.toggle_current_line_blame), "Gitsigns: Toggle current line blame")
