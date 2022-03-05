@@ -422,7 +422,7 @@ end
 
 -- Convert a number to a utf8 string
 function M.utf8(decimal)
-  if type(decimal) == "string" then
+  if type(decimal) == 'string' then
     decimal = vim.fn.char2nr(decimal)
   end
   if decimal < 128 then
