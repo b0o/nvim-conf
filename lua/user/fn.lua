@@ -608,6 +608,22 @@ M.filetypeCommand = function(ft, ifMatch, ifNotMatch)
   end
 end
 
+M.getLatestMessages = function(count)
+  local messages = vim.fn.execute 'messages'
+  local lines = vim.split(messages, '\n')
+  lines = vim.tbl_filter(function(line)
+    return line ~= ''
+  end, lines)
+  count = count and tonumber(count) or nil
+  count = (count ~= nil and count >= 0) and count - 1 or #lines
+  return table.concat(vim.list_slice(lines, #lines - count), '\n')
+end
+
+M.yankMessages = function(register, count)
+  register = (register and register ~= '') and register or '+'
+  vim.fn.setreg(register, M.getLatestMessages(count), 'l')
+end
+
 M.getPathSeparator = function()
   if vim.fn.exists '+shellslash' == 1 and vim.o.shellslash then
     return [[\]]
