@@ -16,8 +16,12 @@ local function uselocal(p)
   if git_projects_dir == nil then
     return
   end
-  p[1] = string.gsub(p[1], '.*/', '')
-  p[1] = git_projects_dir .. '/' .. p[1]
+  local path = vim.split(p[1], '/')
+  if not p.abs then
+    p[1] = table.concat(vim.list_slice(path, 2), '/')
+    p[1] = git_projects_dir .. '/' .. p[1]
+  end
+  p.abs = nil
   use(p)
 end
 
@@ -93,7 +97,7 @@ packer.startup(function()
   use 'wellle/visual-split.vim'
   use 'vigoux/architext.nvim'
   use 'chentau/marks.nvim'
-  uselocal 'vim-buffest'
+  uselocal 'b0o/vim-buffest'
   -- uselocal 'extended-scrolloff.vim'
 
   -- Backup, Undo
