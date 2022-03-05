@@ -601,7 +601,7 @@ M.filetypeCommand = function(ft, ifMatch, ifNotMatch)
     if vim.bo.filetype == ft then
       ifMatch()
     else
-      if type(ifNotMatch) == "function" then
+      if type(ifNotMatch) == 'function' then
         ifNotMatch()
       end
     end
