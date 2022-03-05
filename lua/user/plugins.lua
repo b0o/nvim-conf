@@ -55,8 +55,8 @@ packer.startup(function()
   use 'kevinhwang91/nvim-hlslens'
   use 'kyazdani42/nvim-tree.lua'
   use 'rcarriga/nvim-notify'
-  uselocal 'stevearc/aerial.nvim'
-  -- use 'sidebar-nvim/sidebar.nvim'
+  use 'stevearc/dressing.nvim'
+  use 'stevearc/aerial.nvim'
   use {
     'VonHeikemen/fine-cmdline.nvim',
     requires = { 'MunifTanjim/nui.nvim' },

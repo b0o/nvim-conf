@@ -3,6 +3,7 @@
 
 require 'user.plugin.aerial'
 require 'user.plugin.comment'
+require 'user.plugin.dressing'
 require 'user.plugin.fine-cmdline'
 require 'user.plugin.hlslens'
 require 'user.plugin.nvim-tree'
