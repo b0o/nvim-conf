@@ -234,10 +234,7 @@ call s:hi('CursorColumn', '', g:lavi_gui[1], 'NONE', g:lavi_term[1], '', '')
 if g:lavi_cursor_line_number_background == 0
   call s:hi('CursorLineNr', g:lavi_gui[4], '', 'NONE', '', '', '')
 else
-  call s:hi('CursorLineNr', g:lavi_gui[4], g:lavi_gui[2], 'NONE', g:lavi_term[1], '', '')
-endif
-if g:lavi_cursor_line_sign_background == 1
-  call s:hi('CursorLineSign', '', g:lavi_gui[15], 'NONE', g:lavi_term[15], '', '')
+  call s:hi('CursorLineNr', g:lavi_gui[4], g:lavi_gui[10], 'NONE', g:lavi_term[10], '', '')
 endif
 call s:hi('Folded', g:lavi_gui[3], g:lavi_gui[1], g:lavi_term[3], g:lavi_term[1], s:bold, '')
 call s:hi('FoldColumn', g:lavi_gui[3], 'NONE', g:lavi_term[3], 'NONE', '', '')
@@ -683,8 +680,17 @@ hi! link VimwikiList markdownListMarker
 " > stephpy/vim-yaml
 call s:hi('yamlKey', g:lavi_gui[7], '', g:lavi_term[7], '', '', '')
 
-" chentau/marks.nvim
-" call s:hi('MarkSignHL', g:lavi_gui[3], '', g:lavi_term[8], '', s:bold..s:italic, '')
+call s:hi('GitSignsAdd', g:lavi_gui[14], '', g:lavi_term[14], '', '', '')
+" call s:hi('GitSignsAddNr')
+" call s:hi('GitSignsAddLn')
 
-" MarkSignNumHL
-" MarkVirtTextHL
+call s:hi('GitSignsChange', g:lavi_gui[13], '', g:lavi_term[13], '', '', '')
+" call s:hi('GitSignsChangeNr')
+" call s:hi('GitSignsChangeLn')
+
+call s:hi('GitSignsDelete', g:lavi_gui[11], '', g:lavi_term[11], '', '', '')
+" call s:hi('GitSignsDeleteNr')
+" call s:hi('GitSignsDeleteLn')
+
+call s:hi('MarkSignHL', g:lavi_gui[16], '', 'NONE', g:lavi_term[16], s:italic, '')
+call s:hi('MarkSignNumHL', g:lavi_gui[4], '', 'NONE', '', s:bold . s:italic, '')

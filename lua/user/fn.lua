@@ -446,11 +446,11 @@ end
 -- For each { k = v } in keys, return a table that when indexed by any k' such
 -- that tolower(k') == tolower(k) returns utf8(v)
 function M.utf8keys(keys)
+  local _keys = {}
   for k, v in pairs(keys) do
-    keys[k] = nil
-    keys[string.lower(k)] = M.utf8(v)
+    _keys[string.lower(k)] = M.utf8(v)
   end
-  return setmetatable(keys, {
+  return setmetatable(_keys, {
     __index = function(self, k)
       return rawget(self, string.lower(k))
     end,

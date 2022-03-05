@@ -9,6 +9,7 @@ vim.o.backupdir = vim.fn.stdpath 'data' .. '/backup'
 
 vim.wo.number = true
 vim.wo.relativenumber = true
+vim.wo.numberwidth = 1
 
 vim.o.hidden = true
 
@@ -31,7 +32,7 @@ vim.o.updatetime = 250
 vim.o.timeoutlen = 1000
 vim.o.matchtime = 2 -- show matching parens/brackets for 200ms
 
--- vim.o.signcolumn = 'auto:4'
+vim.o.signcolumn = 'auto:4'
 
 vim.o.clipboard = 'unnamedplus' -- Enable yanking between vim sessions and system
 
@@ -98,8 +99,7 @@ if not vim.g.colorscheme then
 end
 
 vim.g.lavi_italic = 1
--- vim.g.lavi_cursor_line_number_background = 1
-vim.g.lavi_cursor_line_sign_background = 1
+vim.g.lavi_cursor_line_number_background = 1
 
 if vim.fn.exists 'g:colorscheme' then
   vim.cmd [[
