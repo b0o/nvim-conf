@@ -57,6 +57,7 @@ packer.startup(function()
   use 'rcarriga/nvim-notify'
   use 'stevearc/dressing.nvim'
   use 'stevearc/aerial.nvim'
+  use 'MunifTanjim/nui.nvim'
   use {
     'VonHeikemen/fine-cmdline.nvim',
     requires = { 'MunifTanjim/nui.nvim' },
