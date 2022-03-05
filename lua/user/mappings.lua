@@ -580,7 +580,14 @@ vmap ([[<Leader>a]], ":Tabularize /", "Tabularize")
 nmap([[<leader>co]], [[:VCoolor<CR>]], silent, "Open VCooler color picker")
 
 ---- kyazdani42/nvim-tree.lua
-nmap(xk[[<C-S-\>]], [[:NvimTreeToggle<CR>]], silent, "Nvim-Tree: Toggle")
+nmap(xk[[<C-S-\>]], function()
+  if require'nvim-tree.view'.is_visible() then
+    require'nvim-tree.view'.close()
+  else
+    require'nvim-tree.lib'.open()
+    vim.cmd[[wincmd p]]
+  end
+end, silent, "Nvim-Tree: Toggle")
 nmap(xk[[<C-\>]],
   fn.filetypeCommand( "NvimTree", thunk(vim.cmd, [[wincmd p]]), thunk(vim.cmd, [[NvimTreeFocus]])),
   silent, "Nvim-Tree: Toggle Focus")
