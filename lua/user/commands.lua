@@ -67,19 +67,19 @@ command {
 
 command { '-count', '-nargs=*', 'LaunchVimInstance', 'call user#fn#launchVimInstance(<q-args>)' }
 
-command { 'SessionSave', require('user.fn').sessionSave }
-command { 'SessionLoad', require('user.fn').sessionLoad }
+command { 'SessionSave', require('user.fn').session_save }
+command { 'SessionLoad', require('user.fn').session_load }
 cabbrev('SS', 'SessionSave')
 cabbrev('SL', 'SessionLoad')
 
-command { '-count=-1', '-register', 'YankMessages', 'lua require("user.fn").yankMessages("<reg>", <count>)' }
+command { '-count=-1', '-register', 'YankMessages', 'lua require("user.fn").yank_messages("<reg>", <count>)' }
 
 ------ Plugins
 ---- tpope/vim-eunuch
 command { 'Cx', ':Chmod +x' }
 
 M.cmp.copy = function(input)
-  local sep = fn.getPathSeparator()
+  local sep = fn.get_path_separator()
   local prefix = vim.fn.expand '%:p:h' .. sep
   local files = vim.fn.glob(prefix .. input .. '*', false, true)
   files = vim.tbl_map(function(file)

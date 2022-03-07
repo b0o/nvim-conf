@@ -3,15 +3,15 @@ local M = {}
 local fn = require 'user.fn'
 local thunk, ithunk = fn.thunk, fn.ithunk
 
-local m = require('mapx').setup {
+local mapx = require('mapx').setup {
   global = true,
   whichkey = true,
   enableCountArg = false,
   debug = vim.g.mapxDebug or false,
 }
 
-local silent = m.silent
-local expr = m.expr
+local silent = mapx.silent
+local expr = mapx.expr
 
 -- Extra keys
 -- Configure your terminal emulator to send the unicode codepoint for each
@@ -22,6 +22,8 @@ local xk = fn.utf8keys {
   [ [[<C-\>]] ] = 0x00f0,
   [ [[<C-S-\>]] ] = 0x00f1,
   [ [[<M-S-\>]] ] = 0x00f2,
+  [ [[<C-`>]] ] = 0x00f3,
+  [ [[<C-/>]] ] = 0x001f,
 }
 
 -- stylua: ignore start
@@ -88,7 +90,7 @@ nnoremap ([[<C-y>]], [[pumvisible() ? "\<C-y>" : '"+yy']], expr)
 vnoremap ([[<C-y>]], [[pumvisible() ? "\<C-y>" : '"+y']], expr)
 
 nnoremap ([[<leader>yp]], [[:let @+ = expand("%:p")<Cr>:echom "Copied " . @+<Cr>]], silent, "Yank file path")
-nnoremap ([[<leader>y:]], [[:let @+=@:<Cr>:echom "Copied " . @+<Cr>]], silent, "Yank last command")
+nnoremap ([[<leader>y:]], [[:let @+=@:<Cr>:echom "Copied '" . @+ . "'"<Cr>]], silent, "Yank last command")
 
 vnoremap ([[<C-p>]], [["+p]], "Paste from system clipboard")
 nnoremap ([[<C-p>]], [["+p]], "Paste from system clipboard")
@@ -108,7 +110,7 @@ vnoremap ([[<C-M-k>]], [["dy`>"dpgv]], "Duplicate selection upwards")
 -- - Close floating windows
 nnoremap ([[<Esc>]], function()
   vim.cmd("nohlsearch")
-  fn.closeFloatWins()
+  fn.close_float_wins()
   vim.cmd("echo ''")
 end, silent, "Clear UI")
 
@@ -138,7 +140,7 @@ inoremap ([[<M-d>]], [[<C-o>de]], "Kill word forward")
 inoremap ([[<M-Backspace>]], [[<C-o>dB]], "Kill word backward")
 inoremap ([[<C-k>]], [[<C-o>D]], "Kill to end of line")
 
--- non-ascii stuff
+-- unicode stuff
 inoremap ([[<M-k>]], [[<C-k>]], "Insert digraph")
 nnoremap ([[gxa]],   [[ga]], "Show char code in decimal, hexadecimal and octal")
 
@@ -154,6 +156,8 @@ nnoremap ([[<F24>]], [[:if @l != "" | let @k=@l | end<cr>"KgP:let @l=@k<cr>:let 
 -- overload tab key to also perform next/prev in popup menus
 -- inoremap ([[<Tab>]],   [[pumvisible() ? "\<C-n>" : "\<Tab>"]], silent, expr)
 -- inoremap ([[<S-Tab>]], [[pumvisible() ? "\<C-p>" : "\<S-Tab>"]], silent, expr)
+
+inoremap (xk[[<C-`>]], [[<C-o>~<left>]], "Toggle case")
 
 -- emacs-style motion & editing in command mode
 cnoremap ([[<C-a>]], [[<Home>]]) -- Goto beginning of line
@@ -173,12 +177,12 @@ cnoremap ([[<M-k>]], [[<C-k>]]) -- Insert digraph
 -- beginning of the text entered in the command line when jumping, but only if
 -- the pop-up menu (completion menu) is not visible
 -- See: https://github.com/mhinz/vim-galore#saner-command-line-history
-cnoremap ([[<c-p>]], [[pumvisible() ? "\<C-p>" : "\<up>"]], expr) -- History prev
-cnoremap ([[<c-n>]], [[pumvisible() ? "\<C-n>" : "\<down>"]], expr) -- History next
-cmap ([[<M-/>]], [[pumvisible() ? "\<C-y>" : "\<M-/>"]], expr) -- Accept completion suggestion
-cmap ([[]], [[pumvisible() ? "\<C-y>\<Tab>" : ""]], expr) -- <C-/>: Accept completion suggestion and continue completion
+cnoremap ([[<c-p>]],   [[pumvisible() ? "\<C-p>" : "\<up>"]],               expr, "History prev")
+cnoremap ([[<c-n>]],   [[pumvisible() ? "\<C-n>" : "\<down>"]],             expr, "History next")
+cmap     ([[<M-/>]],   [[pumvisible() ? "\<C-y>" : "\<M-/>"]],              expr, "Accept completion suggestion")
+cmap     (xk[[<C-/>]], [[pumvisible() ? "\<C-y>\<Tab>" : nr2char(0x001f)]], expr, "Accept completion suggestion and continue completion")
 
-local function cursorLock(lock)
+local function cursor_lock(lock)
   return function()
     if not lock or vim.w.cursor_lock == lock then
       vim.w.cursor_lock = nil
@@ -205,9 +209,9 @@ local function cursorLock(lock)
   end
 end
 
-nnoremap ([[<leader>zt]], cursorLock("t"), silent, "Toggle cursor lock (top)")
-nnoremap ([[<leader>zz]], cursorLock("z"), silent, "Toggle cursor lock (middle)")
-nnoremap ([[<leader>zb]], cursorLock("b"), silent, "Toggle cursor lock (bottom)")
+nnoremap ([[<leader>zt]], cursor_lock("t"), silent, "Toggle cursor lock (top)")
+nnoremap ([[<leader>zz]], cursor_lock("z"), silent, "Toggle cursor lock (middle)")
+nnoremap ([[<leader>zb]], cursor_lock("b"), silent, "Toggle cursor lock (bottom)")
 
 --"" Tabs
 
@@ -251,20 +255,20 @@ tnoremap ([[<M-j>]], [[<C-\><C-n><C-w>j]]) -- Goto tab down
 tnoremap ([[<M-k>]], [[<C-\><C-n><C-w>k]]) -- Goto tab up
 tnoremap ([[<M-l>]], [[<C-\><C-n><C-w>l]]) -- Goto tab right
 
-noremap ([[<M-[>]], ithunk(fn.resizeWin, '<', 3), 'Shrink window width')
-noremap ([[<M-]>]], ithunk(fn.resizeWin, '>', 3), 'Grow window width')
+noremap ([[<M-[>]], ithunk(fn.resize_win, '<', 3), 'Shrink window width')
+noremap ([[<M-]>]], ithunk(fn.resize_win, '>', 3), 'Grow window width')
 
-noremap ([[<M-{>]], ithunk(fn.resizeWin, '-', 3), 'Shrink window height')
-noremap ([[<M-}>]], ithunk(fn.resizeWin, '+', 3), 'Grow window height')
+noremap ([[<M-{>]], ithunk(fn.resize_win, '-', 3), 'Shrink window height')
+noremap ([[<M-}>]], ithunk(fn.resize_win, '+', 3), 'Grow window height')
 
-nnoremap ([[<leader>sa]], fn.autoresizeEnable,  "Enable autoresize")
-nnoremap ([[<leader>sA]], fn.autoresizeDisable, "Disable autoresize")
+nnoremap ([[<leader>sa]], fn.autoresize_enable,  "Enable autoresize")
+nnoremap ([[<leader>sA]], fn.autoresize_disable, "Disable autoresize")
 
-nnoremap ([[<leader>sf]], ithunk(fn.toggleWinfix, 'height'), "Toggle fixed window height")
-nnoremap ([[<leader>sF]], ithunk(fn.toggleWinfix, 'width'), "Toggle fixed window width")
+nnoremap ([[<leader>sf]], ithunk(fn.toggle_winfix, 'height'), "Toggle fixed window height")
+nnoremap ([[<leader>sF]], ithunk(fn.toggle_winfix, 'width'), "Toggle fixed window width")
 
-nnoremap ([[<leader>s<M-f>]], ithunk(fn.setWinfix, true, 'height', 'width'), "Enable fixed window height/width")
-nnoremap ([[<leader>s<C-f>]], ithunk(fn.setWinfix, false, 'height', 'width'), "Disable fixed window height/width")
+nnoremap ([[<leader>s<M-f>]], ithunk(fn.set_winfix, true, 'height', 'width'), "Enable fixed window height/width")
+nnoremap ([[<leader>s<C-f>]], ithunk(fn.set_winfix, false, 'height', 'width'), "Disable fixed window height/width")
 
 -- see also the VSplit plugin mappings below
 nnoremap ([[<leader>S]],  [[:new<Cr>]],    silent, "Split (horiz, new)")
@@ -299,14 +303,14 @@ tnoremap ([[<M-p>]], [[<M-p>]])
 nnoremap ([[<Leader>ml]], [[:call AppendModeline()<Cr>]], silent, "Append modeline with current settings")
 
 ------ Filetypes
-m.group(silent, { ft = "lua" }, function()
+mapx.group(silent, { ft = "lua" }, function()
   nmap     ([[<leader><Enter>]], require'user.fn'.luarun, "Lua: Eval line")
   xmap     ([[<leader><Enter>]], require'user.fn'.luarun, "Lua: Eval selection")
   nmap     ([[<leader><F12>]],   "<Cmd>Put lua require'user.fn'.luarun()<Cr>", "Lua: Eval line (Append)")
   xmap     ([[<leader><F12>]],   "<Cmd>Put lua require'user.fn'.luarun()<Cr>", "Lua: Eval selection (Append)")
 end)
 
-m.group({ "silent", ft = "man" }, function()
+mapx.group({ "silent", ft = "man" }, function()
   -- open manpage tag (e.g. isatty(3)) in current buffer
   nnoremap ([[<C-]>]], function() require'user.fn'.man('', vim.fn.expand('<cword>')) end,      "Man: Open tag in current buffer")
   nnoremap ([[<M-]>]], function() require'user.fn'.man('tab', vim.fn.expand('<cword>')) end,   "Man: Open tag in new tab")
@@ -333,7 +337,7 @@ m.group({ "silent", ft = "man" }, function()
 end)
 
 ------ LSP
-m.nname("<leader>l", "LSP")
+mapx.nname("<leader>l", "LSP")
 nnoremap ([[<leader>li]], [[:LspInfo<Cr>]],    "LSP: Show LSP information")
 nnoremap ([[<leader>lr]], [[:LspRestart<Cr>]], "LSP: Restart LSP")
 nnoremap ([[<leader>ls]], [[:LspStart<Cr>]],   "LSP: Start LSP")
@@ -347,12 +351,12 @@ M.on_lsp_attach = function(bufnr)
   lsp_attached_bufs[bufnr] = true
   local user_lsp = require'user.lsp'
 
-  m.group({ buffer = bufnr, silent = true }, function()
+  mapx.group({ buffer = bufnr, silent = true }, function()
     if not vim.api.nvim_buf_is_valid(bufnr) then
       return
     end
 
-    m.nname("<localleader>g", "LSP-Goto")
+    mapx.nname("<localleader>g", "LSP-Goto")
     nnoremap ({[[<localleader>gd]], [[gd]]}, ithunk(vim.lsp.buf.definition),      "LSP: Goto definition")
     nnoremap ({[[<localleader>gd]], [[gd]]}, ithunk(vim.lsp.buf.definition),      "LSP: Goto definition")
     nnoremap ([[<localleader>gD]],           ithunk(vim.lsp.buf.declaration),     "LSP: Goto declaration")
@@ -360,7 +364,7 @@ M.on_lsp_attach = function(bufnr)
     nnoremap ([[<localleader>gt]],           ithunk(vim.lsp.buf.type_definition), "LSP: Goto type definition")
     nnoremap ([[<localleader>gr]],           ithunk(vim.lsp.buf.references),      "LSP: Goto references")
 
-    m.nname("<localleader>w", "LSP-Workspace")
+    mapx.nname("<localleader>w", "LSP-Workspace")
     nnoremap ([[<localleader>wa]], ithunk(vim.lsp.buf.add_workspace_folder),    "LSP: Add workspace folder")
     nnoremap ([[<localleader>wr]], ithunk(vim.lsp.buf.remove_workspace_folder), "LSP: Rm workspace folder")
 
@@ -374,11 +378,11 @@ M.on_lsp_attach = function(bufnr)
     nnoremap ([[<localleader>F]], ithunk(require'user.lsp'.buf_formatting_sync), "LSP: Format")
     vnoremap ([[<localleader>F]], ithunk(vim.lsp.buf.range_formatting),          "LSP: Format (range)")
 
-    m.nname("<localleader>s", "LSP-Save")
-    nnoremap ([[<localleader>S]],  ithunk(user_lsp.setFmtOnSave),        "LSP: Toggle format on save")
-    nnoremap ([[<localleader>ss]], ithunk(user_lsp.setFmtOnSave),        "LSP: Toggle format on save")
-    nnoremap ([[<localleader>se]], ithunk(user_lsp.setFmtOnSave, true),  "LSP: Enable format on save")
-    nnoremap ([[<localleader>sd]], ithunk(user_lsp.setFmtOnSave, false), "LSP: Disable format on save")
+    mapx.nname("<localleader>s", "LSP-Save")
+    nnoremap ([[<localleader>S]],  ithunk(user_lsp.set_fmt_on_save),        "LSP: Toggle format on save")
+    nnoremap ([[<localleader>ss]], ithunk(user_lsp.set_fmt_on_save),        "LSP: Toggle format on save")
+    nnoremap ([[<localleader>se]], ithunk(user_lsp.set_fmt_on_save, true),  "LSP: Enable format on save")
+    nnoremap ([[<localleader>sd]], ithunk(user_lsp.set_fmt_on_save, false), "LSP: Disable format on save")
 
     local function gotoDiag(dir, sev)
       return function()
@@ -400,7 +404,7 @@ M.on_lsp_attach = function(bufnr)
         vim.diagnostic["goto_" .. _dir](args)
       end
     end
-    m.nname("<localleader>d", "LSP-Diagnostics")
+    mapx.nname("<localleader>d", "LSP-Diagnostics")
     nnoremap ([[<localleader>ds]],                        ithunk(vim.diagnostic.show),      "LSP: Show diagnostics")
     nnoremap ({[[<localleader>dt]], [[<localleader>T]]},  ithunk(require'trouble'.toggle), "LSP: Toggle Trouble")
 
@@ -429,15 +433,15 @@ M.on_lsp_attach = function(bufnr)
     nnoremap (']t', ithunk(require("trouble").next,     {skip_groups = true, jump = true}), "Trouble: Next")
     nnoremap ('[t', ithunk(require("trouble").previous, {skip_groups = true, jump = true}), "Trouble: Previous")
 
-    m.nname("<localleader>s", "LSP-Search")
+    mapx.nname("<localleader>s", "LSP-Search")
     nnoremap ({[[<localleader>so]], [[<leader>so]]}, require('telescope.builtin').lsp_document_symbols, "LSP: Telescope symbol search")
 
-    m.nname("<localleader>h", "LSP-Hover")
+    mapx.nname("<localleader>h", "LSP-Hover")
     nnoremap ([[<localleader>hs]], ithunk(vim.lsp.buf.signature_help), "LSP: Signature help")
     nnoremap ([[<localleader>ho]], ithunk(vim.lsp.buf.hover),          "LSP: Hover")
     nnoremap ([[<M-i>]],           ithunk(vim.lsp.buf.hover),          "LSP: Hover")
     inoremap ([[<M-i>]],           ithunk(vim.lsp.buf.hover),          "LSP: Hover")
-    nnoremap ([[<M-S-i>]],         ithunk(user_lsp.peekDefinition),    "LSP: Peek definition")
+    nnoremap ([[<M-S-i>]],         ithunk(user_lsp.peek_definition),   "LSP: Peek definition")
   end)
 end
 
@@ -446,7 +450,7 @@ end
 nnoremap ([[<leader><leader>]], [[:WhichKey<Cr>]], "WhichKey: Show all")
 
 ---- wbthomason/packer.nvim
-m.nname("<leader>p", "Packer")
+mapx.nname("<leader>p", "Packer")
 nnoremap ([[<leader>pC]], [[:PackerClean<Cr>]], "Packer clean")
 nnoremap ([[<leader>pc]], [[:PackerCompile<Cr>]], "Packer compile")
 nnoremap ([[<leader>pi]], [[:PackerInstall<Cr>]], "Packer install")
@@ -466,12 +470,12 @@ nmap     ([[<M-k>]], ithunk(tmux.move_top),    silent, "Goto window/tmux pane up
 nmap     ([[<M-l>]], ithunk(tmux.move_right),  silent, "Goto window/tmux pane right")
 
 ---- nvim-telescope/telescope.nvim TODO: In-telescope maps
-m.group("silent", function()
+mapx.group("silent", function()
   local t = require'telescope'
   local tb = require'telescope.builtin'
   local tx = t.extensions
 
-  m.nname([[<C-f>]], "Telescope")
+  mapx.nname([[<C-f>]], "Telescope")
   nnoremap ([[<C-f>b]], ithunk(tb.buffers),                      "Telescope: Buffers")
 
   nnoremap ({[[<C-f>h]], [[<C-f><C-h>]]}, ithunk(tb.help_tags),  "Telescope: Help tags")
@@ -486,48 +490,48 @@ m.group("silent", function()
   nnoremap ({[[<C-f>w]], [[<C-f><C-w>]]}, ithunk(txw.windows, {}), "Telescope: Windows")
 
   local txgw = tx.git_worktree
-  m.nname([[<C-f>g]], "Telescope-Git")
+  mapx.nname([[<C-f>g]], "Telescope-Git")
   nnoremap ([[<C-f>gw]], ithunk(txgw.git_worktrees), "Telescope: Git worktrees")
   nnoremap ([[<C-f>gW]], ithunk(txgw.git_worktrees), "Telescope: Git worktree create")
 
-  m.nname([[<M-f>]], "Telescope-Buffer")
+  mapx.nname([[<M-f>]], "Telescope-Buffer")
   nnoremap ({[[<M-f>b]], [[<M-f><M-b>]]}, tb.current_buffer_fuzzy_find,                  "Telescope: Buffer (fuzzy)")
   nnoremap ({[[<M-f>t]], [[<M-f><M-t>]]}, ithunk(tb.tags ,{only_current_buffer = true}), "Telescope: Tags (buffer)")
 end)
 
 ---- tpope/vim-fugitive
-m.nname("<leader>g",  "Fugitive")
-m.nname("<leader>ga", "Fugitive-Add")
+mapx.nname("<leader>g",  "Fugitive")
+mapx.nname("<leader>ga", "Fugitive-Add")
 nnoremap ([[<leader>gA]],  [[:Git add --all<Cr>]],                "Fugitive: Add all")
 nnoremap ([[<leader>gaa]], [[:Git add --all<Cr>]],                "Fugitive: Add all")
 nnoremap ([[<leader>gaf]], [[:Git add :%<Cr>]],                   "Fugitive: Add file")
 
-m.nname("<leader>gc", "Fugitive-Commit")
+mapx.nname("<leader>gc", "Fugitive-Commit")
 nnoremap ([[<leader>gC]],  [[:Git commit --verbose<Cr>]],         "Fugitive: Commit")
 nnoremap ([[<leader>gcc]], [[:Git commit --verbose<Cr>]],         "Fugitive: Commit")
 nnoremap ([[<leader>gca]], [[:Git commit --verbose --all<Cr>]],   "Fugitive: Commit (all)")
 nnoremap ([[<leader>gcA]], [[:Git commit --verbose --amend<Cr>]], "Fugitive: Commit (amend)")
 
-m.nname("<leader>gl", "Fugitive-Log")
+mapx.nname("<leader>gl", "Fugitive-Log")
 nnoremap ([[<leader>gL]],  [[:Gclog!<Cr>]],                       "Fugitive: Log")
 nnoremap ([[<leader>gll]], [[:Gclog!<Cr>]],                       "Fugitive: Log")
 nnoremap ([[<leader>glL]], [[:tabnew | Gclog<Cr>]],               "Fugitive: Log (tab)")
 
-m.nname("<leader>gp", "Fugitive-Push-Pull")
+mapx.nname("<leader>gp", "Fugitive-Push-Pull")
 nnoremap ([[<leader>gpa]], [[:Git push --all<Cr>]],               "Fugitive: Push all")
 nnoremap ([[<leader>gpp]], [[:Git push<Cr>]],                     "Fugitive: Push")
 nnoremap ([[<leader>gpl]], [[:Git pull<Cr>]],                     "Fugitive: Pull")
 
 nnoremap ([[<leader>gR]],  [[:Git reset<Cr>]],                    "Fugitive: Reset")
 
-m.nname("<leader>gs", "Fugitive-Status")
+mapx.nname("<leader>gs", "Fugitive-Status")
 nnoremap ([[<leader>gS]],  [[:Git<Cr>]],                          "Fugitive: Status")
 nnoremap ([[<leader>gss]], [[:Git<Cr>]],                          "Fugitive: Status")
 nnoremap ([[<leader>gst]], [[:Git<Cr>]],                          "Fugitive: Status")
 
 nnoremap ([[<leader>gsp]], [[:Gsplit<Cr>]],                       "Fugitive: Split")
 
-m.nname("<leader>G", "Fugitive")
+mapx.nname("<leader>G", "Fugitive")
 nnoremap ([[<leader>GG]],  [[:Git<Cr>]],                          "Fugitive: Status")
 nnoremap ([[<leader>GS]],  [[:Git<Cr>]],                          "Fugitive: Status")
 nnoremap ([[<leader>GA]],  [[:Git add<Cr>]],                      "Fugitive: Add")
@@ -545,7 +549,7 @@ end
 
 -- lewis6991/gitsigns.nvim
 M.on_gistsigns_attach = function(bufnr)
-  m.group({ buffer = bufnr, silent = true }, function()
+  mapx.group({ buffer = bufnr, silent = true }, function()
     local gs = require'gitsigns'
     nnoremap([[<leader>hs]],  ithunk(gs.stage_hunk),                "Gitsigns: Stage hunk")
     nnoremap([[<leader>hr]],  ithunk(gs.reset_hunk),                "Gitsigns: Reset hunk")
@@ -589,10 +593,10 @@ nmap(xk[[<C-S-\>]], function()
   end
 end, silent, "Nvim-Tree: Toggle")
 nmap(xk[[<C-\>]],
-  fn.filetypeCommand( "NvimTree", thunk(vim.cmd, [[wincmd p]]), thunk(vim.cmd, [[NvimTreeFocus]])),
+  fn.filetype_command( "NvimTree", thunk(vim.cmd, [[wincmd p]]), thunk(vim.cmd, [[NvimTreeFocus]])),
   silent, "Nvim-Tree: Toggle Focus")
 
-m.group({ ft = "NvimTree" }, function()
+mapx.group({ ft = "NvimTree" }, function()
   local function withSelected(cmd, fmt)
     return function()
       local file = require'nvim-tree.lib'.get_node_at_cursor().absolute_path
@@ -615,10 +619,10 @@ nmap(xk[[<M-S-\>]], function()
 end, silent, "Aerial: Toggle")
 
 nmap([[<M-\>]],
-  fn.filetypeCommand("aerial", ithunk(vim.cmd, [[wincmd p]]), ithunk(vim.cmd, [[AerialOpen]])),
+  fn.filetype_command("aerial", ithunk(vim.cmd, [[wincmd p]]), ithunk(vim.cmd, [[AerialOpen]])),
   silent, "Sidebar: Toggle Focus")
 
-m.group({ ft = "SidebarNvim" }, function()
+mapx.group({ ft = "SidebarNvim" }, function()
   nmap([[<Cr>]], "e")
 end)
 
@@ -643,7 +647,7 @@ M.on_dap_attach = function()
 
   local toggleRepl = function() dap.repl.toggle({}, " vsplit")vim.fn.wincmd('l') end
 
-  m.nname([[<leader>d]], "DAP")
+  mapx.nname([[<leader>d]], "DAP")
   nnoremap([[<leader>dR]],  dap.restart,                                          "DAP: Restart")
   nnoremap([[<leader>dh]],  dap.toggle_breakpoint,                                "DAP: Toggle breakpoint")
   nnoremap([[<leader>dH]],  breakpointCond,                                       "DAP: Set breakpoint condition")
@@ -681,7 +685,7 @@ local fcl = require'fine-cmdline'
 noremap  ([[<leader>:]], fcl.open, "FineCmdline: Open")
 
 M.fine_cmdline = function()
-  m.group("buffer", function()
+  mapx.group("buffer", function()
     inoremap ([[<C-g>]], fcl.fn.close, "FineCmdline: Close")
     imap ([[<c-p>]], [[pumvisible() ? "\<C-p>" : "\<up>"]],   expr)
     imap ([[<c-n>]], [[pumvisible() ? "\<C-n>" : "\<down>"]], expr)
@@ -689,7 +693,8 @@ M.fine_cmdline = function()
 end
 
 ---- chentau/marks.nvim
-nmap     ([[<M-m>]],  [[m;]], "Mark: create next")
-nnoremap ([[]"]],  [[[']],    "Mark: goto previous")
+nmap     ([[<M-m>]],     [[m;]],                              "Mark: create next")
+nnoremap ([[]"]],        [[[']],                              "Mark: goto previous")
+nnoremap ([[<leader>']], ithunk(require'marks'.toggle_signs), "Mark: toggle signs")
 
 return M

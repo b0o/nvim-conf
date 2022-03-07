@@ -6,7 +6,7 @@ local root_pattern = require('lspconfig.util').root_pattern
 local notify = require 'notify'
 
 local M = {
-  fmtOnSaveEnabled = false,
+  fmt_on_save_enabled = false,
   border = { { '╭' }, { '─' }, { '╮' }, { '│' }, { '╯' }, { '─' }, { '╰' }, { '│' } },
   signs = { Error = ' ', Warn = ' ', Hint = ' ', Info = ' ' },
 }
@@ -101,7 +101,7 @@ local lsp_servers = {
         end,
       },
     },
-    settings = fn.lazyTable(function()
+    settings = fn.lazy_table(function()
       return {
         json = { schemas = require('schemastore').json.schemas() },
       }
@@ -153,7 +153,7 @@ local lsp_servers = {
   'yamlls',
 }
 
-local fmtTriggers = {
+local fmt_triggers = {
   default = 'BufWritePre',
   sh = 'BufWritePost',
 }
@@ -229,7 +229,7 @@ local trouble_config = {
 
 local function on_attach(client, bufnr)
   if client.resolved_capabilities.document_formatting then
-    M.setFmtOnSave(true, true)
+    M.set_fmt_on_save(true, true)
   end
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   user_lsp_status.on_attach(client, bufnr)
@@ -284,28 +284,28 @@ end
 -- Enables/disables format on save
 -- If val is nil, format on save is toggled
 -- If silent is not false, a message will be displayed
-function M.setFmtOnSave(val, silent)
-  M.fmtOnSaveEnabled = type(val) == 'boolean' and val or not M.fmtOnSaveEnabled
+function M.set_fmt_on_save(val, silent)
+  M.fmt_on_save_enabled = type(val) == 'boolean' and val or not M.fmt_on_save_enabled
   local au = {
     'augroup LspFmtOnSave',
     'autocmd!',
   }
-  if M.fmtOnSaveEnabled then
+  if M.fmt_on_save_enabled then
     table.insert(
       au,
       ('autocmd %s <buffer> lua require"user.lsp".buf_formatting_sync()'):format(
-        fmtTriggers[vim.o.filetype] or fmtTriggers.default
+        fmt_triggers[vim.o.filetype] or fmt_triggers.default
       )
     )
   end
   table.insert(au, 'augroup END')
   vim.cmd(table.concat(au, '\n'))
   if silent ~= true then
-    print('Format on save ' .. (M.fmtOnSaveEnabled and 'enabled' or 'disabled') .. '.')
+    print('Format on save ' .. (M.fmt_on_save_enabled and 'enabled' or 'disabled') .. '.')
   end
 end
 
-function M.peekDefinition()
+function M.peek_definition()
   local params = vim.lsp.util.make_position_params()
   return vim.lsp.buf_request(0, 'textDocument/definition', params, function(_, result)
     if result == nil or vim.tbl_isempty(result) then

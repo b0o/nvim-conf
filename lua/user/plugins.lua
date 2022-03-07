@@ -16,12 +16,11 @@ local function uselocal(p)
   if git_projects_dir == nil then
     return
   end
-  local path = vim.split(p[1], '/')
-  if not p.abs then
+  if not string.match(p[1], "^.?.?/") then
+    local path = vim.split(p[1], '/')
     p[1] = table.concat(vim.list_slice(path, 2), '/')
     p[1] = git_projects_dir .. '/' .. p[1]
   end
-  p.abs = nil
   use(p)
 end
 
@@ -35,7 +34,7 @@ packer.startup(function()
 
   -- Config
   uselocal {
-    'mapx.nvim',
+    'b0o/mapx.nvim/worktree/current',
     --     config = function()
     --       require'user.mappings'
     --     end,
@@ -76,7 +75,6 @@ packer.startup(function()
 
   -- Editing
   use 'AndrewRadev/splitjoin.vim'
-  -- use 'andymass/vim-matchup'
   use 'b0o/vim-shot-f'
   use 'chaoren/vim-wordmotion'
   use 'coderifous/textobj-word-column.vim'
@@ -98,6 +96,7 @@ packer.startup(function()
   use 'vigoux/architext.nvim'
   use 'chentau/marks.nvim'
   uselocal 'b0o/vim-buffest'
+  -- use 'andymass/vim-matchup'
   -- uselocal 'extended-scrolloff.vim'
 
   -- Backup, Undo
@@ -140,13 +139,10 @@ packer.startup(function()
   -- System
   use 'tpope/vim-eunuch'
 
-  -- Tooling
-  --   use 'ludovicchabant/vim-gutentags'
-
   -- Snippets
   use 'L3MON4D3/LuaSnip'
 
-  -- Code Completion
+  -- Completion
   use 'hrsh7th/nvim-cmp'
   use 'hrsh7th/cmp-buffer'
   use 'hrsh7th/cmp-calc'
@@ -166,7 +162,6 @@ packer.startup(function()
   use 'sindrets/winshift.nvim'
   use 'aserowy/tmux.nvim'
   use 'Shatur/neovim-session-manager'
-  -- use 'ingram1107/souvenir.nvim'
 
   -- Language-specific
   use 'Akin909/vim-dune'

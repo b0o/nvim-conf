@@ -6,7 +6,7 @@ local M = {
   captured = {},
 }
 
-function M.print(...)
+M.print = function(...)
   if M.quiet then
     for _, l in ipairs { ... } do
       table.insert(M.captured, l)
@@ -16,7 +16,7 @@ function M.print(...)
   _G.print(...)
 end
 
-function M.silent(f, ...)
+M.silent = function(f, ...)
   local q = M.quiet
   M.quiet = true
   local res = { f(...) }
@@ -24,7 +24,7 @@ function M.silent(f, ...)
   return unpack(res)
 end
 
-function M.capture(f, ...)
+M.capture = function(f, ...)
   M.captured = {}
   local res = { M.silent(f, ...) }
   return M.captured, unpack(res)
@@ -34,18 +34,18 @@ local print = M.print
 
 -- Register a global anonymous callback
 -- Returns an id that can be passed to fn.callback() to call the function
-function M.newCallback(fn)
+M.new_callback = function(fn)
   table.insert(M.callbacks, fn)
   return #M.callbacks
 end
 
 -- Call the callback associated with 'id'
-function M.callback(id, ...)
+M.callback = function(id, ...)
   return M.callbacks[id](...)
 end
 
 -- print + vim.inspect
-function M.inspect(...)
+M.inspect = function(...)
   for _, v in ipairs { ... } do
     print(vim.inspect(v, { depth = math.huge }))
   end
@@ -55,7 +55,7 @@ end
 _G.inspect = M.inspect
 
 -- Register a vim command
-function M.command(t)
+M.command = function(t)
   local c = {}
   for _, e in ipairs(t) do
     if type(e) == 'function' or type(e) == 'table' then
@@ -79,7 +79,7 @@ function M.command(t)
           end
         end
       end
-      local cb = M.newCallback(e)
+      local cb = M.new_callback(e)
       e = ([[lua require'user.fn'.callback(%d, {%s})]]):format(cb, table.concat(replacements, ','))
     end
     table.insert(c, e)
@@ -88,15 +88,15 @@ function M.command(t)
 end
 
 -- Register a command-line abbreviation
-function M.cabbrev(a, c)
+M.cabbrev = function(a, c)
   vim.cmd(('cabbrev %s %s'):format(a, c))
 end
 
 -- Get the visual selection as a list-like table of lines
-function M.getVisualSelection(mode)
+M.get_visual_selection = function(mode)
   if mode == nil then
-    local modeInfo = vim.api.nvim_get_mode()
-    mode = modeInfo.mode
+    local mode_info = vim.api.nvim_get_mode()
+    mode = mode_info.mode
   end
 
   local cursor = vim.api.nvim_win_get_cursor(0)
@@ -135,36 +135,36 @@ function M.getVisualSelection(mode)
     return
   end
 
-  local startText, endText
+  local start_text, end_text
   if #lines == 1 then
-    startText = string.sub(lines[1], scol, ecol)
+    start_text = string.sub(lines[1], scol, ecol)
   else
-    startText = string.sub(lines[1], scol)
-    endText = string.sub(lines[#lines], 1, ecol)
+    start_text = string.sub(lines[1], scol)
+    end_text = string.sub(lines[#lines], 1, ecol)
   end
 
-  local selection = { startText }
+  local selection = { start_text }
   if #lines > 2 then
     vim.list_extend(selection, vim.list_slice(lines, 2, #lines - 1))
   end
-  table.insert(selection, endText)
+  table.insert(selection, end_text)
 
   return selection
 end
 
 -- Execute the visual selection or cursor line as a sequence of lua expressions
-function M.luarun()
-  local modeInfo = vim.api.nvim_get_mode()
-  if modeInfo.blocking then
+M.luarun = function()
+  local mode_info = vim.api.nvim_get_mode()
+  if mode_info.blocking then
     return
   end
-  local mode = modeInfo.mode
+  local mode = mode_info.mode
 
   local text
   if mode == 'n' then
     text = vim.api.nvim_get_current_line()
   elseif mode == 'v' or mode == 'V' or mode == 'CTRL-V' or mode == '\22' then
-    local selection = M.getVisualSelection(mode)
+    local selection = M.get_visual_selection(mode)
     text = table.concat(selection, '\n')
   else
     return
@@ -173,12 +173,12 @@ function M.luarun()
   local loadok, expr = pcall(loadstring, 'return ' .. text)
   if loadok and expr then
     local msg = 'luarun (expr)'
-    local evalok, evalResult = pcall(expr)
+    local evalok, eval_result = pcall(expr)
     if not evalok then
-      error(msg .. ' (failed): ' .. evalResult)
+      error(msg .. ' (failed): ' .. eval_result)
     end
     print(msg .. ': ' .. text)
-    print(vim.inspect(evalResult))
+    print(vim.inspect(eval_result))
     return
   end
 
@@ -189,12 +189,12 @@ function M.luarun()
   loadok, blockexpr = pcall(loadstring, table.concat(lines, '\n'))
   if loadok and blockexpr then
     local msg = 'luarun (block-expr)'
-    local evalok, blockexprResult = pcall(blockexpr)
+    local evalok, blockexpr_result = pcall(blockexpr)
     if not evalok then
-      error(msg .. ' (failed): ' .. blockexprResult)
+      error(msg .. ' (failed): ' .. blockexpr_result)
     end
     print(msg .. ': ' .. text)
-    print(vim.inspect(blockexprResult))
+    print(vim.inspect(blockexpr_result))
     return
   end
 
@@ -205,17 +205,17 @@ function M.luarun()
   end
 
   local msg = 'luarun (block)'
-  local blockok, blockResult = pcall(block)
+  local blockok, block_result = pcall(block)
   if not blockok then
-    error(msg .. ' failed: ' .. blockResult)
+    error(msg .. ' failed: ' .. block_result)
   end
 
   print(msg .. ': ' .. text)
-  print(vim.inspect(blockResult))
+  print(vim.inspect(block_result))
 end
 
 -- Gets all of the Lua runtime paths
-function M.getRuntimePath()
+M.get_runtime_path = function()
   local runtime_path = vim.split(package.path, ';')
   table.insert(runtime_path, 'lua/?.lua')
   table.insert(runtime_path, 'lua/?/init.lua')
@@ -225,7 +225,7 @@ end
 -- bind a function to some arguments and return a new function (the thunk) that
 -- can be called later.
 -- Useful for setting up callbacks without anonymous functions.
-function M.thunk(fn, ...)
+M.thunk = function(fn, ...)
   local bound = { ... }
   return function(...)
     return fn(unpack(vim.list_extend(vim.list_extend({}, bound), { ... })))
@@ -233,7 +233,7 @@ function M.thunk(fn, ...)
 end
 
 -- Like thunk(), but arguments passed to the thunk are ignored.
-function M.ithunk(fn, ...)
+M.ithunk = function(fn, ...)
   local bound = { ... }
   return function()
     return fn(unpack(bound))
@@ -250,7 +250,7 @@ end
 --   <manpage>
 -- or
 --   <section> <manpage>
-function M.man(dest, ...)
+M.man = function(dest, ...)
   if dest == 'tab' then
     dest = 'tabnew'
   end
@@ -271,7 +271,7 @@ function M.man(dest, ...)
 end
 
 -- https://www.reddit.com/r/neovim/comments/nrz9hp/can_i_close_all_floating_windows_without_closing/h0lg5m1/
-function M.closeFloatWins()
+M.close_float_wins = function()
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     local config = vim.api.nvim_win_get_config(win)
     if config.relative ~= '' then
@@ -283,7 +283,7 @@ end
 -- Open a Help topic
 --  - If a blank buffer is focused, open it there
 --  - Otherwise, open in a new tab
-function M.help(...)
+M.help = function(...)
   for _, topic in ipairs { ... } do
     if vim.fn.bufname() == '' and vim.api.nvim_buf_line_count(0) == 1 and vim.fn.getline(1) == '' then
       local win = vim.api.nvim_get_current_win()
@@ -298,7 +298,7 @@ end
 ---- Shatur/neovim-session-manager
 -- Wrapper functions which persist and load additional state with the session,
 -- such as whether nvim-tree is open.
-function M.sessionSave()
+M.session_save = function()
   local meta = {
     focused = vim.api.nvim_get_current_win(),
     nvimTreeOpen = false,
@@ -328,8 +328,8 @@ function M.sessionSave()
 end
 
 -- Load the session associated with the CWD
-function M.sessionLoad()
-  local cb = M.newCallback(function()
+M.session_load = function()
+  local cb = M.new_callback(function()
     local meta = loadstring('return ' .. (vim.g.SessionMeta or '{}'))()
     vim.g.SessionMeta = nil
 
@@ -355,7 +355,7 @@ function M.sessionLoad()
   require('session_manager').load_current_dir_session(false)
 end
 
-function M.setWinfix(set, ...)
+M.set_winfix = function(set, ...)
   local dirs = { ... }
   local msg = {}
   for _, dir in ipairs(dirs) do
@@ -373,20 +373,20 @@ function M.setWinfix(set, ...)
   end
 end
 
-function M.toggleWinfix(...)
-  M.setWinfix('toggle', ...)
+M.toggle_winfix = function(...)
+  M.set_winfix('toggle', ...)
 end
 
-function M.resizeWin(dir, dist)
+M.resize_win = function(dir, dist)
   dist = dist or ''
   vim.cmd(dist .. 'wincmd ' .. dir)
-  M.setWinfix(true, (dir == '<' or dir == '>') and 'width' or 'height')
+  M.set_winfix(true, (dir == '<' or dir == '>') and 'width' or 'height')
 end
 
 ---- Autoresize
 
-function M.autoresizeDisable()
-  local msg = M.capture(M.setWinfix, true, 'width', 'height')
+M.autoresize_disable = function()
+  local msg = M.capture(M.set_winfix, true, 'width', 'height')
   table.insert(msg, 'autoresize disable')
   print(table.concat(msg, ', '))
   vim.cmd [[
@@ -398,8 +398,8 @@ function M.autoresizeDisable()
   M.autoresize = false
 end
 
-function M.autoresizeEnable()
-  local msg = M.capture(M.setWinfix, false, 'width', 'height')
+M.autoresize_enable = function()
+  local msg = M.capture(M.set_winfix, false, 'width', 'height')
   table.insert(msg, 'autoresize enable')
   print(table.concat(msg, ', '))
   vim.cmd [[
@@ -412,16 +412,16 @@ function M.autoresizeEnable()
   M.autoresize = true
 end
 
-function M.autoresizeToggle()
+M.autoresize_toggle = function()
   if M.autoresize then
-    M.autoresizeEnable()
+    M.autoresize_enable()
   else
-    M.autoresizeDisable()
+    M.autoresize_disable()
   end
 end
 
 -- Convert a number to a utf8 string
-function M.utf8(decimal)
+M.utf8 = function(decimal)
   if type(decimal) == 'string' then
     decimal = vim.fn.char2nr(decimal)
   end
@@ -445,7 +445,7 @@ end
 
 -- For each { k = v } in keys, return a table that when indexed by any k' such
 -- that tolower(k') == tolower(k) returns utf8(v)
-function M.utf8keys(keys)
+M.utf8keys = function(keys)
   local _keys = {}
   for k, v in pairs(keys) do
     _keys[string.lower(k)] = M.utf8(v)
@@ -461,7 +461,7 @@ function M.utf8keys(keys)
 end
 
 -- Replace occurrences of ${k} with v in tmpl for each { k = v } in data
-function M.template(tmpl, data)
+M.template = function(tmpl, data)
   local res = tmpl
   for k, v in pairs(data) do
     res = res:gsub('${' .. k .. '}', v)
@@ -469,14 +469,14 @@ function M.template(tmpl, data)
   return res
 end
 
--- lazyTable returns a placeholder table and defers callback cb until someone
+-- lazy_table returns a placeholder table and defers callback cb until someone
 -- tries to access or iterate the table in some way, at which point cb will be
 -- called and its result becomes the value of the table.
 --
 -- To work, requires LuaJIT compiled with -DLUAJIT_ENABLE_LUA52COMPAT.
 -- If not, the result of the callback will be returned immediately.
 -- See: https://luajit.org/extensions.html
-function M.lazyTable(cb)
+M.lazy_table = function(cb)
   -- Check if Lua 5.2 compatability is available by testing whether goto is a
   -- valid identifier name, which is not the case in 5.2.
   if loadstring 'local goto = true' ~= nil then
@@ -596,19 +596,19 @@ end
 --   })
 -- end
 
-M.filetypeCommand = function(ft, ifMatch, ifNotMatch)
+M.filetype_command = function(ft, if_match, if_not_match)
   return function()
     if vim.bo.filetype == ft then
-      ifMatch()
+      if_match()
     else
-      if type(ifNotMatch) == 'function' then
-        ifNotMatch()
+      if type(if_not_match) == 'function' then
+        if_not_match()
       end
     end
   end
 end
 
-M.getLatestMessages = function(count)
+M.get_latest_Messages = function(count)
   local messages = vim.fn.execute 'messages'
   local lines = vim.split(messages, '\n')
   lines = vim.tbl_filter(function(line)
@@ -619,16 +619,20 @@ M.getLatestMessages = function(count)
   return table.concat(vim.list_slice(lines, #lines - count), '\n')
 end
 
-M.yankMessages = function(register, count)
+M.yank_messages = function(register, count)
   register = (register and register ~= '') and register or '+'
-  vim.fn.setreg(register, M.getLatestMessages(count), 'l')
+  vim.fn.setreg(register, M.get_latest_messages(count), 'l')
 end
 
-M.getPathSeparator = function()
+M.get_path_separator = function()
   if vim.fn.exists '+shellslash' == 1 and vim.o.shellslash then
     return [[\]]
   end
   return '/'
+end
+
+M.resolve_bufnr = function(bufnr)
+  return bufnr ~= 0 and bufnr or vim.api.nvim_get_current_buf()
 end
 
 return M

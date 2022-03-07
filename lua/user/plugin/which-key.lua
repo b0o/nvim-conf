@@ -6,4 +6,9 @@ require('which-key').setup {
       suggestions = 30,
     },
   },
+  triggers_blacklist = {
+    i = { 'j', 'k', "'" },
+    v = { 'j', 'k', "'" },
+    n = { "'" },
+  },
 }

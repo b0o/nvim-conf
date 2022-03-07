@@ -1,3 +1,5 @@
+local fn = require 'user.fn'
+
 vim.o.spell = true
 vim.o.spellfile = vim.fn.stdpath 'config' .. '/spellfile.utf-8.add'
 
@@ -116,4 +118,4 @@ end
 vim.g.no_man_maps = 1
 
 -- Automatically equalize window sizes when Neovim is resized
-require('user.fn').autoresizeEnable()
+fn.autoresize_enable()
