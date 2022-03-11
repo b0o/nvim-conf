@@ -110,13 +110,11 @@ config.components.active[1] = {
       bg = colors.deep_licorice,
     },
     left_sep = {
-      { str = ' ', hl = { bg = colors.active_bg } },
-      { str = 'slant_left_2', hl = { fg = colors.deep_licorice, bg = colors.active_bg } },
+      { str = 'slant_left_2', hl = { fg = colors.deep_licorice } },
       { str = ' ', hl = { bg = colors.deep_licorice } },
     },
     right_sep = {
-      { str = 'slant_right_2', hl = { bg = colors.active_bg } },
-      { ' ', hl = { bg = colors.active_bg } },
+      { str = 'slant_right_2', hl = { fg = colors.deep_licorice } },
     },
   },
   {
@@ -124,20 +122,18 @@ config.components.active[1] = {
     enabled = function()
       return fn.getfsize(fn.expand '%:p') > 0
     end,
-    hl = {
-      bg = colors.active_bg,
-    },
+    left_sep = ' ',
     right_sep = {
-      { str = ' ', hl = { bg = colors.active_bg } },
-      { str = 'slant_left_2_thin', hl = { fg = 'fg', bg = colors.active_bg } },
+      { str = ' ' },
+      { str = 'slant_left_2_thin', hl = { fg = 'fg' } },
     },
   },
   {
     provider = 'position',
     left_sep = ' ',
     right_sep = {
-      ' ',
-      { str = 'slant_right_2_thin', hl = { fg = 'fg', bg = colors.active_bg } },
+      { str = ' ' },
+      { str = 'slant_right_2_thin', hl = { fg = 'fg' } },
     },
   },
   {
@@ -173,7 +169,7 @@ config.components.active[1] = {
 config.components.active[2] = {
   {
     provider = 'lsp_progress',
-    hl = { fg = 'blush', bold = false },
+    hl = { fg = 'mistyrose', bold = false },
   },
 }
 
@@ -236,8 +232,8 @@ config.components.active[3] = {
     hl = {
       style = 'bold',
     },
-    left_sep = ' ',
     right_sep = ' ',
+    left_sep = ' ',
   },
   {
     provider = 'scroll_bar',
@@ -266,13 +262,6 @@ config.components.inactive[1] = {
       fg = 'white',
       bg = 'deep_lavender',
     },
-    -- hl = function()
-    --   return {
-    --     fg = 'white',
-    --     bg = 'deep_lavender',
-    --     style = vim.api.nvim_buf_get_option(0, 'modified') and 'italic' or 'bold',
-    --   }
-    -- end,
     left_sep = {
       ' ',
       'slant_left_2',
@@ -282,22 +271,41 @@ config.components.inactive[1] = {
   },
 }
 
-local _hl = function(mode, hl)
+-- Give active components a different default background color
+local active_hl = function(hl)
   if hl and (not hl.bg or hl.bg == 'bg') then
-    hl.bg = colors[mode .. '_bg']
+    hl.bg = colors.active_bg
   end
   return hl
 end
-
-for _, mode in ipairs { 'active', 'inactive' } do
-  for _, component in ipairs(config.components[mode]) do
-    for _, val in ipairs(component) do
-      if not val.hl or type(val.hl) == 'table' then
-        val.hl = _hl(mode, val.hl)
-      elseif type(val.hl) == 'function' then
-        local orig_hl = val.hl
-        val.hl = function(...)
-          return _hl(mode, orig_hl(...))
+for _, component in ipairs(config.components.active) do
+  for _, val in ipairs(component) do
+    if not val.hl or type(val.hl) == 'table' then
+      val.hl = active_hl(val.hl or {})
+    elseif type(val.hl) == 'function' then
+      local orig_hl = val.hl
+      val.hl = function(...)
+        return active_hl(orig_hl(...))
+      end
+    end
+    for _, sep_kind in ipairs { 'left_sep', 'right_sep' } do
+      local seps = val[sep_kind]
+      if type(seps) == 'string' then
+        seps = { str = seps }
+        val[sep_kind] = seps
+      end
+      if type(seps) == 'table' then
+        if seps.str or seps.hl then
+          seps = { seps }
+        end
+        for i, sep in ipairs(seps) do
+          if type(sep) == 'string' then
+            sep = { str = sep }
+            seps[i] = sep
+          end
+          if type(sep) == 'table' and (not sep.hl or type(sep.hl) == 'table') then
+            sep.hl = active_hl(sep.hl or {})
+          end
         end
       end
     end
