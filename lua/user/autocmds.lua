@@ -1,40 +1,43 @@
 -- Re-compile Packer on write plugins.lua
-vim.cmd(string.format(
-  [[
+local plugins_conf_path = vim.fn.stdpath 'config' .. '/lua/user/plugins.lua'
+
+vim.cmd(([[
   augroup user_packer
     autocmd!
-    autocmd BufWritePost %s call luaeval('%s')
+    autocmd BufWritePost %s lua require'user.fn'.packer_compile()
+    autocmd User PackerCompileDone lua vim.notify("Packer configuration recompiled")
   augroup END
-]],
-  vim.fn.stdpath 'config' .. '/lua/user/plugins.lua',
-  [[vim.cmd("redraw!") and print("packer.compile()") and require"packer".compile()]]
-))
+]]):format(plugins_conf_path))
 
 vim.cmd [[
   augroup user_misc
     autocmd!
-
     " Highlight on yank
     autocmd TextYankPost * silent! lua vim.highlight.on_yank()
-
     " Ensure the title is set immediately on load instead of whenever a file is
     " loaded/changed/written
     autocmd VimEnter * set title
+    " Set global variable g:nvim_focused to true when neovim is focused
+    autocmd FocusGained * let g:nvim_focused = 1
+    " Set global variable g:nvim_focused to false when neovim loses focus
+    autocmd FocusLost * let g:nvim_focused = 0
   augroup END
 ]]
 
 vim.cmd [[
   augroup user_lsp
     autocmd!
+    " Check for code actions on cursorhold
     autocmd CursorHold,CursorHoldI * lua require('user.lsp').code_action_listener()
   augroup END
 ]]
 
--- Enter insert mode when entering a terminal buffer
 vim.cmd [[
   augroup user_term
     autocmd!
+    " Enter insert mode when entering a terminal buffer
     autocmd BufEnter  term://* call user#fn#termEnter(1)
+    " Automatically close terminal windows when the terminal process exits
     autocmd TermClose term://* call user#fn#closeBufWins(expand('<abuf>'))
   augroup END
 ]]
@@ -46,29 +49,10 @@ vim.cmd [[
   augroup END
 ]]
 
--- vim.cmd [[
---   augroup user_gitsigns
---     autocmd!
---     " Work around for https://github.com/lewis6991/gitsigns.nvim/issues/264
---     autocmd SessionLoadPost * autocmd BufEnter * ++once lua vim.defer_fn(require'gitsigns'.refresh, 150)
---   augroup END
--- ]]
-
 vim.cmd [[
   augroup user_nvim_tree
     autocmd!
-    autocmd FileType NvimTree lua _G.nvim_tree_highlights()
-    " Unfocus NvimTree before changing tabs so that tabline titles are more meaningful
-    autocmd TabLeave NvimTree wincmd p
+    " Set up nvim tree highlights when an nvim tree buffer is created
+    autocmd FileType NvimTree* ++once lua _G.nvim_tree_highlights()
   augroup END
 ]]
-
--- vim.cmd [[
---   augroup user_hlslens
---     autocmd!
---     autocmd User visual_multi_start echom "a"
---     autocmd User visual_multi_exit echom "b"
---     " autocmd User visual_multi_start lua require('user.plugins.hlslens').vmlens.start()
---     " autocmd User visual_multi_exit lua require('user.plugins.hlslens').vmlens.stop()
---   augroup END
--- ]]

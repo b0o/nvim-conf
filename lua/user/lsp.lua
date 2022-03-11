@@ -3,7 +3,6 @@ local user_lsp_status = require 'user.statusline.lsp'
 local nvim_cmp_lsp = require 'cmp_nvim_lsp'
 local fn = require 'user.fn'
 local root_pattern = require('lspconfig.util').root_pattern
-local notify = require 'notify'
 
 local M = {
   fmt_on_save_enabled = false,
@@ -203,7 +202,7 @@ local lsp_handlers = {
       'INFO',
       'DEBUG',
     })[result.type]
-    notify({ result.message }, lvl, {
+    vim.notify({ result.message }, lvl, {
       title = 'LSP | ' .. client.name,
       timeout = 10000,
       keep = function()

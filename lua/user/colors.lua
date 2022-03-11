@@ -2,10 +2,16 @@ local defaults = require 'feline.defaults'
 
 local colors_gui = vim.g.colors_gui or {}
 
+local active_bg = colors_gui['3'] or defaults.bg
+local inactive_bg = colors_gui['0'] or defaults.bg
+
 return {
-  bg = colors_gui['0'] or defaults.bg,
   black = colors_gui['1'] or defaults.black,
   white = colors_gui['5'] or defaults.white,
+
+  bg = inactive_bg,
+  active_bg = active_bg,
+  inactive_bg = inactive_bg,
 
   skyblue = colors_gui['7'] or defaults.skyblue,
   cyan = colors_gui['8'] or defaults.cyan,

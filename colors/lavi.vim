@@ -1,4 +1,4 @@
-" Copyright (C) 2019-2021 Maddison Hellstrom <maddy@na.ai>
+" Copyright (C) 2019-2022 Maddison Hellstrom <maddy@na.ai>
 "
 " Vim script based on https://github.com/arcticicestudio/nord-vim
 " Copyright (C) 2016-2019 Arctic Ice Studio <development@arcticicestudio.com>

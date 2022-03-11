@@ -8,7 +8,6 @@ local file_info = require 'user.statusline.file_info'
 require 'user.statusline.lsp'
 require 'user.statusline.dap'
 
-
 local fn = vim.fn
 
 local separators = {
@@ -98,14 +97,7 @@ config.components.active[1] = {
         style = 'bold',
       }
     end,
-    right_sep = ' ',
   },
-  --   {
-  --     provider = require'mapx'.getMode,
-  --     hl = { fg = white, style = 'bold' },
-  --     left_sep = ' ',
-  --     right_sep = ' ',
-  --   },
   {
     provider = {
       name = 'user_file_info',
@@ -113,25 +105,31 @@ config.components.active[1] = {
         active = true,
       },
     },
-    hl = file_info.hl({
-        fg = 'white',
-        bg = colors.deep_licorice,
-    }),
-    left_sep = {
-      ' ',
-      'slant_left_2',
-      { str = ' ', hl = { bg = colors.deep_licorice, fg = 'NONE' } },
+    hl = file_info.hl {
+      fg = 'white',
+      bg = colors.deep_licorice,
     },
-    right_sep = { 'slant_right_2', ' ' },
+    left_sep = {
+      { str = ' ', hl = { bg = colors.active_bg } },
+      { str = 'slant_left_2', hl = { fg = colors.deep_licorice, bg = colors.active_bg } },
+      { str = ' ', hl = { bg = colors.deep_licorice } },
+    },
+    right_sep = {
+      { str = 'slant_right_2', hl = { bg = colors.active_bg } },
+      { ' ', hl = { bg = colors.active_bg } },
+    },
   },
   {
     provider = 'file_size',
     enabled = function()
       return fn.getfsize(fn.expand '%:p') > 0
     end,
+    hl = {
+      bg = colors.active_bg,
+    },
     right_sep = {
-      ' ',
-      { str = 'slant_left_2_thin', hl = { fg = 'fg', bg = 'bg' } },
+      { str = ' ', hl = { bg = colors.active_bg } },
+      { str = 'slant_left_2_thin', hl = { fg = 'fg', bg = colors.active_bg } },
     },
   },
   {
@@ -139,7 +137,7 @@ config.components.active[1] = {
     left_sep = ' ',
     right_sep = {
       ' ',
-      { str = 'slant_right_2_thin', hl = { fg = 'fg', bg = 'bg' } },
+      { str = 'slant_right_2_thin', hl = { fg = 'fg', bg = colors.active_bg } },
     },
   },
   {
@@ -264,10 +262,10 @@ config.components.inactive[1] = {
         active = false,
       },
     },
-    hl = file_info.hl({
-        fg = 'white',
-        bg = 'deep_lavender',
-    }),
+    hl = file_info.hl {
+      fg = 'white',
+      bg = 'deep_lavender',
+    },
     -- hl = function()
     --   return {
     --     fg = 'white',
@@ -283,5 +281,27 @@ config.components.inactive[1] = {
     right_sep = { 'slant_right_2', ' ' },
   },
 }
+
+local _hl = function(mode, hl)
+  if hl and (not hl.bg or hl.bg == 'bg') then
+    hl.bg = colors[mode .. '_bg']
+  end
+  return hl
+end
+
+for _, mode in ipairs { 'active', 'inactive' } do
+  for _, component in ipairs(config.components[mode]) do
+    for _, val in ipairs(component) do
+      if not val.hl or type(val.hl) == 'table' then
+        val.hl = _hl(mode, val.hl)
+      elseif type(val.hl) == 'function' then
+        local orig_hl = val.hl
+        val.hl = function(...)
+          return _hl(mode, orig_hl(...))
+        end
+      end
+    end
+  end
+end
 
 feline.setup(config)

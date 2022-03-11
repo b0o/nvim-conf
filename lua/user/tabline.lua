@@ -12,10 +12,12 @@ local M = {
     prev_win = {},
     style = vim.g.tabpage_titlestyle or 'long',
   },
-  tabpage_ignore_fts = {
-    'NvimTree',
-    'Trouble',
-    'Nui',
+  ignore = {
+    unlisted_buffers = true,
+    unnamed_buffers = true,
+    filetypes = {},
+    buftypes = "special",
+    wintypes = "special",
   },
 }
 
@@ -94,6 +96,60 @@ local function sanitize(s)
   return string.gsub(s, '[%%#]', '')
 end
 
+local function is_ignored_filetype(ft)
+  return M.ignore.filetypes and vim.tbl_contains(M.ignore.filetypes, ft)
+end
+
+local function is_ignored_buf(bufnr, ft)
+  bufnr = bufnr or 0
+  if M.ignore.unlisted_buffers and not vim.api.nvim_buf_get_option(bufnr, "buflisted") then
+    return true
+  end
+  if M.ignore.unnamed_buffers and vim.api.nvim_buf_get_name(bufnr) == "" then
+    return true
+  end
+  if M.ignore.buftypes then
+    local buftype = vim.api.nvim_buf_get_option(bufnr, "buftype")
+    if M.ignore.buftypes == "special" and buftype ~= "" then
+      return true
+    elseif type(M.ignore.buftypes) == "table" then
+      if vim.tbl_contains(M.ignore.buftypes, buftype) then
+        return true
+      end
+    elseif type(M.ignore.buftypes) == "function" then
+      if M.ignore.buftypes(bufnr, buftype) then
+        return true
+      end
+    end
+  end
+  if M.ignore.filetypes then
+    ft = ft or vim.api.nvim_buf_get_option(bufnr, "filetype")
+    if is_ignored_filetype(ft) then
+      return true
+    end
+  end
+  return false
+end
+
+local function is_ignored(winid, bufnr, ft)
+  winid = winid or 0
+  bufnr = bufnr or vim.api.nvim_win_get_buf(winid)
+  if is_ignored_buf(bufnr, ft) then
+    return true
+  end
+  if M.ignore.wintypes then
+    local wintype = vim.fn.win_gettype(winid)
+    if M.ignore.wintypes == "special" and wintype ~= "" then
+      return true
+    elseif type(M.ignore.wintypes) == "table" then
+      if vim.tbl_contains(M.ignore.wintypes, wintype) then
+        return true
+      end
+    end
+  end
+  return false
+end
+
 function M.titlestring(t, sel)
   local tabpage = t or vim.api.nvim_get_current_tabpage()
   local cur_win = vim.api.nvim_tabpage_get_win(tabpage)
@@ -106,10 +162,7 @@ function M.titlestring(t, sel)
   local hl_count = hw(hl)
 
   if t ~= nil then
-    if vim.tbl_contains(M.tabpage_ignore_fts, cur_buf_ft) then
-      if M.state.prev_win[tabpage] == nil or not vim.api.nvim_win_is_valid(M.state.prev_win) then
-        return ''
-      end
+    if is_ignored(cur_win, cur_buf, cur_buf_ft) and M.state.prev_win[tabpage] ~= nil and vim.api.nvim_win_is_valid(M.state.prev_win[tabpage]) then
       cur_win = M.state.prev_win[tabpage]
       cur_buf = vim.api.nvim_win_get_buf(cur_win)
       cur_buf_ft = vim.api.nvim_buf_get_option(cur_buf, 'filetype')

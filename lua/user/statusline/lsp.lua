@@ -102,8 +102,8 @@ function M.status_progress()
 end
 
 function M.status_clients(status)
-  return function(_, winid)
-    local bufnr = winid ~= nil and vim.api.nvim_win_get_buf(winid) or vim.fn.bufnr()
+  return function()
+    local bufnr = vim.api.nvim_get_current_buf()
     local clients = {}
     if status == 'exited' or status == 'exited_ok' or status == 'exited_err' then
       clients = M.getExitedBufClients(bufnr)

@@ -53,6 +53,9 @@ require('aerial').setup {
   -- Highlight the closest symbol if the cursor is not exactly on one.
   highlight_closest = true,
 
+  -- Highlight the symbol in the source buffer when cursor is in the aerial win
+  highlight_on_hover = true,
+
   -- When jumping to a symbol, highlight the line for this many ms.
   -- Set to false to disable
   highlight_on_jump = 300,
@@ -120,7 +123,7 @@ require('aerial').setup {
   -- max_value = {40, 0.2} means "the lesser of 40 columns or 20% of total"
   max_width = { 40, 0.2 },
   width = nil,
-  min_width = 30 ,
+  min_width = 30,
 
   -- Set default symbol icons to use patched font icons (see https://www.nerdfonts.com/)
   -- "auto" will set it to true if nvim-web-devicons or lspkind-nvim is installed.

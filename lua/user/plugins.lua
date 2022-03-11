@@ -16,7 +16,7 @@ local function uselocal(p)
   if git_projects_dir == nil then
     return
   end
-  if not string.match(p[1], "^.?.?/") then
+  if not string.match(p[1], '^.?.?/') then
     local path = vim.split(p[1], '/')
     p[1] = table.concat(vim.list_slice(path, 2), '/')
     p[1] = git_projects_dir .. '/' .. p[1]
@@ -58,12 +58,22 @@ packer.startup(function()
   use 'kevinhwang91/nvim-hlslens'
   use 'kyazdani42/nvim-tree.lua'
   use 'rcarriga/nvim-notify'
+  use {
+    'simrat39/desktop-notify.nvim',
+    setup = [[pcall(vim.cmd, 'delcommand Notifications')]],
+    config = [[vim.cmd'command! Notifications :lua require("notify")._print_history()<CR>']],
+  }
+
   use 'stevearc/dressing.nvim'
   use 'stevearc/aerial.nvim'
   use 'MunifTanjim/nui.nvim'
   use {
     'VonHeikemen/fine-cmdline.nvim',
     requires = { 'MunifTanjim/nui.nvim' },
+  }
+  use {
+    'winston0410/range-highlight.nvim',
+    requires = { 'winston0410/cmd-parser.nvim' },
   }
 
   -- Telescope
@@ -131,8 +141,10 @@ packer.startup(function()
   use 'christoomey/vim-conflicted'
   use 'tpope/vim-fugitive'
   use 'tpope/vim-rhubarb'
+  use 'sindrets/diffview.nvim'
+  use 'TimUntersberger/neogit'
   use 'lewis6991/gitsigns.nvim'
-  use 'tanvirtin/vgit.nvim'
+  -- use 'tanvirtin/vgit.nvim'
   use 'ThePrimeagen/git-worktree.nvim'
   use { 'mattn/gist-vim', requires = 'mattn/webapi-vim' }
 

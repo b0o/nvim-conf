@@ -401,7 +401,7 @@ end
 M.autoresize_enable = function()
   local msg = M.capture(M.set_winfix, false, 'width', 'height')
   table.insert(msg, 'autoresize enable')
-  print(table.concat(msg, ', '))
+  vim.notify(table.concat(msg, ', '))
   vim.cmd [[
     augroup autoresize
       au!
@@ -709,4 +709,16 @@ M.magic_saveas = function(winnr, new_name, force, edit_cmd, add_ext)
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   return M.newfile(winnr, new_name, force, edit_cmd or "edit!", add_ext, lines)
 end
+
+---- Packer
+M.get_plugins_conf_path = function()
+  return vim.fn.stdpath 'config' .. '/lua/user/plugins.lua'
+end
+
+M.packer_compile = function()
+  local plugins_conf_path = M.get_plugins_conf_path()
+  dofile(plugins_conf_path)
+  require"packer".compile(plugins_conf_path)
+end
+
 return M

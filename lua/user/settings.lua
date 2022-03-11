@@ -82,7 +82,7 @@ vim.cmd [[
 vim.opt.list = true
 vim.opt.listchars = {
   eol = '⌐',
-  tab = '',
+  tab = 'ᐧᐧᐧ',
   trail = '~',
   extends = '»',
   precedes = '«',
@@ -111,6 +111,23 @@ if vim.fn.exists 'g:colorscheme' then
       echom 'Error: Unable to set colorscheme ' . g:colorscheme . "\n"
     endtry
   ]]
+end
+
+vim.notify = function(...)
+  if vim.g.nvim_focused == nil or vim.g.nvim_focused == 1 then
+    local ok, notify = pcall(require, 'notify')
+    if not ok then
+      local args = {...}
+      vim.defer_fn(function()
+        vim.notify(unpack(args))
+      end, 100)
+      return
+    end
+    require'user.plugin.notify'
+    return notify.notify(...)
+  else
+    return require('desktop-notify').notify(...)
+  end
 end
 
 ---- Providers
