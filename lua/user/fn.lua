@@ -635,4 +635,78 @@ M.resolve_bufnr = function(bufnr)
   return bufnr ~= 0 and bufnr or vim.api.nvim_get_current_buf()
 end
 
+M.resolve_winnr = function(winnr)
+  return winnr ~= 0 and winnr or vim.api.nvim_get_current_win()
+end
+
+---- Magic file functions
+
+-- Get a magic file path based on the current buffer path and new_name.
+-- Behaves kinda like paths in tpope/vim-eunuch.
+M.magic_file_path = function(winnr, new_name, add_ext)
+  assert(new_name ~= "", "magic_file_path: no name specified")
+  winnr = M.resolve_winnr(winnr)
+  add_ext = add_ext ~= nil and add_ext or false
+
+  local bufnr = vim.api.nvim_win_get_buf(winnr)
+  local file_path = vim.api.nvim_buf_get_name(bufnr)
+  local file_name = vim.fn.fnamemodify(file_path, ":t")
+  local path_is_absolute = new_name:match("^/")
+
+  local dest_path
+  if path_is_absolute then
+    if vim.fn.isdirectory(new_name) then
+      dest_path = new_name .. "/" .. file_name
+    else
+      dest_path = new_name
+    end
+  else
+    local dest_dir
+    if vim.api.nvim_buf_get_option(bufnr, "buftype") == "" then
+      dest_dir = vim.fn.fnamemodify(file_path, ":p:h")
+    else
+      dest_dir = vim.fn.getcwd(winnr)
+    end
+    dest_path = dest_dir .. "/" .. new_name
+  end
+
+  if add_ext and vim.fn.fnamemodify(dest_path, ":e") == "" then
+    local ext = vim.fn.fnamemodify(file_name, ":e")
+    if ext ~= "" then
+      dest_path = dest_path .. "." .. ext
+    end
+  end
+
+  return vim.fn.resolve(dest_path)
+end
+
+-- Create and edit a new file with a magic path
+M.magic_newfile = function(winnr, new_name, force, edit_cmd, add_ext, lines)
+  assert(new_name ~= "", "saveas: no name specified")
+  winnr = M.resolve_winnr(winnr)
+  lines = lines or {}
+  force = force ~= nil and force or false
+  edit_cmd = edit_cmd or "edit!"
+
+  if add_ext and new_name:match("[.]$") then
+    add_ext = false
+    new_name = new_name:sub(1, #new_name - 1)
+  end
+
+  local dest_path = M.magic_file_path(winnr, new_name, add_ext)
+
+  assert(force or vim.fn.filereadable(dest_path) == 0, "File exists: " .. dest_path)
+  local ok, msg = pcall(vim.fn.writefile, lines, dest_path, "")
+  assert(ok == true, "newfile: write failed: " .. msg)
+
+  vim.cmd(([[%s %s]]):format(edit_cmd, dest_path))
+end
+
+-- Saveas and edit a new file with a magic path
+M.magic_saveas = function(winnr, new_name, force, edit_cmd, add_ext)
+  winnr = M.resolve_winnr(winnr)
+  local bufnr = vim.api.nvim_win_get_buf(winnr)
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+  return M.newfile(winnr, new_name, force, edit_cmd or "edit!", add_ext, lines)
+end
 return M

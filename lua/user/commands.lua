@@ -74,32 +74,69 @@ cabbrev('SL', 'SessionLoad')
 
 command { '-count=-1', '-register', 'YankMessages', 'lua require("user.fn").yank_messages("<reg>", <count>)' }
 
------- Plugins
----- tpope/vim-eunuch
-command { 'Cx', ':Chmod +x' }
+---- Magic file commands
+-- More commands with similar behavior to Eunuch
 
+-- Complete magic file paths
 M.cmp.copy = function(input)
+  vim.g.lastinput = input
+  if input:match '^[%%#]' or input:match '^%b<>' then
+    if input == '%' then
+      input = '%:t'
+    elseif input == '%%' then
+      input = '%'
+    end
+    return { vim.fn.expand(input) }
+  end
   local sep = fn.get_path_separator()
   local prefix = vim.fn.expand '%:p:h' .. sep
   local files = vim.fn.glob(prefix .. input .. '*', false, true)
   files = vim.tbl_map(function(file)
     return string.sub(file, #prefix + 1) .. (vim.fn.isdirectory(file) == 1 and sep or '')
   end, files)
-  table.insert(files, '..' .. sep)
-  return table.concat(files, '\n')
+  if #files > 0 then
+    table.insert(files, '..' .. sep)
+  end
+  return files
 end
 
-command {
-  '-nargs=1',
-  '-bar',
-  '-bang',
-  "-complete=custom,v:lua.require'user.commands'.cmp.copy",
-  'Copy',
-  'saveas<bang> %:h/<args>',
-}
+local function magicFileCmd(func, name, edit_cmd)
+  command {
+    '-nargs=1',
+    '-bar',
+    '-bang',
+    "-complete=customlist,v:lua.require'user.commands'.cmp.copy",
+    name,
+    {
+      function(o)
+        func(0, o.args[1], o.bang == '!', edit_cmd, true)
+      end,
+      'args',
+      'bang',
+    },
+  }
+end
+
+magicFileCmd(fn.saveas, 'Copy')
+magicFileCmd(fn.saveas, 'Duplicate', 'split')
+magicFileCmd(fn.saveas, 'VDuplicate', 'vsplit')
+magicFileCmd(fn.saveas, 'Vduplicate', 'vsplit')
+magicFileCmd(fn.newfile, 'New')
+magicFileCmd(fn.newfile, 'Newsplit', 'split')
+magicFileCmd(fn.newfile, 'XNew', 'split')
+magicFileCmd(fn.newfile, 'VNew', 'vsplit')
+magicFileCmd(fn.newfile, 'VNewsplit', 'split')
+
+------ Plugins
+---- tpope/vim-eunuch
+command { 'Cx', ':Chmod +x' }
 
 ------ Abbreviations
-cabbrev('LI', 'lua inspect')
 cabbrev('Cp', 'Copy')
+cabbrev('Du', 'Duplicate')
+cabbrev('VDu', 'VDuplicate')
+cabbrev('Vdu', 'VDuplicate')
+
+cabbrev('LI', 'lua inspect')
 
 return M
