@@ -212,9 +212,6 @@ local lsp_handlers = {
   end,
 }
 
----- onsails/lspkind-nvim
-local lspkind_config = {}
-
 ---- ray-x/lsp_signature.nvim
 local lsp_signature_config = {
   zindex = 99, -- Keep signature popup below the completion PUM
@@ -352,7 +349,6 @@ local function lsp_init()
   end
 
   require('null-ls').setup(vim.tbl_extend('force', require 'user.plugin.null-ls', { on_attach = on_attach }))
-  require('lspkind').init(lspkind_config)
   require('lsp_signature').setup(lsp_signature_config)
   require('trouble').setup(trouble_config)
 
