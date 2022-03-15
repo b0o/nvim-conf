@@ -1,3 +1,5 @@
+local colors = require 'user.colors'
+
 local fn = vim.fn
 local bo = vim.bo
 local api = vim.api
@@ -63,22 +65,27 @@ end
 
 function M.file_info(component, opts)
   local filename = api.nvim_buf_get_name(0)
-  local type = opts.type or 'base-only'
+  local filetype = api.nvim_buf_get_option(0, "filetype")
+  if opts.filetypes_hide_name and vim.tbl_contains(opts.filetypes_hide_name, filetype) then
+    filename = filetype
+  else
+    local _type = opts.type or 'base-only'
 
-  if type == 'short-path' then
-    filename = fn.pathshorten(filename)
-  elseif type == 'base-only' then
-    filename = fn.fnamemodify(filename, ':t')
-  elseif type == 'relative' then
-    filename = fn.fnamemodify(filename, ':~:.')
-  elseif type == 'relative-short' then
-    filename = fn.pathshorten(fn.fnamemodify(filename, ':~:.'))
-  elseif type == 'unique' then
-    filename = get_unique_filename(filename)
-  elseif type == 'unique-short' then
-    filename = get_unique_filename(filename, true)
-  elseif type ~= 'full-path' then
-    filename = fn.fnamemodify(filename, ':t')
+    if _type == 'short-path' then
+      filename = fn.pathshorten(filename)
+    elseif _type == 'base-only' then
+      filename = fn.fnamemodify(filename, ':t')
+    elseif _type == 'relative' then
+      filename = fn.fnamemodify(filename, ':~:.')
+    elseif _type == 'relative-short' then
+      filename = fn.pathshorten(fn.fnamemodify(filename, ':~:.'))
+    elseif _type == 'unique' then
+      filename = get_unique_filename(filename)
+    elseif _type == 'unique-short' then
+      filename = get_unique_filename(filename, true)
+    elseif _type ~= 'full-path' then
+      filename = fn.fnamemodify(filename, ':t')
+    end
   end
 
   local extension = fn.fnamemodify(filename, ':e')
@@ -115,7 +122,8 @@ function M.file_info(component, opts)
     icon = {
       str = opts.file_modified_icon or '',
       hl = {
-        fg = opts.active and require('user.colors').hydrangea,
+        fg = opts.active and colors.hydrangea,
+        bg = colors.deep_licorice,
       },
     }
   end

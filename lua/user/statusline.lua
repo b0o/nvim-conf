@@ -63,11 +63,13 @@ local config = {
   force_inactive = {
     filetypes = {
       'NvimTree',
-      'packer',
-      'startify',
+      'Trouble',
+      'aerial',
       'fugitive',
       'fugitiveblame',
+      'packer',
       'qf',
+      'startify',
     },
     buftypes = {
       'terminal',
@@ -83,26 +85,42 @@ local config = {
   custom_providers = require('user.statusline.providers').providers,
 }
 
+local vi_mode_hl = function(hl)
+  return function()
+    local hl = hl
+    if hl then
+      hl = vim.deepcopy(hl)
+    else
+      hl = { fg = true }
+    end
+    if hl.fg == true then
+      hl.fg = vi_mode_utils.get_mode_color()
+    end
+    if hl.bg == true then
+      hl.bg = vi_mode_utils.get_mode_color()
+    end
+    if hl.name == true then
+      hl.name = vi_mode_utils.get_mode_highlight_name()
+    end
+    return hl
+  end
+end
+
 config.components.active[1] = {
   {
-    provider = '▊ ',
-    hl = { fg = 'skyblue' },
+    provider = separators.block .. separators.slant_right .. ' ',
+    hl = vi_mode_hl(),
   },
   {
     provider = 'vi_mode',
-    hl = function()
-      return {
-        name = vi_mode_utils.get_mode_highlight_name(),
-        fg = vi_mode_utils.get_mode_color(),
-        style = 'bold',
-      }
-    end,
+    hl = vi_mode_hl { fg = true, name = true, style = 'bold' },
   },
   {
     provider = {
       name = 'user_file_info',
       opts = {
         active = true,
+        filetypes_hide_name = config.force_inactive.filetypes,
       },
     },
     hl = file_info.hl {
@@ -242,20 +260,41 @@ config.components.active[3] = {
       style = 'bold',
     },
   },
+  {
+    provider = ' ' .. separators.slant_left .. separators.block,
+    hl = vi_mode_hl(),
+  },
 }
+
+local hl_if_focused = function(hl_if_true, hl_if_false)
+  return function(...)
+    local cw = vim.api.nvim_get_current_win()
+    local acw = tonumber(vim.g.actual_curwin)
+    local hl = cw == acw and hl_if_true or hl_if_false
+    if type(hl) == 'function' then
+      return hl(...)
+    end
+    return hl
+  end
+end
 
 config.components.inactive[1] = {
   {
-    provider = '▊   ',
-    hl = {
-      fg = 'deep_lavender',
-    },
+    provider = separators.block .. separators.slant_right .. '  ',
+    hl = hl_if_focused(
+      vi_mode_hl {
+        fg = true,
+        bg = colors.active_bg,
+      },
+      { fg = 'deep_lavender' }
+    ),
   },
   {
     provider = {
       name = 'user_file_info',
       opts = {
         active = false,
+        filetypes_hide_name = config.force_inactive.filetypes,
       },
     },
     hl = file_info.hl {
@@ -263,11 +302,47 @@ config.components.inactive[1] = {
       bg = 'deep_lavender',
     },
     left_sep = {
-      ' ',
-      'slant_left_2',
+      {
+        str = ' ' .. separators.slant_left_2,
+        hl = hl_if_focused {
+          bg = colors.active_bg,
+          fg = 'deep_lavender',
+        },
+      },
       { str = ' ', hl = { bg = 'deep_lavender', fg = 'NONE' } },
     },
-    right_sep = { 'slant_right_2', ' ' },
+    right_sep = {
+      {
+        str = separators.slant_right_2 .. ' ',
+        hl = hl_if_focused {
+          bg = colors.active_bg,
+          fg = 'deep_lavender',
+        },
+      },
+    },
+  },
+}
+config.components.inactive[2] = {
+  {
+    provider = ' ',
+    hl = hl_if_focused {
+      bg = colors.active_bg,
+    },
+  },
+}
+
+config.components.inactive[3] = {
+  {
+    provider = ' ' .. separators.slant_left .. separators.block,
+    hl = hl_if_focused(
+      vi_mode_hl {
+        fg = true,
+        bg = colors.active_bg,
+      },
+      {
+        fg = 'deep_lavender',
+      }
+    ),
   },
 }
 
