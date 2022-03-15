@@ -115,8 +115,9 @@ end
 
 -- Notify with nvim-notify if nvim is focused,
 -- otherwise send a desktop notification.
+vim.g.nvim_focused = true
 vim.notify = function(...)
-  if vim.g.nvim_focused == nil or vim.g.nvim_focused == 1 then
+  if vim.g.nvim_focused then
     local ok, notify = pcall(require, 'notify')
     if not ok then
       local args = { ... }

@@ -18,9 +18,9 @@ vim.cmd [[
     " loaded/changed/written
     autocmd VimEnter * set title
     " Set global variable g:nvim_focused to true when neovim is focused
-    autocmd FocusGained * let g:nvim_focused = 1
+    autocmd FocusGained * let g:nvim_focused = v:true
     " Set global variable g:nvim_focused to false when neovim loses focus
-    autocmd FocusLost * let g:nvim_focused = 0
+    autocmd FocusLost * let g:nvim_focused = v:false
   augroup END
 ]]
 

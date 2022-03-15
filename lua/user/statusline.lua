@@ -96,7 +96,7 @@ local vi_mode_hl = function(hl)
     else
       _hl = { fg = true }
     end
-    local color = vim.g.nvim_focused == 1 and vi_mode_utils.get_mode_color() or colors.inactive_bg
+    local color = vim.g.nvim_focused and vi_mode_utils.get_mode_color() or colors.inactive_bg
     if _hl.fg == true then
       _hl.fg = color
     end
