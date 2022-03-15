@@ -60,13 +60,6 @@ require('aerial').setup {
   -- Set to false to disable
   highlight_on_jump = 300,
 
-  -- Define symbol icons. You can also specify "<Symbol>Collapsed" to change the
-  -- icon when the tree is collapsed at that symbol, or "Collapsed" to specify a
-  -- default collapsed icon. The default icon set is determined by the
-  -- "nerd_font" option below.
-  -- If you have lspkind-nvim installed, aerial will use it for icons.
-  icons = {},
-
   -- Control which windows and buffers aerial should ignore.
   -- If close_behavior is "global", focusing an ignored window/buffer will
   -- not cause the aerial window to update.
