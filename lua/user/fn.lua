@@ -239,6 +239,33 @@ M.ithunk = function(fn, ...)
   end
 end
 
+M.tbl_reduce = function(tbl, fn, acc)
+  for k, v in pairs(tbl) do
+    acc = fn(acc, v, k)
+  end
+  return acc
+end
+
+-- Like vim.tbl_keys, but also includes all list-like elements
+M.tbl_listkeys = function(tbl)
+  return M.tbl_reduce(tbl, function(acc, v, k)
+    if type(k) == 'number' then
+      table.insert(acc, v)
+    else
+      table.insert(acc, k)
+    end
+    return acc
+  end, {})
+end
+
+-- Like vim.tbl_values, but also includes all list-like elements
+M.tbl_listvalues = function(tbl)
+  return M.tbl_reduce(tbl, function(acc, v)
+    table.insert(acc, v)
+    return acc
+  end, {})
+end
+
 -- Open one or more man pages
 -- Accepts a string representing how to open the man pages, one of:
 --   - ''        - current window

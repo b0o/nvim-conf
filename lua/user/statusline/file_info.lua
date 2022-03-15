@@ -64,11 +64,17 @@ local function get_unique_filename(filename, shorten)
 end
 
 function M.file_info(component, opts)
-  local filename = api.nvim_buf_get_name(0)
-  local filetype = api.nvim_buf_get_option(0, "filetype")
-  if opts.filetypes_hide_name and vim.tbl_contains(opts.filetypes_hide_name, filetype) then
-    filename = filetype
-  else
+  local filename
+  if opts.filetypes_override_name then
+    local filetype = api.nvim_buf_get_option(0, "filetype")
+    if opts.filetypes_override_name[filetype] then
+      filename = opts.filetypes_override_name[filetype]
+    elseif vim.tbl_contains(opts.filetypes_override_name, filetype) then
+      filename = filetype
+    end
+  end
+  if filename == nil then
+    filename = api.nvim_buf_get_name(0)
     local _type = opts.type or 'base-only'
 
     if _type == 'short-path' then

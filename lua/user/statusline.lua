@@ -8,7 +8,7 @@ local file_info = require 'user.statusline.file_info'
 require 'user.statusline.lsp'
 require 'user.statusline.dap'
 
-local fn = vim.fn
+local fn = require 'user.fn'
 
 local separators = {
   vertical_bar = '┃',
@@ -52,6 +52,18 @@ local vi_mode_colors = {
   ['NONE'] = colors.yellow,
 }
 
+local filetypes_override_name = {
+  'NvimTree',
+  'Trouble',
+
+  aerial = 'Aerial',
+  fugitive = 'Fugitive',
+  fugitiveblame = 'FugitiveBlame',
+  packer = 'Packer',
+  qf = 'Quickfix',
+  startify = 'Startify',
+}
+
 local config = {
   preset = 'default',
 
@@ -61,16 +73,7 @@ local config = {
   vi_mode_colors = vi_mode_colors,
 
   force_inactive = {
-    filetypes = {
-      'NvimTree',
-      'Trouble',
-      'aerial',
-      'fugitive',
-      'fugitiveblame',
-      'packer',
-      'qf',
-      'startify',
-    },
+    filetypes = fn.tbl_listkeys(filetypes_override_name),
     buftypes = {
       'terminal',
     },
@@ -120,7 +123,7 @@ config.components.active[1] = {
       name = 'user_file_info',
       opts = {
         active = true,
-        filetypes_hide_name = config.force_inactive.filetypes,
+        filetypes_override_name = filetypes_override_name,
       },
     },
     hl = file_info.hl {
@@ -138,7 +141,7 @@ config.components.active[1] = {
   {
     provider = 'file_size',
     enabled = function()
-      return fn.getfsize(fn.expand '%:p') > 0
+      return vim.fn.getfsize(vim.fn.expand '%:p') > 0
     end,
     left_sep = ' ',
     right_sep = {
@@ -294,7 +297,7 @@ config.components.inactive[1] = {
       name = 'user_file_info',
       opts = {
         active = false,
-        filetypes_hide_name = config.force_inactive.filetypes,
+        filetypes_override_name = filetypes_override_name,
       },
     },
     hl = file_info.hl {
@@ -353,6 +356,7 @@ local active_hl = function(hl)
   end
   return hl
 end
+
 for _, component in ipairs(config.components.active) do
   for _, val in ipairs(component) do
     if not val.hl or type(val.hl) == 'table' then
