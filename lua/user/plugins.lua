@@ -18,6 +18,7 @@ local function uselocal(p)
   end
   if not string.match(p[1], '^.?.?/') then
     local path = vim.split(p[1], '/')
+    p.as = p.as or path[2]
     p[1] = table.concat(vim.list_slice(path, 2), '/')
     p[1] = git_projects_dir .. '/' .. p[1]
   end
@@ -65,7 +66,7 @@ packer.startup(function()
   }
 
   use 'stevearc/dressing.nvim'
-  use 'stevearc/aerial.nvim'
+  uselocal 'stevearc/aerial.nvim/worktree/current'
   use 'MunifTanjim/nui.nvim'
   use {
     'VonHeikemen/fine-cmdline.nvim',
