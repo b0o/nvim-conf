@@ -36,6 +36,7 @@ require('aerial').setup {
     'Module',
     'Method',
     'Struct',
+    'Type',
   },
 
   -- Enum: split_width, full_width, last, none
@@ -202,4 +203,15 @@ require('aerial').setup {
     -- How long to wait (in ms) after a buffer change before updating
     update_delay = 300,
   },
+}
+
+local language_kind_map = require 'aerial.backends.treesitter.language_kind_map'
+
+-- See: queries/rescript/aerial.scm
+language_kind_map.rescript = {
+  ['function'] = 'Function',
+  module_declaration = 'Module',
+  type_declaration = 'Type',
+  type_annotation = 'Interface',
+  external_declaration = 'Interface',
 }
