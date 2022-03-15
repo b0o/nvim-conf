@@ -113,17 +113,19 @@ if vim.fn.exists 'g:colorscheme' then
   ]]
 end
 
+-- Notify with nvim-notify if nvim is focused,
+-- otherwise send a desktop notification.
 vim.notify = function(...)
   if vim.g.nvim_focused == nil or vim.g.nvim_focused == 1 then
     local ok, notify = pcall(require, 'notify')
     if not ok then
-      local args = {...}
+      local args = { ... }
       vim.defer_fn(function()
         vim.notify(unpack(args))
       end, 100)
       return
     end
-    require'user.plugin.notify'
+    require 'user.plugin.notify'
     return notify.notify(...)
   else
     return require('desktop-notify').notify(...)
@@ -147,4 +149,4 @@ vim.g.ruby_host_prog = '/usr/bin/ruby'
 vim.g.no_man_maps = 1
 
 -- Automatically equalize window sizes when Neovim is resized
-fn.autoresize_enable()
+fn.silent(fn.autoresize_enable)

@@ -6,15 +6,16 @@ local M = {
   captured = {},
 }
 
-M.print = function(...)
+M.notify = function(...)
   if M.quiet then
     for _, l in ipairs { ... } do
       table.insert(M.captured, l)
     end
     return
   end
-  _G.print(...)
+  vim.notify(...)
 end
+local notify = M.notify
 
 M.silent = function(f, ...)
   local q = M.quiet
@@ -29,8 +30,6 @@ M.capture = function(f, ...)
   local res = { M.silent(f, ...) }
   return M.captured, unpack(res)
 end
-
-local print = M.print
 
 -- Register a global anonymous callback
 -- Returns an id that can be passed to fn.callback() to call the function
@@ -369,7 +368,7 @@ M.set_winfix = function(set, ...)
     end
   end
   if #msg > 0 then
-    print(table.concat(msg, ', '))
+    notify(table.concat(msg, ', '))
   end
 end
 
@@ -388,7 +387,7 @@ end
 M.autoresize_disable = function()
   local msg = M.capture(M.set_winfix, true, 'width', 'height')
   table.insert(msg, 'autoresize disable')
-  print(table.concat(msg, ', '))
+  notify(table.concat(msg, ', '))
   vim.cmd [[
     augroup autoresize
       au!
@@ -401,7 +400,7 @@ end
 M.autoresize_enable = function()
   local msg = M.capture(M.set_winfix, false, 'width', 'height')
   table.insert(msg, 'autoresize enable')
-  vim.notify(table.concat(msg, ', '))
+  notify(table.concat(msg, ', '))
   vim.cmd [[
     augroup autoresize
       au!

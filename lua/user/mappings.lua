@@ -192,7 +192,7 @@ local function cursor_lock(lock)
         augroup END
       ]]):format(vim.api.nvim_get_current_win()))
 
-      print("Cursor lock disabled")
+      fn.notify("Cursor lock disabled")
       return
     end
 
@@ -205,7 +205,7 @@ local function cursor_lock(lock)
       augroup END
     ]]):format(vim.api.nvim_get_current_win()))
 
-    print("Cursor lock enabled")
+    fn.notify("Cursor lock enabled")
   end
 end
 
