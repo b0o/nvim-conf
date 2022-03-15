@@ -90,22 +90,20 @@ local config = {
 
 local vi_mode_hl = function(hl)
   return function()
-    local hl = hl
-    if hl then
-      hl = vim.deepcopy(hl)
+    local _hl = hl
+    if _hl then
+      _hl = vim.deepcopy(_hl)
     else
-      hl = { fg = true }
+      _hl = { fg = true }
     end
-    if hl.fg == true then
-      hl.fg = vi_mode_utils.get_mode_color()
+    local color = vim.g.nvim_focused == 1 and vi_mode_utils.get_mode_color() or colors.inactive_bg
+    if _hl.fg == true then
+      _hl.fg = color
     end
-    if hl.bg == true then
-      hl.bg = vi_mode_utils.get_mode_color()
+    if _hl.bg == true then
+      _hl.bg = color
     end
-    if hl.name == true then
-      hl.name = vi_mode_utils.get_mode_highlight_name()
-    end
-    return hl
+    return _hl
   end
 end
 
@@ -116,7 +114,7 @@ config.components.active[1] = {
   },
   {
     provider = 'vi_mode',
-    hl = vi_mode_hl { fg = true, name = true, style = 'bold' },
+    hl = vi_mode_hl { fg = true, style = 'bold' },
   },
   {
     provider = {
