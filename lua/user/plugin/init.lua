@@ -1,5 +1,5 @@
 -- Generated with:
--- :Put !find lua/user/plugin/ -type f | sed "/init\.lua$/d; s|^lua/||; s|/|.|g; s/^/require '/; s/\.lua$/'/" | sort
+-- :Put !find lua/user/plugin/ -type f -name '*.lua' | sed "/init\.lua$/d; s|^lua/||; s|/|.|g; s/^/require '/; s/\.lua$/'/" | sort
 
 require 'user.plugin.aerial'
 require 'user.plugin.comment'
