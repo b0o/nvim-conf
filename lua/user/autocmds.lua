@@ -4,7 +4,7 @@ local plugins_conf_path = vim.fn.stdpath 'config' .. '/lua/user/plugins.lua'
 vim.cmd(([[
   augroup user_packer
     autocmd!
-    autocmd BufWritePost %s lua require'user.fn'.packer_compile()
+    autocmd BufWritePost %s lua vim.schedule(require'user.fn'.packer_compile)
     autocmd User PackerCompileDone lua vim.notify("Packer configuration recompiled")
   augroup END
 ]]):format(plugins_conf_path))
@@ -30,7 +30,7 @@ vim.cmd [[
   augroup user_lsp
     autocmd!
     " Check for code actions on cursorhold
-    autocmd CursorHold,CursorHoldI * lua require('user.lsp').code_action_listener()
+    autocmd CursorHold,CursorHoldI * lua vim.schedule(function() require('user.lsp').code_action_listener() end)
   augroup END
 ]]
 
