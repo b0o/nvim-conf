@@ -21,6 +21,8 @@ vim.cmd [[
     autocmd FocusGained * let g:nvim_focused = v:true
     " Set global variable g:nvim_focused to false when neovim loses focus
     autocmd FocusLost * let g:nvim_focused = v:false
+    " Keep track of recent normal windows
+    autocmd WinLeave * lua vim.schedule(require'user.fn'.update_recent_normal_wins)
   augroup END
 ]]
 

@@ -665,7 +665,42 @@ M.resolve_winnr = function(winnr)
   return winnr ~= 0 and winnr or vim.api.nvim_get_current_win()
 end
 
----- Magic file functions
+---- Recent wins
+-- An extension of the 'wincmd p' concept, but ignoring special windows like
+-- popups, sidebars, and quickfix.
+M.update_recent_normal_wins = function()
+  local tabpage = vim.api.nvim_get_current_tabpage()
+  if not M.recent_normal_wins then
+    M.recent_normal_wins = {}
+  end
+  if not M.recent_normal_wins[tabpage] then
+    M.recent_normal_wins[tabpage] = {}
+  end
+  local tabpage_recent_normal_wins = M.recent_normal_wins[tabpage]
+  if vim.fn.win_gettype(0) ~= '' then
+    return
+  end
+  if vim.api.nvim_buf_get_option(0, 'buftype') ~= '' then
+    return
+  end
+  if
+    vim.tbl_contains({
+      'NvimTree',
+      'Trouble',
+      'aerial',
+    }, vim.api.nvim_buf_get_option(0, 'filetype'))
+  then
+    return
+  end
+  local cur_winid = vim.api.nvim_get_current_win()
+  if cur_winid == tabpage_recent_normal_wins[1] then
+    return
+  end
+  M.recent_normal_wins[tabpage] = {
+    cur_winid,
+    tabpage_recent_normal_wins[1] or nil,
+  }
+end
 
 -- Get a magic file path based on the current buffer path and new_name.
 -- Behaves kinda like paths in tpope/vim-eunuch.

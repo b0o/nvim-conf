@@ -232,7 +232,7 @@ noremap  ([[<M-;>]],   [[:tabp<Cr>]],                silent, "Tabs: Goto prev")
 tnoremap ([[<M-'>]],   [[<C-\><C-n>:tabn<Cr>]],                silent) -- Tabs: goto next
 tnoremap ([[<M-;>]],   [[<C-\><C-n>:tabp<Cr>]],                silent) -- Tabs: goto prev
 noremap  ([[<M-S-a>]], [[:execute "wincmd g\<Tab>"<Cr>]], silent, "Tabs: Goto last accessed")
-noremap  ([[<M-a>]], [[:wincmd p<Cr>]], silent, "Panes: Goto previously focused")
+noremap  ([[<M-a>]],   fn.focus_last_normal_win,          silent, "Panes: Goto previously focused")
 
 noremap ([[<M-1>]], tabnm(1),  silent, "Goto tab 1")
 noremap ([[<M-2>]], tabnm(2),  silent, "Goto tab 2")
@@ -589,11 +589,11 @@ nmap(xk[[<C-S-\>]], function()
     require'nvim-tree.view'.close()
   else
     require'nvim-tree.lib'.open()
-    vim.cmd[[wincmd p]]
+    fn.focus_last_normal_win()
   end
 end, silent, "Nvim-Tree: Toggle")
 nmap(xk[[<C-\>]],
-  fn.filetype_command( "NvimTree", thunk(vim.cmd, [[wincmd p]]), thunk(vim.cmd, [[NvimTreeFocus]])),
+  fn.filetype_command( "NvimTree", fn.focus_last_normal_win, thunk(vim.cmd, [[NvimTreeFocus]])),
   silent, "Nvim-Tree: Toggle Focus")
 
 mapx.group({ ft = "NvimTree" }, function()
@@ -609,22 +609,84 @@ mapx.group({ ft = "NvimTree" }, function()
   nnoremap ([[gd]], withSelected("tabnew | Gdiffsplit"), "Nvim-Tree: Git diff")
 end)
 
--- stevearc/aerial.nvim
-nmap(xk[[<M-S-\>]], function()
-  if require"aerial".is_open() or require"aerial.util".is_aerial_buffer() then
-    require"aerial".close()
+-- trouble.nvim
+local function trouble_get_win()
+  for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    local bufnr = vim.api.nvim_win_get_buf(winid)
+    local ft = vim.api.nvim_buf_get_option(bufnr, "filetype")
+    if ft == "Trouble" then
+      return winid
+    end
+  end
+end
+
+M.trouble_get_win = trouble_get_win
+
+local trouble = fn.require_on_exported_call'trouble'
+
+nmap([[<M-S-t>]], function()
+  local winid = trouble_get_win()
+  if winid then
+    trouble.close()
   else
-    require"aerial".open()
+    trouble.open()
+    -- vim.cmd[[wincmd p]]
+    fn.focus_last_normal_win()
+  end
+end, silent, "Trouble: Toggle")
+
+nmap([[<M-t>]],
+  fn.filetype_command("Trouble", fn.focus_last_normal_win, ithunk(trouble.open)),
+  silent, "Trouble: Toggle Focus")
+
+-- stevearc/aerial.nvim
+local aerial = fn.require_on_index"aerial"
+local aerial_util = fn.require_on_index"aerial.util"
+
+local function aerial_get_win()
+  local active_bufnr = aerial_util.get_aerial_buffer()
+  if active_bufnr ~= -1 then
+    local active_winid = aerial_util.buf_first_win_in_tabpage(active_bufnr)
+    if active_winid then
+      return active_winid
+    end
+  end
+  for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    local winbuf = vim.api.nvim_win_get_buf(winid)
+    if aerial_util.is_aerial_buffer(winbuf) then
+      return winid
+    end
+  end
+end
+
+local function aerial_open(focus)
+  local winid = aerial_get_win()
+  if winid then
+    vim.api.nvim_set_current_win(winid)
+    return
+  end
+  if not require"aerial.backends".get() then
+    fn.notify("no aerial backend")
+    return
+  end
+  require"aerial.window".open(focus)
+end
+
+nmap(xk[[<M-S-\>]], function()
+  if require"aerial.util".is_aerial_buffer() or aerial_get_win() then
+    aerial.close()
+  else
+    aerial_open()
   end
 end, silent, "Aerial: Toggle")
 
 nmap([[<M-\>]],
-  fn.filetype_command("aerial", ithunk(vim.cmd, [[wincmd p]]), ithunk(vim.cmd, [[AerialOpen]])),
-  silent, "Sidebar: Toggle Focus")
+  fn.filetype_command("aerial", fn.focus_last_normal_win, ithunk(aerial_open, true)),
+  silent, "Trouble: Toggle Focus")
 
-mapx.group({ ft = "SidebarNvim" }, function()
-  nmap([[<Cr>]], "e")
-end)
+-- mapx.group({ ft = "aerial" }, function()
+--   nmap([[<Cr>]], "e")
+-- end)
 
 ---- mfussenegger/nvim-dap
 local function dap_pre()
