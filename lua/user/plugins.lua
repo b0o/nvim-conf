@@ -110,6 +110,9 @@ packer.startup(function()
   -- use 'andymass/vim-matchup'
   -- uselocal 'extended-scrolloff.vim'
 
+  -- Quickfix/Loclist
+  use 'kevinhwang91/nvim-bqf'
+
   -- Backup, Undo
   use 'chrisbra/Recover.vim'
   use 'mbbill/undotree'
