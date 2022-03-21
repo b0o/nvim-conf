@@ -8,21 +8,35 @@ end
 local packer = require 'packer'
 local use = packer.use
 
-local function uselocal(p)
+local function _use(p, ...)
+  use(#{...} > 0 and vim.tbl_extend("force", p, ...) or p)
+end
+
+local function uselocal(p, ...)
+  local git_projects_dir = os.getenv 'GIT_PROJECTS_DIR'
+  if git_projects_dir == nil then
+    vim.notify("plugins.uselocal: missing environment variable: GIT_PROJECTS_DIR", vim.log.levels.ERROR)
+    return
+  end
   if type(p) ~= 'table' then
     p = { p }
   end
-  local git_projects_dir = os.getenv 'GIT_PROJECTS_DIR'
-  if git_projects_dir == nil then
-    return
-  end
+  extend = #{...} > 0 and vim.tbl_extend("force", {},  ...) or {}
   if not string.match(p[1], '^.?.?/') then
     local path = vim.split(p[1], '/')
-    p.as = p.as or path[2]
-    p[1] = table.concat(vim.list_slice(path, 2), '/')
-    p[1] = git_projects_dir .. '/' .. p[1]
+    extend.as = p.as or path[2]
+    local realpath = git_projects_dir .. '/' .. table.concat(vim.list_slice(path, 2), '/')
+    extend[1] = realpath
   end
-  use(p)
+  _use(p, extend)
+end
+
+local function xuse(p)
+  return _use(p, { disable = true })
+end
+
+local function xuselocal(p)
+  return uselocal(p, { disable = true })
 end
 
 packer.init {
@@ -53,7 +67,6 @@ packer.startup(function()
   use 'ericbn/vim-relativize'
   use 'folke/which-key.nvim'
   use 'kyazdani42/nvim-web-devicons'
-  use 'liuchengxu/vista.vim'
   use 'lukas-reineke/indent-blankline.nvim'
   use 'luukvbaal/stabilize.nvim'
   use 'kevinhwang91/nvim-hlslens'
@@ -148,7 +161,7 @@ packer.startup(function()
   use 'sindrets/diffview.nvim'
   use 'TimUntersberger/neogit'
   use 'lewis6991/gitsigns.nvim'
-  -- use 'tanvirtin/vgit.nvim'
+  use 'rbong/vim-flog'
   use 'ThePrimeagen/git-worktree.nvim'
   use { 'mattn/gist-vim', requires = 'mattn/webapi-vim' }
 
@@ -162,13 +175,15 @@ packer.startup(function()
   use 'hrsh7th/nvim-cmp'
   use 'hrsh7th/cmp-buffer'
   use 'hrsh7th/cmp-calc'
+  use 'hrsh7th/cmp-cmdline'
   use 'hrsh7th/cmp-nvim-lsp'
   use 'hrsh7th/cmp-path'
-  use 'octaltree/cmp-look'
-  use 'saadparwaiz1/cmp_luasnip'
-  use 'ray-x/cmp-treesitter'
-  use 'f3fora/cmp-spell'
+  use 'hrsh7th/cmp-nvim-lua'
   use 'andersevenrud/cmp-tmux'
+  use 'f3fora/cmp-spell'
+  use 'ray-x/cmp-treesitter'
+  use 'saadparwaiz1/cmp_luasnip'
+  use { 'petertriho/cmp-git', requires = 'nvim-lua/plenary.nvim' }
 
   -- Debugging
   use 'mfussenegger/nvim-dap'
@@ -196,6 +211,7 @@ packer.startup(function()
   --- Vim Plugin Development
   use 'bfredl/nvim-luadev'
   use 'folke/lua-dev.nvim'
+  use 'rktjmp/lush.nvim'
 
   -- Misc
   use { 'lewis6991/impatient.nvim', rocks = 'mpack' }

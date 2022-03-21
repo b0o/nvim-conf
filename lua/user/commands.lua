@@ -136,7 +136,7 @@ cabbrev('Cp', 'Copy')
 cabbrev('Du', 'Duplicate')
 cabbrev('VDu', 'VDuplicate')
 cabbrev('Vdu', 'VDuplicate')
-
 cabbrev('LI', 'lua inspect')
+cabbrev('PS', 'PackerSync')
 
 return M
