@@ -105,7 +105,7 @@ endif
 let s:italicize_comments = ''
 if exists('g:lavi_italic_comments')
   if g:lavi_italic_comments == 1
-    let s:italicize_comments = s:italic
+    let s:italicize_comments = s:italic . s:bold
   endif
 endif
 
@@ -164,6 +164,9 @@ call s:hi('Underline', '', '', '', '', s:underline, '')
 call s:hi('ColorColumn', '', g:lavi_gui[1], 'NONE', g:lavi_term[1], '', '')
 call s:hi('Cursor', '', g:lavi_gui[4], '', 'NONE', '', '')
 call s:hi('CursorLine', '', g:lavi_gui[1], 'NONE', g:lavi_term[1], 'NONE', '')
+call s:hi('CursorLineNC', '', g:lavi_gui[1], 'NONE', g:lavi_term[1], 'NONE', '')
+" hi CursorLineNC   ctermbg=0 guibg=#33283E
+" hi CursorLineNrNC cterm=underline ctermbg=12 gui=bold guifg=#FFF1E0 guibg=#5E6074
 call s:hi('Error', g:lavi_gui[0], g:lavi_gui[11], '', g:lavi_term[11], '', '')
 call s:hi('iCursor', g:lavi_gui[0], g:lavi_gui[4], '', 'NONE', '', '')
 call s:hi('LineNr', g:lavi_gui[3], '', g:lavi_term[3], 'NONE', '', '')
@@ -233,8 +236,10 @@ endif
 call s:hi('CursorColumn', '', g:lavi_gui[1], 'NONE', g:lavi_term[1], '', '')
 if g:lavi_cursor_line_number_background == 0
   call s:hi('CursorLineNr', g:lavi_gui[4], '', 'NONE', '', '', '')
+  call s:hi('CursorLineNrNC', g:lavi_gui[4], '', 'NONE', '', '', '')
 else
   call s:hi('CursorLineNr', g:lavi_gui[4], g:lavi_gui[10], 'NONE', g:lavi_term[10], '', '')
+  call s:hi('CursorLineNrNC', g:lavi_gui[4], g:lavi_gui[10], 'NONE', g:lavi_term[10], '', '')
 endif
 call s:hi('Folded', g:lavi_gui[3], g:lavi_gui[1], g:lavi_term[3], g:lavi_term[1], s:bold, '')
 call s:hi('FoldColumn', g:lavi_gui[3], 'NONE', g:lavi_term[3], 'NONE', '', '')

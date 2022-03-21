@@ -34,7 +34,7 @@ vim.o.updatetime = 250
 vim.o.timeoutlen = 1000
 vim.o.matchtime = 2 -- show matching parens/brackets for 200ms
 
-vim.o.signcolumn = 'auto:4'
+vim.o.signcolumn = 'auto:2-5'
 
 vim.o.clipboard = 'unnamedplus' -- Enable yanking between vim sessions and system
 
@@ -103,6 +103,7 @@ if not vim.g.colorscheme then
 end
 
 vim.g.lavi_italic = 1
+vim.g.lavi_italic_comments = 1
 vim.g.lavi_cursor_line_number_background = 1
 
 if vim.fn.exists 'g:colorscheme' then

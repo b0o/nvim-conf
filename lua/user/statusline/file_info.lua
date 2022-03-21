@@ -66,7 +66,7 @@ end
 function M.file_info(component, opts)
   local filename
   if opts.filetypes_override_name then
-    local filetype = api.nvim_buf_get_option(0, "filetype")
+    local filetype = api.nvim_buf_get_option(0, 'filetype')
     if opts.filetypes_override_name[filetype] then
       filename = opts.filetypes_override_name[filetype]
     elseif vim.tbl_contains(opts.filetypes_override_name, filetype) then
@@ -140,7 +140,7 @@ end
 M.hl = function(base)
   return function()
     return vim.tbl_extend('force', {
-      style = vim.api.nvim_buf_get_option(0, 'modified') and 'bolditalic' or 'bold',
+      style = vim.api.nvim_buf_get_option(0, 'modified') and 'italic' or nil,
     }, base)
   end
 end

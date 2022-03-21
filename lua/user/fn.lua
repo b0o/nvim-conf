@@ -4,6 +4,7 @@ local M = {
   autoresize = false,
   quiet = false,
   captured = {},
+  recent_normal_wins = {},
 }
 
 M.notify = function(...)
@@ -683,13 +684,7 @@ M.update_recent_normal_wins = function()
   if vim.api.nvim_buf_get_option(0, 'buftype') ~= '' then
     return
   end
-  if
-    vim.tbl_contains({
-      'NvimTree',
-      'Trouble',
-      'aerial',
-    }, vim.api.nvim_buf_get_option(0, 'filetype'))
-  then
+  if vim.tbl_contains({ 'NvimTree', 'Trouble', 'aerial' }, vim.api.nvim_buf_get_option(0, 'filetype')) then
     return
   end
   local cur_winid = vim.api.nvim_get_current_win()
@@ -702,6 +697,23 @@ M.update_recent_normal_wins = function()
   }
 end
 
+M.focus_last_normal_win = function()
+  local tabpage = vim.api.nvim_get_current_tabpage()
+  local tabpage_recent_normal_wins = M.recent_normal_wins[tabpage]
+  local winid = tabpage_recent_normal_wins and tabpage_recent_normal_wins[1]
+  if winid then
+    if vim.api.nvim_get_current_win() == winid then
+      winid = tabpage_recent_normal_wins[2]
+    end
+    if winid then
+      vim.api.nvim_set_current_win(winid)
+      return
+    end
+  end
+  vim.cmd [[wincmd p]]
+end
+
+---- Magic file functions
 -- Get a magic file path based on the current buffer path and new_name.
 -- Behaves kinda like paths in tpope/vim-eunuch.
 M.magic_file_path = function(winnr, new_name, add_ext)

@@ -64,6 +64,6 @@ local colors = {
 
 colors.inactive_bg = colors_gui['0'] or defaults.bg
 colors.active_bg = colors_gui['3'] or defaults.bg
-colors.bg = colors.inactive_bg
+colors.bg = colors.active_bg
 
 return colors

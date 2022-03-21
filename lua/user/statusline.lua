@@ -32,12 +32,13 @@ local separators = {
   right_rounded_thin = '',
   circle = '●',
   moon = '',
+  heart = '♥ ',
 }
 
 local vi_mode_colors = {
   ['NORMAL'] = colors.green,
   ['OP'] = colors.green,
-  ['INSERT'] = colors.red,
+  ['INSERT'] = colors.hydrangea,
   ['VISUAL'] = colors.skyblue,
   ['LINES'] = colors.skyblue,
   ['BLOCK'] = colors.skyblue,
@@ -113,7 +114,7 @@ config.components.active[1] = {
     hl = vi_mode_hl(),
   },
   {
-    provider = 'vi_mode',
+    provider = separators.heart,
     hl = vi_mode_hl { fg = true, style = 'bold' },
   },
   {
@@ -287,7 +288,10 @@ config.components.inactive[1] = {
         fg = true,
         bg = colors.active_bg,
       },
-      { fg = 'deep_lavender' }
+      {
+        fg = 'deep_lavender',
+        bg = colors.inactive_bg,
+      }
     ),
   },
   {
@@ -305,20 +309,26 @@ config.components.inactive[1] = {
     left_sep = {
       {
         str = ' ' .. separators.slant_left_2,
-        hl = hl_if_focused {
+        hl = hl_if_focused({
           bg = colors.active_bg,
           fg = 'deep_lavender',
-        },
+        }, {
+          fg = 'deep_lavender',
+          bg = colors.inactive_bg,
+        }),
       },
       { str = ' ', hl = { bg = 'deep_lavender', fg = 'NONE' } },
     },
     right_sep = {
       {
         str = separators.slant_right_2 .. ' ',
-        hl = hl_if_focused {
-          bg = colors.active_bg,
+        hl = hl_if_focused({
           fg = 'deep_lavender',
-        },
+          bg = colors.active_bg,
+        }, {
+          fg = 'deep_lavender',
+          bg = colors.inactive_bg,
+        }),
       },
     },
   },
@@ -326,9 +336,11 @@ config.components.inactive[1] = {
 config.components.inactive[2] = {
   {
     provider = ' ',
-    hl = hl_if_focused {
+    hl = hl_if_focused({
       bg = colors.active_bg,
-    },
+    }, {
+      bg = colors.inactive_bg,
+    }),
   },
 }
 
@@ -342,51 +354,10 @@ config.components.inactive[3] = {
       },
       {
         fg = 'deep_lavender',
+        bg = colors.inactive_bg,
       }
     ),
   },
 }
-
--- Give active components a different default background color
-local active_hl = function(hl)
-  if hl and (not hl.bg or hl.bg == 'bg') then
-    hl.bg = colors.active_bg
-  end
-  return hl
-end
-
-for _, component in ipairs(config.components.active) do
-  for _, val in ipairs(component) do
-    if not val.hl or type(val.hl) == 'table' then
-      val.hl = active_hl(val.hl or {})
-    elseif type(val.hl) == 'function' then
-      local orig_hl = val.hl
-      val.hl = function(...)
-        return active_hl(orig_hl(...))
-      end
-    end
-    for _, sep_kind in ipairs { 'left_sep', 'right_sep' } do
-      local seps = val[sep_kind]
-      if type(seps) == 'string' then
-        seps = { str = seps }
-        val[sep_kind] = seps
-      end
-      if type(seps) == 'table' then
-        if seps.str or seps.hl then
-          seps = { seps }
-        end
-        for i, sep in ipairs(seps) do
-          if type(sep) == 'string' then
-            sep = { str = sep }
-            seps[i] = sep
-          end
-          if type(sep) == 'table' and (not sep.hl or type(sep.hl) == 'table') then
-            sep.hl = active_hl(sep.hl or {})
-          end
-        end
-      end
-    end
-  end
-end
 
 feline.setup(config)
