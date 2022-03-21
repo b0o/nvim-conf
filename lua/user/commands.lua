@@ -117,15 +117,15 @@ local function magicFileCmd(func, name, edit_cmd)
   }
 end
 
-magicFileCmd(fn.saveas, 'Copy')
-magicFileCmd(fn.saveas, 'Duplicate', 'split')
-magicFileCmd(fn.saveas, 'VDuplicate', 'vsplit')
-magicFileCmd(fn.saveas, 'Vduplicate', 'vsplit')
-magicFileCmd(fn.newfile, 'New')
-magicFileCmd(fn.newfile, 'Newsplit', 'split')
-magicFileCmd(fn.newfile, 'XNew', 'split')
-magicFileCmd(fn.newfile, 'VNew', 'vsplit')
-magicFileCmd(fn.newfile, 'VNewsplit', 'split')
+magicFileCmd(fn.magic_saveas, 'Copy')
+magicFileCmd(fn.magic_saveas, 'Duplicate', 'split')
+magicFileCmd(fn.magic_saveas, 'VDuplicate', 'vsplit')
+magicFileCmd(fn.magic_saveas, 'Vduplicate', 'vsplit')
+magicFileCmd(fn.magic_newfile, 'New')
+magicFileCmd(fn.magic_newfile, 'Newsplit', 'split')
+magicFileCmd(fn.magic_newfile, 'XNew', 'split')
+magicFileCmd(fn.magic_newfile, 'VNew', 'vsplit')
+magicFileCmd(fn.magic_newfile, 'VNewsplit', 'split')
 
 ------ Plugins
 ---- tpope/vim-eunuch
