@@ -9,19 +9,19 @@ local packer = require 'packer'
 local use = packer.use
 
 local function _use(p, ...)
-  use(#{...} > 0 and vim.tbl_extend("force", p, ...) or p)
+  use(#{ ... } > 0 and vim.tbl_extend('force', p, ...) or p)
 end
 
 local function uselocal(p, ...)
   local git_projects_dir = os.getenv 'GIT_PROJECTS_DIR'
   if git_projects_dir == nil then
-    vim.notify("plugins.uselocal: missing environment variable: GIT_PROJECTS_DIR", vim.log.levels.ERROR)
+    vim.notify('plugins.uselocal: missing environment variable: GIT_PROJECTS_DIR', vim.log.levels.ERROR)
     return
   end
   if type(p) ~= 'table' then
     p = { p }
   end
-  extend = #{...} > 0 and vim.tbl_extend("force", {},  ...) or {}
+  extend = #{ ... } > 0 and vim.tbl_extend('force', {}, ...) or {}
   if not string.match(p[1], '^.?.?/') then
     local path = vim.split(p[1], '/')
     extend.as = p.as or path[2]
@@ -48,12 +48,7 @@ packer.startup(function()
   use 'wbthomason/packer.nvim'
 
   -- Config
-  uselocal {
-    'b0o/mapx.nvim/worktree/current',
-    --     config = function()
-    --       require'user.mappings'
-    --     end,
-  }
+  uselocal 'b0o/mapx.nvim/worktree/current'
 
   -- Meta
   use 'nvim-lua/plenary.nvim'
@@ -77,24 +72,14 @@ packer.startup(function()
     setup = [[pcall(vim.cmd, 'delcommand Notifications')]],
     config = [[vim.cmd'command! Notifications :lua require("notify")._print_history()<CR>']],
   }
-
   use 'stevearc/dressing.nvim'
   uselocal 'stevearc/aerial.nvim/worktree/current'
   use 'MunifTanjim/nui.nvim'
-  use {
-    'VonHeikemen/fine-cmdline.nvim',
-    requires = { 'MunifTanjim/nui.nvim' },
-  }
-  use {
-    'winston0410/range-highlight.nvim',
-    requires = { 'winston0410/cmd-parser.nvim' },
-  }
+  use { 'VonHeikemen/fine-cmdline.nvim', requires = { 'MunifTanjim/nui.nvim' } }
+  use { 'winston0410/range-highlight.nvim', requires = { 'winston0410/cmd-parser.nvim' } }
 
   -- Telescope
-  use {
-    'nvim-telescope/telescope.nvim',
-    requires = { 'nvim-lua/popup.nvim' },
-  }
+  use { 'nvim-telescope/telescope.nvim', requires = { 'nvim-lua/popup.nvim' } }
   use 'kyoh86/telescope-windows.nvim'
 
   -- Editing
@@ -131,10 +116,7 @@ packer.startup(function()
   use 'mbbill/undotree'
 
   -- Treesitter
-  use {
-    'nvim-treesitter/nvim-treesitter',
-    run = ':TSUpdate',
-  }
+  use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
   use 'nvim-treesitter/nvim-treesitter-textobjects'
   use 'nvim-treesitter/playground'
   use 'romgrk/nvim-treesitter-context'
@@ -213,7 +195,7 @@ packer.startup(function()
   use 'folke/lua-dev.nvim'
   use 'rktjmp/lush.nvim'
 
-  -- Misc
+  -- Performance
   use { 'lewis6991/impatient.nvim', rocks = 'mpack' }
   use 'nathom/filetype.nvim'
 end)
