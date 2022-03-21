@@ -23,6 +23,8 @@ local xk = fn.utf8keys {
   [ [[<C-S-\>]] ] = 0x00f1,
   [ [[<M-S-\>]] ] = 0x00f2,
   [ [[<C-`>]] ] = 0x00f3,
+  [ [[<C-S-w>]] ] = 0x00f4,
+  [ [[<C-S-f>]] ] = 0x00f5,
   [ [[<C-/>]] ] = 0x001f,
 }
 
@@ -64,7 +66,7 @@ vnoremap ([[<]], [[<gv]], "De-Indent")
 
 nnoremap ({[[Q]], [[<F29>]]}, [[:CloseWin<Cr>]],     silent, "Close window")
 nnoremap ([[ZQ]],             [[:confirm qall<Cr>]], silent, "Quit all")
-nnoremap ([[<C-w>]],          [[:tabclose<Cr>]],     silent, "Close tab (except last one)")
+nnoremap (xk[[<C-S-w>]],        [[:tabclose<Cr>]],     silent, "Close tab (except last one)")
 nnoremap ([[<leader>H]],      [[:hide<Cr>]],         silent, "Hide buffer")
 
 noremap ([[<C-s>]], [[:w<Cr>]], "Write buffer")
@@ -227,10 +229,10 @@ local function tabnm(n)
   end
 end
 
-noremap  ([[<M-'>]],   [[:tabn<Cr>]],                silent, "Tabs: Goto next")
-noremap  ([[<M-;>]],   [[:tabp<Cr>]],                silent, "Tabs: Goto prev")
-tnoremap ([[<M-'>]],   [[<C-\><C-n>:tabn<Cr>]],                silent) -- Tabs: goto next
-tnoremap ([[<M-;>]],   [[<C-\><C-n>:tabp<Cr>]],                silent) -- Tabs: goto prev
+noremap  ([[<M-'>]],   [[:tabn<Cr>]],                     silent, "Tabs: Goto next")
+noremap  ([[<M-;>]],   [[:tabp<Cr>]],                     silent, "Tabs: Goto prev")
+tnoremap ([[<M-'>]],   [[<C-\><C-n>:tabn<Cr>]],           silent) -- Tabs: goto next
+tnoremap ([[<M-;>]],   [[<C-\><C-n>:tabp<Cr>]],           silent) -- Tabs: goto prev
 noremap  ([[<M-S-a>]], [[:execute "wincmd g\<Tab>"<Cr>]], silent, "Tabs: Goto last accessed")
 noremap  ([[<M-a>]],   fn.focus_last_normal_win,          silent, "Panes: Goto previously focused")
 
@@ -475,16 +477,18 @@ mapx.group("silent", function()
   local tb = require'telescope.builtin'
   local tx = t.extensions
 
-  mapx.nname([[<C-f>]], "Telescope")
-  nnoremap ([[<C-f>b]], ithunk(tb.buffers),                      "Telescope: Buffers")
+  local tu = require'user.plugin.telescope'
+  local tc = tu.cmds
 
-  nnoremap ({[[<C-f>h]], [[<C-f><C-h>]]}, ithunk(tb.help_tags),  "Telescope: Help tags")
-  nnoremap ({[[<C-f>t]], [[<C-f><C-t>]]}, ithunk(tb.tags),       "Telescope: Tags")
-  nnoremap ({[[<C-f>a]], [[<C-f><C-a>]]}, ithunk(tb.grep_string),"Telescope: Grep for string")
-  nnoremap ({[[<C-f>p]], [[<C-f><C-p>]]}, ithunk(tb.live_grep),  "Telescope: Live grep")
-  nnoremap ({[[<C-f>o]], [[<C-f><C-o>]]}, ithunk(tb.oldfiles),   "Telescope: Old files")
-  nnoremap ([[<C-f>b]],                   ithunk(tb.builtin),    "Telescope: Pickers")
-  nnoremap ({[[<C-f>f]], [[<C-f><C-f>]]}, ithunk(tb.find_files), "Telescope: Files")
+  mapx.nname([[<C-f>]], "Telescope")
+  nnoremap (xk[[<C-S-f>]],                tc.builtin,     "Telescope: Builtins")
+  nnoremap ([[<C-f>b]],                   tc.buffers,     "Telescope: Buffers")
+  nnoremap ({[[<C-f>h]], [[<C-f><C-h>]]}, tc.help_tags,   "Telescope: Help tags")
+  nnoremap ({[[<C-f>t]], [[<C-f><C-t>]]}, tc.tags,        "Telescope: Tags")
+  nnoremap ({[[<C-f>a]], [[<C-f><C-a>]]}, tc.grep_string, "Telescope: Grep for string")
+  nnoremap ({[[<C-f>p]], [[<C-f><C-p>]]}, tc.live_grep,   "Telescope: Live grep")
+  nnoremap ({[[<C-f>o]], [[<C-f><C-o>]]}, tc.oldfiles,    "Telescope: Old files")
+  nnoremap ({[[<C-f>f]], [[<C-f><C-f>]]}, tc.find_files,  "Telescope: Files")
 
   local txw = tx.windows
   nnoremap ({[[<C-f>w]], [[<C-f><C-w>]]}, ithunk(txw.windows, {}), "Telescope: Windows")
@@ -495,8 +499,8 @@ mapx.group("silent", function()
   nnoremap ([[<C-f>gW]], ithunk(txgw.git_worktrees), "Telescope: Git worktree create")
 
   mapx.nname([[<M-f>]], "Telescope-Buffer")
-  nnoremap ({[[<M-f>b]], [[<M-f><M-b>]]}, tb.current_buffer_fuzzy_find,                  "Telescope: Buffer (fuzzy)")
-  nnoremap ({[[<M-f>t]], [[<M-f><M-t>]]}, ithunk(tb.tags ,{only_current_buffer = true}), "Telescope: Tags (buffer)")
+  nnoremap ({[[<M-f>b]], [[<M-f><M-b>]]}, tb.current_buffer_fuzzy_find,          "Telescope: Buffer (fuzzy)")
+  nnoremap ({[[<M-f>t]], [[<M-f><M-t>]]}, tb.tags, "Telescope: Tags (buffer)")
 end)
 
 ---- tpope/vim-fugitive
