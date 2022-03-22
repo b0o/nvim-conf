@@ -157,6 +157,10 @@ config.components.active[1] = {
     },
   },
   {
+    provider = 'lsp_code_actions',
+    hl = { fg = 'green' },
+  },
+  {
     provider = 'diagnostic_errors',
     enabled = function()
       return lsp.diagnostics_exist(vim.diagnostic.severity.ERROR)

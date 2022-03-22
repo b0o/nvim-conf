@@ -32,14 +32,6 @@ vim.cmd [[
 ]]
 
 vim.cmd [[
-  augroup user_lsp
-    autocmd!
-    " Check for code actions on cursorhold
-    autocmd CursorHold,CursorHoldI * lua vim.schedule(function() require('user.lsp').code_action_listener() end)
-  augroup END
-]]
-
-vim.cmd [[
   augroup user_term
     autocmd!
     " Enter insert mode when entering a terminal buffer

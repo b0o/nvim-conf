@@ -233,6 +233,14 @@ local function on_attach(client, bufnr)
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   user_lsp_status.on_attach(client, bufnr)
   require('aerial').on_attach(client, bufnr)
+  if vim.lsp.get_client_by_id(1).resolved_capabilities.code_action then
+    vim.cmd(([[
+      augroup user_lsp_code_actions_%d
+        autocmd!
+        autocmd CursorHold <buffer=%d> lua require('user.lsp').code_action_listener()
+      augroup END
+    ]]):format(bufnr, bufnr))
+  end
   vim.schedule(function()
     require('user.mappings').on_lsp_attach(bufnr)
   end)
@@ -241,8 +249,6 @@ end
 local function on_exit(code, signal, id)
   user_lsp_status.on_exit(code, signal, id)
 end
-
-local format_mark_ns = vim.api.nvim_create_namespace ''
 
 -- workaround for https://github.com/neovim/neovim/issues/14645
 -- via: https://github.com/neovim/neovim/issues/14645#issuecomment-891009309
@@ -314,28 +320,23 @@ function M.peek_definition()
   end)
 end
 
+M.code_actions = {}
 function M.code_action_listener()
+  local bufnr = vim.api.nvim_get_current_buf()
   local context = { diagnostics = vim.lsp.diagnostic.get_line_diagnostics() }
   local params = vim.lsp.util.make_range_params()
   params.context = context
-  pcall(vim.lsp.buf_request, 0, 'textDocument/codeAction', params, function(err, actions, result)
+  pcall(vim.lsp.buf_request, bufnr, 'textDocument/codeAction', params, function(err, actions, result)
     if err or not result or not result.bufnr then
       return
     end
-    vim.fn.sign_unplace('user_lsp', { buffer = result.bufnr })
-    if
-      not actions
-      or #actions == 0
-      or not result.params
-      or not result.params.range
-      or not result.params.range.start
-      or not result.params.range.start.line
-    then
-      return
+    M.code_actions[result.bufnr] = M.code_actions[result.bufnr] or {}
+    M.code_actions[result.bufnr][result.client_id] = actions and #actions or 0
+    local count = 0
+    for _, sub_count in ipairs(M.code_actions[result.bufnr]) do
+      count = count + sub_count
     end
-    vim.fn.sign_place(1, 'user_lsp', 'DiagnosticSignInfo', result.bufnr, {
-      lnum = result.params.range.start.line + 1,
-    })
+    M.code_actions[result.bufnr].count = count
   end)
 end
 

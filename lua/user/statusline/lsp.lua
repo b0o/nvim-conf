@@ -17,6 +17,7 @@ local icons = {
     '█▆▄',
   },
   status = '  ',
+  code_actions = '  ',
 }
 
 local aliases = {
@@ -125,7 +126,14 @@ function M.status_clients(status)
   end
 end
 
-local register = require'user.statusline.providers'.register
+function M.code_actions()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local code_actions = require('user.lsp').code_actions[bufnr]
+  local buf_has_actions = code_actions and code_actions.count and code_actions.count > 0
+  return buf_has_actions and tostring(code_actions.count) or '', icons.code_actions
+end
+
+local register = require('user.statusline.providers').register
 
 register('lsp_clients', M.status_clients())
 register('lsp_clients_running', M.status_clients 'running')
@@ -134,5 +142,6 @@ register('lsp_clients_exited', M.status_clients 'exited')
 register('lsp_clients_exited_ok', M.status_clients 'exited_ok')
 register('lsp_clients_exited_err', M.status_clients 'exited_err')
 register('lsp_progress', M.status_progress)
+register('lsp_code_actions', M.code_actions)
 
 return M
