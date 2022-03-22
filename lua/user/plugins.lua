@@ -21,7 +21,7 @@ local function uselocal(p, ...)
   if type(p) ~= 'table' then
     p = { p }
   end
-  extend = #{ ... } > 0 and vim.tbl_extend('force', {}, ...) or {}
+  local extend = #{ ... } > 0 and vim.tbl_extend('force', {}, ...) or {}
   if not string.match(p[1], '^.?.?/') then
     local path = vim.split(p[1], '/')
     extend.as = p.as or path[2]
@@ -31,10 +31,12 @@ local function uselocal(p, ...)
   _use(p, extend)
 end
 
+---@diagnostic disable-next-line: unused-local,unused-function
 local function xuse(p)
   return _use(p, { disable = true })
 end
 
+---@diagnostic disable-next-line: unused-local,unused-function
 local function xuselocal(p)
   return uselocal(p, { disable = true })
 end

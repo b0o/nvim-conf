@@ -666,6 +666,16 @@ M.resolve_winnr = function(winnr)
   return winnr ~= 0 and winnr or vim.api.nvim_get_current_win()
 end
 
+M.get_wins_of_type = function(wintype)
+  return vim.tbl_filter(function(winid)
+    return vim.fn.win_gettype(winid) == wintype
+  end, vim.api.nvim_list_wins())
+end
+
+M.get_qfwin = function()
+  return M.get_wins_of_type("quickfix")[1]
+end
+
 ---- Recent wins
 -- An extension of the 'wincmd p' concept, but ignoring special windows like
 -- popups, sidebars, and quickfix.

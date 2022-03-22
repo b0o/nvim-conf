@@ -292,9 +292,6 @@ vnoremap ([[p]], [[user#fn#pasteRestore()]], silent, expr)
 nnoremap ([[<leader>T]], [[:Term!<Cr>]], silent, "New term (tab)")
 nnoremap ([[<leader>t]], [[:10Term<Cr>]], silent, "New term (split)")
 
--- map <C-S-q> to \x1b[15;5~ (F29) in your terminal emulator
--- tnoremap ([[<F29>]], [[<C-\><C-n>:q<Cr>]]) -- Close terminal
-
 tnoremap (xk[[<C-S-q>]], [[<C-\><C-n>:q<Cr>]]) -- Close terminal
 tnoremap (xk[[<C-S-n>]], [[<C-\><C-n>]]) -- Enter Normal mode
 tnoremap ([[<C-n>]], [[<C-n>]])
@@ -303,6 +300,20 @@ tnoremap ([[<M-n>]], [[<M-n>]])
 tnoremap ([[<M-p>]], [[<M-p>]])
 
 nnoremap ([[<Leader>ml]], [[:call AppendModeline()<Cr>]], silent, "Append modeline with current settings")
+
+---- Quickfix/Loclist
+nnoremap ([[<M-S-q>]], function()
+  if fn.get_qfwin() then
+    vim.cmd[[cclose]]
+  else
+    vim.cmd[[copen]]
+    fn.focus_last_normal_win()
+  end
+end, silent, "Quickfix: Toggle")
+
+nmap([[<M-q>]], fn.filetype_command("qf",
+  fn.focus_last_normal_win,
+  ithunk(vim.cmd, [[copen]])), silent, "Quickfix: Toggle focus")
 
 ------ Filetypes
 mapx.group(silent, { ft = "lua" }, function()
@@ -596,9 +607,8 @@ nmap(xk[[<C-S-\>]], function()
     fn.focus_last_normal_win()
   end
 end, silent, "Nvim-Tree: Toggle")
-nmap(xk[[<C-\>]],
-  fn.filetype_command( "NvimTree", fn.focus_last_normal_win, thunk(vim.cmd, [[NvimTreeFocus]])),
-  silent, "Nvim-Tree: Toggle Focus")
+
+nmap(xk[[<C-\>]], fn.filetype_command("NvimTree", fn.focus_last_normal_win, thunk(vim.cmd, [[NvimTreeFocus]])), silent, "Nvim-Tree: Toggle Focus")
 
 mapx.group({ ft = "NvimTree" }, function()
   local function withSelected(cmd, fmt)
@@ -634,7 +644,6 @@ nmap([[<M-S-t>]], function()
     trouble.close()
   else
     trouble.open()
-    -- vim.cmd[[wincmd p]]
     fn.focus_last_normal_win()
   end
 end, silent, "Trouble: Toggle")
@@ -686,7 +695,7 @@ end, silent, "Aerial: Toggle")
 
 nmap([[<M-\>]],
   fn.filetype_command("aerial", fn.focus_last_normal_win, ithunk(aerial_open, true)),
-  silent, "Trouble: Toggle Focus")
+  silent, "Aerial: Toggle Focus")
 
 -- mapx.group({ ft = "aerial" }, function()
 --   nmap([[<Cr>]], "e")
