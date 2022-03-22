@@ -30,9 +30,11 @@ vim.o.magic = true -- change set of special search characters
 
 vim.o.inccommand = 'nosplit' -- when typing a :s/foo/bar/g command, show live preview
 
-vim.o.updatetime = 250
 vim.o.timeoutlen = 1000
+vim.o.updatetime = 200
 vim.o.matchtime = 2 -- show matching parens/brackets for 200ms
+
+vim.o.lazyredraw = true
 
 vim.o.signcolumn = 'auto:2-5'
 
@@ -61,7 +63,8 @@ vim.o.qftf = [[{info -> luaeval("require'user.quickfix'.qftf(_A)", info)}]]
 -- vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
 
 vim.o.title = true
-vim.o.titlestring = '%{luaeval("require[[user.tabline]].titlestring()")}'
+-- vim.o.titlestring = '%{luaeval("require[[user.tabline]].titlestring()")}'
+vim.o.titlestring = '%F'
 
 vim.o.showtabline = 2
 vim.o.tabline = "%!luaeval('require[[user.tabline]].tabline()')"
@@ -71,6 +74,7 @@ vim.o.cursorline = true
 vim.o.showmode = false
 vim.o.showcmd = true
 vim.o.laststatus = 2
+vim.o.ruler = 0
 
 vim.o.showmatch = true
 
