@@ -673,7 +673,7 @@ M.get_wins_of_type = function(wintype)
 end
 
 M.get_qfwin = function()
-  return M.get_wins_of_type("quickfix")[1]
+  return M.get_wins_of_type('quickfix')[1]
 end
 
 ---- Recent wins
@@ -707,18 +707,24 @@ M.update_recent_normal_wins = function()
   }
 end
 
-M.focus_last_normal_win = function()
+M.get_last_normal_win = function()
   local tabpage = vim.api.nvim_get_current_tabpage()
   local tabpage_recent_normal_wins = M.recent_normal_wins[tabpage]
   local winid = tabpage_recent_normal_wins and tabpage_recent_normal_wins[1]
+  if not winid then
+    return
+  end
+  if vim.api.nvim_get_current_win() == winid then
+    winid = tabpage_recent_normal_wins[2]
+  end
+  return winid
+end
+
+M.focus_last_normal_win = function(winid)
+  winid = winid or M.get_last_normal_win()
   if winid then
-    if vim.api.nvim_get_current_win() == winid then
-      winid = tabpage_recent_normal_wins[2]
-    end
-    if winid then
-      vim.api.nvim_set_current_win(winid)
-      return
-    end
+    vim.api.nvim_set_current_win(winid)
+    return
   end
   vim.cmd [[wincmd p]]
 end

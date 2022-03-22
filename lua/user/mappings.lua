@@ -323,7 +323,7 @@ mapx.group(silent, { ft = "lua" }, function()
   xmap     ([[<leader><F12>]],   "<Cmd>Put lua require'user.fn'.luarun()<Cr>", "Lua: Eval selection (Append)")
 end)
 
-mapx.group({ "silent", ft = "man" }, function()
+mapx.group(silent, { ft = "man" }, function()
   -- open manpage tag (e.g. isatty(3)) in current buffer
   nnoremap ([[<C-]>]], function() require'user.fn'.man('', vim.fn.expand('<cword>')) end,      "Man: Open tag in current buffer")
   nnoremap ([[<M-]>]], function() require'user.fn'.man('tab', vim.fn.expand('<cword>')) end,   "Man: Open tag in new tab")
@@ -483,7 +483,7 @@ nmap     ([[<M-k>]], ithunk(tmux.move_top),    silent, "Goto window/tmux pane up
 nmap     ([[<M-l>]], ithunk(tmux.move_right),  silent, "Goto window/tmux pane right")
 
 ---- nvim-telescope/telescope.nvim TODO: In-telescope maps
-mapx.group("silent", function()
+mapx.group(silent, function()
   local t = require'telescope'
   local tb = require'telescope.builtin'
   local tx = t.extensions
@@ -688,6 +688,7 @@ end
 nmap(xk[[<M-S-\>]], function()
   if require"aerial.util".is_aerial_buffer() or aerial_get_win() then
     aerial.close()
+    fn.focus_last_normal_win()
   else
     aerial_open()
   end
@@ -697,9 +698,21 @@ nmap([[<M-\>]],
   fn.filetype_command("aerial", fn.focus_last_normal_win, ithunk(aerial_open, true)),
   silent, "Aerial: Toggle Focus")
 
--- mapx.group({ ft = "aerial" }, function()
---   nmap([[<Cr>]], "e")
--- end)
+mapx.group(silent, { ft = "aerial" }, function()
+  local function aerial_select(opts)
+    require'aerial.navigation'.select(vim.tbl_extend("force", {
+      winid = fn.get_last_normal_win()
+    }, opts or {}))
+  end
+  local function aerial_view(cmd)
+    vim.schedule(ithunk(aerial_select, { jump = false }))
+    return cmd or "\\<Nop>"
+  end
+  nnoremap([[<Cr>]],  ithunk(aerial_select),          "Aerial: Select item")
+  nnoremap([[<Tab>]], ithunk(aerial_view),      expr, "Aerial: Bring item into view")
+  nnoremap([[J]],     ithunk(aerial_view, "j"), expr, "Aerial: Bring next item into view")
+  nnoremap([[K]],     ithunk(aerial_view, "k"), expr, "Aerial: Bring previous item into view")
+end)
 
 ---- mfussenegger/nvim-dap
 local function dap_pre()
