@@ -286,7 +286,7 @@ end
 
 config.components.inactive[1] = {
   {
-    provider = separators.block .. separators.slant_right .. '  ',
+    provider = separators.block .. separators.slant_right,
     hl = hl_if_focused(
       vi_mode_hl {
         fg = true,
@@ -297,6 +297,31 @@ config.components.inactive[1] = {
         bg = colors.inactive_bg,
       }
     ),
+  },
+  {
+    provider = function()
+      local icon = '  '
+      local recent_normal_wins = fn.tabpage_get_recent_normal_wins()
+      if recent_normal_wins and #recent_normal_wins >= 2 then
+        local winid = vim.api.nvim_get_current_win()
+        local index = -1
+        for i, w in ipairs(recent_normal_wins) do
+          if w == winid then
+            index = i
+            break
+          end
+        end
+        if recent_normal_wins[1] == tonumber(vim.g.actual_curwin) and index == 2 then
+          index = 1
+        end
+        icon = ({ ' ', ' ' })[index] or '  '
+      end
+      return icon
+    end,
+    hl = {
+      fg = colors.evergreen,
+      bg = colors.inactive_bg,
+    },
   },
   {
     provider = {

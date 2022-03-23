@@ -713,9 +713,13 @@ M.update_recent_normal_wins = function()
   }
 end
 
+M.tabpage_get_recent_normal_wins = function(tabpage)
+  tabpage = tabpage or vim.api.nvim_get_current_tabpage()
+  return M.recent_normal_wins[tabpage]
+end
+
 M.get_last_normal_win = function()
-  local tabpage = vim.api.nvim_get_current_tabpage()
-  local tabpage_recent_normal_wins = M.recent_normal_wins[tabpage]
+  local tabpage_recent_normal_wins = M.tabpage_get_recent_normal_wins()
   local winid = tabpage_recent_normal_wins and tabpage_recent_normal_wins[1]
   if not winid then
     return
@@ -728,8 +732,7 @@ end
 
 M.flip_last_normal_wins = function()
   local cur_winid = vim.api.nvim_get_current_win()
-  local tabpage = vim.api.nvim_get_current_tabpage()
-  local tabpage_recent_normal_wins = M.recent_normal_wins[tabpage]
+  local tabpage_recent_normal_wins = M.tabpage_get_recent_normal_wins()
   local last_winid = tabpage_recent_normal_wins and tabpage_recent_normal_wins[1]
   if not last_winid or last_winid == cur_winid then
     return
