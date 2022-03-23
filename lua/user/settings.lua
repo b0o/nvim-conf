@@ -152,6 +152,9 @@ vim.g.python3_host_prog = vim.env.HOME .. '/.asdf/shims/python3'
 vim.g.node_host_prog = vim.env.XDG_DATA_HOME .. '/yarn/global/node_modules/neovim/bin/cli.js'
 vim.g.ruby_host_prog = '/usr/bin/ruby'
 
+---- Builtin plugins
+vim.g.loaded_matchparen = 1
+
 ---- Filetypes
 -- disable default man.vim mappings
 vim.g.no_man_maps = 1

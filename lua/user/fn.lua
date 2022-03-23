@@ -489,11 +489,17 @@ end
 
 -- Replace occurrences of ${k} with v in tmpl for each { k = v } in data
 M.template = function(tmpl, data)
-  local res = tmpl
-  for k, v in pairs(data) do
-    res = res:gsub('${' .. k .. '}', v)
+  local fn = function(data)
+    local res = tmpl
+    for k, v in pairs(data) do
+      res = res:gsub('${' .. k .. '}', v)
+    end
+    return res
   end
-  return res
+  if data then
+    return fn(data)
+  end
+  return fn
 end
 
 -- lazy_table returns a placeholder table and defers callback cb until someone
@@ -718,6 +724,19 @@ M.get_last_normal_win = function()
     winid = tabpage_recent_normal_wins[2]
   end
   return winid
+end
+
+M.flip_last_normal_wins = function()
+  local cur_winid = vim.api.nvim_get_current_win()
+  local tabpage = vim.api.nvim_get_current_tabpage()
+  local tabpage_recent_normal_wins = M.recent_normal_wins[tabpage]
+  local last_winid = tabpage_recent_normal_wins and tabpage_recent_normal_wins[1]
+  if not last_winid or last_winid == cur_winid then
+    return
+  end
+  vim.api.nvim_set_current_win(tabpage_recent_normal_wins[2])
+  M.update_recent_normal_wins()
+  vim.cmd [[wincmd p]]
 end
 
 M.focus_last_normal_win = function(winid)

@@ -1,4 +1,7 @@
 ---- stevearc/aerial.nvim
+local fn = require 'user.fn'
+local colors = require 'user.colors'
+
 require('aerial').setup {
   -- Priority list of preferred backends for aerial.
   -- This can be a filetype map (see :help aerial-filetype-map)
@@ -215,3 +218,11 @@ language_kind_map.rescript = {
   type_annotation = 'Interface',
   external_declaration = 'Interface',
 }
+
+vim.cmd(fn.template(
+  [[
+    hi AerialLine    guibg=${lavender}
+    hi AerialLineNC  guibg=${deep_anise}
+  ]],
+  colors
+))

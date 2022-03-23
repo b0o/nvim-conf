@@ -251,23 +251,23 @@ end
 
 vim.cmd(template(
   [[
-  hi TabLineFill                  ctermbg=0                            guibg=${base_bg}
+    hi TabLineFill                  ctermbg=0                            guibg=${base_bg}
 
-  hi TabLine                      ctermbg=0  guifg=${tab_fg}           guibg=${tab_bg}
-  hi TabLineSel        ctermfg=6  ctermbg=8  guifg=${tab_sel_fg}       guibg=${tab_sel_bg}
+    hi TabLine                      ctermbg=0  guifg=${tab_fg}           guibg=${tab_bg}
+    hi TabLineSel        ctermfg=6  ctermbg=8  guifg=${tab_sel_fg}       guibg=${tab_sel_bg}
 
-  hi TabLineMod                   ctermbg=0  guifg=${tab_fg}           guibg=${tab_bg}     cterm=italic gui=italic
-  hi TabLineSelMod     ctermfg=6  ctermbg=8  guifg=${tab_sel_fg}       guibg=${tab_sel_bg} cterm=italic gui=italic
+    hi TabLineMod                   ctermbg=0  guifg=${tab_fg}           guibg=${tab_bg}     cterm=italic gui=italic
+    hi TabLineSelMod     ctermfg=6  ctermbg=8  guifg=${tab_sel_fg}       guibg=${tab_sel_bg} cterm=italic gui=italic
 
-  hi TabLineSep                   ctermbg=0  guifg=${tab_bg}           guibg=${base_bg}
-  hi TabLineSelSep     ctermfg=6  ctermbg=8  guifg=${tab_sel_bg}       guibg=${base_bg}
+    hi TabLineSep                   ctermbg=0  guifg=${tab_bg}           guibg=${base_bg}
+    hi TabLineSelSep     ctermfg=6  ctermbg=8  guifg=${tab_sel_bg}       guibg=${base_bg}
 
-  hi TabLineNr                    ctermbg=0  guifg=${tab_nr_fg}        guibg=${tab_bg}
-  hi TabLineSelNr                 ctermbg=8  guifg=${tab_sel_nr_fg}    guibg=${tab_sel_bg}
+    hi TabLineNr                    ctermbg=0  guifg=${tab_nr_fg}        guibg=${tab_bg}
+    hi TabLineSelNr                 ctermbg=8  guifg=${tab_sel_nr_fg}    guibg=${tab_sel_bg}
 
-  hi TabLineTitle                 ctermbg=0  guifg=${tab_title_fg}     guibg=${tab_bg}     cterm=bold   gui=bold
-  hi TabLineSelTitle   ctermfg=6  ctermbg=8  guifg=${tab_sel_title_fg} guibg=${tab_sel_bg} cterm=bold   gui=bold
-]],
+    hi TabLineTitle                 ctermbg=0  guifg=${tab_title_fg}     guibg=${tab_bg}     cterm=bold   gui=bold
+    hi TabLineSelTitle   ctermfg=6  ctermbg=8  guifg=${tab_sel_title_fg} guibg=${tab_sel_bg} cterm=bold   gui=bold
+  ]],
   {
     base_bg = colors.deep_anise,
 

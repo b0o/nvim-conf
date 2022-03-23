@@ -231,6 +231,7 @@ local function on_attach(client, bufnr)
     M.set_fmt_on_save(true, true)
   end
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+  lsp_status.config { current_function = false }
   user_lsp_status.on_attach(client, bufnr)
   require('aerial').on_attach(client, bufnr)
   if vim.lsp.get_client_by_id(1).resolved_capabilities.code_action then

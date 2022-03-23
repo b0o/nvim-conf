@@ -9,6 +9,9 @@ local packer = require 'packer'
 local use = packer.use
 
 local function _use(p, ...)
+  if type(p) ~= 'table' then
+    p = { p }
+  end
   use(#{ ... } > 0 and vim.tbl_extend('force', p, ...) or p)
 end
 
@@ -56,8 +59,8 @@ packer.startup(function()
   use 'nvim-lua/plenary.nvim'
 
   -- Colorschemes
-  use 'chriskempson/base16-vim'
-  use 'dracula/vim'
+  -- use 'chriskempson/base16-vim'
+  -- use 'dracula/vim'
 
   -- UI
   use 'Famiu/feline.nvim'
@@ -65,7 +68,7 @@ packer.startup(function()
   use 'folke/which-key.nvim'
   use 'kyazdani42/nvim-web-devicons'
   use 'lukas-reineke/indent-blankline.nvim'
-  use 'luukvbaal/stabilize.nvim'
+  xuse 'luukvbaal/stabilize.nvim'
   use 'kevinhwang91/nvim-hlslens'
   use 'kyazdani42/nvim-tree.lua'
   use 'rcarriga/nvim-notify'
@@ -75,9 +78,9 @@ packer.startup(function()
     config = [[vim.cmd'command! Notifications :lua require("notify")._print_history()<CR>']],
   }
   use 'stevearc/dressing.nvim'
+  -- use 'stevearc/aerial.nvim'
   uselocal 'stevearc/aerial.nvim/worktree/current'
   use 'MunifTanjim/nui.nvim'
-  use { 'VonHeikemen/fine-cmdline.nvim', requires = { 'MunifTanjim/nui.nvim' } }
   use { 'winston0410/range-highlight.nvim', requires = { 'winston0410/cmd-parser.nvim' } }
 
   -- Telescope
@@ -88,7 +91,6 @@ packer.startup(function()
   use 'AndrewRadev/splitjoin.vim'
   use 'b0o/vim-shot-f'
   use 'chaoren/vim-wordmotion'
-  use 'coderifous/textobj-word-column.vim'
   use 'godlygeek/tabular'
   use 'kana/vim-textobj-fold'
   use 'kana/vim-textobj-indent'
@@ -104,9 +106,10 @@ packer.startup(function()
   use 'tpope/vim-surround'
   use 'triglav/vim-visual-increment'
   use 'wellle/visual-split.vim'
-  use 'vigoux/architext.nvim'
+  xuse 'vigoux/architext.nvim'
   use 'chentau/marks.nvim'
-  uselocal 'b0o/vim-buffest'
+  -- uselocal 'b0o/vim-buffest'
+  use 'rbong/vim-buffest'
   -- use 'andymass/vim-matchup'
   -- uselocal 'extended-scrolloff.vim'
 
@@ -120,7 +123,7 @@ packer.startup(function()
   -- Treesitter
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
   use 'nvim-treesitter/nvim-treesitter-textobjects'
-  use 'nvim-treesitter/playground'
+  use { 'nvim-treesitter/playground', cmd = 'TSPlaygroundToggle' }
   use 'romgrk/nvim-treesitter-context'
   use 'nkrkv/nvim-treesitter-rescript'
 
@@ -141,11 +144,9 @@ packer.startup(function()
   -- Git
   use 'christoomey/vim-conflicted'
   use 'tpope/vim-fugitive'
-  use 'tpope/vim-rhubarb'
   use 'sindrets/diffview.nvim'
   use 'TimUntersberger/neogit'
   use 'lewis6991/gitsigns.nvim'
-  use 'rbong/vim-flog'
   use 'ThePrimeagen/git-worktree.nvim'
   use { 'mattn/gist-vim', requires = 'mattn/webapi-vim' }
 

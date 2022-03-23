@@ -234,7 +234,9 @@ noremap  ([[<M-;>]],   [[:tabp<Cr>]],                     silent, "Tabs: Goto pr
 tnoremap ([[<M-'>]],   [[<C-\><C-n>:tabn<Cr>]],           silent) -- Tabs: goto next
 tnoremap ([[<M-;>]],   [[<C-\><C-n>:tabp<Cr>]],           silent) -- Tabs: goto prev
 noremap  ([[<M-S-a>]], [[:execute "wincmd g\<Tab>"<Cr>]], silent, "Tabs: Goto last accessed")
-noremap  ([[<M-a>]],   fn.focus_last_normal_win,          silent, "Panes: Goto previously focused")
+
+noremap  ([[<M-a>]],   ithunk(fn.focus_last_normal_win),  silent, "Panes: Goto previously focused")
+noremap  ([[<M-x>]],   ithunk(fn.flip_last_normal_wins),  silent, "Panes: Flip the last normal wins")
 
 noremap ([[<M-1>]], tabnm(1),  silent, "Goto tab 1")
 noremap ([[<M-2>]], tabnm(2),  silent, "Goto tab 2")
@@ -282,6 +284,10 @@ nnoremap ([[<leader>st]], [[:split<Cr>]],  silent, "Split (horiz, cur)")
 nnoremap ([[<leader>vv]], [[:vsplit<Cr>]], silent, "Split (vert, cur)")
 nnoremap ([[<leader>vt]], [[:vsplit<Cr>]], silent, "Split (vert, cur)")
 
+vnoremap ([[<leader>S]],  [[:VSSplitAbove<Cr>]],    silent, "Visual Split (above)")
+vnoremap ([[<leader>ss]], [[:VSSplitAbove<Cr>]],    silent, "Visual Split (above)")
+vnoremap ([[<leader>sS]], [[:VSSplit<Cr>]],         silent, "Visual Split (below)")
+
 vnoremap ([[<leader>I]], [[<esc>:call user#fn#interleave()<Cr>]], silent, "Interleave two contiguous blocks")
 
 -- PasteRestore
@@ -312,7 +318,7 @@ nnoremap ([[<M-S-q>]], function()
 end, silent, "Quickfix: Toggle")
 
 nmap([[<M-q>]], fn.filetype_command("qf",
-  fn.focus_last_normal_win,
+  ithunk(fn.focus_last_normal_win),
   ithunk(vim.cmd, [[copen]])), silent, "Quickfix: Toggle focus")
 
 ------ Filetypes
@@ -608,7 +614,7 @@ nmap(xk[[<C-S-\>]], function()
   end
 end, silent, "Nvim-Tree: Toggle")
 
-nmap(xk[[<C-\>]], fn.filetype_command("NvimTree", fn.focus_last_normal_win, thunk(vim.cmd, [[NvimTreeFocus]])), silent, "Nvim-Tree: Toggle Focus")
+nmap(xk[[<C-\>]], fn.filetype_command("NvimTree", ithunk(fn.focus_last_normal_win), thunk(vim.cmd, [[NvimTreeFocus]])), silent, "Nvim-Tree: Toggle Focus")
 
 mapx.group({ ft = "NvimTree" }, function()
   local function withSelected(cmd, fmt)
@@ -649,7 +655,7 @@ nmap([[<M-S-t>]], function()
 end, silent, "Trouble: Toggle")
 
 nmap([[<M-t>]],
-  fn.filetype_command("Trouble", fn.focus_last_normal_win, ithunk(trouble.open)),
+  fn.filetype_command("Trouble", ithunk(fn.focus_last_normal_win), ithunk(trouble.open)),
   silent, "Trouble: Toggle Focus")
 
 -- stevearc/aerial.nvim
@@ -695,7 +701,7 @@ nmap(xk[[<M-S-\>]], function()
 end, silent, "Aerial: Toggle")
 
 nmap([[<M-\>]],
-  fn.filetype_command("aerial", fn.focus_last_normal_win, ithunk(aerial_open, true)),
+  fn.filetype_command("aerial", ithunk(fn.focus_last_normal_win), ithunk(aerial_open, true)),
   silent, "Aerial: Toggle Focus")
 
 mapx.group(silent, { ft = "aerial" }, function()
@@ -767,18 +773,6 @@ end
 ---- sindrets/winshift.nvim
 nnoremap ([[<Leader>M]],  [[<Cmd>WinShift<Cr>]], "WinShift: Start")
 nnoremap ([[<Leader>mm]], [[<Cmd>WinShift<Cr>]], "WinShift: Start")
-
----- VonHeikemen/fine-cmdline.nvim
-local fcl = require'fine-cmdline'
-noremap  ([[<leader>:]], fcl.open, "FineCmdline: Open")
-
-M.fine_cmdline = function()
-  mapx.group("buffer", function()
-    inoremap ([[<C-g>]], fcl.fn.close, "FineCmdline: Close")
-    imap ([[<c-p>]], [[pumvisible() ? "\<C-p>" : "\<up>"]],   expr)
-    imap ([[<c-n>]], [[pumvisible() ? "\<C-n>" : "\<down>"]], expr)
-  end)
-end
 
 ---- chentau/marks.nvim
 nmap     ([[<M-m>]],     [[m;]],                              "Mark: create next")
