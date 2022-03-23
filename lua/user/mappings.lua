@@ -259,12 +259,6 @@ tnoremap ([[<M-j>]], [[<C-\><C-n><C-w>j]]) -- Goto tab down
 tnoremap ([[<M-k>]], [[<C-\><C-n><C-w>k]]) -- Goto tab up
 tnoremap ([[<M-l>]], [[<C-\><C-n><C-w>l]]) -- Goto tab right
 
-noremap ([[<M-[>]], ithunk(fn.resize_win, '<', 3), 'Shrink window width')
-noremap ([[<M-]>]], ithunk(fn.resize_win, '>', 3), 'Grow window width')
-
-noremap ([[<M-{>]], ithunk(fn.resize_win, '-', 3), 'Shrink window height')
-noremap ([[<M-}>]], ithunk(fn.resize_win, '+', 3), 'Grow window height')
-
 nnoremap ([[<leader>sa]], fn.autoresize_enable,  "Enable autoresize")
 nnoremap ([[<leader>sA]], fn.autoresize_disable, "Disable autoresize")
 
@@ -778,5 +772,12 @@ nnoremap ([[<Leader>mm]], [[<Cmd>WinShift<Cr>]], "WinShift: Start")
 nmap     ([[<M-m>]],     [[m;]],                              "Mark: create next")
 nnoremap ([[]"]],        [[[']],                              "Mark: goto previous")
 nnoremap ([[<leader>']], ithunk(require'marks'.toggle_signs), "Mark: toggle signs")
+
+---- mrjones2014/smart-splits.nvim
+local smart_splits = fn.require_on_exported_call('smart-splits')
+noremap ([[<M-[>]], ithunk(smart_splits.resize_left),  'Resize-Win: Left')
+noremap ([[<M-]>]], ithunk(smart_splits.resize_right), 'Resize-Win: Right')
+noremap ([[<M-{>]], ithunk(smart_splits.resize_up),    'Resize-Win: Up')
+noremap ([[<M-}>]], ithunk(smart_splits.resize_down),  'Resize-Win: Down')
 
 return M

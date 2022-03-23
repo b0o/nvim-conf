@@ -167,9 +167,12 @@ packer.startup(function()
   use 'mfussenegger/nvim-dap'
   use 'jbyuki/one-small-step-for-vimkind' -- Lua DAP adapter, a.k.a. osv
 
-  -- Windows and Sessions
+  -- Window Management
   use 'sindrets/winshift.nvim'
+  use 'mrjones2014/smart-splits.nvim'
   use 'aserowy/tmux.nvim'
+
+  -- Sessions
   use 'Shatur/neovim-session-manager'
 
   -- Language-specific
