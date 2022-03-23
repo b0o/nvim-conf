@@ -58,10 +58,6 @@ packer.startup(function()
   -- Meta
   use 'nvim-lua/plenary.nvim'
 
-  -- Colorschemes
-  -- use 'chriskempson/base16-vim'
-  -- use 'dracula/vim'
-
   -- UI
   use 'Famiu/feline.nvim'
   use 'ericbn/vim-relativize'
@@ -78,7 +74,6 @@ packer.startup(function()
     config = [[vim.cmd'command! Notifications :lua require("notify")._print_history()<CR>']],
   }
   use 'stevearc/dressing.nvim'
-  -- use 'stevearc/aerial.nvim'
   uselocal 'stevearc/aerial.nvim/worktree/current'
   use 'MunifTanjim/nui.nvim'
   use { 'winston0410/range-highlight.nvim', requires = { 'winston0410/cmd-parser.nvim' } }
@@ -108,10 +103,8 @@ packer.startup(function()
   use 'wellle/visual-split.vim'
   xuse 'vigoux/architext.nvim'
   use 'chentau/marks.nvim'
-  -- uselocal 'b0o/vim-buffest'
   use 'rbong/vim-buffest'
-  -- use 'andymass/vim-matchup'
-  -- uselocal 'extended-scrolloff.vim'
+  use 'andymass/vim-matchup'
 
   -- Quickfix/Loclist
   use 'kevinhwang91/nvim-bqf'
