@@ -234,13 +234,13 @@ local function on_attach(client, bufnr)
   lsp_status.config { current_function = false }
   user_lsp_status.on_attach(client, bufnr)
   require('aerial').on_attach(client, bufnr)
-  if vim.lsp.get_client_by_id(1).resolved_capabilities.code_action then
-    vim.cmd(([[
-      augroup user_lsp_code_actions_%d
-        autocmd!
-        autocmd CursorHold <buffer=%d> lua require('user.lsp').code_action_listener()
-      augroup END
-    ]]):format(bufnr, bufnr))
+  if client.resolved_capabilities.code_action then
+    local augid = vim.api.nvim_create_augroup('user_lsp_code_actions', { clear = true })
+    vim.api.nvim_create_autocmd('CursorHold', {
+      buffer = bufnr,
+      group = augid,
+      callback = M.code_action_listener,
+    })
   end
   vim.schedule(function()
     require('user.mappings').on_lsp_attach(bufnr)
@@ -251,62 +251,21 @@ local function on_exit(code, signal, id)
   user_lsp_status.on_exit(code, signal, id)
 end
 
--- workaround for https://github.com/neovim/neovim/issues/14645
--- via: https://github.com/neovim/neovim/issues/14645#issuecomment-891009309
-function M.buf_formatting_sync()
-  -- local bufnr = vim.api.nvim_win_get_buf(0)
-  -- local line_count = vim.api.nvim_buf_line_count(bufnr)
-  -- local windows = vim.fn.win_findbuf(bufnr)
-  -- local marks = {}
-  --
-  -- for _, window in ipairs(windows) do
-  --   local line, col = unpack(vim.api.nvim_win_get_cursor(window))
-  --   inspect { line = line, col = col, window = window }
-  --   marks[window] = vim.api.nvim_buf_set_extmark(bufnr, format_mark_ns, line - 1, col, {})
-  -- end
-  --
-  -- inspect { marks = marks }
-
-  vim.lsp.buf.formatting_sync(nil, 10000)
-
-  -- for _, window in ipairs(windows) do
-  --   local mark = marks[window]
-  --   local line, col = unpack(vim.api.nvim_buf_get_extmark_by_id(bufnr, format_mark_ns, mark, {}))
-  --   inspect { window = window, line = line, col = col, mark = mark }
-  --   if line and col then
-  --     inspect { window = window, { line + 1, col } }
-  --     if line >= line_count then
-  --       inspect({skip=true})
-  --       goto continue
-  --     end
-  --     vim.api.nvim_win_set_cursor(window, { line + 1, col })
-  --     ::continue::
-  --   end
-  -- end
-  --
-  -- vim.api.nvim_buf_clear_namespace(bufnr, format_mark_ns, 0, -1)
-end
-
 -- Enables/disables format on save
 -- If val is nil, format on save is toggled
 -- If silent is not false, a message will be displayed
 function M.set_fmt_on_save(val, silent)
-  M.fmt_on_save_enabled = type(val) == 'boolean' and val or not M.fmt_on_save_enabled
-  local au = {
-    'augroup LspFmtOnSave',
-    'autocmd!',
-  }
+  M.fmt_on_save_enabled = val ~= nil and val or not M.fmt_on_save_enabled
+  local augid = vim.api.nvim_create_augroup('user_lsp_fmt_on_save', { clear = true })
   if M.fmt_on_save_enabled then
-    table.insert(
-      au,
-      ('autocmd %s <buffer> lua require"user.lsp".buf_formatting_sync()'):format(
-        fmt_triggers[vim.o.filetype] or fmt_triggers.default
-      )
-    )
+    vim.api.nvim_create_autocmd(fmt_triggers[vim.o.filetype] or fmt_triggers.default, {
+      callback = function()
+        vim.lsp.buf.formatting_sync(nil, 10000)
+      end,
+      group = augid,
+    })
   end
-  table.insert(au, 'augroup END')
-  vim.cmd(table.concat(au, '\n'))
-  if silent ~= true then
+  if not silent then
     print('Format on save ' .. (M.fmt_on_save_enabled and 'enabled' or 'disabled') .. '.')
   end
 end
