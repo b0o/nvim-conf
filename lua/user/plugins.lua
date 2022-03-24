@@ -6,15 +6,31 @@ if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
 end
 
 local packer = require 'packer'
-local use = packer.use
 
-local function _use(p, ...)
+-- Same as packer.use() but:
+-- - merges any extra tables on top of the plugin conf table
+-- - truncates uselocal-style semi-relative paths like
+--   b0o/mapx.nvim/worktree/current which to allow quickly swapping between use
+--   and uselocal
+local function use(p, ...)
   if type(p) ~= 'table' then
     p = { p }
   end
-  use(#{ ... } > 0 and vim.tbl_extend('force', p, ...) or p)
+  if not string.match(p[1], '^.?.?/') then
+    local path = vim.split(p[1], '/')
+    if #path > 2 then
+      p[1] = table.concat(vim.list_slice(path, 1, 2), '/')
+    end
+  end
+  packer.use(#{ ... } > 0 and vim.tbl_extend('force', p, ...) or p)
 end
 
+-- Uselocal uses a plugin found inside $GIT_PROJECTS_DIR with the
+-- shortname of the plugin as the subdirectory name. If more than two relative
+-- path components are present, the extra ones refer to the path within the
+-- plugin directory
+-- For example, uselocal{ 'b0o/mapx.nvim/worktree/current' } resolves to
+-- $GIT_PROJECTS_DIR/mapx.nvim/worktree/current.
 local function uselocal(p, ...)
   local git_projects_dir = os.getenv 'GIT_PROJECTS_DIR'
   if git_projects_dir == nil then
@@ -31,14 +47,16 @@ local function uselocal(p, ...)
     local realpath = git_projects_dir .. '/' .. table.concat(vim.list_slice(path, 2), '/')
     extend[1] = realpath
   end
-  _use(p, extend)
+  use(p, extend)
 end
 
+-- Same as use() but sets {disable=true}
 ---@diagnostic disable-next-line: unused-local,unused-function
 local function xuse(p)
-  return _use(p, { disable = true })
+  return use(p, { disable = true })
 end
 
+-- Same as uselocal() but sets {disable=true}
 ---@diagnostic disable-next-line: unused-local,unused-function
 local function xuselocal(p)
   return uselocal(p, { disable = true })
@@ -74,7 +92,7 @@ packer.startup(function()
     config = [[vim.cmd'command! Notifications :lua require("notify")._print_history()<CR>']],
   }
   use 'stevearc/dressing.nvim'
-  uselocal 'stevearc/aerial.nvim/worktree/current'
+  use 'stevearc/aerial.nvim/worktree/current'
   use 'MunifTanjim/nui.nvim'
   use { 'winston0410/range-highlight.nvim', requires = { 'winston0410/cmd-parser.nvim' } }
 
