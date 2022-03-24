@@ -123,22 +123,7 @@ end
 -- Notify with nvim-notify if nvim is focused,
 -- otherwise send a desktop notification.
 vim.g.nvim_focused = true
-vim.notify = function(...)
-  if vim.g.nvim_focused then
-    local ok, notify = pcall(require, 'notify')
-    if not ok then
-      local args = { ... }
-      vim.defer_fn(function()
-        vim.notify(unpack(args))
-      end, 100)
-      return
-    end
-    require 'user.plugin.notify'
-    return notify.notify(...)
-  else
-    return require('desktop-notify').notify(...)
-  end
-end
+vim.notify = fn.require_on_exported_call('user.notify').notify
 
 ---- Providers
 vim.g.loaded_perl_provider = 0
