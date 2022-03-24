@@ -197,6 +197,7 @@ packer.startup(function()
   -- Performance
   use { 'lewis6991/impatient.nvim', rocks = 'mpack' }
   use 'nathom/filetype.nvim'
+  use 'antoinemadec/FixCursorHold.nvim'
 end)
 
 packer.use_rocks {
