@@ -1,4 +1,4 @@
--- NOTE: We're using an extended version of packer.
+-- NOTE: We're using some custom packer extensions
 -- SEE: ./packer.lua
 
 local packer = require 'user.packer'
