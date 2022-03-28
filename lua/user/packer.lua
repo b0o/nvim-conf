@@ -1,18 +1,25 @@
 -- TODO: Use packer set_handler extension rather than manually manipulating the plugin table
 -- SEE: :help packer-extending
 
--- Install packer
-local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
+local packer
 
-if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
-  vim.fn.execute('!git clone https://github.com/wbthomason/packer.nvim ' .. install_path)
+local M = { lazymods = {} }
+
+local maybe_install_packer = function()
+  local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
+  if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
+    vim.fn.execute('!git clone https://github.com/wbthomason/packer.nvim ' .. install_path)
+  end
 end
 
-local packer = require 'packer'
+M.init = function()
+  maybe_install_packer()
+  packer = require 'packer'
+  packer.init {
+    max_jobs = tonumber(vim.fn.system 'nproc') or 8,
+  }
+end
 
-local M = {}
-
-M.lazymods = {}
 -- lazymods are lazily loaded packages that load a config file inside
 -- lua/user/plugin/ on load.
 -- Should not be called directly.
@@ -154,10 +161,6 @@ end
 M.xuselocal = function(p)
   return M.uselocal(p, { disable = true })
 end
-
-packer.init {
-  max_jobs = tonumber(vim.fn.system 'nproc') or 8,
-}
 
 return setmetatable(M, {
   __index = function(self, k)

@@ -4,6 +4,8 @@
 local packer = require 'user.packer'
 local use, uselocal = packer.use, packer.uselocal
 
+packer.init()
+
 packer.startup(function()
   -- Package management
   use 'wbthomason/packer.nvim'
