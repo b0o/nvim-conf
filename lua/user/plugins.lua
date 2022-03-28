@@ -191,6 +191,7 @@ packer.startup(function()
   use 'f3fora/cmp-spell'
   use 'ray-x/cmp-treesitter'
   use 'saadparwaiz1/cmp_luasnip'
+  use 'lewis6991/spellsitter.nvim'
   use { 'petertriho/cmp-git', requires = 'nvim-lua/plenary.nvim' }
 
   -- Debugging

@@ -88,7 +88,9 @@ nnoremap ([[<leader>?]], [[:%S/]], "Substitute (rev)")
 vnoremap ([[<leader>/]], [[:s/]],  "Substitute")
 vnoremap ([[<leader>?]], [[:S/]],  "Substitute (rev)")
 
-nnoremap ({[[<leader>W]], [[<leader>ww]]}, [[:setlocal wrap!<Cr>:setlocal wrap?<Cr>]], silent, "Toggle wrap")
+-- Buffer-local option toggles
+nnoremap ({[[<leader>W]], [[<leader>ww]]}, [[:setlocal wrap!<Cr>:setlocal wrap?<Cr>]],   silent, "Toggle wrap")
+nnoremap ([[<leader>sp]],                  [[:setlocal spell!<Cr>:setlocal spell?<Cr>]], silent, "Toggle spell")
 
 nnoremap ([[<M-o>]], [[m'Do<esc>p`']], "Insert a space and then paste before/after cursor")
 nnoremap ([[<M-O>]], [[m'DO<esc>p`']], "Insert a space and then paste before/after cursor")

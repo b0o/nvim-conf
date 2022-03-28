@@ -167,3 +167,6 @@ vim.g.shot_f_highlight_blank = string.format(
   shotf_cterm,
   shotf_gui
 )
+
+---- lewis6991/spellsitter.nvim
+require('spellsitter').setup {}
