@@ -13,6 +13,16 @@ local mapx = require('mapx').setup {
 local silent = mapx.silent
 local expr = mapx.expr
 
+-- local user_lsp = require'user.lsp'
+-- local user_lsp = fn.require_on_exported_call'user.lsp'
+local user_lsp = fn.require_on_call_rec 'user.lsp'
+local trouble = fn.require_on_call_rec 'trouble'
+local tmux = fn.require_on_exported_call 'tmux'
+
+local telescope = fn.require_on_call_rec 'telescope'
+local telescope_builtin = fn.require_on_call_rec 'telescope.builtin'
+local user_plugin_telescope = fn.require_on_call_rec 'user.plugin.telescope'
+
 -- Extra keys
 -- Configure your terminal emulator to send the unicode codepoint for each
 -- given key sequence
@@ -215,8 +225,7 @@ nnoremap ([[<leader>zt]], cursor_lock("t"), silent, "Toggle cursor lock (top)")
 nnoremap ([[<leader>zz]], cursor_lock("z"), silent, "Toggle cursor lock (middle)")
 nnoremap ([[<leader>zb]], cursor_lock("b"), silent, "Toggle cursor lock (bottom)")
 
---"" Tabs
-
+---- Tabs
 -- Navigate tabs
 -- Go to a tab by index; If it doesn't exist, create a new tab
 local function tabnm(n)
@@ -317,17 +326,17 @@ nmap([[<M-q>]], fn.filetype_command("qf",
 
 ------ Filetypes
 mapx.group(silent, { ft = "lua" }, function()
-  nmap     ([[<leader><Enter>]], require'user.fn'.luarun, "Lua: Eval line")
-  xmap     ([[<leader><Enter>]], require'user.fn'.luarun, "Lua: Eval selection")
+  nmap     ([[<leader><Enter>]], fn.luarun, "Lua: Eval line")
+  xmap     ([[<leader><Enter>]], fn.luarun, "Lua: Eval selection")
   nmap     ([[<leader><F12>]],   "<Cmd>Put lua require'user.fn'.luarun()<Cr>", "Lua: Eval line (Append)")
   xmap     ([[<leader><F12>]],   "<Cmd>Put lua require'user.fn'.luarun()<Cr>", "Lua: Eval selection (Append)")
 end)
 
 mapx.group(silent, { ft = "man" }, function()
   -- open manpage tag (e.g. isatty(3)) in current buffer
-  nnoremap ([[<C-]>]], function() require'user.fn'.man('', vim.fn.expand('<cword>')) end,      "Man: Open tag in current buffer")
-  nnoremap ([[<M-]>]], function() require'user.fn'.man('tab', vim.fn.expand('<cword>')) end,   "Man: Open tag in new tab")
-  nnoremap ([[}]],     function() require'user.fn'.man('split', vim.fn.expand('<cword>')) end, "Man: Open tag in new split")
+  nnoremap ([[<C-]>]], function() fn.man('', vim.fn.expand('<cword>')) end,      "Man: Open tag in current buffer")
+  nnoremap ([[<M-]>]], function() fn.man('tab', vim.fn.expand('<cword>')) end,   "Man: Open tag in new tab")
+  nnoremap ([[}]],     function() fn.man('split', vim.fn.expand('<cword>')) end, "Man: Open tag in new split")
 
   -- TODO
   -- go back to previous manpage
@@ -362,7 +371,6 @@ M.on_lsp_attach = function(bufnr)
     return
   end
   lsp_attached_bufs[bufnr] = true
-  local user_lsp = require'user.lsp'
 
   mapx.group({ buffer = bufnr, silent = true }, function()
     if not vim.api.nvim_buf_is_valid(bufnr) then
@@ -388,8 +396,8 @@ M.on_lsp_attach = function(bufnr)
     nnoremap ({[[<localleader>A]], [[<localleader>ca]]}, ithunk(vim.lsp.buf.code_action),       "LSP: Code action")
     vnoremap ({[[<localleader>A]], [[<localleader>ca]]}, ithunk(vim.lsp.buf.range_code_action), "LSP: Code action (range)")
 
-    nnoremap ([[<localleader>F]], ithunk(require'user.lsp'.buf_formatting_sync), "LSP: Format")
-    vnoremap ([[<localleader>F]], ithunk(vim.lsp.buf.range_formatting),          "LSP: Format (range)")
+    nnoremap ([[<localleader>F]], ithunk(user_lsp.buf_formatting_sync), "LSP: Format")
+    vnoremap ([[<localleader>F]], ithunk(vim.lsp.buf.range_formatting), "LSP: Format (range)")
 
     mapx.nname("<localleader>s", "LSP-Save")
     nnoremap ([[<localleader>S]],  ithunk(user_lsp.set_fmt_on_save),        "LSP: Toggle format on save")
@@ -419,7 +427,7 @@ M.on_lsp_attach = function(bufnr)
     end
     mapx.nname("<localleader>d", "LSP-Diagnostics")
     nnoremap ([[<localleader>ds]],                        ithunk(vim.diagnostic.show),      "LSP: Show diagnostics")
-    nnoremap ({[[<localleader>dt]], [[<localleader>T]]},  ithunk(require'trouble'.toggle), "LSP: Toggle Trouble")
+    nnoremap ({[[<localleader>dt]], [[<localleader>T]]},  ithunk(trouble.toggle), "LSP: Toggle Trouble")
 
     nnoremap ({[[<localleader>dd]], [[[d]]}, gotoDiag("prev"),          "LSP: Goto prev diagnostic")
     nnoremap ({[[<localleader>dD]], [[]d]]}, gotoDiag("next"),          "LSP: Goto next diagnostic")
@@ -443,11 +451,11 @@ M.on_lsp_attach = function(bufnr)
     nnoremap ([[[E]], gotoDiag("first", "ERROR"), "LSP: Goto first error")
     nnoremap ([[]E]], gotoDiag("last",  "ERROR"), "LSP: Goto last error")
 
-    nnoremap (']t', ithunk(require("trouble").next,     {skip_groups = true, jump = true}), "Trouble: Next")
-    nnoremap ('[t', ithunk(require("trouble").previous, {skip_groups = true, jump = true}), "Trouble: Previous")
+    nnoremap (']t', ithunk(trouble.next,     {skip_groups = true, jump = true}), "Trouble: Next")
+    nnoremap ('[t', ithunk(trouble.previous, {skip_groups = true, jump = true}), "Trouble: Previous")
 
     mapx.nname("<localleader>s", "LSP-Search")
-    nnoremap ({[[<localleader>so]], [[<leader>so]]}, require('telescope.builtin').lsp_document_symbols, "LSP: Telescope symbol search")
+    nnoremap ({[[<localleader>so]], [[<leader>so]]}, ithunk(telescope_builtin.lsp_document_symbols), "LSP: Telescope symbol search")
 
     mapx.nname("<localleader>h", "LSP-Hover")
     nnoremap ([[<localleader>hs]], ithunk(vim.lsp.buf.signature_help), "LSP: Signature help")
@@ -462,56 +470,60 @@ end
 ---- folke/which-key.nvim
 nnoremap ([[<leader><leader>]], [[:WhichKey<Cr>]], "WhichKey: Show all")
 
+---- AndrewRadev/splitjoin.vim
+nnoremap ([[gJ]], [[:SplitjoinJoin<Cr>]],  "Splitjoin: Join")
+nnoremap ([[gS]], [[:SplitjoinSplit<Cr>]], "Splitjoin: Split")
+
 ---- wbthomason/packer.nvim
 mapx.nname("<leader>p", "Packer")
-nnoremap ([[<leader>pC]], [[:PackerClean<Cr>]], "Packer clean")
+nnoremap ([[<leader>pC]], [[:PackerClean<Cr>]],   "Packer clean")
 nnoremap ([[<leader>pc]], [[:PackerCompile<Cr>]], "Packer compile")
 nnoremap ([[<leader>pi]], [[:PackerInstall<Cr>]], "Packer install")
-nnoremap ([[<leader>pu]], [[:PackerUpdate<Cr>]], "Packer update")
-nnoremap ([[<leader>ps]], [[:PackerSync<Cr>]], "Packer sync")
-nnoremap ([[<leader>pl]], [[:PackerLoad<Cr>]], "Packer load")
+nnoremap ([[<leader>pu]], [[:PackerUpdate<Cr>]],  "Packer update")
+nnoremap ([[<leader>ps]], [[:PackerSync<Cr>]],    "Packer sync")
+nnoremap ([[<leader>pl]], [[:PackerLoad<Cr>]],    "Packer load")
 
 ---- numToStr/Comment.nvim
 map      ([[<M-/>]], [[gcc<Esc>]], silent) -- Toggle line comment
 inoremap ([[<M-/>]], [[v:count == 0 ? '<Esc><Cmd>set operatorfunc=v:lua.___comment_gcc<Cr>g@$a' : '<Esc><Cmd>lua ___comment_count_gcc()<Cr>a']], silent, expr, "Toggle line comment")
 
 ---- aserowy/tmux.nvim
-local tmux = require("tmux")
 nmap     ([[<M-h>]], ithunk(tmux.move_left),   silent, "Goto window/tmux pane left")
 nmap     ([[<M-j>]], ithunk(tmux.move_bottom), silent, "Goto window/tmux pane down")
 nmap     ([[<M-k>]], ithunk(tmux.move_top),    silent, "Goto window/tmux pane up")
 nmap     ([[<M-l>]], ithunk(tmux.move_right),  silent, "Goto window/tmux pane right")
 
----- nvim-telescope/telescope.nvim TODO: In-telescope maps
+-- nvim-telescope/telescope.nvim TODO: In-telescope maps
 mapx.group(silent, function()
-  local t = require'telescope'
-  local tb = require'telescope.builtin'
+  local t = telescope
+  local tb = telescope_builtin
   local tx = t.extensions
-
-  local tu = require'user.plugin.telescope'
+  local tu = user_plugin_telescope
   local tc = tu.cmds
 
   mapx.nname([[<C-f>]], "Telescope")
-  nnoremap (xk[[<C-S-f>]],                tc.builtin,     "Telescope: Builtins")
-  nnoremap ([[<C-f>b]],                   tc.buffers,     "Telescope: Buffers")
-  nnoremap ({[[<C-f>h]], [[<C-f><C-h>]]}, tc.help_tags,   "Telescope: Help tags")
-  nnoremap ({[[<C-f>t]], [[<C-f><C-t>]]}, tc.tags,        "Telescope: Tags")
-  nnoremap ({[[<C-f>a]], [[<C-f><C-a>]]}, tc.grep_string, "Telescope: Grep for string")
-  nnoremap ({[[<C-f>p]], [[<C-f><C-p>]]}, tc.live_grep,   "Telescope: Live grep")
-  nnoremap ({[[<C-f>o]], [[<C-f><C-o>]]}, tc.oldfiles,    "Telescope: Old files")
-  nnoremap ({[[<C-f>f]], [[<C-f><C-f>]]}, tc.find_files,  "Telescope: Files")
+  nnoremap (xk[[<C-S-f>]],                ithunk(tc.builtin),     "Telescope: Builtins")
+  nnoremap ([[<C-f>b]],                   ithunk(tc.buffers),     "Telescope: Buffers")
+  nnoremap ({[[<C-f>h]], [[<C-f><C-h>]]}, ithunk(tc.help_tags),   "Telescope: Help tags")
+  nnoremap ({[[<C-f>t]], [[<C-f><C-t>]]}, ithunk(tc.tags),        "Telescope: Tags")
+  nnoremap ({[[<C-f>a]], [[<C-f><C-a>]]}, ithunk(tc.grep_string), "Telescope: Grep for string")
+  nnoremap ({[[<C-f>p]], [[<C-f><C-p>]]}, ithunk(tc.live_grep),   "Telescope: Live grep")
+  nnoremap ({[[<C-f>o]], [[<C-f><C-o>]]}, ithunk(tc.oldfiles),    "Telescope: Old files")
+  nnoremap ({[[<C-f>f]], [[<C-f><C-f>]]}, ithunk(tc.smart_files), "Telescope: Files")
 
   local txw = tx.windows
   nnoremap ({[[<C-f>w]], [[<C-f><C-w>]]}, ithunk(txw.windows, {}), "Telescope: Windows")
 
   local txgw = tx.git_worktree
   mapx.nname([[<C-f>g]], "Telescope-Git")
-  nnoremap ([[<C-f>gw]], ithunk(txgw.git_worktrees), "Telescope: Git worktrees")
-  nnoremap ([[<C-f>gW]], ithunk(txgw.git_worktrees), "Telescope: Git worktree create")
+  nnoremap ([[<C-f>gw]], ithunk(txgw.git_worktrees), "Telescope-Git: Worktrees")
 
   mapx.nname([[<M-f>]], "Telescope-Buffer")
-  nnoremap ({[[<M-f>b]], [[<M-f><M-b>]]}, tb.current_buffer_fuzzy_find,          "Telescope: Buffer (fuzzy)")
-  nnoremap ({[[<M-f>t]], [[<M-f><M-t>]]}, tb.tags, "Telescope: Tags (buffer)")
+  nnoremap ({[[<M-f>b]], [[<M-f><M-b>]]}, ithunk(tb.current_buffer_fuzzy_find), "Telescope-Buffer: Fuzzy find")
+  nnoremap ({[[<M-f>t]], [[<M-f><M-t>]]}, ithunk(tb.tags),                      "Telescope-Buffer: Tags")
+
+  mapx.nname([[<M-f>]], "Telescope-Workspace")
+  nnoremap ([[<C-f>A]], ithunk(tx.aerial.aerial), "Telescope-Workspace: Aerial")
 end)
 
 ---- tpope/vim-fugitive and TimUntersberger/neogit

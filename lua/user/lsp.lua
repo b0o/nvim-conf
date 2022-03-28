@@ -7,7 +7,8 @@ local root_pattern = require('lspconfig.util').root_pattern
 local M = {
   fmt_on_save_enabled = false,
   border = { { '╭' }, { '─' }, { '╮' }, { '│' }, { '╯' }, { '─' }, { '╰' }, { '│' } },
-  signs = { Error = ' ', Warn = ' ', Hint = ' ', Info = ' ' },
+  signs = { Error = ' ', Warn = ' ', Hint = ' ', Info = ' ' },
+  on_attach_called = false,
 }
 
 local luals_conf = vim.tbl_extend(
@@ -220,18 +221,11 @@ local lsp_signature_config = {
   zindex = 99, -- Keep signature popup below the completion PUM
 }
 
----- folke/trouble.nvim
-local trouble_config = {
-  auto_open = true,
-  auto_close = true,
-}
-
 local function on_attach(client, bufnr)
   if client.resolved_capabilities.document_formatting then
     M.set_fmt_on_save(true, true)
   end
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-  lsp_status.config { current_function = false }
   user_lsp_status.on_attach(client, bufnr)
   require('aerial').on_attach(client, bufnr)
   if client.resolved_capabilities.code_action then
@@ -245,6 +239,23 @@ local function on_attach(client, bufnr)
   vim.schedule(function()
     require('user.mappings').on_lsp_attach(bufnr)
   end)
+end
+
+local function on_first_attach()
+  require('null-ls').setup(vim.tbl_extend('force', require 'user.plugin.null-ls', { on_attach = on_attach }))
+  require('lsp_signature').setup(lsp_signature_config)
+  vim.schedule(function()
+    require 'user.plugin.trouble'
+  end)
+end
+
+local function on_attach_wrapper(...)
+  if not M.on_attach_called then
+    ---@diagnostic disable-next-line: redundant-parameter
+    on_first_attach(...)
+    M.on_attach_called = true
+  end
+  return on_attach(...)
 end
 
 local function on_exit(code, signal, id)
@@ -306,24 +317,15 @@ local function lsp_init()
   for k, v in pairs(lsp_handlers) do
     vim.lsp.handlers[k] = v
   end
-
   for type, icon in pairs(M.signs) do
     local hl = 'DiagnosticSign' .. type
     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = '' })
   end
-
-  require('null-ls').setup(vim.tbl_extend('force', require 'user.plugin.null-ls', { on_attach = on_attach }))
-  require('lsp_signature').setup(lsp_signature_config)
-  require('trouble').setup(trouble_config)
-
-  lsp_status.register_progress()
   local capabilities = nvim_cmp_lsp.update_capabilities(lsp_status.capabilities)
-
   local lspconfig = require 'lspconfig'
-
   for _, lsp in ipairs(lsp_servers) do
     local opts = {
-      on_attach = on_attach,
+      on_attach = on_attach_wrapper,
       on_exit = on_exit,
       flags = {
         debounce_text_changes = 150,
@@ -353,6 +355,8 @@ local function lsp_init()
       error('LSP: Server not found: ' .. name)
     end
     lspconfig[name].setup(opts)
+    lsp_status.register_progress()
+    lsp_status.config { current_function = false }
   end
 end
 

@@ -28,12 +28,7 @@ vim.g.nvim_tree_icons = {
     symlink = '',
     symlink_open = '',
   },
-  lsp = {
-    hint = '',
-    info = '',
-    warning = '',
-    error = '',
-  },
+  lsp = vim.tbl_map(vim.fn.trim, require('user.lsp').signs),
   -- view = {
   --   mappings = {
   --     custom_only = true,
@@ -42,14 +37,16 @@ vim.g.nvim_tree_icons = {
 }
 _G.nvim_tree_highlights = function()
   local colors_gui = vim.g.colors_gui or {}
-  for hi, c in pairs {
-    NvimTreeGitDirty = colors_gui['13'] or 'yellow',
-    NvimTreeGitStaged = colors_gui['14'] or 'lightgreen',
-    NvimTreeGitMerge = colors_gui['16'] or 'magenta',
-    NvimTreeGitRenamed = colors_gui['17'] or 'orange',
-    NvimTreeGitNew = colors_gui['8'] or 'cyan',
-    NvimTreeGitDeleted = colors_gui['12'] or 'lightred',
-  } do
+  for hi, c in
+    pairs {
+      NvimTreeGitDirty = colors_gui['13'] or 'yellow',
+      NvimTreeGitStaged = colors_gui['14'] or 'lightgreen',
+      NvimTreeGitMerge = colors_gui['16'] or 'magenta',
+      NvimTreeGitRenamed = colors_gui['17'] or 'orange',
+      NvimTreeGitNew = colors_gui['8'] or 'cyan',
+      NvimTreeGitDeleted = colors_gui['12'] or 'lightred',
+    }
+  do
     vim.cmd(('highlight %s guifg=%s'):format(hi, c))
   end
 end

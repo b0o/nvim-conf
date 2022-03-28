@@ -1,20 +1,8 @@
--- Generated with:
--- :Put !find lua/user/plugin/ -type f -name '*.lua' | sed "/init\.lua$/d; s|^lua/||; s|/|.|g; s/^/require '/; s/\.lua$/'/" | sort
-require 'user.plugin.aerial'
-require 'user.plugin.bqf'
-require 'user.plugin.comment'
-require 'user.plugin.diffview'
-require 'user.plugin.dressing'
-require 'user.plugin.hlslens'
-require 'user.plugin.marks'
-require 'user.plugin.neogit'
-require 'user.plugin.nvim-tree'
-require 'user.plugin.shot-f'
-require 'user.plugin.telescope'
-require 'user.plugin.tmux'
-require 'user.plugin.trouble'
-require 'user.plugin.vcoolor'
-require 'user.plugin.which-key'
+local fn = require 'user.fn'
+
+---- AndrewRadev/splitjoin.vim
+vim.g.splitjoin_join_mapping = ''
+vim.g.splitjoin_split_mapping = ''
 
 ---- lukas-reineke/indent-blankline.nvim
 vim.cmd [[highlight link IndentBlanklineSpaceChar Comment]]
@@ -97,12 +85,6 @@ vim.g.undotree_DiffCommand = 'delta'
 -- ---- luukvbaal/stabilize.nvim
 -- require('stabilize').setup()
 
--- Shatur/neovim-session-manager
-require('session_manager').setup {
-  autoload_mode = require('session_manager.config').AutoloadMode.Disabled,
-  autosave_last_session = false,
-}
-
 -- require('souvenir').setup {
 --   session_path = vim.fn.stdpath('data') .. '/souvenirs/'
 -- }
@@ -113,15 +95,6 @@ vim.g.go_doc_keywordprg_enabled = 0
 ---- mg979/vim-visual-multi
 vim.g.VM_custom_motions = {
   ['<M-,>'] = ',', -- Remap , to <M-,> because , conflicts with <localleader>
-}
-
----- ThePrimeagen/git-worktree.nvim
-require('git-worktree').setup {
-  -- change_directory_command = <str> -- default: "cd",
-  -- update_on_change = <boolean> -- default: true,
-  -- update_on_change_command = <str> -- default: "e .",
-  -- clearjumps_on_change = <boolean> -- default: true,
-  -- autopush = <boolean> -- default: false,
 }
 
 ---- winston0410/range-highlight.nvim
@@ -168,3 +141,69 @@ require('lspkind').init {
     --   TypeParameter = ""
   },
 }
+
+---- numToStr/Comment.nvim
+local state = {}
+require('Comment').setup {
+  pre_hook = function(ctx)
+    if ctx.cmotion >= 3 and ctx.cmotion <= 5 then
+      state.marks = {
+        vim.api.nvim_buf_get_mark(0, '<'),
+        vim.api.nvim_buf_get_mark(0, '>'),
+      }
+    else
+      state.marks = {}
+    end
+  end,
+
+  post_hook = function(ctx)
+    inspect { ctx = ctx, state = state }
+    vim.schedule(function()
+      if #state.marks > 0 then
+        print(1)
+        vim.api.nvim_buf_set_mark(0, '<', state.marks[1][1], state.marks[1][2], {})
+        vim.api.nvim_buf_set_mark(0, '>', state.marks[2][1], state.marks[2][2], {})
+        state.marks = {}
+        vim.cmd [[normal gv]]
+      end
+    end)
+  end,
+}
+
+---- folke/which-key.nvim
+require('which-key').setup {
+  plugins = {
+    spelling = {
+      enabled = true,
+      suggestions = 30,
+    },
+  },
+  triggers_blacklist = {
+    i = { 'j', 'k', "'" },
+    v = { 'j', 'k', "'" },
+    n = { "'" },
+  },
+}
+
+---- stevearc/dressing.nvim
+require('dressing').setup {
+  select = {
+    backend = { 'telescope', 'fzf_lua', 'fzf', 'builtin', 'nui' },
+  },
+}
+
+---- b0o/vim-shot-f
+local shotf_cterm = 'lightcyan'
+local shotf_gui = '#7CFFE4'
+
+vim.g.shot_f_highlight_graph = string.format(
+  'cterm=bold ctermbg=NONE ctermfg=%s gui=underline guibg=NONE guifg=%s',
+  shotf_cterm,
+  shotf_gui
+)
+
+vim.g.shot_f_highlight_blank = string.format(
+  'cterm=bold ctermbg=%s ctermfg=NONE guibg=%s guifg=NONE',
+  shotf_cterm,
+  shotf_gui
+)

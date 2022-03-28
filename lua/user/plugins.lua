@@ -7,22 +7,112 @@ end
 
 local packer = require 'packer'
 
+local M = {}
+
+M.lazymods = {}
+-- lazymods are lazily loaded packages that load a config file inside
+-- lua/user/plugin/ on load.
+-- Should not be called directly.
+local function use_lazymod(p)
+  p = vim.deepcopy(p)
+  assert(not p.config, "user.plugins.use(): properties 'config' and 'lazymod' are mutually exclusive")
+
+  local lazymod = p.lazymod
+  p.lazymod = nil
+
+  local t = type(lazymod)
+  assert(
+    vim.tbl_contains({ 'boolean', 'string', 'table' }, t),
+    "user.plugins.use(): property 'lazymod' should be a boolean, string, or table"
+  )
+
+  local short_name = require('packer.util').get_plugin_short_name { p[1] }
+
+  if lazymod == true then
+    lazymod = { short_name }
+  elseif type(lazymod) == 'string' then
+    lazymod = { lazymod }
+  end
+
+  if not lazymod.module_pattern and lazymod.mod ~= false then
+    local mod_escaped = string.gsub(lazymod.mod or lazymod[1], '[%^%$%(%)%%%.%[%]%*%+%?%-]', '%%%1')
+    lazymod.module_pattern = {
+      '^' .. mod_escaped .. '$',
+      '^' .. mod_escaped .. '%.',
+    }
+  end
+
+  p.module = lazymod.module or {}
+  if type(p.module) == 'string' then
+    p.module = { p.module }
+  end
+
+  p.module_pattern = lazymod.module_pattern or {}
+  if type(p.module_pattern) == 'string' then
+    p.module_pattern = { p.module_pattern }
+  end
+
+  if #p.module == 0 then
+    p.module = nil
+  end
+  if #p.module_pattern == 0 then
+    p.module_pattern = nil
+  end
+
+  local _config = p.config -- save the original config function
+
+  p.config = function(name, conf) -- This callback is what will be compiled by packer
+    local mod = require('user.plugins').lazymods[name]
+    if mod and mod.config then
+      mod.config(name, conf, mod)
+    end
+  end
+
+  M.lazymods[short_name] = {
+    plugin = p,
+    config = function(...) -- This callback will not be compiled by packer
+      pcall(require, 'user.plugin.' .. lazymod[1])
+      if _config then
+        if type(_config) == 'string' then
+          _config = loadstring(_config)
+        end
+        assert(type(_config) == 'function', "user.plugins.use(): expected 'config' to be a string or function")
+        _config(...)
+      end
+    end,
+  }
+
+  return p
+end
+
 -- Same as packer.use() but:
 -- - merges any extra tables on top of the plugin conf table
 -- - truncates uselocal-style semi-relative paths like
 --   b0o/mapx.nvim/worktree/current which to allow quickly swapping between use
 --   and uselocal
+-- - supports lazymods, see use_lazymod above
 local function use(p, ...)
   if type(p) ~= 'table' then
     p = { p }
   end
+  p = #{ ... } > 0 and vim.tbl_extend('force', p, ...) or p
   if not string.match(p[1], '^.?.?/') then
     local path = vim.split(p[1], '/')
     if #path > 2 then
       p[1] = table.concat(vim.list_slice(path, 1, 2), '/')
     end
   end
-  packer.use(#{ ... } > 0 and vim.tbl_extend('force', p, ...) or p)
+  if not p.disable then
+    if p.conf then
+      assert(not p.config, "user.plugins.use(): options 'config' and 'conf' are mutually exclusive")
+      p.config = ("require('user.plugin.%s')"):format(p.conf)
+      p.conf = nil
+    end
+    if p.lazymod then
+      p = use_lazymod(p)
+    end
+  end
+  packer.use(p)
 end
 
 -- Uselocal uses a plugin found inside $GIT_PROJECTS_DIR with the
@@ -80,31 +170,34 @@ packer.startup(function()
   use 'Famiu/feline.nvim'
   use 'ericbn/vim-relativize'
   use 'folke/which-key.nvim'
+  use { 'kevinhwang91/nvim-hlslens', conf = 'hlslens' }
   use 'kyazdani42/nvim-web-devicons'
   use 'lukas-reineke/indent-blankline.nvim'
-  xuse 'luukvbaal/stabilize.nvim'
-  use 'kevinhwang91/nvim-hlslens'
-  use 'kyazdani42/nvim-tree.lua'
   use 'rcarriga/nvim-notify'
+  use 'stevearc/dressing.nvim'
+  use { 'kyazdani42/nvim-tree.lua', lazymod = 'nvim-tree', cmd = 'NvimTree*' }
   use {
     'simrat39/desktop-notify.nvim',
     setup = [[pcall(vim.cmd, 'delcommand Notifications')]],
     config = [[vim.cmd'command! Notifications :lua require("notify")._print_history()<CR>']],
   }
-  use 'stevearc/dressing.nvim'
-  use 'stevearc/aerial.nvim/worktree/current'
-  use 'MunifTanjim/nui.nvim'
-  use { 'winston0410/range-highlight.nvim', requires = { 'winston0410/cmd-parser.nvim' } }
+  use {
+    'stevearc/aerial.nvim/worktree/current',
+    lazymod = 'aerial',
+    module = 'telescope._extensions.aerial',
+  }
+  use { 'MunifTanjim/nui.nvim', module = 'nui' }
+  use { 'winston0410/range-highlight.nvim', requires = 'winston0410/cmd-parser.nvim' }
 
   -- Telescope
-  use { 'nvim-telescope/telescope.nvim', requires = { 'nvim-lua/popup.nvim' } }
-  use 'kyoh86/telescope-windows.nvim'
+  use { 'kyoh86/telescope-windows.nvim', module = 'telescope._extensions.windows' }
+  use { 'nvim-telescope/telescope.nvim', requires = 'nvim-lua/popup.nvim', lazymod = 'telescope' }
 
   -- Editing
-  use 'AndrewRadev/splitjoin.vim'
+  use 'andymass/vim-matchup'
   use 'b0o/vim-shot-f'
   use 'chaoren/vim-wordmotion'
-  use 'godlygeek/tabular'
+  use { 'chentau/marks.nvim', conf = 'marks' }
   use 'kana/vim-textobj-fold'
   use 'kana/vim-textobj-indent'
   use 'kana/vim-textobj-line'
@@ -113,56 +206,125 @@ packer.startup(function()
   use 'mg979/vim-visual-multi'
   use 'numToStr/Comment.nvim'
   use 'sgur/vim-textobj-parameter'
-  use 'tpope/vim-abolish'
   use 'tpope/vim-repeat'
   use 'tpope/vim-speeddating'
   use 'tpope/vim-surround'
   use 'triglav/vim-visual-increment'
-  use 'wellle/visual-split.vim'
-  xuse 'vigoux/architext.nvim'
-  use 'chentau/marks.nvim'
-  use 'rbong/vim-buffest'
-  use 'andymass/vim-matchup'
+  use { 'AndrewRadev/splitjoin.vim', cmd = { 'SplitjoinSplit', 'SplitjoinJoin' } }
+  use { 'godlygeek/tabular', cmd = { 'AddTabularPattern', 'AddTabularPipeline', 'Tabularize', 'GTabularize' } }
+  use { 'tpope/vim-abolish', cmd = { 'Abolish', 'Subvert' } }
+  use { 'wellle/visual-split.vim', cmd = { 'VSResize', 'VSSplit', 'VSSplitAbove', 'VSSplitBelow' } }
+  use {
+    'rbong/vim-buffest',
+    cmd = {
+      'Regsplit',
+      'Regvsplit',
+      'Regtabedit',
+      'Regedit',
+      'Regpedit',
+      'Qflistsplit',
+      'Qflistvsplit',
+      'Qflisttabedit',
+      'Qflistedit',
+      'Loclistsplit',
+      'Loclistvsplit',
+      'Loclisttabedit',
+      'Locflistedit',
+    },
+  }
 
   -- Quickfix/Loclist
-  use 'kevinhwang91/nvim-bqf'
+  use { 'kevinhwang91/nvim-bqf', lazymod = 'bqf', event = 'QuickFixCmdPre' }
 
   -- Backup, Undo
   use 'chrisbra/Recover.vim'
-  use 'mbbill/undotree'
+  use { 'mbbill/undotree', cmd = { 'UndotreeToggle', 'UndotreeHide', 'UndotreeShow', 'UndotreeFocus' } }
 
   -- Treesitter
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
   use 'nvim-treesitter/nvim-treesitter-textobjects'
-  use { 'nvim-treesitter/playground', cmd = 'TSPlaygroundToggle' }
   use 'romgrk/nvim-treesitter-context'
   use 'nkrkv/nvim-treesitter-rescript'
+  use { 'nvim-treesitter/playground', cmd = 'TSPlaygroundToggle' }
 
   -- LSP
   -- use 'neovim/nvim-lspconfig'
   use 'folke/lsp-colors.nvim'
-  use 'folke/trouble.nvim'
-  use 'jose-elias-alvarez/null-ls.nvim'
+  use 'neovim/nvim-lspconfig'
   use 'nvim-lua/lsp-status.nvim'
   use 'onsails/lspkind-nvim'
-  use 'ray-x/lsp_signature.nvim'
-  use 'neovim/nvim-lspconfig'
-  use 'b0o/schemastore.nvim'
+  use { 'jose-elias-alvarez/null-ls.nvim', module = 'null-ls' }
+  use { 'ray-x/lsp_signature.nvim', module = 'lsp_signature' }
+  use { 'b0o/schemastore.nvim', module = 'schemastore' }
+  use {
+    'folke/trouble.nvim',
+    lazymod = 'trouble',
+    cmd = { 'Trouble', 'TroubleClose', 'TroubleRefresh', 'TroubleToggle' },
+  }
 
   -- Code Style, Formatting, Linting
   use 'editorconfig/editorconfig-vim'
 
   -- Git
-  use 'christoomey/vim-conflicted'
-  use 'tpope/vim-fugitive'
-  use 'sindrets/diffview.nvim'
-  use 'TimUntersberger/neogit'
   use 'lewis6991/gitsigns.nvim'
-  use 'ThePrimeagen/git-worktree.nvim'
-  use { 'mattn/gist-vim', requires = 'mattn/webapi-vim' }
+  use { 'ThePrimeagen/git-worktree.nvim', lazymod = 'git-worktree' }
+  use { 'TimUntersberger/neogit', cmd = 'Neogit', lazymod = 'neogit' }
+  use { 'mattn/gist-vim', requires = 'mattn/webapi-vim', cmd = 'Gist' }
+  use {
+    'christoomey/vim-conflicted',
+    cmd = { 'Conflicted', 'Merger', 'GitNextConflict' },
+    keys = { '<Plug>DiffgetLocal', '<Plug>DiffgetUpstream', '<Plug>DiffgetLocal', '<Plug>DiffgetUpstream' },
+  }
+  use {
+    'sindrets/diffview.nvim',
+    lazymod = 'diffview',
+    cmd = {
+      'DiffviewClose',
+      'DiffviewFileHistory',
+      'DiffviewFocusFiles',
+      'DiffviewLog',
+      'DiffviewOpen',
+      'DiffviewRefresh',
+      'DiffviewToggleFiles',
+    },
+  }
+  use {
+    'tpope/vim-fugitive',
+    cmd = {
+      '0Git',
+      'G',
+      'GBrowse',
+      'Gcd',
+      'Gclog',
+      'GDelete',
+      'Gdiffsplit',
+      'Gedit',
+      'Ggrep',
+      'Ghdiffsplit',
+      'Git',
+      'Glcd',
+      'Glgrep',
+      'Gllog',
+      'GMove',
+      'Gpedit',
+      'Gread',
+      'GRemove',
+      'GRename',
+      'Gsplit',
+      'Gtabedit',
+      'GUnlink',
+      'Gvdiffsplit',
+      'Gvsplit',
+      'Gwq',
+      'Gwrite',
+    },
+  }
 
   -- System
-  use 'tpope/vim-eunuch'
+  use {
+    'tpope/vim-eunuch',
+    cmd = { 'Chmod', 'Delete', 'Edit', 'Grep', 'Mkdir', 'Move', 'Rename', 'Unlink', 'Wall', 'Write' },
+  }
 
   -- Snippets
   use 'L3MON4D3/LuaSnip'
@@ -182,16 +344,19 @@ packer.startup(function()
   use { 'petertriho/cmp-git', requires = 'nvim-lua/plenary.nvim' }
 
   -- Debugging
-  use 'mfussenegger/nvim-dap'
-  use 'jbyuki/one-small-step-for-vimkind' -- Lua DAP adapter, a.k.a. osv
+  use { 'mfussenegger/nvim-dap', module = 'dap' }
+  use { 'jbyuki/one-small-step-for-vimkind', module = 'osv' } -- Lua DAP adapter, a.k.a. osv
 
   -- Window Management
   use 'sindrets/winshift.nvim'
-  use 'mrjones2014/smart-splits.nvim'
-  use 'aserowy/tmux.nvim'
+  use { 'mrjones2014/smart-splits.nvim', module = 'smart-splits' }
+  use { 'aserowy/tmux.nvim', lazymod = 'tmux' }
 
   -- Sessions
-  use 'Shatur/neovim-session-manager'
+  use {
+    'Shatur/neovim-session-manager',
+    lazymod = 'session_manager',
+  }
 
   -- Language-specific
   use 'Akin909/vim-dune'
@@ -201,16 +366,16 @@ packer.startup(function()
   use 'fatih/vim-go'
 
   -- Documentation
-  use 'alx741/vinfo'
+  use { 'alx741/vinfo', cmd = { 'Vinfo', 'VinfoClean', 'VinfoNext', 'VinfoPrevious' } }
 
   -- Color
-  use 'KabbAmine/vCoolor.vim'
+  use { 'KabbAmine/vCoolor.vim', lazymod = { 'vcoolor', nolua = true }, cmd = { 'VCoolIns', 'VCoolor' } }
   use { 'rrethy/vim-hexokinase', run = 'make hexokinase' }
 
   --- Vim Plugin Development
-  use 'bfredl/nvim-luadev'
+  use { 'bfredl/nvim-luadev', ft = 'lua' }
   use 'folke/lua-dev.nvim'
-  use 'rktjmp/lush.nvim'
+  use { 'rktjmp/lush.nvim', cmd = { 'LushRunQuickstart', 'LushRunTutorial', 'Lushify', 'LushImport' }, module = 'lush' }
 
   -- Performance
   use { 'lewis6991/impatient.nvim', rocks = 'mpack' }
@@ -221,3 +386,5 @@ end)
 packer.use_rocks {
   'base64',
 }
+
+return M

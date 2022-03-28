@@ -1,4 +1,9 @@
+---- folke/trouble.nvim
 local M = {}
+require('trouble').setup {
+  auto_open = true,
+  auto_close = true,
+}
 
 -- Prevent Trouble.nvim from automatically opening/closing during Insert mode
 local state

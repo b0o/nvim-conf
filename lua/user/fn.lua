@@ -591,6 +591,28 @@ M.require_on_exported_call = function(require_path)
   })
 end
 
+---- Require when any descendant is called
+-- This is like require_on_module_call plus require_on_exported_call but also
+-- works with arbitrarily nested indices.
+M.require_on_call_rec = function(require_path, indices)
+  indices = indices or {}
+  return setmetatable({}, {
+    __index = function(_, k)
+      local new_indices = vim.deepcopy(indices)
+      table.insert(new_indices, k)
+      return M.require_on_call_rec(require_path, new_indices)
+    end,
+    __call = function(_, ...)
+      local mod = require(require_path)
+      local target = mod
+      for _, k in ipairs(indices) do
+        target = target[k]
+      end
+      return target(...)
+    end,
+  })
+end
+
 ---- memoization
 
 -- memotable gets an index from target and caches the result, returning the

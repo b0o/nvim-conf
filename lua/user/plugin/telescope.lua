@@ -21,13 +21,17 @@ t.setup {
 
 -- telescope.load_extension 'sessions'
 t.load_extension 'windows'
-t.load_extension 'git_worktree'
 t.load_extension 'aerial'
+t.load_extension 'git_worktree'
 
 local _cmds = {}
 
-_cmds.find_files = function()
-  tb.find_files { hidden = true }
+-- Try to run git_files first, if not in a git directory then run the standard
+-- find_files.
+_cmds.smart_files = function()
+  if not pcall(tb.git_files) then
+    tb.find_files { hidden = true }
+  end
 end
 
 _cmds.tags = function()

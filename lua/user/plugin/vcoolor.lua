@@ -1,3 +1,4 @@
+vim.notify 'vcoolor'
 ---- KabbAmine/vCoolor.vim
 vim.g.vcoolor_lowercase = 0
 vim.g.vcoolor_disable_mappings = 1
