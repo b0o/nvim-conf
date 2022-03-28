@@ -52,7 +52,6 @@ _G.nvim_tree_highlights = function()
 end
 
 require('nvim-tree').setup {
-  auto_close = true,
   open_on_tab = true,
   hijack_cursor = true,
   update_cwd = true,

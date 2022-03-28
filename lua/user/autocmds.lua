@@ -53,6 +53,8 @@ vim.cmd [[
     autocmd!
     " Set up nvim tree highlights when an nvim tree buffer is created
     autocmd FileType NvimTree* ++once lua _G.nvim_tree_highlights()
+    " automatically close the tab/vim when nvim-tree is the last window
+    autocmd BufEnter * ++nested if winnr('$') == 1 && bufname() == 'NvimTree_' . tabpagenr() | quit | endif
   augroup END
 ]]
 
