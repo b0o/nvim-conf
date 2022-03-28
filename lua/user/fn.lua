@@ -502,6 +502,15 @@ M.template = function(tmpl, data)
   return fn
 end
 
+M.tmpl_cmd = function(...)
+  return vim.cmd(M.template(...))
+end
+
+M.tmpl_hi = function(tmpl, colors)
+  colors = colors or require 'user.colors'
+  return M.tmpl_cmd(tmpl, colors)
+end
+
 -- lazy_table returns a placeholder table and defers callback cb until someone
 -- tries to access or iterate the table in some way, at which point cb will be
 -- called and its result becomes the value of the table.
@@ -707,6 +716,7 @@ end
 ---- Recent wins
 -- An extension of the 'wincmd p' concept, but ignoring special windows like
 -- popups, sidebars, and quickfix.
+-- TODO: Keep track of more than 2 wins, fallback when a window is closed
 M.update_recent_normal_wins = function()
   local tabpage = vim.api.nvim_get_current_tabpage()
   if not M.recent_normal_wins then

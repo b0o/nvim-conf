@@ -54,6 +54,8 @@ local colors = {
   grey7 = '#cccccc',
   grey8 = '#dddddd',
 
+  mid_velvet = '#6E6EA3',
+
   deep_lavender = '#38265A',
   deep_licorice = '#252137',
   deep_anise = '#564D82',

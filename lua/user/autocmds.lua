@@ -1,15 +1,20 @@
 local M = {}
 
+local fn = require 'user.fn'
+
 -- Re-compile Packer on write plugins.lua
 local plugins_conf_path = vim.fn.stdpath 'config' .. '/lua/user/plugins.lua'
 
-vim.cmd(([[
+fn.tmpl_cmd(
+  [[
   augroup user_packer
     autocmd!
-    autocmd BufWritePost %s lua vim.schedule(require'user.fn'.packer_compile)
+    autocmd BufWritePost ${1} lua vim.schedule(require'user.fn'.packer_compile)
     autocmd User PackerCompileDone lua vim.notify("Packer configuration recompiled")
   augroup END
-]]):format(plugins_conf_path))
+]],
+  { plugins_conf_path }
+)
 
 vim.cmd [[
   augroup user_misc

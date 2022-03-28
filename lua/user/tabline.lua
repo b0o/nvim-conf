@@ -1,7 +1,6 @@
 local colors = require 'user.colors'
 local fn = require 'user.fn'
 local apiutil = require 'user.apiutil'
-local template = fn.template
 
 local Input = fn.require_on_module_call 'nui.input'
 local Path = fn.require_on_exported_call 'plenary.path'
@@ -249,39 +248,37 @@ function M.tabline()
   return ''
 end
 
-vim.cmd(template(
+fn.tmpl_cmd(
   [[
-    hi TabLineFill                  ctermbg=0                            guibg=${base_bg}
+    hi TabLineFill               ctermbg=0                           guibg=${base_bg}
 
-    hi TabLine                      ctermbg=0  guifg=${tab_fg}           guibg=${tab_bg}
-    hi TabLineSel        ctermfg=6  ctermbg=8  guifg=${tab_sel_fg}       guibg=${tab_sel_bg}
+    hi TabLine                   ctermbg=0 guifg=${tab_fg}           guibg=${tab_bg}
+    hi TabLineSel      ctermfg=6 ctermbg=8 guifg=${tab_sel_fg}       guibg=${tab_sel_bg}
 
-    hi TabLineMod                   ctermbg=0  guifg=${tab_fg}           guibg=${tab_bg}     cterm=italic gui=italic
-    hi TabLineSelMod     ctermfg=6  ctermbg=8  guifg=${tab_sel_fg}       guibg=${tab_sel_bg} cterm=italic gui=italic
+    hi TabLineMod                ctermbg=0 guifg=${tab_fg}           guibg=${tab_bg}     cterm=italic gui=italic
+    hi TabLineSelMod   ctermfg=6 ctermbg=8 guifg=${tab_sel_fg}       guibg=${tab_sel_bg} cterm=italic gui=italic
 
-    hi TabLineSep                   ctermbg=0  guifg=${tab_bg}           guibg=${base_bg}
-    hi TabLineSelSep     ctermfg=6  ctermbg=8  guifg=${tab_sel_bg}       guibg=${base_bg}
+    hi TabLineSep                ctermbg=0 guifg=${tab_bg}           guibg=${base_bg}
+    hi TabLineSelSep   ctermfg=6 ctermbg=8 guifg=${tab_sel_bg}       guibg=${base_bg}
 
-    hi TabLineNr                    ctermbg=0  guifg=${tab_nr_fg}        guibg=${tab_bg}
-    hi TabLineSelNr                 ctermbg=8  guifg=${tab_sel_nr_fg}    guibg=${tab_sel_bg}
+    hi TabLineNr                 ctermbg=0 guifg=${tab_nr_fg}        guibg=${tab_bg}
+    hi TabLineSelNr              ctermbg=8 guifg=${tab_sel_nr_fg}    guibg=${tab_sel_bg}
 
-    hi TabLineTitle                 ctermbg=0  guifg=${tab_title_fg}     guibg=${tab_bg}     cterm=bold   gui=bold
-    hi TabLineSelTitle   ctermfg=6  ctermbg=8  guifg=${tab_sel_title_fg} guibg=${tab_sel_bg} cterm=bold   gui=bold
+    hi TabLineTitle              ctermbg=0 guifg=${tab_title_fg}     guibg=${tab_bg}     cterm=bold   gui=bold
+    hi TabLineSelTitle ctermfg=6 ctermbg=8 guifg=${tab_sel_title_fg} guibg=${tab_sel_bg} cterm=bold   gui=bold
   ]],
   {
     base_bg = colors.deep_anise,
-
     tab_bg = colors.deep_velvet,
     tab_fg = colors.white,
     tab_nr_fg = colors.white,
     tab_title_fg = colors.white,
-
     tab_sel_bg = colors.deep_licorice,
     tab_sel_fg = colors.powder,
     tab_sel_nr_fg = colors.hydrangea,
     tab_sel_title_fg = colors.white,
   }
-))
+)
 
 function M.do_rename_tab()
   local input = Input({

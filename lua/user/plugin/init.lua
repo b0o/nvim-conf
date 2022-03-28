@@ -5,14 +5,16 @@ vim.g.splitjoin_join_mapping = ''
 vim.g.splitjoin_split_mapping = ''
 
 ---- lukas-reineke/indent-blankline.nvim
-vim.cmd [[highlight link IndentBlanklineSpaceChar Comment]]
 require('indent_blankline').setup {
   show_whitespace = true,
-  show_end_of_line = true,
+  strict_tabs = true,
   use_treesitter = true,
-  buftype_exclude = { 'terminal' },
-  filetype_exclude = { 'help' },
+  show_current_context = true,
 }
+fn.tmpl_hi [[
+  hi link IndentBlanklineSpaceChar Comment
+  hi IndentBlanklineContextChar guifg=${mid_velvet} gui=nocombine
+]]
 
 ---- lewis6991/gitsigns.nvim
 require('gitsigns').setup {
@@ -82,13 +84,6 @@ vim.g.matchup_matchparen_offscreen = { method = 'popup' }
 vim.g.undotree_SetFocusWhenToggle = 1
 vim.g.undotree_DiffCommand = 'delta'
 
--- ---- luukvbaal/stabilize.nvim
--- require('stabilize').setup()
-
--- require('souvenir').setup {
---   session_path = vim.fn.stdpath('data') .. '/souvenirs/'
--- }
-
 ---- fatih/vim-go
 vim.g.go_doc_keywordprg_enabled = 0
 
@@ -102,43 +97,8 @@ require('range-highlight').setup {}
 
 ---- onsails/lspkind-nvim
 require('lspkind').init {
-  -- defines how annotations are shown
-  -- options: 'text', 'text_symbol', 'symbol_text', 'symbol'
-  -- mode = 'symbol',
-
-  -- default symbol map
-  -- can be either 'default' (requires nerd-fonts font) or
-  -- 'codicons' for codicon preset (requires vscode-codicons font)
-  -- preset = 'default',
-
-  -- override preset symbols
   symbol_map = {
     Type = '',
-    --   Text = "",
-    --   Method = "",
-    --   Function = "",
-    --   Constructor = "",
-    --   Field = "ﰠ",
-    --   Variable = "",
-    --   Class = "ﴯ",
-    --   Interface = "",
-    --   Module = "",
-    --   Property = "ﰠ",
-    --   Unit = "塞",
-    --   Value = "",
-    --   Enum = "",
-    --   Keyword = "",
-    --   Snippet = "",
-    --   Color = "",
-    --   File = "",
-    --   Reference = "",
-    --   Folder = "",
-    --   EnumMember = "",
-    --   Constant = "",
-    --   Struct = "פּ",
-    --   Event = "",
-    --   Operator = "",
-    --   TypeParameter = ""
   },
 }
 

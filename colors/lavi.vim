@@ -48,6 +48,7 @@ let g:lavi_gui[16] = '#B891FF'
 
 " Extended
 let g:lavi_gui[17] = '#ff9969' " normal orange
+let g:lavi_gui[18]  = '#3F3650' " dark-medium black
 
 let g:lavi_gui["3_bright"] = '#7E7490'
 let g:lavi_gui_3_bright = g:lavi_gui["3_bright"]
@@ -163,10 +164,8 @@ call s:hi('Underline', '', '', '', '', s:underline, '')
 "+--- Editor ---+
 call s:hi('ColorColumn', '', g:lavi_gui[1], 'NONE', g:lavi_term[1], '', '')
 call s:hi('Cursor', '', g:lavi_gui[4], '', 'NONE', '', '')
-call s:hi('CursorLine', '', g:lavi_gui[1], 'NONE', g:lavi_term[1], 'NONE', '')
+call s:hi('CursorLine', '', g:lavi_gui[18], 'NONE', g:lavi_term[1], 'NONE', '')
 call s:hi('CursorLineNC', '', g:lavi_gui[1], 'NONE', g:lavi_term[1], 'NONE', '')
-" hi CursorLineNC   ctermbg=0 guibg=#33283E
-" hi CursorLineNrNC cterm=underline ctermbg=12 gui=bold guifg=#FFF1E0 guibg=#5E6074
 call s:hi('Error', g:lavi_gui[0], g:lavi_gui[11], '', g:lavi_term[11], '', '')
 call s:hi('iCursor', g:lavi_gui[0], g:lavi_gui[4], '', 'NONE', '', '')
 call s:hi('LineNr', g:lavi_gui[3], '', g:lavi_term[3], 'NONE', '', '')
@@ -239,7 +238,7 @@ if g:lavi_cursor_line_number_background == 0
   call s:hi('CursorLineNrNC', g:lavi_gui[4], '', 'NONE', '', '', '')
 else
   call s:hi('CursorLineNr', g:lavi_gui[4], g:lavi_gui[10], 'NONE', g:lavi_term[10], '', '')
-  call s:hi('CursorLineNrNC', g:lavi_gui[4], g:lavi_gui[10], 'NONE', g:lavi_term[10], '', '')
+  call s:hi('CursorLineNrNC', g:lavi_gui[4], g:lavi_gui[3], 'NONE', g:lavi_term[3], '', '')
 endif
 call s:hi('Folded', g:lavi_gui[3], g:lavi_gui[1], g:lavi_term[3], g:lavi_term[1], s:bold, '')
 call s:hi('FoldColumn', g:lavi_gui[3], 'NONE', g:lavi_term[3], 'NONE', '', '')

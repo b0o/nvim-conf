@@ -1,6 +1,5 @@
 ---- stevearc/aerial.nvim
 local fn = require 'user.fn'
-local colors = require 'user.colors'
 
 require('aerial').setup {
   -- Priority list of preferred backends for aerial.
@@ -219,10 +218,7 @@ language_kind_map.rescript = {
   external_declaration = 'Interface',
 }
 
-vim.cmd(fn.template(
-  [[
-    hi AerialLine    guibg=${lavender}
-    hi AerialLineNC  guibg=${deep_anise}
-  ]],
-  colors
-))
+fn.tmpl_hi [[
+  hi AerialLine    guibg=${lavender}
+  hi AerialLineNC  guibg=${deep_anise}
+]]
