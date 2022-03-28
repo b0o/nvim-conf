@@ -840,7 +840,7 @@ M.magic_saveas = function(winnr, new_name, force, edit_cmd, add_ext)
   winnr = M.resolve_winnr(winnr)
   local bufnr = vim.api.nvim_win_get_buf(winnr)
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-  return M.newfile(winnr, new_name, force, edit_cmd or 'edit!', add_ext, lines)
+  return M.magic_newfile(winnr, new_name, force, edit_cmd or 'edit!', add_ext, lines)
 end
 
 ---- Packer
