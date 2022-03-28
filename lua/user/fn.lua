@@ -489,9 +489,9 @@ end
 
 -- Replace occurrences of ${k} with v in tmpl for each { k = v } in data
 M.template = function(tmpl, data)
-  local fn = function(data)
+  local fn = function(_data)
     local res = tmpl
-    for k, v in pairs(data) do
+    for k, v in pairs(_data) do
       res = res:gsub('${' .. k .. '}', v)
     end
     return res
