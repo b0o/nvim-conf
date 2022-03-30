@@ -117,7 +117,7 @@ packer.startup(function()
 
   -- Git
   use 'lewis6991/gitsigns.nvim'
-  use { 'ThePrimeagen/git-worktree.nvim', lazymod = 'git-worktree' }
+  use { 'ThePrimeagen/git-worktree.nvim', lazymod = 'git-worktree', module = 'telescope._extensions.git_worktree' }
   use { 'TimUntersberger/neogit', cmd = 'Neogit', lazymod = 'neogit' }
   use { 'mattn/gist-vim', requires = 'mattn/webapi-vim', cmd = 'Gist' }
   use {

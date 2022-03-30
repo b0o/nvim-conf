@@ -20,6 +20,10 @@ M.init = function()
   }
 end
 
+local function escape_module_for_pattern(mod)
+  return string.gsub(mod, '[%^%$%(%)%%%.%[%]%*%+%?%-]', '%%%1')
+end
+
 -- lazymods are lazily loaded packages that load a config file inside
 -- lua/user/plugin/ on load.
 -- Should not be called directly.
@@ -45,19 +49,23 @@ local function use_lazymod(p)
   end
 
   if not lazymod.module_pattern and lazymod.mod ~= false then
-    local mod_escaped = string.gsub(lazymod.mod or lazymod[1], '[%^%$%(%)%%%.%[%]%*%+%?%-]', '%%%1')
+    local mod_escaped = escape_module_for_pattern(lazymod.mod or lazymod[1])
     lazymod.module_pattern = {
       '^' .. mod_escaped .. '$',
       '^' .. mod_escaped .. '%.',
     }
   end
 
-  p.module = lazymod.module or {}
+  p.module = p.module or {}
+  p.module = type(p.module) == 'table' and p.module or { p.module }
+  vim.list_extend(p.module, lazymod.module or {})
   if type(p.module) == 'string' then
     p.module = { p.module }
   end
 
-  p.module_pattern = lazymod.module_pattern or {}
+  p.module_pattern = p.module_pattern or {}
+  p.module_pattern = type(p.module_pattern) == 'table' and p.module_pattern or { p.module_pattern }
+  vim.list_extend(p.module_pattern, lazymod.module_pattern or {})
   if type(p.module_pattern) == 'string' then
     p.module_pattern = { p.module_pattern }
   end
@@ -67,6 +75,11 @@ local function use_lazymod(p)
   end
   if #p.module_pattern == 0 then
     p.module_pattern = nil
+  end
+
+  if p.module and #p.module > 0 and p.module_pattern and #p.module_pattern > 0 then
+    vim.list_extend(p.module_pattern, vim.tbl_map(escape_module_for_pattern, p.module))
+    p.module = nil
   end
 
   local _config = p.config -- save the original config function
