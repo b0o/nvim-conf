@@ -74,6 +74,20 @@ cabbrev('SL', 'SessionLoad')
 
 command { '-count=-1', '-register', 'YankMessages', 'lua require("user.fn").yank_messages("<reg>", <count>)' }
 
+-- Like :only but don't close non-normal windows like quickfix, file trees, etc.
+command {
+  '-bang',
+  'Only',
+  function(o)
+    local curwin = vim.api.nvim_get_current_win()
+    vim.tbl_map(function(w)
+      if w ~= curwin then
+        vim.api.nvim_win_close(w, o.bang == '!')
+      end
+    end, require('user.fn').tabpage_list_normal_wins())
+  end,
+}
+
 ---- Magic file commands
 -- More commands with similar behavior to Eunuch
 
@@ -134,8 +148,7 @@ command { 'Cx', ':Chmod +x' }
 ------ Abbreviations
 cabbrev('Cp', 'Copy')
 cabbrev('Du', 'Duplicate')
-cabbrev('VDu', 'VDuplicate')
-cabbrev('Vdu', 'VDuplicate')
+cabbrev('Vd', 'VDuplicate')
 cabbrev('LI', 'lua inspect')
 cabbrev('PS', 'PackerSync')
 

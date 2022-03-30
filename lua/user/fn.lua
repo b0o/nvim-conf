@@ -713,6 +713,25 @@ M.get_qfwin = function()
   return M.get_wins_of_type('quickfix')[1]
 end
 
+M.is_normal_win = function(winid)
+  if vim.fn.win_gettype(winid) ~= '' then
+    return false
+  end
+  local bufid = vim.api.nvim_win_get_buf(winid)
+  if vim.api.nvim_buf_get_option(bufid, 'buftype') ~= '' then
+    return false
+  end
+  if vim.tbl_contains({ 'NvimTree', 'Trouble', 'aerial' }, vim.api.nvim_buf_get_option(bufid, 'filetype')) then
+    return false
+  end
+  return true
+end
+
+M.tabpage_list_normal_wins = function(tabpage)
+  local wins = vim.api.nvim_tabpage_list_wins(tabpage or 0)
+  return vim.tbl_filter(M.is_normal_win, wins)
+end
+
 ---- Recent wins
 -- An extension of the 'wincmd p' concept, but ignoring special windows like
 -- popups, sidebars, and quickfix.
@@ -726,16 +745,10 @@ M.update_recent_normal_wins = function()
     M.recent_normal_wins[tabpage] = {}
   end
   local tabpage_recent_normal_wins = M.recent_normal_wins[tabpage]
-  if vim.fn.win_gettype(0) ~= '' then
-    return
-  end
-  if vim.api.nvim_buf_get_option(0, 'buftype') ~= '' then
-    return
-  end
-  if vim.tbl_contains({ 'NvimTree', 'Trouble', 'aerial' }, vim.api.nvim_buf_get_option(0, 'filetype')) then
-    return
-  end
   local cur_winid = vim.api.nvim_get_current_win()
+  if not M.is_normal_win(cur_winid) then
+    return
+  end
   if cur_winid == tabpage_recent_normal_wins[1] then
     return
   end
