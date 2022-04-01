@@ -13,16 +13,6 @@ local mapx = require('mapx').setup {
 local silent = mapx.silent
 local expr = mapx.expr
 
--- local user_lsp = require'user.lsp'
--- local user_lsp = fn.require_on_exported_call'user.lsp'
-local user_lsp = fn.require_on_call_rec 'user.lsp'
-local trouble = fn.require_on_call_rec 'trouble'
-local tmux = fn.require_on_exported_call 'tmux'
-
-local telescope = fn.require_on_call_rec 'telescope'
-local telescope_builtin = fn.require_on_call_rec 'telescope.builtin'
-local user_plugin_telescope = fn.require_on_call_rec 'user.plugin.telescope'
-
 -- Extra keys
 -- Configure your terminal emulator to send the unicode codepoint for each
 -- given key sequence
@@ -166,10 +156,6 @@ vim.cmd([[
 ]])
 nnoremap ([[<F30>]], [["ldd:let @k=@k.@l | let @l=@k<cr>]], silent)
 nnoremap ([[<F24>]], [[:if @l != "" | let @k=@l | end<cr>"KgP:let @l=@k<cr>:let @k=""<cr>]], silent)
-
--- overload tab key to also perform next/prev in popup menus
--- inoremap ([[<Tab>]],   [[pumvisible() ? "\<C-n>" : "\<Tab>"]], silent, expr)
--- inoremap ([[<S-Tab>]], [[pumvisible() ? "\<C-p>" : "\<S-Tab>"]], silent, expr)
 
 inoremap (xk[[<C-`>]], [[<C-o>~<left>]], "Toggle case")
 
@@ -367,12 +353,44 @@ nnoremap ([[<leader>lr]], [[:LspRestart<Cr>]], "LSP: Restart LSP")
 nnoremap ([[<leader>ls]], [[:LspStart<Cr>]],   "LSP: Start LSP")
 nnoremap ([[<leader>lS]], [[:LspStop<Cr>]],    "LSP: Stop LSP")
 
-local lsp_attached_bufs = {}
+local lsp_attached_bufs
+M.on_first_lsp_attach = function()
+  ---- trouble.nvim
+  local trouble = fn.require_on_call_rec('trouble')
+  local function trouble_get_win()
+    for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+      local bufnr = vim.api.nvim_win_get_buf(winid)
+      local ft = vim.api.nvim_buf_get_option(bufnr, "filetype")
+      if ft == "Trouble" then
+        return winid
+      end
+    end
+  end
+  nmap([[<M-S-t>]], function()
+    local winid = trouble_get_win()
+    if winid then
+      trouble.close()
+    else
+      trouble.open()
+      fn.focus_last_normal_win()
+    end
+  end, silent, "Trouble: Toggle")
+  nmap([[<M-t>]],
+    fn.filetype_command("Trouble", ithunk(fn.focus_last_normal_win), ithunk(trouble.open)),
+    silent, "Trouble: Toggle Focus")
+end
+
 M.on_lsp_attach = function(bufnr)
-  if lsp_attached_bufs[bufnr] or not vim.api.nvim_buf_is_valid(bufnr) then
+  if not lsp_attached_bufs then
+    lsp_attached_bufs = {}
+    M.on_first_lsp_attach()
+  elseif lsp_attached_bufs[bufnr] or not vim.api.nvim_buf_is_valid(bufnr) then
     return
   end
   lsp_attached_bufs[bufnr] = true
+
+  local user_lsp = fn.require_on_call_rec 'user.lsp'
+  local trouble = fn.require_on_call_rec('trouble')
 
   mapx.group({ buffer = bufnr, silent = true }, function()
     if not vim.api.nvim_buf_is_valid(bufnr) then
@@ -427,8 +445,9 @@ M.on_lsp_attach = function(bufnr)
         vim.diagnostic["goto_" .. _dir](args)
       end
     end
+
     mapx.nname("<localleader>d", "LSP-Diagnostics")
-    nnoremap ([[<localleader>ds]],                        ithunk(vim.diagnostic.show),      "LSP: Show diagnostics")
+    nnoremap ([[<localleader>ds]],                        ithunk(vim.diagnostic.show),                      "LSP: Show diagnostics")
     nnoremap ({[[<localleader>dt]], [[<localleader>T]]},  ithunk(trouble.toggle), "LSP: Toggle Trouble")
 
     nnoremap ({[[<localleader>dd]], [[[d]]}, gotoDiag("prev"),          "LSP: Goto prev diagnostic")
@@ -457,7 +476,7 @@ M.on_lsp_attach = function(bufnr)
     nnoremap ('[t', ithunk(trouble.previous, {skip_groups = true, jump = true}), "Trouble: Previous")
 
     mapx.nname("<localleader>s", "LSP-Search")
-    nnoremap ({[[<localleader>so]], [[<leader>so]]}, ithunk(telescope_builtin.lsp_document_symbols), "LSP: Telescope symbol search")
+    nnoremap ({[[<localleader>so]], [[<leader>so]]}, ithunk(fn.require_on_call_rec('telescope.builtin').lsp_document_symbols), "LSP: Telescope symbol search")
 
     mapx.nname("<localleader>h", "LSP-Hover")
     nnoremap ([[<localleader>hs]], ithunk(vim.lsp.buf.signature_help), "LSP: Signature help")
@@ -490,6 +509,7 @@ map      ([[<M-/>]], [[gcc<Esc>]], silent) -- Toggle line comment
 inoremap ([[<M-/>]], [[v:count == 0 ? '<Esc><Cmd>set operatorfunc=v:lua.___comment_gcc<Cr>g@$a' : '<Esc><Cmd>lua ___comment_count_gcc()<Cr>a']], silent, expr, "Toggle line comment")
 
 ---- aserowy/tmux.nvim
+local tmux = fn.require_on_exported_call 'tmux'
 nmap     ([[<M-h>]], ithunk(tmux.move_left),   silent, "Goto window/tmux pane left")
 nmap     ([[<M-j>]], ithunk(tmux.move_bottom), silent, "Goto window/tmux pane down")
 nmap     ([[<M-k>]], ithunk(tmux.move_top),    silent, "Goto window/tmux pane up")
@@ -497,10 +517,10 @@ nmap     ([[<M-l>]], ithunk(tmux.move_right),  silent, "Goto window/tmux pane ri
 
 -- nvim-telescope/telescope.nvim TODO: In-telescope maps
 mapx.group(silent, function()
-  local t = telescope
-  local tb = telescope_builtin
+  local t = fn.require_on_call_rec 'telescope'
+  local tb = fn.require_on_call_rec 'telescope.builtin'
+  local tu = fn.require_on_call_rec 'user.plugin.telescope'
   local tx = t.extensions
-  local tu = user_plugin_telescope
   local tc = tu.cmds
 
   mapx.nname([[<C-f>]], "Telescope")
@@ -637,35 +657,6 @@ mapx.group({ ft = "NvimTree" }, function()
   nnoremap ([[gd]], withSelected("tabnew | Gdiffsplit"), "Nvim-Tree: Git diff")
 end)
 
--- trouble.nvim
-local function trouble_get_win()
-  for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-    local bufnr = vim.api.nvim_win_get_buf(winid)
-    local ft = vim.api.nvim_buf_get_option(bufnr, "filetype")
-    if ft == "Trouble" then
-      return winid
-    end
-  end
-end
-
-M.trouble_get_win = trouble_get_win
-
-local trouble = fn.require_on_exported_call'trouble'
-
-nmap([[<M-S-t>]], function()
-  local winid = trouble_get_win()
-  if winid then
-    trouble.close()
-  else
-    trouble.open()
-    fn.focus_last_normal_win()
-  end
-end, silent, "Trouble: Toggle")
-
-nmap([[<M-t>]],
-  fn.filetype_command("Trouble", ithunk(fn.focus_last_normal_win), ithunk(trouble.open)),
-  silent, "Trouble: Toggle Focus")
-
 -- stevearc/aerial.nvim
 local aerial = fn.require_on_index"aerial"
 local aerial_util = fn.require_on_index"aerial.util"
@@ -696,13 +687,23 @@ local function aerial_open(focus)
     fn.notify("no aerial backend")
     return
   end
+  local nvt_win = package.loaded['nvim-tree'] and require'nvim-tree.view'.get_winnr()
+  local nvt_width
+  if nvt_win and vim.api.nvim_win_is_valid(nvt_win) then
+    nvt_width = vim.api.nvim_win_get_width(nvt_win)
+  end
   require"aerial.window".open(focus)
+  if nvt_width then
+    vim.api.nvim_win_set_width(nvt_win, nvt_width)
+  end
+  fn.autoresize_trigger()
 end
 
 nmap(xk[[<M-S-\>]], function()
-  if require"aerial.util".is_aerial_buffer() or aerial_get_win() then
+  if  aerial_get_win() then
+    local foc = require"aerial.util".is_aerial_buffer()
     aerial.close()
-    fn.focus_last_normal_win()
+    if foc then fn.focus_last_normal_win() end
   else
     aerial_open()
   end
