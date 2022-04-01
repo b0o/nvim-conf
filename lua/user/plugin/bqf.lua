@@ -51,7 +51,7 @@ local preview_fugitive = function(bufnr, qwinid, bufname)
       end)
     end
     require('bqf.preview.handler').open(qwinid, nil, true)
-    local fbufnr = require('bqf.preview.session').float_bufnr()
+    local fbufnr = require('bqf.preview.session').floatBufnr()
     vim.api.nvim_buf_set_option(fbufnr, 'filetype', 'git')
     register_preview_buf(qwinid, bufnr)
   end, is_loaded and 0 or 60)
