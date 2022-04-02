@@ -244,9 +244,7 @@ end
 local function on_first_attach()
   require('null-ls').setup(vim.tbl_extend('force', require 'user.plugin.null-ls', { on_attach = on_attach }))
   require('lsp_signature').setup(lsp_signature_config)
-  vim.schedule(function()
-    require 'user.plugin.trouble'
-  end)
+  require('packer').loader('trouble.nvim', false)
 end
 
 local function on_attach_wrapper(...)
