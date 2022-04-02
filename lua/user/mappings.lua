@@ -416,7 +416,7 @@ M.on_lsp_attach = function(bufnr)
     nnoremap ({[[<localleader>A]], [[<localleader>ca]]}, ithunk(vim.lsp.buf.code_action),       "LSP: Code action")
     vnoremap ({[[<localleader>A]], [[<localleader>ca]]}, ithunk(vim.lsp.buf.range_code_action), "LSP: Code action (range)")
 
-    nnoremap ([[<localleader>F]], ithunk(user_lsp.buf_formatting_sync), "LSP: Format")
+    nnoremap ([[<localleader>F]], ithunk(vim.lsp.buf.formatting_sync),  "LSP: Format")
     vnoremap ([[<localleader>F]], ithunk(vim.lsp.buf.range_formatting), "LSP: Format (range)")
 
     mapx.nname("<localleader>s", "LSP-Save")
