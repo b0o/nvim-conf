@@ -230,10 +230,13 @@ local function on_attach(client, bufnr)
   require('aerial').on_attach(client, bufnr)
   if client.resolved_capabilities.code_action then
     local augid = vim.api.nvim_create_augroup('user_lsp_code_actions', { clear = true })
+    local cal_dbounce = require('user.util.debounce').make(M.code_action_listener, { threshold = 500 })
     vim.api.nvim_create_autocmd('CursorHold', {
       buffer = bufnr,
       group = augid,
-      callback = M.code_action_listener,
+      callback = function(...)
+        cal_dbounce(...)
+      end,
     })
   end
   vim.schedule(function()
