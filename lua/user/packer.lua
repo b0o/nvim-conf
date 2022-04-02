@@ -94,7 +94,7 @@ local function use_lazymod(p)
   M.lazymods[short_name] = {
     plugin = p,
     config = function(...) -- This callback will not be compiled by packer
-      pcall(require, 'user.plugin.' .. lazymod[1])
+      pcall(require, 'user.plugin.' .. (lazymod.conf or p.conf or lazymod[1]))
       if _config then
         if type(_config) == 'string' then
           _config = loadstring(_config)
