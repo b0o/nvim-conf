@@ -19,6 +19,7 @@ require('Comment').setup {
       state = {}
     end
   end,
+  ---@diagnostic disable-next-line: unused-local
   post_hook = function(ctx)
     vim.schedule(function()
       if state and state.marks and #state.marks > 0 then
