@@ -99,6 +99,9 @@ require('nvim-treesitter.configs').setup {
       show_help = '?',
     },
   },
+  matchup = {
+    enable = true,
+  },
 }
 
 -- romgrk/nvim-treesitter-context

@@ -8,8 +8,8 @@ vim.g.splitjoin_split_mapping = ''
 require('indent_blankline').setup {
   show_whitespace = true,
   strict_tabs = true,
-  use_treesitter = true,
-  show_current_context = true,
+  use_treesitter = false,
+  show_current_context = false,
 }
 fn.tmpl_hi [[
   hi link IndentBlanklineSpaceChar Comment
@@ -78,7 +78,10 @@ require('winshift').setup {
 vim.g.move_key_modifier = 'C'
 vim.g.move_key_modifier_visualmode = 'C'
 
+---- andymass/vim-matchup
 vim.g.matchup_matchparen_offscreen = { method = 'popup' }
+vim.g.matchup_matchparen_deferred = 1
+vim.g.matchup_matchparen_deferred_show_delay = 30
 
 ---- mbbill/undotree
 vim.g.undotree_SetFocusWhenToggle = 1
@@ -144,4 +147,4 @@ vim.g.shot_f_highlight_blank = string.format(
 require('stabilize').setup()
 
 ---- lewis6991/spellsitter.nvim
-require('spellsitter').setup {}
+require('spellsitter').setup()
