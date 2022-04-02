@@ -49,7 +49,8 @@ let g:lavi_gui[16] = '#B891FF'
 " Extended
 let g:lavi_gui[17] = '#ff9969' " normal orange
 let g:lavi_gui[18]  = '#3F3650'
-let g:lavi_gui[19]  = '#9F8BC0'
+let g:lavi_gui[19]  = '#9385F8'
+let g:lavi_gui[20]  = '#222032'
 
 let g:lavi_gui["3_bright"] = '#7E7490'
 let g:lavi_gui_3_bright = g:lavi_gui["3_bright"]
@@ -173,6 +174,7 @@ call s:hi('LineNr', g:lavi_gui[3], '', g:lavi_term[3], 'NONE', '', '')
 call s:hi('MatchParen', g:lavi_gui[8], g:lavi_gui[3], g:lavi_term[8], g:lavi_term[3], '', '')
 call s:hi('NonText', g:lavi_gui[2], '', g:lavi_term[3], '', '', '')
 call s:hi('Normal', g:lavi_gui[4], '', 'NONE', 'NONE', '', '')
+call s:hi('NormalNC', g:lavi_gui[4], g:lavi_gui[20], 'NONE', 'NONE', '', '')
 call s:hi('PMenu', g:lavi_gui[4], g:lavi_gui[2], 'NONE', g:lavi_term[1], 'NONE', '')
 call s:hi('PmenuSbar', g:lavi_gui[4], g:lavi_gui[2], 'NONE', g:lavi_term[1], '', '')
 call s:hi('PMenuSel', g:lavi_gui[8], g:lavi_gui[3], g:lavi_term[8], g:lavi_term[3], '', '')
@@ -238,7 +240,7 @@ if g:lavi_cursor_line_number_background == 0
   call s:hi('CursorLineNr', g:lavi_gui[4], '', 'NONE', '', '', '')
   call s:hi('CursorLineNrNC', g:lavi_gui[4], '', 'NONE', '', '', '')
 else
-  call s:hi('CursorLineNr', g:lavi_gui[4], g:lavi_gui[19], 'NONE', g:lavi_term[10], '', '')
+  call s:hi('CursorLineNr', g:lavi_gui[6], g:lavi_gui[19], 'NONE', g:lavi_term[10], '', '')
   call s:hi('CursorLineNrNC', g:lavi_gui[4], g:lavi_gui[0], 'NONE', g:lavi_term[0], '', '')
 endif
 call s:hi('Folded', g:lavi_gui[3], g:lavi_gui[1], g:lavi_term[3], g:lavi_term[1], s:bold, '')
