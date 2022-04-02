@@ -19,7 +19,7 @@ local auto_resize = require 'user.util.auto-resize'
 -- Extra keys
 -- Configure your terminal emulator to send the unicode codepoint for each
 -- given key sequence
-local xk = fn.utf8keys {
+M.xk = fn.utf8keys {
   [ [[<C-S-q>]] ] = 0xff01,
   [ [[<C-S-n>]] ] = 0xff02,
   [ [[<C-\>]] ] = 0x00f0,
@@ -30,6 +30,7 @@ local xk = fn.utf8keys {
   [ [[<C-S-f>]] ] = 0x00f5,
   [ [[<C-/>]] ] = 0x001f,
 }
+local xk = M.xk
 
 -- stylua: ignore start
 -- Disable C-z suspend
@@ -523,7 +524,6 @@ nmap     ([[<M-j>]], ithunk(tmux.move_bottom), silent, "Goto window/tmux pane do
 nmap     ([[<M-k>]], ithunk(tmux.move_top),    silent, "Goto window/tmux pane up")
 nmap     ([[<M-l>]], ithunk(tmux.move_right),  silent, "Goto window/tmux pane right")
 
--- nvim-telescope/telescope.nvim TODO: In-telescope maps
 mapx.group(silent, function()
   local t = fn.require_on_call_rec 'telescope'
   local tb = fn.require_on_call_rec 'telescope.builtin'
