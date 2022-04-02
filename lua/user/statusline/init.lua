@@ -318,10 +318,13 @@ config.components.inactive[1] = {
       end
       return icon
     end,
-    hl = {
-      fg = colors.evergreen,
+    hl = hl_if_focused({
+      fg = colors.velvet,
+      bg = colors.active_bg,
+    }, {
+      fg = colors.velvet,
       bg = colors.inactive_bg,
-    },
+    }),
   },
   {
     provider = {

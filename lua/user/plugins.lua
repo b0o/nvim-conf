@@ -2,7 +2,9 @@
 -- SEE: ./packer.lua
 
 local packer = require 'user.packer'
-local use, uselocal = packer.use, packer.uselocal
+
+---@diagnostic disable-next-line: unused-local
+local use, uselocal, xuse, xuselocal = packer.use, packer.uselocal, packer.xuse, packer.xuselocal
 
 packer.init()
 
@@ -40,8 +42,9 @@ packer.startup(function()
   use { 'winston0410/range-highlight.nvim', requires = 'winston0410/cmd-parser.nvim' }
 
   -- Telescope
-  use { 'kyoh86/telescope-windows.nvim', module = 'telescope._extensions.windows' }
   use { 'nvim-telescope/telescope.nvim', requires = 'nvim-lua/popup.nvim', lazymod = 'telescope' }
+  use { 'kyoh86/telescope-windows.nvim', module = 'telescope._extensions.windows' }
+  use { 'nvim-telescope/telescope-github.nvim', module = 'telescope._extensions.gh' }
 
   -- Editing
   use 'andymass/vim-matchup'
@@ -95,6 +98,7 @@ packer.startup(function()
   use 'nvim-treesitter/nvim-treesitter-textobjects'
   use 'romgrk/nvim-treesitter-context'
   use 'nkrkv/nvim-treesitter-rescript'
+  xuse 'lewis6991/spellsitter.nvim'
   use { 'nvim-treesitter/playground', cmd = 'TSPlaygroundToggle' }
 
   -- LSP
@@ -191,7 +195,6 @@ packer.startup(function()
   use 'f3fora/cmp-spell'
   use 'ray-x/cmp-treesitter'
   use 'saadparwaiz1/cmp_luasnip'
-  use 'lewis6991/spellsitter.nvim'
   use { 'petertriho/cmp-git', requires = 'nvim-lua/plenary.nvim' }
 
   -- Debugging
@@ -200,6 +203,7 @@ packer.startup(function()
 
   -- Window Management
   use 'sindrets/winshift.nvim'
+  use 'luukvbaal/stabilize.nvim'
   use { 'mrjones2014/smart-splits.nvim', module = 'smart-splits' }
   use { 'aserowy/tmux.nvim', lazymod = 'tmux' }
 

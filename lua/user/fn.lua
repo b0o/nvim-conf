@@ -452,6 +452,7 @@ M.autoresize_toggle = function()
   end
 end
 
+---- UTF-8
 -- Convert a number to a utf8 string
 M.utf8 = function(decimal)
   if type(decimal) == 'string' then
@@ -677,7 +678,7 @@ M.filetype_command = function(ft, if_match, if_not_match)
   end
 end
 
-M.get_latest_Messages = function(count)
+M.get_latest_messages = function(count)
   local messages = vim.fn.execute 'messages'
   local lines = vim.split(messages, '\n')
   lines = vim.tbl_filter(function(line)

@@ -23,6 +23,7 @@ t.setup {
 t.load_extension 'windows'
 t.load_extension 'aerial'
 t.load_extension 'git_worktree'
+t.load_extension 'gh'
 
 local _cmds = {}
 
