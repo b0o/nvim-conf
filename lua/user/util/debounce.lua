@@ -2,11 +2,11 @@ local M = {}
 local Debounce = {}
 
 Debounce.call = function(self, ...)
-  local args = { ... }
   if self.timer and self.timer:get_due_in() > 0 then
     self.timer:stop()
     self.timer = nil
   end
+  local args = { ... }
   self.timer = vim.defer_fn(function()
     self:immediate(unpack(args))
   end, self.opts.threshold)
