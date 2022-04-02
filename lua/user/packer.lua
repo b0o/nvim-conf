@@ -166,13 +166,21 @@ end
 -- Same as use() but sets {disable=true}
 ---@diagnostic disable-next-line: unused-local,unused-function
 M.xuse = function(p)
-  return M.use(p, { disable = true })
+  return M.use(p, {
+    cond = function()
+      return false
+    end,
+  })
 end
 
 -- Same as uselocal() but sets {disable=true}
 ---@diagnostic disable-next-line: unused-local,unused-function
 M.xuselocal = function(p)
-  return M.uselocal(p, { disable = true })
+  return M.uselocal(p, {
+    cond = function()
+      return false
+    end,
+  })
 end
 
 return setmetatable(M, {

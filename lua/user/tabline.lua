@@ -320,7 +320,4 @@ function M.do_rename_tab()
   input:map('n', '<Esc>', input.input_props.on_close, { noremap = true })
 end
 
-nmap({ '<C-t><C-t>', '<C-t>t' }, M.do_rename_tab, 'Tabpage: Set title')
-nmap({ '<C-t><C-l>', '<C-t>l' }, M.tabpage_toggle_titlestyle, 'Tabpage: Toggle title style')
-
 return M

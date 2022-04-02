@@ -284,6 +284,11 @@ vnoremap ([[<leader>sS]], [[:VSSplit<Cr>]],         silent, "Visual Split (below
 
 vnoremap ([[<leader>I]], [[<esc>:call user#fn#interleave()<Cr>]], silent, "Interleave two contiguous blocks")
 
+-- Tabline
+local tabline = require'user.tabline'
+nmap({ '<C-t><C-t>', '<C-t>t' }, tabline.do_rename_tab, 'Tabpage: Set title')
+nmap({ '<C-t><C-l>', '<C-t>l' }, tabline.tabpage_toggle_titlestyle, 'Tabpage: Toggle title style')
+
 -- PasteRestore
 -- paste register without overwriting with the original selection
 -- use P for original behavior

@@ -4,14 +4,16 @@ if not pcall(require, 'impatient') then
 end
 
 require 'user.settings'
-require 'user.fn'
-require 'user.commands'
-require 'user.mappings'
-require 'user.autocmds'
-require 'user.plugins'
-require 'user.plugin'
 require 'user.statusline'
 require 'user.lsp'
-require 'user.completion'
-require 'user.treesitter'
-require 'user.quickfix'
+require 'user.commands'
+
+vim.defer_fn(function()
+  require 'user.autocmds'
+  require 'user.mappings'
+  require 'user.plugins'
+  require 'user.plugin'
+  require 'user.completion'
+  require 'user.treesitter'
+  require 'user.quickfix'
+end, 0)
