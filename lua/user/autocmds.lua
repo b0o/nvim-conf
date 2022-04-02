@@ -28,8 +28,8 @@ vim.cmd [[
     autocmd FocusGained * let g:nvim_focused = v:true
     " Set global variable g:nvim_focused to false when neovim loses focus
     autocmd FocusLost * let g:nvim_focused = v:false
-    " Keep track of recent normal windows
-    autocmd WinLeave * lua vim.schedule(require'user.fn'.update_recent_normal_wins)
+    " Keep track of recent windows
+    autocmd WinLeave * lua require'user.util.recent-wins'.update()
     " Set local highlight overrides on non-current windows
     autocmd WinNew,WinLeave * setlocal winhl=CursorLine:CursorLineNC,CursorLineNr:CursorLineNrNC
     autocmd WinEnter * setlocal winhl=

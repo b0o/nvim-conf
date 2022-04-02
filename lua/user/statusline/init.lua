@@ -301,17 +301,17 @@ config.components.inactive[1] = {
   {
     provider = function()
       local icon = '  '
-      local recent_normal_wins = fn.tabpage_get_recent_normal_wins()
-      if recent_normal_wins and #recent_normal_wins >= 2 then
+      local recents = require('user.util.recent-wins').tabpage_get_recents()
+      if recents and #recents >= 2 then
         local winid = vim.api.nvim_get_current_win()
         local index = -1
-        for i, w in ipairs(recent_normal_wins) do
+        for i, w in ipairs(recents) do
           if w == winid then
             index = i
             break
           end
         end
-        if recent_normal_wins[1] == tonumber(vim.g.actual_curwin) and index == 2 then
+        if recents[1] == tonumber(vim.g.actual_curwin) and index == 2 then
           index = 1
         end
         icon = ({ ' ', ' ' })[index] or '  '

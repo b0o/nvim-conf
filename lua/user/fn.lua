@@ -4,7 +4,6 @@ local M = {
   autoresize = false,
   quiet = false,
   captured = {},
-  recent_normal_wins = {},
 }
 
 M.notify = function(...)
@@ -736,70 +735,6 @@ end
 M.tabpage_list_normal_wins = function(tabpage)
   local wins = vim.api.nvim_tabpage_list_wins(tabpage or 0)
   return vim.tbl_filter(M.is_normal_win, wins)
-end
-
----- Recent wins
--- An extension of the 'wincmd p' concept, but ignoring special windows like
--- popups, sidebars, and quickfix.
--- TODO: Keep track of more than 2 wins, fallback when a window is closed
-M.update_recent_normal_wins = function()
-  local tabpage = vim.api.nvim_get_current_tabpage()
-  if not M.recent_normal_wins then
-    M.recent_normal_wins = {}
-  end
-  if not M.recent_normal_wins[tabpage] then
-    M.recent_normal_wins[tabpage] = {}
-  end
-  local tabpage_recent_normal_wins = M.recent_normal_wins[tabpage]
-  local cur_winid = vim.api.nvim_get_current_win()
-  if not M.is_normal_win(cur_winid) then
-    return
-  end
-  if cur_winid == tabpage_recent_normal_wins[1] then
-    return
-  end
-  M.recent_normal_wins[tabpage] = {
-    cur_winid,
-    tabpage_recent_normal_wins[1] or nil,
-  }
-end
-
-M.tabpage_get_recent_normal_wins = function(tabpage)
-  tabpage = tabpage or vim.api.nvim_get_current_tabpage()
-  return M.recent_normal_wins[tabpage]
-end
-
-M.get_last_normal_win = function()
-  local tabpage_recent_normal_wins = M.tabpage_get_recent_normal_wins()
-  local winid = tabpage_recent_normal_wins and tabpage_recent_normal_wins[1]
-  if not winid then
-    return
-  end
-  if vim.api.nvim_get_current_win() == winid then
-    winid = tabpage_recent_normal_wins[2]
-  end
-  return winid
-end
-
-M.flip_last_normal_wins = function()
-  local cur_winid = vim.api.nvim_get_current_win()
-  local tabpage_recent_normal_wins = M.tabpage_get_recent_normal_wins()
-  local last_winid = tabpage_recent_normal_wins and tabpage_recent_normal_wins[1]
-  if not last_winid or last_winid == cur_winid then
-    return
-  end
-  vim.api.nvim_set_current_win(tabpage_recent_normal_wins[2])
-  M.update_recent_normal_wins()
-  vim.cmd [[wincmd p]]
-end
-
-M.focus_last_normal_win = function(winid)
-  winid = winid or M.get_last_normal_win()
-  if winid then
-    vim.api.nvim_set_current_win(winid)
-    return
-  end
-  vim.cmd [[wincmd p]]
 end
 
 ---- Magic file functions

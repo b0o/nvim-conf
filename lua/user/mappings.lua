@@ -13,6 +13,8 @@ local mapx = require('mapx').setup {
 local silent = mapx.silent
 local expr = mapx.expr
 
+local recent_wins = fn.require_on_call_rec 'user.util.recent-wins'
+
 -- Extra keys
 -- Configure your terminal emulator to send the unicode codepoint for each
 -- given key sequence
@@ -232,8 +234,8 @@ tnoremap ([[<M-'>]],   [[<C-\><C-n>:tabn<Cr>]],           silent) -- Tabs: goto 
 tnoremap ([[<M-;>]],   [[<C-\><C-n>:tabp<Cr>]],           silent) -- Tabs: goto prev
 noremap  ([[<M-S-a>]], [[:execute "wincmd g\<Tab>"<Cr>]], silent, "Tabs: Goto last accessed")
 
-noremap  ([[<M-a>]],   ithunk(fn.focus_last_normal_win),  silent, "Panes: Goto previously focused")
-noremap  ([[<M-x>]],   ithunk(fn.flip_last_normal_wins),  silent, "Panes: Flip the last normal wins")
+noremap  ([[<M-a>]],   ithunk(recent_wins.focus_most_recent),  silent, "Panes: Goto previously focused")
+noremap  ([[<M-x>]],   ithunk(recent_wins.flip_recents),       silent, "Panes: Flip the last normal wins")
 
 noremap ([[<M-1>]], tabnm(1),  silent, "Goto tab 1")
 noremap ([[<M-2>]], tabnm(2),  silent, "Goto tab 2")
@@ -304,12 +306,12 @@ nnoremap ([[<M-S-q>]], function()
     vim.cmd[[cclose]]
   else
     vim.cmd[[copen]]
-    fn.focus_last_normal_win()
+    recent_wins.focus_most_recent()
   end
 end, silent, "Quickfix: Toggle")
 
 nmap([[<M-q>]], fn.filetype_command("qf",
-  ithunk(fn.focus_last_normal_win),
+  ithunk(recent_wins.focus_most_recent),
   ithunk(vim.cmd, [[copen]])), silent, "Quickfix: Toggle focus")
 
 ------ Filetypes
@@ -372,11 +374,11 @@ M.on_first_lsp_attach = function()
       trouble.close()
     else
       trouble.open()
-      fn.focus_last_normal_win()
+      recent_wins.focus_most_recent()
     end
   end, silent, "Trouble: Toggle")
   nmap([[<M-t>]],
-    fn.filetype_command("Trouble", ithunk(fn.focus_last_normal_win), ithunk(trouble.open)),
+    fn.filetype_command("Trouble", ithunk(recent_wins.focus_most_recent), ithunk(trouble.open)),
     silent, "Trouble: Toggle Focus")
 end
 
@@ -638,11 +640,11 @@ nmap(xk[[<C-S-\>]], function()
     require'nvim-tree.view'.close()
   else
     require'nvim-tree.lib'.open()
-    fn.focus_last_normal_win()
+    recent_wins.focus_most_recent()
   end
 end, silent, "Nvim-Tree: Toggle")
 
-nmap(xk[[<C-\>]], fn.filetype_command("NvimTree", ithunk(fn.focus_last_normal_win), thunk(vim.cmd, [[NvimTreeFocus]])), silent, "Nvim-Tree: Toggle Focus")
+nmap(xk[[<C-\>]], fn.filetype_command("NvimTree", ithunk(recent_wins.focus_most_recent), thunk(vim.cmd, [[NvimTreeFocus]])), silent, "Nvim-Tree: Toggle Focus")
 
 mapx.group({ ft = "NvimTree" }, function()
   local function withSelected(cmd, fmt)
@@ -703,20 +705,20 @@ nmap(xk[[<M-S-\>]], function()
   if  aerial_get_win() then
     local foc = require"aerial.util".is_aerial_buffer()
     aerial.close()
-    if foc then fn.focus_last_normal_win() end
+    if foc then recent_wins.focus_most_recent() end
   else
     aerial_open()
   end
 end, silent, "Aerial: Toggle")
 
 nmap([[<M-\>]],
-  fn.filetype_command("aerial", ithunk(fn.focus_last_normal_win), ithunk(aerial_open, true)),
+  fn.filetype_command("aerial", ithunk(recent_wins.focus_most_recent), ithunk(aerial_open, true)),
   silent, "Aerial: Toggle Focus")
 
 mapx.group(silent, { ft = "aerial" }, function()
   local function aerial_select(opts)
     require'aerial.navigation'.select(vim.tbl_extend("force", {
-      winid = fn.get_last_normal_win()
+      winid = recent_wins.get_most_recent()
     }, opts or {}))
   end
   local function aerial_view(cmd)
