@@ -81,7 +81,7 @@ vim.g.move_key_modifier_visualmode = 'C'
 ---- andymass/vim-matchup
 vim.g.matchup_matchparen_offscreen = { method = 'popup' }
 vim.g.matchup_matchparen_deferred = 1
-vim.g.matchup_matchparen_deferred_show_delay = 30
+vim.g.matchup_matchparen_deferred_show_delay = 40
 
 ---- mbbill/undotree
 vim.g.undotree_SetFocusWhenToggle = 1
