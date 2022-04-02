@@ -54,7 +54,7 @@ packer.startup(function()
   use 'kana/vim-textobj-user'
   use 'matze/vim-move'
   use 'mg979/vim-visual-multi'
-  use 'numToStr/Comment.nvim'
+  use { 'numToStr/Comment.nvim', lazymod = { mod = 'Comment', conf = 'comment' }, keys = { { '', 'gcc' } } }
   use 'sgur/vim-textobj-parameter'
   use 'tpope/vim-repeat'
   use 'tpope/vim-speeddating'
