@@ -1,7 +1,6 @@
 ---- user.fn: General utility functions
 local M = {
   callbacks = {},
-  autoresize = false,
   quiet = false,
   captured = {},
 }
@@ -407,48 +406,6 @@ M.resize_win = function(dir, dist)
   dist = dist or ''
   vim.cmd(dist .. 'wincmd ' .. dir)
   M.set_winfix(true, (dir == '<' or dir == '>') and 'width' or 'height')
-end
-
----- Autoresize
-M.autoresize_disable = function()
-  local msg = M.capture(M.set_winfix, true, 'width', 'height')
-  table.insert(msg, 'autoresize disable')
-  notify(table.concat(msg, ', '))
-  vim.cmd [[
-    augroup autoresize
-      au!
-    augroup END
-    augroup! autoresize
-  ]]
-  M.autoresize = false
-end
-
-M.autoresize_trigger = function()
-  if M.autoresize then
-    vim.cmd 'wincmd ='
-  end
-end
-
-M.autoresize_enable = function()
-  local msg = M.capture(M.set_winfix, false, 'width', 'height')
-  table.insert(msg, 'autoresize enable')
-  notify(table.concat(msg, ', '))
-  vim.cmd [[
-    augroup autoresize
-      au!
-      au VimResized,WinNew,WinClosed * wincmd =
-    augroup END
-  ]]
-  vim.cmd 'wincmd ='
-  M.autoresize = true
-end
-
-M.autoresize_toggle = function()
-  if M.autoresize then
-    M.autoresize_enable()
-  else
-    M.autoresize_disable()
-  end
 end
 
 ---- UTF-8

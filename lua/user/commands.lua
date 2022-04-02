@@ -44,7 +44,6 @@ command {
   'M',
   [[ lua require'user.fn'.man('tab', <q-args>)]],
 }
--- command { -nargs=* -complete=help H call user#fn#tabcmd('tab help %s', 'help %s | only', <q-args>) }
 
 command { 'CloseWin', 'call user#fn#closeWin()' }
 command { 'ReloadConfig', 'call user#fn#reloadConfig()' }

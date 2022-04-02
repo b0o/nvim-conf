@@ -14,6 +14,7 @@ local silent = mapx.silent
 local expr = mapx.expr
 
 local recent_wins = fn.require_on_call_rec 'user.util.recent-wins'
+local auto_resize = require 'user.util.auto-resize'
 
 -- Extra keys
 -- Configure your terminal emulator to send the unicode codepoint for each
@@ -258,8 +259,8 @@ tnoremap ([[<M-j>]], [[<C-\><C-n><C-w>j]]) -- Goto tab down
 tnoremap ([[<M-k>]], [[<C-\><C-n><C-w>k]]) -- Goto tab up
 tnoremap ([[<M-l>]], [[<C-\><C-n><C-w>l]]) -- Goto tab right
 
-nnoremap ([[<leader>sa]], fn.autoresize_enable,  "Enable autoresize")
-nnoremap ([[<leader>sA]], fn.autoresize_disable, "Disable autoresize")
+nnoremap ([[<leader>sa]], auto_resize.enable,  "Enable auto-resize")
+nnoremap ([[<leader>sA]], auto_resize.disable, "Disable auto-resize")
 
 nnoremap ([[<leader>sf]], ithunk(fn.toggle_winfix, 'height'), "Toggle fixed window height")
 nnoremap ([[<leader>sF]], ithunk(fn.toggle_winfix, 'width'), "Toggle fixed window width")
@@ -698,7 +699,7 @@ local function aerial_open(focus)
   if nvt_width then
     vim.api.nvim_win_set_width(nvt_win, nvt_width)
   end
-  fn.autoresize_trigger()
+  auto_resize.trigger()
 end
 
 nmap(xk[[<M-S-\>]], function()
