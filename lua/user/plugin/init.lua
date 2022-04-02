@@ -144,4 +144,4 @@ vim.g.shot_f_highlight_blank = string.format(
 require('stabilize').setup()
 
 ---- lewis6991/spellsitter.nvim
--- require('spellsitter').setup {}
+require('spellsitter').setup {}
