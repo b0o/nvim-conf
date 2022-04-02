@@ -411,7 +411,6 @@ M.resize_win = function(dir, dist)
 end
 
 ---- Autoresize
-
 M.autoresize_disable = function()
   local msg = M.capture(M.set_winfix, true, 'width', 'height')
   table.insert(msg, 'autoresize disable')
@@ -425,6 +424,12 @@ M.autoresize_disable = function()
   M.autoresize = false
 end
 
+M.autoresize_trigger = function()
+  if M.autoresize then
+    vim.cmd 'wincmd ='
+  end
+end
+
 M.autoresize_enable = function()
   local msg = M.capture(M.set_winfix, false, 'width', 'height')
   table.insert(msg, 'autoresize enable')
@@ -432,7 +437,7 @@ M.autoresize_enable = function()
   vim.cmd [[
     augroup autoresize
       au!
-      au VimResized * wincmd =
+      au VimResized,WinNew,WinClosed * wincmd =
     augroup END
   ]]
   vim.cmd 'wincmd ='
