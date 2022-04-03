@@ -1,4 +1,4 @@
-local neogit = require("neogit")
+local neogit = require 'neogit'
 
 neogit.setup {
   -- disable_signs = false,
@@ -23,7 +23,7 @@ neogit.setup {
   --   hunk = { "", "" },
   -- },
   integrations = {
-    diffview = false
+    diffview = false,
   },
   -- -- Setting any section to `false` will make the section not render at all
   -- sections = {
