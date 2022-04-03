@@ -485,7 +485,7 @@ M.on_lsp_attach = function(bufnr)
     nnoremap ('[t', ithunk(trouble.previous, {skip_groups = true, jump = true}), "Trouble: Previous")
 
     mapx.nname("<localleader>s", "LSP-Search")
-    nnoremap ({[[<localleader>so]], [[<leader>so]]}, ithunk(fn.require_on_call_rec('telescope.builtin').lsp_document_symbols), "LSP: Telescope symbol search")
+    nnoremap ({[[<localleader>so]], [[<leader>so]]}, ithunk(fn.require_on_call_rec('user.plugin.telescope').cmds.lsp_document_symbols), "LSP: Telescope symbol search")
 
     mapx.nname("<localleader>h", "LSP-Hover")
     nnoremap ([[<localleader>hs]], ithunk(vim.lsp.buf.signature_help), "LSP: Signature help")
@@ -525,10 +525,8 @@ nmap     ([[<M-k>]], ithunk(tmux.move_top),    silent, "Goto window/tmux pane up
 nmap     ([[<M-l>]], ithunk(tmux.move_right),  silent, "Goto window/tmux pane right")
 
 mapx.group(silent, function()
-  local t = fn.require_on_call_rec 'telescope'
   local tb = fn.require_on_call_rec 'telescope.builtin'
   local tu = fn.require_on_call_rec 'user.plugin.telescope'
-  local tx = t.extensions
   local tc = tu.cmds
 
   mapx.nname([[<C-f>]], "Telescope")
@@ -541,19 +539,19 @@ mapx.group(silent, function()
   nnoremap ({[[<C-f>o]], [[<C-f><C-o>]]}, ithunk(tc.oldfiles),    "Telescope: Old files")
   nnoremap ({[[<C-f>f]], [[<C-f><C-f>]]}, ithunk(tc.smart_files), "Telescope: Files")
 
-  local txw = tx.windows
-  nnoremap ({[[<C-f>w]], [[<C-f><C-w>]]}, ithunk(txw.windows, {}), "Telescope: Windows")
+  local tcw = tc.windows
+  nnoremap ({[[<C-f>w]], [[<C-f><C-w>]]}, ithunk(tcw.windows, {}), "Telescope: Windows")
 
-  local txgw = tx.git_worktree
+  local tcgw = tc.git_worktree
   mapx.nname([[<C-f>g]], "Telescope-Git")
-  nnoremap ([[<C-f>gw]], ithunk(txgw.git_worktrees), "Telescope-Git: Worktrees")
+  nnoremap ([[<C-f>gw]], ithunk(tcgw.git_worktrees), "Telescope-Git: Worktrees")
 
   mapx.nname([[<M-f>]], "Telescope-Buffer")
   nnoremap ({[[<M-f>b]], [[<M-f><M-b>]]}, ithunk(tb.current_buffer_fuzzy_find), "Telescope-Buffer: Fuzzy find")
   nnoremap ({[[<M-f>t]], [[<M-f><M-t>]]}, ithunk(tb.tags),                      "Telescope-Buffer: Tags")
 
   mapx.nname([[<M-f>]], "Telescope-Workspace")
-  nnoremap ([[<C-f>A]], ithunk(tx.aerial.aerial), "Telescope-Workspace: Aerial")
+  nnoremap ([[<C-f>A]], ithunk(tc.aerial.aerial), "Telescope-Workspace: Aerial")
 end)
 
 ---- tpope/vim-fugitive and TimUntersberger/neogit

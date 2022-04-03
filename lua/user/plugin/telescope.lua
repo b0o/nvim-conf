@@ -4,13 +4,23 @@ local ta = require 'telescope.actions'
 local tb = require 'telescope.builtin'
 local tx = t.extensions
 
+local fn = require 'user.fn'
 local m = require 'user.mappings'
 
 local M = {}
 
+local dbounced_show_builtins = require('user.util.debounce').make(function()
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Esc>', true, true, true), 'm', false)
+  M.cmds.builtin()
+end, { threshold = vim.o.timeoutlen - 1 })
+
+local select_or_show_builtins = function()
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Esc><C-f>', true, true, true), 'm', false)
+  dbounced_show_builtins()
+end
+
 t.setup {
   defaults = {
-    -- layout_strategy = 'flex',
     layout_config = {
       scroll_speed = 2,
       preview_cutoff = 50,
@@ -19,7 +29,7 @@ t.setup {
     mappings = {
       i = {
         [m.xk['<C-S-f>']] = ta.close,
-        ['<C-f>'] = ta.close,
+        ['<C-f>'] = select_or_show_builtins,
         ['<M-n>'] = ta.cycle_history_next,
         ['<M-p>'] = ta.cycle_history_prev,
         ['<C-j>'] = ta.preview_scrolling_down,
@@ -27,7 +37,7 @@ t.setup {
       },
       n = {
         [m.xk['<C-S-f>']] = ta.close,
-        ['<C-f>'] = ta.close,
+        ['<C-f>'] = dbounced_show_builtins:ref(),
         ['<M-n>'] = ta.cycle_history_next,
         ['<M-p>'] = ta.cycle_history_prev,
         ['<C-n>'] = ta.move_selection_next,
@@ -72,16 +82,29 @@ _cmds.builtin = function()
   tb.builtin { include_extensions = true }
 end
 
-M.cmds = setmetatable(_cmds, {
+M.cmds = setmetatable({}, {
   __index = function(self, k)
-    local v = rawget(self, k)
-    if v then
-      return v
-    end
-    if not tb[k] then
+    local v = rawget(self, k) or _cmds[k] or tb[k]
+    if not v then
       load_extensions()
+      v = tx[k]
     end
-    return tb[k]
+    -- This convoluted mess allows a call to any property or descendant
+    -- property of M.cmds to be wrapped in a function that cancels the
+    -- debounced show_builtins function
+    if type(v) == 'table' or type(v) == 'function' then
+      local cb = function(fn, ...)
+        dbounced_show_builtins:cancel()
+        fn(...)
+      end
+      if type(v) == 'table' then
+        return fn.on_call_rec(v, cb)
+      end
+      return function(...)
+        return cb(v, ...)
+      end
+    end
+    return v
   end,
 })
 
