@@ -1,11 +1,15 @@
 local M = {}
 local Debounce = {}
 
-Debounce.call = function(self, ...)
-  if self.timer and self.timer:get_due_in() > 0 then
+Debounce.cancel = function(self, ...)
+  if self.timer then
     self.timer:stop()
     self.timer = nil
   end
+end
+
+Debounce.call = function(self, ...)
+  self:cancel()
   local args = { ... }
   self.timer = vim.defer_fn(function()
     self:immediate(unpack(args))
@@ -13,11 +17,17 @@ Debounce.call = function(self, ...)
 end
 
 Debounce.immediate = function(self, ...)
-  if self.timer and self.timer:get_due_in() > 0 then
-    self.timer:stop()
-    self.timer = nil
-  end
+  self:cancel()
   self.fn(...)
+end
+
+-- ref() returns a normal function which, when called, calls Debounce:call()
+-- bound to the original instance.
+-- Useful for using Debounce with an API that doesn't accept callable tables.
+Debounce.ref = function(self)
+  return function(...)
+    self:call(...)
+  end
 end
 
 M.make = function(fn, opts)
