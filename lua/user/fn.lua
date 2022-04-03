@@ -512,6 +512,30 @@ M.lazy_table = function(cb)
   return setmetatable({}, t)
 end
 
+M.on_call_rec = function(base, fn, indices)
+  indices = indices or {}
+  return setmetatable({}, {
+    __index = function(_, k)
+      local new_indices = vim.deepcopy(indices)
+      table.insert(new_indices, k)
+      return M.on_call_rec(base, fn, new_indices)
+    end,
+    __call = function(_, ...)
+      if type(base) == 'function' then
+        base = base()
+      end
+      local target = base
+      for _, k in ipairs(indices) do
+        target = target[k]
+      end
+      if type(fn) == 'function' then
+        return fn(target, ...)
+      end
+      return target(...)
+    end,
+  })
+end
+
 ------- lazy
 --- via https://github.com/tjdevries/lazy.nvim
 
@@ -565,23 +589,10 @@ end
 ---- Require when any descendant is called
 -- This is like require_on_module_call plus require_on_exported_call but also
 -- works with arbitrarily nested indices.
-M.require_on_call_rec = function(require_path, indices)
-  indices = indices or {}
-  return setmetatable({}, {
-    __index = function(_, k)
-      local new_indices = vim.deepcopy(indices)
-      table.insert(new_indices, k)
-      return M.require_on_call_rec(require_path, new_indices)
-    end,
-    __call = function(_, ...)
-      local mod = require(require_path)
-      local target = mod
-      for _, k in ipairs(indices) do
-        target = target[k]
-      end
-      return target(...)
-    end,
-  })
+M.require_on_call_rec = function(require_path)
+  return M.on_call_rec(function()
+    return require(require_path)
+  end)
 end
 
 ---- memoization
