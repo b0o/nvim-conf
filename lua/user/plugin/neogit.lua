@@ -60,3 +60,7 @@ neogit.setup {
   --   }
   -- }
 }
+
+-- Refresh Neogit when Fugitive changes something
+local augid = vim.api.nvim_create_augroup('user_neogit', { clear = true })
+vim.api.nvim_create_autocmd('User', { group = augid, pattern = 'FugitiveChanged', callback = neogit.dispatch_refresh })
