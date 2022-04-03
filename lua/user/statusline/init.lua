@@ -57,6 +57,7 @@ local filetypes_override_name = {
   'NvimTree',
   'Trouble',
 
+  ['neo-tree'] = 'NeoTree',
   aerial = 'Aerial',
   fugitive = 'Fugitive',
   fugitiveblame = 'FugitiveBlame',
@@ -77,6 +78,7 @@ local config = {
     filetypes = fn.tbl_listkeys(filetypes_override_name),
     buftypes = {
       'terminal',
+      'nofile',
     },
     bufnames = {},
   },

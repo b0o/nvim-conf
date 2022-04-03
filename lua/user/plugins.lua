@@ -29,6 +29,13 @@ packer.startup(function()
   use 'stevearc/dressing.nvim'
   use { 'kyazdani42/nvim-tree.lua', lazymod = 'nvim-tree', cmd = 'NvimTree*' }
   use {
+    'nvim-neo-tree/neo-tree.nvim',
+    branch = 'v2.x',
+    lazymod = 'neo-tree',
+    cmd = { 'Neotree', 'Neotree*' },
+    setup = [[vim.g.neo_tree_remove_legacy_commands = 1]],
+  }
+  use {
     'simrat39/desktop-notify.nvim',
     setup = [[pcall(vim.cmd, 'delcommand Notifications')]],
     config = [[vim.cmd'command! Notifications :lua require("notify")._print_history()<CR>']],

@@ -638,30 +638,111 @@ vmap ([[<Leader>a]], ":Tabularize /", "Tabularize")
 ---- KabbAmine/vCoolor.vim
 nmap([[<leader>co]], [[:VCoolor<CR>]], silent, "Open VCooler color picker")
 
+------ nvim-neo-tree/neo-tree.nvim & kyazdani42/nvim-tree.lua
+---- nvim-neo-tree/neo-tree.nvim
+local neotree_mgr = fn.require_on_call_rec'neo-tree.sources.manager'
+local user_neotree = {}
+user_neotree.get_state = function()
+  return neotree_mgr.get_state('filesystem') or {}
+end
+user_neotree.is_visible = function()
+  local state = user_neotree.get_state()
+  local winid = state.winid or -1
+  return vim.api.nvim_win_is_valid(winid), winid
+end
+local setup_neotree = function()
+  nmap(xk[[<C-S-\>]], function()
+    vim.cmd[[Neotree show toggle]]
+    vim.schedule(auto_resize.trigger)
+  end, silent, "NeoTree: Toggle")
+
+  nmap(xk[[<C-\>]], fn.filetype_command("neo-tree", ithunk(recent_wins.focus_most_recent), function()
+    vim.cmd[[Neotree focus]]
+    vim.schedule(auto_resize.trigger)
+  end), silent, "Nvim-Tree: Toggle Focus")
+end
+
 ---- kyazdani42/nvim-tree.lua
-nmap(xk[[<C-S-\>]], function()
-  if require'nvim-tree.view'.is_visible() then
-    require'nvim-tree.view'.close()
-  else
-    require'nvim-tree.lib'.open()
-    recent_wins.focus_most_recent()
+local setup_nvimtree = function()
+  nmap(xk[[<C-S-\>]], function()
+    if require'nvim-tree.view'.is_visible() then
+      require'nvim-tree.view'.close()
+    else
+      require'nvim-tree.lib'.open()
+      recent_wins.focus_most_recent()
+    end
+  end, silent, "Nvim-Tree: Toggle")
+
+  nmap(xk[[<C-\>]], fn.filetype_command("NvimTree", ithunk(recent_wins.focus_most_recent), thunk(vim.cmd, [[NvimTreeFocus]])), silent, "Nvim-Tree: Toggle Focus")
+
+  mapx.group({ ft = "NvimTree" }, function()
+    local function withSelected(cmd, fmt)
+      return function()
+        local file = require'nvim-tree.lib'.get_node_at_cursor().absolute_path
+        vim.cmd(fmt and (cmd):format(file) or ("%s %s"):format(cmd, file))
+      end
+    end
+    nnoremap ([[ga]], withSelected("Git add"),             "Nvim-Tree: Git add")
+    nnoremap ([[gr]], withSelected("Git reset --quiet"),   "Nvim-Tree: Git reset")
+    nnoremap ([[gb]], withSelected("tabnew | Git blame"),  "Nvim-Tree: Git blame")
+    nnoremap ([[gd]], withSelected("tabnew | Gdiffsplit"), "Nvim-Tree: Git diff")
+  end)
+end
+
+local setup_tree = function(use_neotree)
+  if use_neotree ~= nil then
+    vim.g.use_neotree = use_neotree
   end
-end, silent, "Nvim-Tree: Toggle")
+  if vim.g.use_neotree then
+    setup_neotree()
+  else
+    setup_nvimtree()
+  end
+end
 
-nmap(xk[[<C-\>]], fn.filetype_command("NvimTree", ithunk(recent_wins.focus_most_recent), thunk(vim.cmd, [[NvimTreeFocus]])), silent, "Nvim-Tree: Toggle Focus")
-
-mapx.group({ ft = "NvimTree" }, function()
-  local function withSelected(cmd, fmt)
-    return function()
-      local file = require'nvim-tree.lib'.get_node_at_cursor().absolute_path
-      vim.cmd(fmt and (cmd):format(file) or ("%s %s"):format(cmd, file))
+local toggle_tree = function()
+  local tree_foc = false
+  local open_nvimtree = false
+  local open_neotree = false
+  if vim.g.use_neotree then
+    if user_neotree.is_visible() then
+      open_nvimtree = true
+      if vim.api.nvim_buf_get_option(0, 'filetype') == 'neo-tree' then
+        tree_foc = true
+      end
+      vim.cmd[[Neotree close]]
+    end
+  else
+    if package.loaded['nvim-tree'] and require'nvim-tree.view'.is_visible() then
+      open_neotree = true
+      if vim.api.nvim_buf_get_option(0, 'filetype') == 'NvimTree' then
+        tree_foc = true
+      end
+      require'nvim-tree.view'.close()
     end
   end
-  nnoremap ([[ga]], withSelected("Git add"),             "Nvim-Tree: Git add")
-  nnoremap ([[gr]], withSelected("Git reset --quiet"),   "Nvim-Tree: Git reset")
-  nnoremap ([[gb]], withSelected("tabnew | Git blame"),  "Nvim-Tree: Git blame")
-  nnoremap ([[gd]], withSelected("tabnew | Gdiffsplit"), "Nvim-Tree: Git diff")
-end)
+
+  vim.g.use_neotree = not vim.g.use_neotree
+  vim.notify('Using ' .. (vim.g.use_neotree and 'NeoTree' or 'NvimTree'))
+  setup_tree()
+
+  if open_nvimtree then
+    require'nvim-tree.lib'.open()
+    if not tree_foc then
+      recent_wins.focus_most_recent()
+    end
+  elseif open_neotree then
+    if tree_foc then
+      vim.cmd[[Neotree focus]]
+    else
+      vim.cmd[[Neotree show]]
+    end
+  end
+end
+
+nmap(xk[[<C-S-t>]], toggle_tree, silent, "Toggle selected file tree plugin")
+
+setup_tree(true)
 
 -- stevearc/aerial.nvim
 local aerial = fn.require_on_index"aerial"
@@ -693,15 +774,32 @@ local function aerial_open(focus)
     fn.notify("no aerial backend")
     return
   end
+
+  -- Get width of nvim-tree or neo-tree before opening aerial (sometimes
+  -- opening aerial causes file tree windows to get smooshed)
   local nvt_win = package.loaded['nvim-tree'] and require'nvim-tree.view'.get_winnr()
   local nvt_width
   if nvt_win and vim.api.nvim_win_is_valid(nvt_win) then
     nvt_width = vim.api.nvim_win_get_width(nvt_win)
   end
+  local neo_vis, neo_win, neo_width
+  if package.loaded['neo-tree'] then
+    neo_vis, neo_win =  user_neotree.is_visible()
+    if neo_vis then
+      neo_width = vim.api.nvim_win_get_width(neo_win)
+    end
+  end
+
   require"aerial.window".open(focus)
+
+  -- Reset tree window width in case smooshing occurred
   if nvt_width then
     vim.api.nvim_win_set_width(nvt_win, nvt_width)
   end
+  if neo_width then
+    vim.api.nvim_win_set_width(neo_win, neo_width)
+  end
+
   auto_resize.trigger()
 end
 
