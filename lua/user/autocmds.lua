@@ -64,15 +64,6 @@ autocmd('User', {
 })
 
 ---- kyazdani42/nvim-tree.lua
--- Set up nvim tree highlights when an nvim tree buffer is created
-autocmd('FileType', {
-  pattern = 'NvimTree*',
-  once = true,
-  callback = function()
-    _G.nvim_tree_highlights()
-  end,
-})
-
 -- Automatically close the tab/vim when nvim-tree is the last window
 autocmd('BufEnter', {
   nested = true,

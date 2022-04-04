@@ -10,13 +10,13 @@ vim.g.nvim_tree_icons = {
   default = '',
   symlink = '',
   git = {
-    unstaged = 'ϟ',
-    staged = '+',
-    unmerged = '',
-    renamed = '➜',
-    untracked = '?',
     deleted = '',
     ignored = '◌',
+    renamed = '➜',
+    staged = '+',
+    unmerged = '',
+    unstaged = 'ϟ',
+    untracked = '?',
   },
   folder = {
     arrow_open = '',
@@ -35,20 +35,17 @@ vim.g.nvim_tree_icons = {
   --   },
   -- },
 }
-_G.nvim_tree_highlights = function()
-  local colors_gui = vim.g.colors_gui or {}
-  for hi, c in
-    pairs {
-      NvimTreeGitDirty = colors_gui['13'] or 'yellow',
-      NvimTreeGitStaged = colors_gui['14'] or 'lightgreen',
-      NvimTreeGitMerge = colors_gui['16'] or 'magenta',
-      NvimTreeGitRenamed = colors_gui['17'] or 'orange',
-      NvimTreeGitNew = colors_gui['8'] or 'cyan',
-      NvimTreeGitDeleted = colors_gui['12'] or 'lightred',
-    }
-  do
-    vim.cmd(('highlight %s guifg=%s'):format(hi, c))
-  end
+
+local colors_gui = vim.g.colors_gui or {}
+for hi, c in pairs {
+  NvimTreeGitDirty = colors_gui['13'] or 'yellow',
+  NvimTreeGitStaged = colors_gui['14'] or 'lightgreen',
+  NvimTreeGitMerge = colors_gui['16'] or 'magenta',
+  NvimTreeGitRenamed = colors_gui['17'] or 'orange',
+  NvimTreeGitNew = colors_gui['8'] or 'cyan',
+  NvimTreeGitDeleted = colors_gui['12'] or 'lightred',
+} do
+  vim.cmd(('highlight %s guifg=%s'):format(hi, c))
 end
 
 require('nvim-tree').setup {
