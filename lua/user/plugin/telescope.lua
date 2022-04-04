@@ -34,6 +34,7 @@ t.setup {
         ['<M-p>'] = ta.cycle_history_prev,
         ['<C-j>'] = ta.preview_scrolling_down,
         ['<C-k>'] = ta.preview_scrolling_up,
+        ['<C-d>'] = false,
       },
       n = {
         [m.xk['<C-S-f>']] = ta.close,
