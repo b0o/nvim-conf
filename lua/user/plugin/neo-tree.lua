@@ -1,6 +1,6 @@
 ---- nvim-neo-tree/neo-tree.nvim
 require('neo-tree').setup {
-  close_if_last_window = false, -- Close Neo-tree if it is the last window left in the tab
+  close_if_last_window = true,
   popup_border_style = 'rounded',
   enable_git_status = true,
   enable_diagnostics = true,
@@ -22,15 +22,15 @@ require('neo-tree').setup {
     icon = {
       folder_closed = '',
       folder_open = '',
-      folder_empty = 'ﰊ',
-      default = '*',
+      folder_empty = '',
+      default = '',
     },
     modified = {
-      symbol = '[+]',
+      symbol = '',
       highlight = 'NeoTreeModified',
     },
     name = {
-      trailing_slash = false,
+      trailing_slash = true,
       use_git_status_colors = true,
     },
     git_status = {
@@ -38,13 +38,12 @@ require('neo-tree').setup {
         -- Change type
         added = '', -- or "✚", but this is redundant info if you use git_status_colors on the name
         modified = '', -- or "", but this is redundant info if you use git_status_colors on the name
-        deleted = '✖', -- this can only be used in the git_status source
-        renamed = '', -- this can only be used in the git_status source
-        -- Status type
-        untracked = '',
-        ignored = '',
-        unstaged = '',
-        staged = '',
+        deleted = '', -- this can only be used in the git_status source
+        ignored = '◌',
+        renamed = '➜', -- this can only be used in the git_status source
+        staged = '+',
+        unstaged = 'ϟ',
+        untracked = '?',
         conflict = '',
       },
     },
@@ -81,6 +80,17 @@ require('neo-tree').setup {
   },
   nesting_rules = {},
   filesystem = {
+    window = {
+      mappings = {
+        ['H'] = 'toggle_hidden',
+        ['/'] = 'fuzzy_finder',
+        ['f'] = 'filter_on_submit',
+        ['<C-l>'] = 'clear_filter',
+        ['<Bs>'] = 'navigate_up',
+        ['.'] = 'set_root',
+        ['<C-x>'] = 'open_split',
+      },
+    },
     filtered_items = {
       visible = false, -- when true, they will just be displayed differently than normal items
       hide_dotfiles = true,
@@ -102,7 +112,7 @@ require('neo-tree').setup {
     -- "open_current",  -- netrw disabled, opening a directory opens within the
     -- window like netrw would, regardless of window.position
     -- "disabled",    -- netrw left alone, neo-tree does not handle opening dirs
-    use_libuv_file_watcher = false, -- This will use the OS level file watchers to detect changes
+    use_libuv_file_watcher = true, -- This will use the OS level file watchers to detect changes
     -- instead of relying on nvim autocmd events.
   },
   buffers = {
@@ -127,4 +137,27 @@ require('neo-tree').setup {
       },
     },
   },
+  event_handlers = {
+    {
+      event = 'neo_tree_buffer_enter',
+      handler = function()
+        vim.wo.signcolumn = 'no'
+        --vim.cmd [[map <C-x> :echo "c-x"<Cr>]]
+      end,
+    },
+  },
 }
+
+local colors_gui = vim.g.colors_gui or {}
+local colors = require 'user.colors'
+for hi, c in pairs {
+  NeoTreeModified = colors.hydrangea,
+
+  NeoTreeGitAdded = colors_gui['14'] or 'lightgreen',
+  NeoTreeGitConflict = colors_gui['16'] or 'magenta',
+  NeoTreeGitDeleted = colors_gui['12'] or 'lightred',
+  NeoTreeGitModified = colors_gui['13'] or 'yellow',
+  NeoTreeGitUntracked = colors_gui['8'] or 'cyan',
+} do
+  vim.cmd(('highlight %s guifg=%s'):format(hi, c))
+end
