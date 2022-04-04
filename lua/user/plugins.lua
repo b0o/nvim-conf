@@ -105,7 +105,7 @@ packer.startup(function()
   use 'nvim-treesitter/nvim-treesitter-textobjects'
   use 'romgrk/nvim-treesitter-context'
   use 'nkrkv/nvim-treesitter-rescript'
-  use 'lewis6991/spellsitter.nvim'
+  xuse 'lewis6991/spellsitter.nvim'
   use { 'nvim-treesitter/playground', cmd = 'TSPlaygroundToggle' }
 
   -- LSP

@@ -1,6 +1,6 @@
 local fn = require 'user.fn'
 
-vim.o.spell = true
+vim.o.spell = false
 vim.o.spellfile = vim.fn.stdpath 'config' .. '/spellfile.utf-8.add'
 
 vim.o.undofile = true
