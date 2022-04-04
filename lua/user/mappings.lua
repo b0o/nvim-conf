@@ -506,12 +506,41 @@ nnoremap ([[gS]], [[:SplitjoinSplit<Cr>]], "Splitjoin: Split")
 
 ---- wbthomason/packer.nvim
 mapx.nname("<leader>p", "Packer")
-nnoremap ([[<leader>pC]], [[:PackerClean<Cr>]],   "Packer clean")
-nnoremap ([[<leader>pc]], [[:PackerCompile<Cr>]], "Packer compile")
-nnoremap ([[<leader>pi]], [[:PackerInstall<Cr>]], "Packer install")
-nnoremap ([[<leader>pu]], [[:PackerUpdate<Cr>]],  "Packer update")
-nnoremap ([[<leader>ps]], [[:PackerSync<Cr>]],    "Packer sync")
-nnoremap ([[<leader>pl]], [[:PackerLoad<Cr>]],    "Packer load")
+nnoremap ([[<leader>pC]], [[:PackerClean<Cr>]],   "Packer: Clean")
+nnoremap ([[<leader>pc]], [[:PackerCompile<Cr>]], "Packer: Compile")
+nnoremap ([[<leader>pi]], [[:PackerInstall<Cr>]], "Packer: Install")
+nnoremap ([[<leader>pu]], [[:PackerUpdate<Cr>]],  "Packer: Update")
+nnoremap ([[<leader>ps]], [[:PackerSync<Cr>]],    "Packer: Sync")
+nnoremap ([[<leader>pl]], [[:PackerLoad<Cr>]],    "Packer: Load")
+
+mapx.group(silent, { ft = "packer" }, function()
+  nmap ([[O]], function()
+    if not vim.env.BROWSER or vim.env.BROWSER == "" then
+      vim.notify("Packer: Can't open repo: BROWSER environment variable is unset", vim.log.levels.ERROR)
+      return
+    end
+    local pd = require'packer.display'
+    local plugin_name = pd.status.disp:find_nearest_plugin()
+    local plugin = pd.status.disp.items[plugin_name]
+    local spec = plugin and plugin.spec
+    if not spec then
+      vim.notify("Packer: Plugin not available", vim.log.levels.WARN)
+      return
+    end
+    local url = spec.url
+    if not url then
+      vim.notify("Packer: Plugin URL not available", vim.log.levels.WARN)
+      return
+    end
+    local current_line = pd.status.disp:get_current_line()
+    local commit_hash = vim.fn.matchstr(current_line, [[^\X*\zs[0-9a-f]\{7,9}]])
+    if commit_hash and commit_hash ~= "" then
+      url = url .. '/commit/' .. commit_hash
+    end
+    vim.notify("Opening " .. url)
+    vim.fn.system({ vim.env.BROWSER, url })
+  end, "Packer: Open plugin or commit in browser")
+end)
 
 ---- numToStr/Comment.nvim
 map      ([[<M-/>]], [[gcc<Esc>]], silent) -- Toggle line comment
