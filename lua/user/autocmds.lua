@@ -39,6 +39,9 @@ autocmd('VimEnter', { command = [[set title]] })
 autocmd('TextYankPost', { callback = vim.highlight.on_yank })
 
 -- Enter insert mode when entering a terminal buffer
+autocmd('TermOpen', { command = [[setlocal scrolloff=0]] })
+
+-- Enter insert mode when entering a terminal buffer
 autocmd('BufEnter', { pattern = 'term://*', command = [[call user#fn#termEnter(1)]] })
 
 -- Automatically close terminal windows when the terminal process exits
