@@ -62,16 +62,9 @@ nnoremap ([[W]], [[w]], "Move full word forward")
 
 nnoremap ([[<M-b>]], [[ge]], "Move to the end of the previous word")
 
--- https://vim.fandom.com/wiki/Insert_a_single_character
-nnoremap ([[gi]], [[:exec "normal i".nr2char(getchar())."\e"<Cr>]], silent, "Insert a single character")
-nnoremap ([[ga]], [[:exec "normal a".nr2char(getchar())."\e"<Cr>]], silent, "Insert a single character")
-
-vnoremap ([[>]], [[>gv]], "Indent")
-vnoremap ([[<]], [[<gv]], "De-Indent")
-
 nnoremap ({[[Q]], [[<F29>]]}, [[:CloseWin<Cr>]],     silent, "Close window")
 nnoremap ([[ZQ]],             [[:confirm qall<Cr>]], silent, "Quit all")
-nnoremap (xk[[<C-S-w>]],        [[:tabclose<Cr>]],     silent, "Close tab (except last one)")
+nnoremap (xk[[<C-S-w>]],      [[:tabclose<Cr>]],     silent, "Close tab (except last one)")
 nnoremap ([[<leader>H]],      [[:hide<Cr>]],         silent, "Hide buffer")
 
 noremap ([[<C-s>]], [[:w<Cr>]], "Write buffer")
@@ -84,8 +77,72 @@ vnoremap ([[<leader>/]], [[:s/]],  "Substitute")
 vnoremap ([[<leader>?]], [[:S/]],  "Substitute (rev)")
 
 -- Buffer-local option toggles
-nnoremap ({[[<leader>W]], [[<leader>ww]]}, [[:setlocal wrap!<Cr>:setlocal wrap?<Cr>]],   silent, "Toggle wrap")
-nnoremap ([[<leader>sp]],                  [[:setlocal spell!<Cr>:setlocal spell?<Cr>]], silent, "Toggle spell")
+local function map_toggle_locals(keys, opts, vals)
+  keys = type(keys) == "table" and keys or { keys }
+  opts = type(opts) == "table" and opts or { opts }
+  vals = vals or { true, false }
+
+  local lhs = vim.tbl_map(function(k)
+    return [[<localleader><localleader>]] .. k
+  end, keys)
+
+  local rhs = function()
+    vim.tbl_map(function(opt)
+      local cur = vim.opt_local[opt]:get()
+      local target = vals[1]
+      for i, v in ipairs(vals) do
+        if v == cur then
+          if vals[i + 1] ~= nil then
+            target = vals[i + 1]
+          end
+          break
+        end
+      end
+      local msg
+      if type(target) == "boolean" then
+        msg = (target and 'Enable ' or 'Disable ') .. opt
+      else
+        msg = 'Set ' .. opt .. '=' .. target
+      end
+      vim.notify(msg)
+      vim.opt_local[opt] = target
+    end, opts)
+  end
+
+  nnoremap (lhs, rhs,  silent, "Toggle " .. table.concat(opts, ", "))
+end
+
+map_toggle_locals({'A', 'ar'},   {'autoread'})
+map_toggle_locals({'B'},         {'cursorbind', 'scrollbind'})
+map_toggle_locals({'bi'},        {'breakindent'})
+map_toggle_locals({'C', 'ci'},   {'copyindent'})
+map_toggle_locals({'cc'},        {'concealcursor'}, {'', 'n'})
+map_toggle_locals({'cl'},        {'conceallevel'}, {0, 2})
+map_toggle_locals({'cb'},        {'cursorbind'})
+map_toggle_locals({'D', 'di'},   {'diff'})
+map_toggle_locals({'E', 'et'},   {'expandtab'})
+map_toggle_locals({'F', 'fe'},   {'foldenable'})
+map_toggle_locals({'L', 'lb'},   {'linebreak'})
+map_toggle_locals({'N',  'nn'},  {'number', 'relativenumber'})
+map_toggle_locals({'nr', 'rn'},  {'relativenumber'})
+map_toggle_locals({'nu'},        {'number'})
+map_toggle_locals({'R', 'ru'},   {'ruler'})
+map_toggle_locals({'S', 'sg'},   {'laststatus'}, {2, 3})
+map_toggle_locals({'sp'},        {'spell'})
+map_toggle_locals({'sb'},        {'scrollbind'})
+map_toggle_locals({'sr'},        {'shiftround'})
+map_toggle_locals({'st'},        {'smarttab'})
+map_toggle_locals({'|'},         {'cursorcolumn'})
+map_toggle_locals({'W', 'ww'},   {'wrap'})
+
+---- Editing
+
+-- https://vim.fandom.com/wiki/Insert_a_single_character
+nnoremap ([[gi]], [[:exec "normal i".nr2char(getchar())."\e"<Cr>]], silent, "Insert a single character")
+nnoremap ([[ga]], [[:exec "normal a".nr2char(getchar())."\e"<Cr>]], silent, "Insert a single character")
+
+vnoremap ([[>]], [[>gv]], "Indent")
+vnoremap ([[<]], [[<gv]], "De-Indent")
 
 nnoremap ([[<M-o>]], [[m'Do<esc>p`']], "Insert a space and then paste before/after cursor")
 nnoremap ([[<M-O>]], [[m'DO<esc>p`']], "Insert a space and then paste before/after cursor")
@@ -129,13 +186,6 @@ nnoremap ([[<leader>L]], [[:nohlsearch<Cr>:diffupdate<Cr>:syntax sync fromstart<
 nnoremap ([[<leader>rr]], [[:lua require'user.fn'.reload()<Cr>]], silent, "Reload config")
 
 noremap ([[gF]], [[<C-w>gf]], "Go to file under cursor (new tab)")
-
--- conceal
-nnoremap ([[<leader>cl]], [[:call user#fn#toggleConcealLevel()<Cr>]], silent, "Toggle conceal level")
-nnoremap ([[<leader>cc]], [[:call user#fn#toggleConcealCursor()<Cr>]], silent, "Toggle conceal cursor")
-
--- cursorcolumn
-nnoremap ([[<leader>|]], [[:set invcursorcolumn<Cr>]], silent, "Toggle cursorcolumn")
 
 -- emacs-style motion & editing in insert mode
 inoremap ([[<C-a>]], [[<Home>]], "Goto beginning of line")

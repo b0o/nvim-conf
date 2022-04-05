@@ -152,32 +152,6 @@ function! user#fn#interleave()
   endfor
 endfunction
 
-" toggle conceallevel
-function! user#fn#toggleConcealLevel()
-  if !has('conceal')
-    return
-  endif
-  if &conceallevel
-    setlocal conceallevel=0
-  else
-    setlocal conceallevel=2
-  endif
-  set conceallevel
-endfunction
-
-" toggle concealcursor
-function! user#fn#toggleConcealCursor()
-  if !has('conceal')
-    return
-  endif
-  if &concealcursor !=# ''
-    set concealcursor=
-  else
-    set concealcursor=n
-  endif
-  set concealcursor
-endfunction
-
 " Append modeline after last line in buffer.
 " Use substitute() instead of printf() to handle '%%s' modeline in LaTeX
 " files.
