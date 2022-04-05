@@ -151,7 +151,7 @@ M.get_visual_selection = function(mode)
 end
 
 -- Execute the visual selection or cursor line as a sequence of lua expressions
-M.luarun = function()
+M.luarun = function(file)
   local mode_info = vim.api.nvim_get_mode()
   if mode_info.blocking then
     return
@@ -159,13 +159,17 @@ M.luarun = function()
   local mode = mode_info.mode
 
   local text
-  if mode == 'n' then
-    text = vim.api.nvim_get_current_line()
-  elseif mode == 'v' or mode == 'V' or mode == 'CTRL-V' or mode == '\22' then
-    local selection = M.get_visual_selection(mode)
-    text = table.concat(selection, '\n')
+  if file then
+    text = table.concat(vim.api.nvim_buf_get_lines(0, 0, -1, false), '\n')
   else
-    return
+    if mode == 'n' then
+      text = vim.api.nvim_get_current_line()
+    elseif mode == 'v' or mode == 'V' or mode == 'CTRL-V' or mode == '\22' then
+      local selection = M.get_visual_selection(mode)
+      text = table.concat(selection, '\n')
+    else
+      return
+    end
   end
 
   local loadok, expr = pcall(loadstring, 'return ' .. text)

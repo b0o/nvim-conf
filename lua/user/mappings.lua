@@ -374,8 +374,10 @@ nmap([[<M-q>]], fn.filetype_command("qf",
 
 ------ Filetypes
 mapx.group(silent, { ft = "lua" }, function()
-  nmap     ([[<leader><Enter>]], fn.luarun, "Lua: Eval line")
-  xmap     ([[<leader><Enter>]], fn.luarun, "Lua: Eval selection")
+  nmap     ([[<leader><Enter>]],      fn.luarun,               "Lua: Eval line")
+  nmap     ([[<localleader><Enter>]], ithunk(fn.luarun, true), "Lua: Eval file")
+  xmap     ([[<leader><Enter>]],      fn.luarun,               "Lua: Eval selection")
+
   nmap     ([[<leader><F12>]],   "<Cmd>Put lua require'user.fn'.luarun()<Cr>", "Lua: Eval line (Append)")
   xmap     ([[<leader><F12>]],   "<Cmd>Put lua require'user.fn'.luarun()<Cr>", "Lua: Eval selection (Append)")
 end)
