@@ -94,7 +94,7 @@ packer.startup(function()
   }
 
   -- Quickfix/Loclist
-  use { 'kevinhwang91/nvim-bqf', lazymod = 'bqf', event = 'QuickFixCmdPre' }
+  use { 'kevinhwang91/nvim-bqf', lazymod = 'bqf', ft = 'qf', event = 'QuickFixCmdPre' }
 
   -- Backup, Undo
   use 'chrisbra/Recover.vim'
