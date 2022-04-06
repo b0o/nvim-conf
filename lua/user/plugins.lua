@@ -43,15 +43,15 @@ packer.startup(function()
   use {
     'stevearc/aerial.nvim/worktree/current',
     lazymod = 'aerial',
-    module = 'telescope._extensions.aerial',
+    telescope_ext = 'aerial',
   }
   use { 'MunifTanjim/nui.nvim', module = 'nui' }
   use { 'winston0410/range-highlight.nvim', requires = 'winston0410/cmd-parser.nvim' }
 
   -- Telescope
   use { 'nvim-telescope/telescope.nvim', requires = 'nvim-lua/popup.nvim', lazymod = 'telescope' }
-  use { 'kyoh86/telescope-windows.nvim', module = 'telescope._extensions.windows' }
-  use { 'nvim-telescope/telescope-github.nvim', module = 'telescope._extensions.gh' }
+  use { 'kyoh86/telescope-windows.nvim', telescope_ext = 'windows' }
+  use { 'nvim-telescope/telescope-github.nvim', telescope_ext = 'gh' }
 
   -- Editing
   use 'andymass/vim-matchup'
@@ -128,7 +128,7 @@ packer.startup(function()
 
   -- Git
   use 'lewis6991/gitsigns.nvim'
-  use { 'ThePrimeagen/git-worktree.nvim', lazymod = 'git-worktree', module = 'telescope._extensions.git_worktree' }
+  use { 'ThePrimeagen/git-worktree.nvim', lazymod = 'git-worktree', telescope_ext = 'git_worktree' }
   use { 'TimUntersberger/neogit', cmd = 'Neogit', lazymod = 'neogit' }
   use { 'mattn/gist-vim', requires = 'mattn/webapi-vim', cmd = 'Gist' }
   use {

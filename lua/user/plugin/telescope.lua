@@ -2,7 +2,6 @@
 local t = require 'telescope'
 local ta = require 'telescope.actions'
 local tb = require 'telescope.builtin'
-local tx = t.extensions
 
 local fn = require 'user.fn'
 local m = require 'user.mappings'
@@ -55,12 +54,11 @@ local function load_extensions()
   if extensions_loaded then
     return
   end
-
-  t.load_extension 'windows'
-  t.load_extension 'aerial'
-  t.load_extension 'git_worktree'
-  t.load_extension 'gh'
-
+  for _, ext in ipairs(require('user.packer').telescope_exts) do
+    if not rawget(t.extensions, ext) then
+      t.load_extension(ext)
+    end
+  end
   extensions_loaded = true
 end
 
@@ -87,16 +85,19 @@ M.cmds = setmetatable({}, {
   __index = function(self, k)
     local v = rawget(self, k) or _cmds[k] or tb[k]
     if not v then
-      load_extensions()
-      v = tx[k]
+      t.load_extension(k)
+      v = rawget(t.extensions, k)
+      if v and v[k] then
+        v = v[k]
+      end
     end
     -- This convoluted mess allows a call to any property or descendant
     -- property of M.cmds to be wrapped in a function that cancels the
     -- debounced show_builtins function
     if type(v) == 'table' or type(v) == 'function' then
-      local cb = function(fn, ...)
+      local cb = function(func, ...)
         dbounced_show_builtins:cancel()
-        fn(...)
+        func(...)
       end
       if type(v) == 'table' then
         return fn.on_call_rec(v, cb)

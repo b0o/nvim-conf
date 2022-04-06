@@ -3,7 +3,7 @@
 
 local packer
 
-local M = { lazymods = {} }
+local M = { lazymods = {}, telescope_exts = {} }
 
 local maybe_install_packer = function()
   local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
@@ -130,6 +130,13 @@ M.use = function(p, ...)
       assert(not p.config, "user.plugins.use(): options 'config' and 'conf' are mutually exclusive")
       p.config = ("require('user.plugin.%s')"):format(p.conf)
       p.conf = nil
+    end
+    if p.telescope_ext then
+      p.module = p.module or {}
+      p.module = type(p.module) == 'table' and p.module or { p.module }
+      table.insert(p.module, 'telescope._extensions.' .. p.telescope_ext)
+      table.insert(M.telescope_exts, p.telescope_ext)
+      p.telescope_ext = nil
     end
     if p.lazymod then
       p = use_lazymod(p)

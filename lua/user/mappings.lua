@@ -638,11 +638,12 @@ mapx.group(silent, function()
   nnoremap ([[<C-f>gw]], ithunk(tcgw.git_worktrees), "Telescope-Git: Worktrees")
 
   mapx.nname([[<M-f>]], "Telescope-Buffer")
-  nnoremap ({[[<M-f>b]], [[<M-f><M-b>]]}, ithunk(tb.current_buffer_fuzzy_find), "Telescope-Buffer: Fuzzy find")
-  nnoremap ({[[<M-f>t]], [[<M-f><M-t>]]}, ithunk(tb.tags),                      "Telescope-Buffer: Tags")
+  nnoremap ({[[<M-f>b]], [[<M-f><M-b>]]}, ithunk(tc.current_buffer_fuzzy_find), "Telescope-Buffer: Fuzzy find")
+  nnoremap ({[[<M-f>t]], [[<M-f><M-t>]]}, ithunk(tc.tags),                      "Telescope-Buffer: Tags")
+  nnoremap ({[[<M-f>u]], [[<M-f><M-u>]]}, ithunk(tc.urlview),                   "Telescope-Buffer: URLs")
 
   mapx.nname([[<M-f>]], "Telescope-Workspace")
-  nnoremap ([[<C-f>A]], ithunk(tc.aerial.aerial), "Telescope-Workspace: Aerial")
+  nnoremap ([[<C-f>A]], ithunk(tc.aerial), "Telescope-Workspace: Aerial")
 end)
 
 ---- tpope/vim-fugitive and TimUntersberger/neogit
