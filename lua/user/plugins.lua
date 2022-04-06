@@ -27,6 +27,7 @@ packer.startup(function()
   use 'lukas-reineke/indent-blankline.nvim'
   use 'rcarriga/nvim-notify'
   use 'stevearc/dressing.nvim'
+  use { 'axieax/urlview.nvim', cmd = 'UrlView', telescope_ext = 'urlview' }
   use { 'kyazdani42/nvim-tree.lua', lazymod = 'nvim-tree', cmd = 'NvimTree*' }
   use {
     'nvim-neo-tree/neo-tree.nvim',
