@@ -368,9 +368,16 @@ nnoremap ([[<M-S-q>]], function()
   end
 end, silent, "Quickfix: Toggle")
 
-nmap([[<M-q>]], fn.filetype_command("qf",
-  ithunk(recent_wins.focus_most_recent),
-  ithunk(vim.cmd, [[copen]])), silent, "Quickfix: Toggle focus")
+local function focus_qf()
+  local qfwin = require'user.apiutil'.tabpage_get_quickfix_win(0)
+  if qfwin then
+    vim.api.nvim_set_current_win(qfwin)
+  else
+    vim.cmd[[copen]]
+  end
+end
+
+nmap([[<M-q>]], fn.filetype_command("qf", ithunk(recent_wins.focus_most_recent), focus_qf), silent, "Quickfix: Toggle focus")
 
 ------ Filetypes
 mapx.group(silent, { ft = "lua" }, function()

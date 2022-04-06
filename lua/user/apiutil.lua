@@ -28,14 +28,27 @@ end
 
 function M.tabpage_list_bufs(tabpage)
   local bufs = {}
-  return vim.tbl_filter(function(b) return b end, vim.tbl_map(function(win)
-    local buf = vim.api.nvim_win_get_buf(win)
-    if bufs[buf] ~= nil then
-      return false
+  return vim.tbl_filter(
+    function(b)
+      return b
+    end,
+    vim.tbl_map(function(win)
+      local buf = vim.api.nvim_win_get_buf(win)
+      if bufs[buf] ~= nil then
+        return false
+      end
+      bufs[buf] = true
+      return buf
+    end, vim.api.nvim_tabpage_list_wins(tabpage))
+  )
+end
+
+function M.tabpage_get_quickfix_win(tabpage)
+  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tabpage)) do
+    if M.win_get_buf_option(win, 'buftype') == 'quickfix' then
+      return win
     end
-    bufs[buf] = true
-    return buf
-  end, vim.api.nvim_tabpage_list_wins(tabpage)))
+  end
 end
 
 function M.tabpage_list_modified_bufs(tabpage)
@@ -48,6 +61,5 @@ function M.buf_is_empty(b)
   local lines = vim.api.nvim_buf_get_lines(b, 0, -1, false)
   return #lines == 1 and lines[1] == ''
 end
-
 
 return M
