@@ -1,12 +1,8 @@
 ---- stevearc/aerial.nvim
 local fn = require 'user.fn'
 
--- SEE: https://github.com/stevearc/aerial.nvim/issues/78
 require('aerial').setup {
-  backends = {
-    _ = { 'lsp', 'treesitter', 'markdown' },
-    rescript = { 'treesitter' },
-  },
+  backends = { 'lsp', 'treesitter', 'markdown' },
   close_behavior = 'global',
   default_direction = 'right',
   disable_max_lines = 3000,
@@ -26,10 +22,6 @@ require('aerial').setup {
   min_width = 30,
   placement_editor_edge = true,
   update_events = 'TextChanged,InsertLeave',
-  lsp = {
-    diagnostics_trigger_update = false,
-    update_when_errors = false,
-  },
 }
 
 local treesitter_langs = require 'aerial.backends.treesitter.language_kind_map'
