@@ -8,7 +8,7 @@ local autocmd = function(event, opts)
 end
 
 -- Set local highlight overrides on non-current windows
-autocmd('WinNew,WinLeave', { command = [[setlocal winhl=CursorLine:CursorLineNC,CursorLineNr:CursorLineNrNC]] })
+autocmd({ 'WinNew', 'WinLeave' }, { command = [[setlocal winhl=CursorLine:CursorLineNC,CursorLineNr:CursorLineNrNC]] })
 autocmd('WinEnter', { command = [[setlocal winhl=]] })
 
 -- Keep track of recent windows
