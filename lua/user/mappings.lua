@@ -628,6 +628,8 @@ mapx.group(silent, function()
   nnoremap ({[[<C-f>o]], [[<C-f><C-o>]]}, ithunk(tc.oldfiles),    "Telescope: Old files")
   nnoremap ({[[<C-f>f]], [[<C-f><C-f>]]}, ithunk(tc.smart_files), "Telescope: Files")
 
+  nnoremap ({[[<C-M-f>]], [[<C-f>r]], [[<C-f><C-r>]]}, ithunk(tc.resume), "Telescope: Resume last picker")
+
   local tcw = tc.windows
   nnoremap ({[[<C-f>w]], [[<C-f><C-w>]]}, ithunk(tcw.windows, {}), "Telescope: Windows")
 
