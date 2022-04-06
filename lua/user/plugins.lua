@@ -193,16 +193,16 @@ packer.startup(function()
   -- Completion
   use 'hrsh7th/nvim-cmp'
   use 'hrsh7th/cmp-buffer'
-  use 'hrsh7th/cmp-calc'
-  use 'hrsh7th/cmp-cmdline'
   use 'hrsh7th/cmp-nvim-lsp'
   use 'hrsh7th/cmp-path'
   use 'hrsh7th/cmp-nvim-lua'
-  use 'andersevenrud/cmp-tmux'
-  use 'f3fora/cmp-spell'
   use 'ray-x/cmp-treesitter'
   use 'saadparwaiz1/cmp_luasnip'
   use { 'petertriho/cmp-git', requires = 'nvim-lua/plenary.nvim' }
+  xuse 'hrsh7th/cmp-calc'
+  xuse 'hrsh7th/cmp-cmdline'
+  xuse 'andersevenrud/cmp-tmux'
+  xuse 'f3fora/cmp-spell'
 
   -- Debugging
   use { 'mfussenegger/nvim-dap', module = 'dap' }

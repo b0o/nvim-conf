@@ -90,21 +90,29 @@ cmp.setup {
   sources = {
     { name = 'nvim_lsp' },
 
-    { name = 'cmp_git' },
-
     { name = 'treesitter' },
     { name = 'luasnip' },
     { name = 'nvim_lua' },
 
     { name = 'buffer' },
-    { name = 'tmux' },
-    { name = 'cmdline' },
+    -- { name = 'tmux' },
+    -- { name = 'cmdline' },
 
     { name = 'path' },
-    { name = 'calc' },
-    { name = 'spell' },
+    -- { name = 'calc' },
+    -- { name = 'spell' },
   },
 }
+
+cmp.setup.filetype({'gitcommit', 'NeogitCommitMessage'}, {
+  sources = {
+    { name = 'cmp_git' },
+    { name = 'luasnip' },
+    { name = 'buffer' },
+    { name = 'tmux' },
+    { name = 'path' },
+  },
+})
 
 -- Adds icons and hides PRs when searching for issues
 local cmp_git_extend_gh_callback = function(callback, kind)
