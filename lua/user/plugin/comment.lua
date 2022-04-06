@@ -34,3 +34,5 @@ require('Comment').setup {
     end)
   end,
 }
+
+require('Comment.ft').set('rescript', { '//%s', '/*%s*/' })
