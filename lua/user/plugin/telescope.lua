@@ -23,7 +23,7 @@ t.setup {
     layout_config = {
       scroll_speed = 2,
       preview_cutoff = 50,
-      preview_width = 0.6,
+      -- preview_width = 0.6, -- TODO: breaks floatwins
     },
     mappings = {
       i = {
