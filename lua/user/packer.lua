@@ -1,24 +1,15 @@
 -- TODO: Use packer set_handler extension rather than manually manipulating the plugin table
 -- SEE: :help packer-extending
 
-local packer
-
 local M = { lazymods = {}, telescope_exts = {} }
 
-local maybe_install_packer = function()
-  local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
-  if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
-    vim.fn.execute('!git clone https://github.com/wbthomason/packer.nvim ' .. install_path)
-  end
+local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
+if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
+  vim.fn.execute('!git clone https://github.com/wbthomason/packer.nvim ' .. install_path)
 end
 
-M.init = function()
-  maybe_install_packer()
-  packer = require 'packer'
-  packer.init {
-    max_jobs = tonumber(vim.fn.system 'nproc') or 8,
-  }
-end
+local packer = require 'packer'
+packer.init { max_jobs = tonumber(vim.fn.system 'nproc') or 8 }
 
 local function escape_module_for_pattern(mod)
   return string.gsub(mod, '[%^%$%(%)%%%.%[%]%*%+%?%-]', '%%%1')
@@ -170,8 +161,7 @@ M.uselocal = function(p, ...)
   M.use(p, extend)
 end
 
--- Same as use() but sets {disable=true}
----@diagnostic disable-next-line: unused-local,unused-function
+-- xuse disables the plugin
 M.xuse = function(p)
   return M.use(p, {
     cond = function()
@@ -180,8 +170,7 @@ M.xuse = function(p)
   })
 end
 
--- Same as uselocal() but sets {disable=true}
----@diagnostic disable-next-line: unused-local,unused-function
+-- xuse disables the plugin
 M.xuselocal = function(p)
   return M.uselocal(p, {
     cond = function()
@@ -190,9 +179,4 @@ M.xuselocal = function(p)
   })
 end
 
-return setmetatable(M, {
-  __index = function(self, k)
-    local v = rawget(self, k)
-    return v ~= nil and v or packer[k]
-  end,
-})
+return setmetatable(M, { __index = packer })
