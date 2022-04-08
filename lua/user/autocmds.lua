@@ -11,46 +11,31 @@ end
 autocmd({ 'WinNew', 'WinLeave' }, { command = [[setlocal winhl=CursorLine:CursorLineNC,CursorLineNr:CursorLineNrNC]] })
 autocmd('WinEnter', { command = [[setlocal winhl=]] })
 
--- Keep track of recent windows
 autocmd('WinLeave', {
   callback = function()
     require('user.util.recent-wins').update()
   end,
 })
 
--- Set global variable g:nvim_focused to true when neovim is focused
 autocmd('FocusGained', {
   callback = function()
     vim.g.nvim_focused = true
   end,
 })
-
--- Set global variable g:nvim_focused to false when neovim loses focus
 autocmd('FocusLost', {
   callback = function()
     vim.g.nvim_focused = false
   end,
 })
 
--- Ensure the title is set immediately on load instead of whenever a file is loaded/changed/written
-autocmd('VimEnter', { command = [[set title]] })
-
--- Highlight on yank
 autocmd('TextYankPost', { callback = vim.highlight.on_yank })
-
--- Enter insert mode when entering a terminal buffer
 autocmd('TermOpen', { command = [[setlocal scrolloff=0]] })
-
--- Enter insert mode when entering a terminal buffer
 autocmd('BufEnter', { pattern = 'term://*', command = [[call user#fn#termEnter(1)]] })
-
--- Automatically close terminal windows when the terminal process exits
 autocmd('TermClose', { pattern = 'term://*', command = [[call user#fn#closeBufWins(expand('<abuf>'))]] })
 
 ------ Plugins
 
 ---- wbthomason/packer.nvim
--- Re-compile Packer on write plugins.lua
 autocmd('BufWritePost', {
   pattern = vim.fn.stdpath 'config' .. '/lua/user/plugins.lua',
   callback = function()
@@ -58,7 +43,6 @@ autocmd('BufWritePost', {
   end,
 })
 
--- Notify after Packer compilation
 autocmd('User', {
   pattern = 'PackerCompileDone',
   callback = function()
@@ -67,7 +51,6 @@ autocmd('User', {
 })
 
 ---- kyazdani42/nvim-tree.lua
--- Automatically close the tab/vim when nvim-tree is the last window
 autocmd('BufEnter', {
   nested = true,
   callback = function()
@@ -81,7 +64,6 @@ autocmd('BufEnter', {
 })
 
 ---- TimUntersberger/neogit
--- Refresh Neogit when Fugitive changes something
 autocmd('User', {
   pattern = 'FugitiveChanged',
   callback = function()
