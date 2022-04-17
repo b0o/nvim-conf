@@ -63,7 +63,7 @@ local ignore_files = {
 }
 
 local function should_attach(bufnr)
-  local bufname = vim.fn.expand '%:t'
+  local bufname = vim.fn.fnamemodify(vim.fn.bufname(bufnr), ':t')
   for _, ignore in ipairs(ignore_files) do
     if bufname == ignore then
       return false
