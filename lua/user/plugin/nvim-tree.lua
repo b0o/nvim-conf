@@ -1,5 +1,5 @@
 ---- kyazdani42/nvim-tree.lua
-vim.g.nvim_tree_indent_markers = 1
+-- vim.g.nvim_tree_indent_markers = 1
 vim.g.nvim_tree_git_hl = 1
 vim.g.nvim_tree_highlight_opened_files = 1
 vim.g.nvim_tree_add_trailing = 1
@@ -65,4 +65,5 @@ require('nvim-tree').setup {
   filters = {
     custom = { '.git', 'node_modules', '.cache' },
   },
+  renderer = { indent_markers = { enable = true } },
 }
