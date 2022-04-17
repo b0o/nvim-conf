@@ -41,7 +41,7 @@ let g:lavi_gui[11] = '#FF87A5' " normal red
 let g:lavi_gui[12] = '#F2637E' " bright red
 
 let g:lavi_gui[13] = '#FFD080' " normal yellow
-let g:lavi_gui[14] = '#6EEB84' " normal green
+let g:lavi_gui[14] = '#7CF89C' " normal green
 let g:lavi_gui[15] = '#B98AFF' " normal magenta
 
 let g:lavi_gui[16] = '#B891FF'
