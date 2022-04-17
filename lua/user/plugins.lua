@@ -55,7 +55,7 @@ packer.startup(function()
   use { 'nvim-telescope/telescope-github.nvim', telescope_ext = 'gh' }
 
   -- Editing
-  use 'andymass/vim-matchup'
+  use { 'andymass/vim-matchup', config = [[vim.g.matchup_motion_enabled = false]] }
   use 'b0o/vim-shot-f'
   use 'chaoren/vim-wordmotion'
   use { 'chentau/marks.nvim', conf = 'marks' }
@@ -69,7 +69,7 @@ packer.startup(function()
   use 'sgur/vim-textobj-parameter'
   use 'tpope/vim-repeat'
   use 'tpope/vim-speeddating'
-  use 'tpope/vim-surround'
+  use { 'tpope/vim-surround', config = [[vim.g.surround_no_insert_mappings = true]] }
   use 'triglav/vim-visual-increment'
   use { 'AndrewRadev/splitjoin.vim', cmd = { 'SplitjoinSplit', 'SplitjoinJoin' } }
   use { 'godlygeek/tabular', cmd = { 'AddTabularPattern', 'AddTabularPipeline', 'Tabularize', 'GTabularize' } }
