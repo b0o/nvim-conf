@@ -19,6 +19,7 @@ packer.startup(function()
   use 'nvim-lua/plenary.nvim'
 
   -- UI
+  uselocal { 'b0o/incline.nvim/', conf = 'incline' }
   use 'Famiu/feline.nvim'
   use 'ericbn/vim-relativize'
   use 'folke/which-key.nvim'
