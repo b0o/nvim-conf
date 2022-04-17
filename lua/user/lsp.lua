@@ -222,13 +222,13 @@ local lsp_signature_config = {
 }
 
 local function on_attach(client, bufnr)
-  if client.resolved_capabilities.document_formatting then
+  if client.server_capabilities.documentFormattingProvider then
     M.set_fmt_on_save(true, true)
   end
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   user_lsp_status.on_attach(client, bufnr)
   require('aerial').on_attach(client, bufnr)
-  if client.resolved_capabilities.code_action then
+  if client.server_capabilities.codeActionProvider then
     local augid = vim.api.nvim_create_augroup('user_lsp_code_actions', { clear = true })
     local cal_dbounce = require('user.util.debounce').make(M.code_action_listener, { threshold = 500 })
     vim.api.nvim_create_autocmd('CursorHold', {
@@ -339,8 +339,8 @@ local function lsp_init()
       if lsp.formatting == false then
         lsp.formatting = nil
         opts.on_attach = function(client, ...)
-          client.resolved_capabilities.document_formatting = false
-          client.resolved_capabilities.document_range_formatting = false
+          client.server_capabilities.documentFormattingProvider = false
+          client.server_capabilities.documentRangeFormattingProvider = false
           return on_attach(client, ...)
         end
       end
