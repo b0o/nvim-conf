@@ -75,7 +75,7 @@ vim.o.cursorline = true
 
 vim.o.showmode = false
 vim.o.showcmd = true
-vim.o.laststatus = 2
+vim.o.laststatus = 3
 vim.o.ruler = 0
 
 vim.o.showmatch = true
