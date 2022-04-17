@@ -5,6 +5,8 @@ require('notify').setup {
   render = 'default',
   background_colour = '#252137',
   stages = 'slide',
+  -- TODO: Set zindex greater than Incline's zindex
+  -- SEE: https://github.com/rcarriga/nvim-notify/issues/26
 }
 
 M.notify = function(msg, lvl, opts)
