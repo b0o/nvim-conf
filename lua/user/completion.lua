@@ -1,24 +1,20 @@
 ---- hrsh7th/nvim-cmp.
 local cmp = require 'cmp'
+local feedkeys = require 'cmp.utils.feedkeys'
+local keymap = require 'cmp.utils.keymap'
 local luasnip = require 'luasnip'
 local lspkind = require 'lspkind'
+local xk = require('user.mappings').xk
+local fn = require 'user.fn'
 
-local function has_words_before()
-  if vim.api.nvim_buf_get_option(0, 'buftype') == 'prompt' then
-    return false
-  end
-  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match '%s' == nil
-end
-
-local function feedkeys(key, mode)
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), mode, true)
-end
+local wincfg = {
+  winhighlight = 'Normal:CmpNormal,FloatBorder:CmpBorder,CursorLine:CmpSel,Search:None',
+}
 
 cmp.setup {
   snippet = {
     expand = function(args)
-      require('luasnip').lsp_expand(args.body)
+      luasnip.lsp_expand(args.body)
     end,
   },
   completion = {
@@ -29,89 +25,160 @@ cmp.setup {
       end, trigger_characters)
     end,
   },
+  window = {
+    completion = wincfg,
+    documentation = wincfg,
+  },
+  view = {
+    entries = 'custom',
+  },
+  experimental = {
+    ghost_text = true,
+  },
   formatting = {
     format = lspkind.cmp_format {
-      -- mode = 'symbol', -- show only symbol annotations
-      -- maxwidth = 50, -- prevent the popup from showing more than provided characters (e.g 50 will not show more than 50 characters)
-      -- The function below will be called before any actual modifications from lspkind
-      -- so that you can provide more controls on popup customization. (See [#30](https://github.com/onsails/lspkind-nvim/pull/30))
       before = function(entry, vim_item)
         vim_item.menu = ({
-          buffer = '[Buffer]',
-          calc = '[Calc]',
-          cmdline = '[Cmd]',
-          cmp_git = '[Git]',
-          look = '[Look]',
-          luasnip = '[LuaSnip]',
-          nvim_lsp = '[LSP]',
-          nvim_lua = '[Lua]',
-          npm = '[NPM]',
-          path = '[Path]',
-          spell = '[Spell]',
-          tmux = '[Tmux]',
-          treesitter = '[TS]',
+          nvim_lsp = 'LSP',
+          treesitter = 'TS',
+          luasnip = 'Snip',
+          nvim_lua = 'Lua',
+          buffer = 'Buf',
+          path = 'Path',
+          cmp_git = 'Git',
+          tmux = 'Tmux',
         })[entry.source.name]
         return vim_item
       end,
     },
   },
-  mapping = {
-    ['<C-j>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-k>'] = cmp.mapping.scroll_docs(4),
-    ['<C-e>'] = cmp.mapping.close(),
-    ['<C-x><C-x>'] = cmp.mapping.complete(),
-    ['<Cr>'] = cmp.mapping.confirm {
-      behavior = cmp.ConfirmBehavior.Replace,
-      select = true,
-    },
-    ['<Tab>'] = function(fallback)
-      if vim.fn.pumvisible() == 1 then
-        feedkeys('<C-n>', 'n')
-      elseif luasnip.expand_or_jumpable() then
-        feedkeys('<Plug>luasnip-expand-or-jump', '')
-      elseif has_words_before() then
+  mapping = cmp.mapping.preset.insert {
+    ['<C-k>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-j>'] = cmp.mapping.scroll_docs(4),
+    ['<C-g>'] = cmp.mapping.abort(),
+    ['<CR>'] = cmp.mapping.confirm { select = true },
+    ['<C-e>'] = function(fallback)
+      if cmp.visible() then
+        cmp.confirm { select = true }
         cmp.complete()
       else
         fallback()
       end
     end,
-    ['<S-Tab>'] = function(fallback)
-      if vim.fn.pumvisible() == 1 then
-        feedkeys('<C-p>', 'n')
-      elseif luasnip.jumpable(-1) then
-        feedkeys('<Plug>luasnip-jump-prev', '')
-      elseif has_words_before() then
-        cmp.complete()
+    [xk [[<C-S-a>]]] = function()
+      if cmp.visible() then
+        cmp.close()
       else
-        fallback()
+        cmp.complete()
       end
     end,
   },
-  sources = {
+  sources = cmp.config.sources({
     { name = 'nvim_lsp' },
 
     { name = 'treesitter' },
     { name = 'luasnip' },
     { name = 'nvim_lua' },
 
-    { name = 'buffer' },
-    -- { name = 'tmux' },
-    -- { name = 'cmdline' },
+    { name = 'buffer', keyword_length = 5 },
+    { name = 'tmux', keyword_length = 5 },
 
     { name = 'path' },
-    -- { name = 'calc' },
-    -- { name = 'spell' },
-  },
+  }, {
+    { name = 'buffer' },
+  }),
 }
 
-cmp.setup.filetype({'gitcommit', 'NeogitCommitMessage'}, {
+cmp.setup.cmdline('/', {
+  mapping = cmp.mapping.preset.cmdline(),
   sources = {
-    { name = 'cmp_git' },
-    { name = 'luasnip' },
     { name = 'buffer' },
     { name = 'tmux' },
-    { name = 'path' },
+    { name = 'nvim_lsp' },
+    { name = 'treesitter' },
   },
+})
+
+cmp.setup.cmdline(':', {
+  mapping = cmp.mapping.preset.cmdline {
+    ['<Tab>'] = {
+      c = function()
+        if cmp.visible() then
+          cmp.select_next_item()
+        else
+          cmp.complete()
+        end
+      end,
+    },
+    ['<S-Tab>'] = {
+      c = function()
+        if cmp.visible() then
+          cmp.select_prev_item()
+        else
+          cmp.complete()
+        end
+      end,
+    },
+    [xk '<C-S-n>'] = {
+      c = function()
+        cmp.close()
+        feedkeys.call(keymap.t '<Down>', 'n')
+        cmp.complete()
+      end,
+    },
+    [xk '<C-S-p>'] = {
+      c = function()
+        cmp.close()
+        feedkeys.call(keymap.t '<Up>', 'n')
+        cmp.complete()
+      end,
+    },
+    ['<C-n>'] = {
+      c = function(fallback)
+        if cmp.visible() then
+          cmp.select_next_item()
+        else
+          fallback()
+        end
+      end,
+    },
+    ['<C-p>'] = {
+      c = function(fallback)
+        if cmp.visible() then
+          cmp.select_prev_item()
+        else
+          fallback()
+        end
+      end,
+    },
+    ['<C-e>'] = {
+      c = cmp.mapping.close(),
+    },
+    [xk [[<C-S-a>]]] = {
+      c = function()
+        if cmp.visible() then
+          cmp.close()
+        else
+          cmp.complete()
+        end
+      end,
+    },
+  },
+  sources = cmp.config.sources({
+    { name = 'path' },
+  }, {
+    { name = 'cmdline' },
+  }),
+})
+
+-- Set configuration for specific filetype.
+---@diagnostic disable-next-line: undefined-field
+cmp.setup.filetype({ 'gitcommit', 'NeogitCommitMessage' }, {
+  sources = cmp.config.sources({
+    { name = 'cmp_git' }, -- You can specify the `cmp_git` source if you were installed it.
+  }, {
+    { name = 'buffer' },
+  }),
 })
 
 -- Adds icons and hides PRs when searching for issues
@@ -123,21 +190,20 @@ local cmp_git_extend_gh_callback = function(callback, kind)
         if item.disabled then
           needs_filter = true
         end
-        goto continue
-      end
-      item.extended = true
-      if kind == 'issues' and item.sortText:sub(1, 1) == '1' then
-        needs_filter = true
-        item.disabled = true
-      end
-      local icon
-      if item.sortText:sub(2, 2) == '0' then
-        icon = ' '
       else
-        icon = ' '
+        item.extended = true
+        if kind == 'issues' and item.sortText:sub(1, 1) == '1' then
+          needs_filter = true
+          item.disabled = true
+        end
+        local icon
+        if item.sortText:sub(2, 2) == '0' then
+          icon = ' '
+        else
+          icon = ' '
+        end
+        item.label = icon .. item.label
       end
-      item.label = icon .. item.label
-      ::continue::
     end
     if needs_filter then
       res.items = vim.tbl_filter(function(item)
@@ -244,3 +310,48 @@ require('cmp_git').setup {
     },
   },
 }
+
+fn.tmpl_hi [[
+  hi! CmpNormal                guibg=#4F4365
+  hi! CmpBorder                guibg=NONE     guifg=${inactive_bg}
+  hi! CmpSel                   guibg=#7A6FA6  guifg=#F8EBF8
+
+  hi! CmpItemMenu              guifg=${dust}
+  hi! CmpItemAbbr              guifg=${fg}
+  hi! CmpItemAbbrMatch         guifg=#FAC9FF
+  hi! CmpItemAbbrMatchFuzzy    guifg=#FAC9FF
+
+  hi! CmpItemAbbrDeprecated    guifg=${cayenne}   gui=strikethrough
+
+  hi! CmpItemKindMethod        guifg=${velvet}
+  hi! CmpItemKindConstructor   guifg=${velvet}
+  hi! CmpItemKindFunction      guifg=${velvet}
+
+  hi! CmpItemKindVariable      guifg=${blush}
+  hi! CmpItemKindConstant      guifg=${blush}
+  hi! CmpItemKindValue         guifg=${blush}
+  hi! CmpItemKindField         guifg=${blush}
+  hi! CmpItemKindProperty      guifg=${blush}
+  hi! CmpItemKindEnumMember    guifg=${blush}
+  hi! CmpItemKindReference     guifg=${blush}
+
+  hi! CmpItemKindOperator      guifg=${dust}
+  hi! CmpItemKindKeyword       guifg=${dust}
+  hi! CmpItemKindTypeParameter guifg=${dust}
+
+  hi! CmpItemKindModule        guifg=${milk}
+  hi! CmpItemKindClass         guifg=${milk}
+  hi! CmpItemKindInterface     guifg=${milk}
+  hi! CmpItemKindStruct        guifg=${milk}
+  hi! CmpItemKindEnum          guifg=${milk}
+
+  hi! CmpItemKindEvent         guifg=${light_lavender}
+  hi! CmpItemKindUnit          guifg=${light_lavender}
+  hi! CmpItemKindFile          guifg=${light_lavender}
+  hi! CmpItemKindFolder        guifg=${light_lavender}
+
+  hi! CmpItemKindText          guifg=${powder}
+
+  hi! CmpItemKindSnippet       guifg=${ice}
+  hi! CmpItemKindColor         guifg=${hydrangea}
+]]

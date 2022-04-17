@@ -199,10 +199,10 @@ packer.startup(function()
   use 'hrsh7th/cmp-nvim-lua'
   use 'ray-x/cmp-treesitter'
   use 'saadparwaiz1/cmp_luasnip'
+  use 'andersevenrud/cmp-tmux'
   use { 'petertriho/cmp-git', requires = 'nvim-lua/plenary.nvim' }
+  use 'hrsh7th/cmp-cmdline'
   xuse 'hrsh7th/cmp-calc'
-  xuse 'hrsh7th/cmp-cmdline'
-  xuse 'andersevenrud/cmp-tmux'
   xuse 'f3fora/cmp-spell'
 
   -- Debugging

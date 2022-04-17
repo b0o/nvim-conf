@@ -29,6 +29,9 @@ M.xk = fn.utf8keys {
   [ [[<C-S-w>]] ] = 0x00f4,
   [ [[<C-S-f>]] ] = 0x00f5,
   [ [[<C-S-t>]] ] = 0x00f6,
+  [ [[<C-S-a>]] ] = 0x00f7,
+  [ [[<M-S-k>]] ] = 0x00f8,
+  [ [[<C-S-p>]] ] = 0x00f9,
   [ [[<C-/>]] ] = 0x001f,
 }
 local xk = M.xk
@@ -199,9 +202,16 @@ inoremap ([[<M-d>]], [[<C-o>de]], "Kill word forward")
 inoremap ([[<M-Backspace>]], [[<C-o>dB]], "Kill word backward")
 inoremap ([[<C-k>]], [[<C-o>D]], "Kill to end of line")
 
+inoremap ([[<M-h>]], [[<left>]])
+inoremap ([[<M-j>]], [[<down>]])
+inoremap ([[<M-k>]], [[<up>]])
+inoremap ([[<M-l>]], [[<right>]])
+
+inoremap ([[<M-a>]], [[<C-o>_]])
+
 -- unicode stuff
-inoremap ([[<M-k>]], [[<C-k>]], "Insert digraph")
-nnoremap ([[gxa]],   [[ga]], "Show char code in decimal, hexadecimal and octal")
+inoremap (xk[[<M-S-k>]], [[<C-k>]], "Insert digraph")
+nnoremap ([[gxa]],       [[ga]], "Show char code in decimal, hexadecimal and octal")
 
 -- nano-like kill buffer
 -- TODO
