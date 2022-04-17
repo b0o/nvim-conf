@@ -148,7 +148,7 @@ local lsp_servers = {
       '--stdio',
     },
   },
-  'rls',
+  'rust_analyzer',
   'rnix',
   'sqls',
   luals_conf,
