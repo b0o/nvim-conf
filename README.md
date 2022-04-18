@@ -1,9 +1,7 @@
-## Maddison's neovim configuration
+## Maddison's Neovim configuration
 
-This is my Neovim configuration, cobbled together over the course of several
-years. There are a lot of things in here that are very specific to my setup/workflow.
-
-Feel free to steal anything shiny.
+This is my Neovim configuration, cobbled together over several
+years. There are lots of things in here that are hyper-specific to my setup, but if you see anything interesting, feel free to steal it.
 
 ![nvim-conf screenshot](https://user-images.githubusercontent.com/21299126/159453973-ff39d626-d06a-412b-a12b-42143d6b7c5b.png)
 
