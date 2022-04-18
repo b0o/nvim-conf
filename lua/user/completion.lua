@@ -11,6 +11,22 @@ local wincfg = {
   winhighlight = 'Normal:CmpNormal,FloatBorder:CmpBorder,CursorLine:CmpSel,Search:None',
 }
 
+-- Select item next/prev, taking into account whether the cmp window is
+-- top-down or bottoom-up so that the movement is always in the same direction.
+local select_item_smart = function(dir)
+  return function(fallback)
+    if cmp.visible() then
+      if cmp.core.view.custom_entries_view:is_direction_top_down() then
+        ({ next = cmp.select_next_item, prev = cmp.select_prev_item })[dir]()
+      else
+        ({ prev = cmp.select_next_item, next = cmp.select_prev_item })[dir]()
+      end
+    else
+      fallback()
+    end
+  end
+end
+
 cmp.setup {
   snippet = {
     expand = function(args)
@@ -30,7 +46,7 @@ cmp.setup {
     documentation = wincfg,
   },
   view = {
-    entries = 'custom',
+    entries = { name = 'custom', selection_order = 'bottom_up' },
   },
   experimental = {
     ghost_text = true,
@@ -53,6 +69,8 @@ cmp.setup {
     },
   },
   mapping = cmp.mapping.preset.insert {
+    ['<C-n>'] = select_item_smart 'next',
+    ['<C-p>'] = select_item_smart 'prev',
     ['<C-k>'] = cmp.mapping.scroll_docs(-4),
     ['<C-j>'] = cmp.mapping.scroll_docs(4),
     ['<C-g>'] = cmp.mapping.abort(),
@@ -90,7 +108,10 @@ cmp.setup {
 }
 
 cmp.setup.cmdline('/', {
-  mapping = cmp.mapping.preset.cmdline(),
+  mapping = cmp.mapping.preset.cmdline {
+    ['<C-n>'] = { c = select_item_smart 'next' },
+    ['<C-p>'] = { c = select_item_smart 'prev' },
+  },
   sources = {
     { name = 'buffer' },
     { name = 'tmux' },
@@ -101,6 +122,9 @@ cmp.setup.cmdline('/', {
 
 cmp.setup.cmdline(':', {
   mapping = cmp.mapping.preset.cmdline {
+    ['<C-n>'] = { c = select_item_smart 'next' },
+    ['<C-p>'] = { c = select_item_smart 'prev' },
+    ['<C-e>'] = { c = cmp.mapping.close() },
     ['<Tab>'] = {
       c = function()
         if cmp.visible() then
@@ -132,27 +156,6 @@ cmp.setup.cmdline(':', {
         feedkeys.call(keymap.t '<Up>', 'n')
         cmp.complete()
       end,
-    },
-    ['<C-n>'] = {
-      c = function(fallback)
-        if cmp.visible() then
-          cmp.select_next_item()
-        else
-          fallback()
-        end
-      end,
-    },
-    ['<C-p>'] = {
-      c = function(fallback)
-        if cmp.visible() then
-          cmp.select_prev_item()
-        else
-          fallback()
-        end
-      end,
-    },
-    ['<C-e>'] = {
-      c = cmp.mapping.close(),
     },
     [xk [[<C-S-a>]]] = {
       c = function()
