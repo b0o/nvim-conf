@@ -24,6 +24,7 @@ M.install_or_sync = function()
         vim.cmd [[quitall]]
       end,
     })
+    require 'user.plugins'
     packer.sync()
   end
 end
