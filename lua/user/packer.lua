@@ -17,9 +17,14 @@ M.install_or_sync = function()
     vim.cmd [[quitall]]
   else
     print 'Syncing packer'
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'PackerComplete',
+      callback = function()
+        vim.fn.input 'Packer has been synced, please restart Neovim.\nPress ENTER to exit'
+        vim.cmd [[quitall]]
+      end,
+    })
     packer.sync()
-    vim.fn.input 'Packer has been synced, please restart Neovim.\nPress ENTER to exit'
-    vim.cmd [[quitall]]
   end
 end
 
