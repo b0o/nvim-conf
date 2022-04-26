@@ -9,6 +9,7 @@ if not pcall(require, 'impatient') then
     return
   end
   user_packer.install_or_sync()
+  return
 end
 
 require 'user.settings'
