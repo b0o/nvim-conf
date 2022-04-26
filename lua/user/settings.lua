@@ -134,10 +134,22 @@ vim.g.loaded_perl_provider = 0
 -- vim.g.loaded_node_provider = 0
 -- vim.g.loaded_ruby_provider = 0
 
-vim.g.python_host_prog = '/usr/bin/python2'
-vim.g.python3_host_prog = vim.env.HOME .. '/.asdf/shims/python3'
-vim.g.node_host_prog = vim.env.XDG_DATA_HOME .. '/yarn/global/node_modules/neovim/bin/cli.js'
-vim.g.ruby_host_prog = '/usr/bin/ruby'
+local function setup_provider(provider, path_components)
+  local path = ''
+  for c in ipairs(path_components) do
+    path = path .. c
+    if not vim.fn.filereadable(path) then
+      return
+    end
+  end
+  if vim.fn.filereadable(path) then
+    vim.g[provider .. '_host_prog'] = path
+  end
+end
+
+setup_provider('python3', { vim.env.HOME, '/.asdf/shims/python3' })
+setup_provider('node', { vim.env.XDG_DATA_HOME, '/yarn/global/node_modules/neovim/bin/cli.js' })
+setup_provider('node', { '/usr/bin/ruby' })
 
 ---- Builtin plugins
 vim.g.loaded_matchparen = 1
