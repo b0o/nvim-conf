@@ -5,7 +5,10 @@ local M = { lazymods = {}, telescope_exts = {} }
 
 local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
 if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
+  print('Installing Packer at ' .. install_path)
   vim.fn.execute('!git clone https://github.com/wbthomason/packer.nvim ' .. install_path)
+  vim.fn.input 'Packer has been installed, please restart Neovim.\nPress ENTER to exit'
+  vim.cmd [[quitall]]
 end
 
 local packer = require 'packer'
