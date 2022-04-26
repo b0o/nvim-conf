@@ -1,18 +1,27 @@
 -- TODO: Use packer set_handler extension rather than manually manipulating the plugin table
 -- SEE: :help packer-extending
-
 local M = { lazymods = {}, telescope_exts = {} }
 
-local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
-if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
-  print('Installing Packer at ' .. install_path)
-  vim.fn.execute('!git clone https://github.com/wbthomason/packer.nvim ' .. install_path)
-  vim.fn.input 'Packer has been installed, please restart Neovim.\nPress ENTER to exit'
-  vim.cmd [[quitall]]
-end
+local packer = require('user.util.lazy').on_call_rec(function()
+  local packer = require 'packer'
+  packer.init { max_jobs = tonumber(vim.fn.system 'nproc') or 8 }
+  return packer
+end)
 
-local packer = require 'packer'
-packer.init { max_jobs = tonumber(vim.fn.system 'nproc') or 8 }
+M.install_or_sync = function()
+  local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
+  if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
+    print('Installing Packer at ' .. install_path)
+    vim.fn.execute('!git clone https://github.com/wbthomason/packer.nvim ' .. install_path)
+    vim.fn.input 'Packer has been installed, please restart Neovim.\nPress ENTER to exit'
+    vim.cmd [[quitall]]
+  else
+    print 'Syncing packer'
+    packer.sync()
+    vim.fn.input 'Packer has been synced, please restart Neovim.\nPress ENTER to exit'
+    vim.cmd [[quitall]]
+  end
+end
 
 local function escape_module_for_pattern(mod)
   return string.gsub(mod, '[%^%$%(%)%%%.%[%]%*%+%?%-]', '%%%1')
