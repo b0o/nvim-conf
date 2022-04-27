@@ -257,7 +257,7 @@ packer.startup {
   config = {
     max_jobs = 4,
   },
-  rocks = {
-    'base64',
-  },
+  -- rocks = {
+  --   'base64',
+  -- },
 }
