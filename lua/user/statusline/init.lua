@@ -395,3 +395,4 @@ config.components.inactive[3] = {
 }
 
 feline.setup(config)
+vim.o.laststatus = 3

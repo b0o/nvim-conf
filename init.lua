@@ -14,18 +14,15 @@ end
 
 require 'user.settings'
 
-vim.api.nvim_create_autocmd('BufEnter', {
-  once = true,
-  callback = function()
-    require 'user.commands'
-    require 'user.lsp'
-    require 'user.statusline'
-    require 'user.completion'
-    require 'user.autocmds'
-    require 'user.mappings'
-    require 'user.plugins'
-    require 'user.plugin'
-    require 'user.treesitter'
-    require 'user.quickfix'
-  end,
-})
+vim.defer_fn(function()
+  require 'user.commands'
+  require 'user.lsp'
+  require 'user.statusline'
+  require 'user.completion'
+  require 'user.autocmds'
+  require 'user.mappings'
+  require 'user.plugins'
+  require 'user.plugin'
+  require 'user.treesitter'
+  require 'user.quickfix'
+end, 0)
