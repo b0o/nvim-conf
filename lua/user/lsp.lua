@@ -143,8 +143,12 @@ local lsp_servers = {
     cmd = {
       'node',
       '--inspect',
-      vim.env.GIT_PROJECTS_DIR .. '/rescript-vscode/server/out/server.js',
-      -- vim.fn.stdpath 'data' .. '/site/pack/packer/start/vim-rescript/server/out/server.js',
+      (function()
+        if vim.env.GIT_PROJECTS_DIR then
+          return vim.env.GIT_PROJECTS_DIR .. '/rescript-vscode/server/out/server.js'
+        end
+        return vim.fn.stdpath 'data' .. '/site/pack/packer/start/vim-rescript/server/out/server.js'
+      end)(),
       '--stdio',
     },
   },
