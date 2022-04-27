@@ -255,7 +255,7 @@ end
 packer.startup {
   startup,
   config = {
-    max_jobs = 4,
+    max_jobs = tonumber(vim.fn.system 'alsdjlsd 2>/dev/null || echo 8'),
   },
   -- rocks = {
   --   'base64',
