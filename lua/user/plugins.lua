@@ -247,7 +247,7 @@ local startup = function()
   }
 
   -- Performance
-  use { 'lewis6991/impatient.nvim', rocks = 'mpack' }
+  use 'lewis6991/impatient.nvim'
   use 'nathom/filetype.nvim'
   use 'antoinemadec/FixCursorHold.nvim'
 end
