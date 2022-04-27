@@ -6,9 +6,7 @@ local packer = require 'user.packer'
 ---@diagnostic disable-next-line: unused-local
 local use, uselocal, xuse, xuselocal = packer.use, packer.uselocal, packer.xuse, packer.xuselocal
 
-packer.init()
-
-packer.startup(function()
+local startup = function()
   -- Package management
   use 'wbthomason/packer.nvim'
 
@@ -249,8 +247,14 @@ packer.startup(function()
   use { 'lewis6991/impatient.nvim', rocks = 'mpack' }
   use 'nathom/filetype.nvim'
   use 'antoinemadec/FixCursorHold.nvim'
-end)
+end
 
-packer.use_rocks {
-  'base64',
+packer.startup {
+  startup,
+  config = {
+    max_jobs = 4,
+  },
+  rocks = {
+    'base64',
+  },
 }
