@@ -90,6 +90,26 @@ cmp.setup {
         cmp.complete()
       end
     end,
+    [xk [[<C-.>]]] = function()
+      if cmp.visible() then
+        local selected = cmp.core.view:get_selected_entry() or cmp.core.view:get_first_entry()
+        if selected and selected:get_kind() == require('cmp.types').lsp.CompletionItemKind.Snippet then
+          cmp.confirm { select = true }
+          return
+        end
+      end
+      if luasnip.expand_or_jumpable() then
+        luasnip.expand_or_jump()
+      else
+        luasnip.jump(1)
+      end
+    end,
+    [xk [[<C-S-.>]]] = function()
+      if cmp.visible() then
+        cmp.close()
+      end
+      luasnip.jump(-1)
+    end,
   },
   sources = cmp.config.sources({
     { name = 'nvim_lsp' },

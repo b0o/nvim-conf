@@ -32,6 +32,8 @@ M.xk = fn.utf8keys {
   [ [[<C-S-a>]] ] = 0x00f7,
   [ [[<M-S-k>]] ] = 0x00f8,
   [ [[<C-S-p>]] ] = 0x00f9,
+  [ [[<C-S-.>]] ] = 0x00fa,
+  [ [[<C-.>]] ] = 0x00fb,
   [ [[<C-/>]] ] = 0x001f,
 }
 local xk = M.xk
@@ -42,7 +44,7 @@ map     ([[<C-z>]], [[<Nop>]])
 mapbang ([[<C-z>]], [[<Nop>]])
 
 -- Disable C-c warning
-map     ([[<C-c>]], [[<Nop>]])
+-- map     ([[<C-c>]], [[<Nop>]])
 
 -- Disable Ex mode
 nnoremap ([[Q]], [[<Nop>]])
