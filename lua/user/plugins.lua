@@ -188,7 +188,10 @@ local startup = function()
   }
 
   -- Snippets
-  use { 'L3MON4D3/LuaSnip', conf = 'luasnip' }
+  use {
+    'L3MON4D3/LuaSnip',
+    -- conf = 'luasnip',
+  }
 
   -- Completion
   use { 'hrsh7th/nvim-cmp', module = 'cmp' }
