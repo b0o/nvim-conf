@@ -2,26 +2,32 @@
 -- SEE: :help packer-extending
 local M = { lazymods = {}, telescope_exts = {} }
 
-local packer = require('user.util.lazy').on_call_rec(function()
-  local packer = require 'packer'
-  packer.init { max_jobs = tonumber(vim.fn.system 'nproc') or 8 }
-  return packer
-end)
+local packer = require('user.util.lazy').require_on_call_rec 'packer'
 
 M.install_or_sync = function()
   local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
   if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
     print('Installing Packer at ' .. install_path)
     vim.fn.execute('!git clone https://github.com/wbthomason/packer.nvim ' .. install_path)
-    vim.fn.input 'Packer has been installed, please restart Neovim.\nPress ENTER to exit'
-    vim.cmd [[quitall]]
+    print 'Packer has been installed. Please restart Neovim.'
+    if vim.fn.input {
+      prompt = 'Press ENTER to exit',
+      cancelreturn = 'ESC',
+    } == '' then
+      vim.cmd [[quitall]]
+    end
   else
-    print 'Syncing packer'
+    print 'Installing plugins'
     vim.api.nvim_create_autocmd('User', {
       pattern = 'PackerComplete',
       callback = function()
-        vim.fn.input 'Packer has been synced, please restart Neovim.\nPress ENTER to exit'
-        vim.cmd [[quitall]]
+        print 'Plugins installed. Please restart Neovim.'
+        if vim.fn.input {
+          prompt = 'Press ENTER to exit',
+          cancelreturn = 'ESC',
+        } == '' then
+          vim.cmd [[quitall]]
+        end
       end,
     })
     require 'user.plugins'
@@ -161,20 +167,26 @@ end
 -- For example, uselocal{ 'b0o/mapx.nvim/worktree/current' } resolves to
 -- $GIT_PROJECTS_DIR/mapx.nvim/worktree/current.
 M.uselocal = function(p, ...)
-  local git_projects_dir = os.getenv 'GIT_PROJECTS_DIR'
-  if git_projects_dir == nil then
-    vim.notify('plugins.uselocal: missing environment variable: GIT_PROJECTS_DIR', vim.log.levels.ERROR)
-    return
-  end
   if type(p) ~= 'table' then
     p = { p }
   end
   local extend = #{ ... } > 0 and vim.tbl_extend('force', {}, ...) or {}
+  local path, short_path
   if not string.match(p[1], '^.?.?/') then
-    local path = vim.split(p[1], '/')
-    extend.as = p.as or path[2]
-    local realpath = git_projects_dir .. '/' .. table.concat(vim.list_slice(path, 2), '/')
-    extend[1] = realpath
+    local path_components = vim.split(p[1], '/')
+    short_path = path_components[1] .. '/' .. path_components[2]
+    extend.as = p.as or path_components[2]
+    if vim.env.GIT_PROJECTS_DIR then
+      path = vim.env.GIT_PROJECTS_DIR .. '/' .. table.concat(vim.list_slice(path_components, 2), '/')
+    end
+  end
+  if vim.fn.isdirectory(path) then
+    extend[1] = path
+  elseif short_path then
+    extend[1] = short_path
+  else
+    vim.notify('uselocal: path not found and unable to infer remote: ' .. tostring(p[1]), vim.log.levels.WARN)
+    return
   end
   M.use(p, extend)
 end

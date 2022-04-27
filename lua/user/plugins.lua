@@ -19,12 +19,12 @@ packer.startup(function()
   use 'nvim-lua/plenary.nvim'
 
   -- UI
-  uselocal { 'b0o/incline.nvim/', conf = 'incline' }
+  uselocal { 'b0o/incline.nvim', conf = 'incline' }
   use 'Famiu/feline.nvim'
   use 'ericbn/vim-relativize'
   use 'folke/which-key.nvim'
   use { 'kevinhwang91/nvim-hlslens', conf = 'hlslens' }
-  use 'kyazdani42/nvim-web-devicons'
+  uselocal 'kyazdani42/nvim-web-devicons'
   use 'lukas-reineke/indent-blankline.nvim'
   use 'rcarriga/nvim-notify'
   use 'stevearc/dressing.nvim'
@@ -60,14 +60,14 @@ packer.startup(function()
   use 'b0o/vim-shot-f'
   use 'chaoren/vim-wordmotion'
   use { 'chentau/marks.nvim', conf = 'marks' }
-  use 'kana/vim-textobj-fold'
-  use 'kana/vim-textobj-indent'
-  use 'kana/vim-textobj-line'
   use 'kana/vim-textobj-user'
+  use { 'kana/vim-textobj-fold', after = 'vim-textobj-user' }
+  use { 'kana/vim-textobj-indent', after = 'vim-textobj-user' }
+  use { 'kana/vim-textobj-line', after = 'vim-textobj-user' }
+  use { 'sgur/vim-textobj-parameter', after = 'vim-textobj-user' }
   use 'matze/vim-move'
   use 'mg979/vim-visual-multi'
   use { 'numToStr/Comment.nvim', lazymod = { mod = 'Comment', conf = 'comment' }, keys = { { '', 'gcc' } } }
-  use 'sgur/vim-textobj-parameter'
   use 'tpope/vim-repeat'
   use 'tpope/vim-speeddating'
   use { 'tpope/vim-surround', config = [[vim.g.surround_no_insert_mappings = true]] }
@@ -104,11 +104,11 @@ packer.startup(function()
 
   -- Treesitter
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
-  use 'nvim-treesitter/nvim-treesitter-textobjects'
-  use 'romgrk/nvim-treesitter-context'
-  use 'nkrkv/nvim-treesitter-rescript'
-  xuse 'lewis6991/spellsitter.nvim'
-  use { 'nvim-treesitter/playground', cmd = 'TSPlaygroundToggle' }
+  use { 'nvim-treesitter/nvim-treesitter-textobjects', after = 'nvim-treesitter' }
+  use { 'romgrk/nvim-treesitter-context', after = 'nvim-treesitter' }
+  use { 'nkrkv/nvim-treesitter-rescript', after = 'nvim-treesitter' }
+  xuse { 'lewis6991/spellsitter.nvim', after = 'nvim-treesitter' }
+  use { 'nvim-treesitter/playground', after = 'nvim-treesitter', cmd = 'TSPlaygroundToggle' }
 
   -- LSP
   -- use 'neovim/nvim-lspconfig'
@@ -119,11 +119,11 @@ packer.startup(function()
   use { 'jose-elias-alvarez/null-ls.nvim', module = 'null-ls' }
   use { 'ray-x/lsp_signature.nvim', module = 'lsp_signature' }
   use { 'b0o/schemastore.nvim', module = 'schemastore' }
-  use {
-    'folke/trouble.nvim',
-    lazymod = 'trouble',
-    cmd = { 'Trouble', 'TroubleClose', 'TroubleRefresh', 'TroubleToggle' },
-  }
+  -- use {
+  --   'folke/trouble.nvim',
+  --   lazymod = 'trouble',
+  --   cmd = { 'Trouble', 'TroubleClose', 'TroubleRefresh', 'TroubleToggle' },
+  -- }
 
   -- Code Style, Formatting, Linting
   use 'editorconfig/editorconfig-vim'
@@ -190,21 +190,21 @@ packer.startup(function()
   }
 
   -- Snippets
-  use 'L3MON4D3/LuaSnip'
+  use { 'L3MON4D3/LuaSnip', conf = 'luasnip' }
 
   -- Completion
-  use 'hrsh7th/nvim-cmp'
-  use 'hrsh7th/cmp-buffer'
-  use 'hrsh7th/cmp-nvim-lsp'
-  use 'hrsh7th/cmp-path'
-  use 'hrsh7th/cmp-nvim-lua'
-  use 'ray-x/cmp-treesitter'
-  use 'saadparwaiz1/cmp_luasnip'
-  use 'andersevenrud/cmp-tmux'
-  use { 'petertriho/cmp-git', requires = 'nvim-lua/plenary.nvim' }
-  use 'hrsh7th/cmp-cmdline'
-  xuse 'hrsh7th/cmp-calc'
-  xuse 'f3fora/cmp-spell'
+  use { 'hrsh7th/nvim-cmp', module = 'cmp' }
+  use { 'hrsh7th/cmp-buffer', after = 'nvim-cmp' }
+  use { 'hrsh7th/cmp-nvim-lsp', after = 'nvim-cmp' }
+  use { 'hrsh7th/cmp-path', after = 'nvim-cmp' }
+  use { 'hrsh7th/cmp-nvim-lua', after = 'nvim-cmp' }
+  use { 'ray-x/cmp-treesitter', after = 'nvim-cmp' }
+  use { 'saadparwaiz1/cmp_luasnip', after = 'nvim-cmp' }
+  use { 'andersevenrud/cmp-tmux', after = 'nvim-cmp' }
+  use { 'petertriho/cmp-git', after = 'nvim-cmp' }
+  use { 'hrsh7th/cmp-cmdline', after = 'nvim-cmp' }
+  xuse { 'hrsh7th/cmp-calc', after = 'nvim-cmp' }
+  xuse { 'f3fora/cmp-spell', after = 'nvim-cmp' }
 
   -- Debugging
   use { 'mfussenegger/nvim-dap', module = 'dap' }
@@ -239,7 +239,11 @@ packer.startup(function()
   --- Vim Plugin Development
   use { 'bfredl/nvim-luadev', ft = 'lua' }
   use 'folke/lua-dev.nvim'
-  use { 'rktjmp/lush.nvim', cmd = { 'LushRunQuickstart', 'LushRunTutorial', 'Lushify', 'LushImport' }, module = 'lush' }
+  use {
+    'rktjmp/lush.nvim',
+    cmd = { 'LushRunQuickstart', 'LushRunTutorial', 'Lushify', 'LushImport' },
+    module = 'lush',
+  }
 
   -- Performance
   use { 'lewis6991/impatient.nvim', rocks = 'mpack' }

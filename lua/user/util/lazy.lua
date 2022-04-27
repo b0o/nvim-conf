@@ -1,6 +1,6 @@
 local M = {}
 
--- lazy.table returns a placeholder table and defers callback cb until someone
+-- lazy_table returns a placeholder table and defers callback cb until someone
 -- tries to access or iterate the table in some way, at which point cb will be
 -- called and its result becomes the value of the table.
 --
