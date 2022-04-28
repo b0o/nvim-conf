@@ -61,7 +61,7 @@ cmp.setup {
           nvim_lua = 'Lua',
           buffer = 'Buf',
           path = 'Path',
-          cmp_git = 'Git',
+          git = 'Git',
           tmux = 'Tmux',
         })[entry.source.name]
         return vim_item
@@ -198,44 +198,11 @@ cmp.setup.cmdline(':', {
 ---@diagnostic disable-next-line: undefined-field
 cmp.setup.filetype({ 'gitcommit', 'NeogitCommitMessage' }, {
   sources = cmp.config.sources({
-    { name = 'cmp_git' }, -- You can specify the `cmp_git` source if you were installed it.
+    { name = 'git' },
   }, {
     { name = 'buffer' },
   }),
 })
-
--- Adds icons and hides PRs when searching for issues
-local cmp_git_extend_gh_callback = function(callback, kind)
-  return function(res, ...)
-    local needs_filter = false
-    for _, item in ipairs(res.items) do
-      if item.extended then
-        if item.disabled then
-          needs_filter = true
-        end
-      else
-        item.extended = true
-        if kind == 'issues' and item.sortText:sub(1, 1) == '1' then
-          needs_filter = true
-          item.disabled = true
-        end
-        local icon
-        if item.sortText:sub(2, 2) == '0' then
-          icon = ' '
-        else
-          icon = ' '
-        end
-        item.label = icon .. item.label
-      end
-    end
-    if needs_filter then
-      res.items = vim.tbl_filter(function(item)
-        return not item.disabled
-      end, res.items)
-    end
-    return callback(res, ...)
-  end
-end
 
 require('cmp_git').setup {
   remotes = { 'upstream', 'origin', 'b0o' },
@@ -244,6 +211,15 @@ require('cmp_git').setup {
       filter = 'all',
       limit = 250,
       state = 'all',
+      format = {
+        label = function(_, issue)
+          local icon = ({
+            open = '',
+            closed = '',
+          })[string.lower(issue.state)]
+          return string.format('%s #%d: %s', icon, issue.number, issue.title)
+        end,
+      },
       sort_by = function(issue)
         local kind_rank = issue.pull_request and 1 or 0
         local state_rank = issue.state == 'open' and 0 or 1
@@ -264,6 +240,15 @@ require('cmp_git').setup {
     pull_requests = {
       limit = 250,
       state = 'all',
+      format = {
+        label = function(_, pr)
+          local icon = ({
+            open = '',
+            closed = '',
+          })[string.lower(pr.state)]
+          return string.format('%s #%d: %s', icon, pr.number, pr.title)
+        end,
+      },
       sort_by = function(pr)
         local state_rank = pr.state == 'open' and 0 or 1
         local age = os.difftime(os.time(), require('cmp_git.utils').parse_github_date(pr.updatedAt))
@@ -288,7 +273,7 @@ require('cmp_git').setup {
       trigger_character = '#',
       ---@diagnostic disable-next-line: unused-local
       action = function(sources, trigger_char, callback, params, git_info)
-        return sources.github:get_issues(cmp_git_extend_gh_callback(callback, 'issues'), git_info, trigger_char)
+        return sources.github:get_issues(callback, git_info, trigger_char)
       end,
     },
     {
@@ -296,7 +281,7 @@ require('cmp_git').setup {
       trigger_character = '!',
       ---@diagnostic disable-next-line: unused-local
       action = function(sources, trigger_char, callback, params, git_info)
-        return sources.github:get_pull_requests(cmp_git_extend_gh_callback(callback, 'pulls'), git_info, trigger_char)
+        return sources.github:get_pull_requests(callback, git_info, trigger_char)
       end,
     },
     {
