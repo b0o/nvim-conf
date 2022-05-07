@@ -52,21 +52,22 @@ cmp.setup {
     ghost_text = true,
   },
   formatting = {
-    format = lspkind.cmp_format {
-      before = function(entry, vim_item)
-        vim_item.menu = ({
-          nvim_lsp = 'LSP',
-          treesitter = 'TS',
-          luasnip = 'Snip',
-          nvim_lua = 'Lua',
-          buffer = 'Buf',
-          path = 'Path',
-          git = 'Git',
-          tmux = 'Tmux',
-        })[entry.source.name]
-        return vim_item
-      end,
-    },
+    fields = { 'kind', 'abbr', 'menu' },
+    format = function(entry, vim_item)
+      vim_item.menu = ({
+        nvim_lsp = ' [LSP]',
+        treesitter = '  [TS]',
+        luasnip = '[Snip]',
+        nvim_lua = ' [Lua]',
+        buffer = ' [Buf]',
+        path = '[Path]',
+        git = ' [Git]',
+        tmux = '[Tmux]',
+      })[entry.source.name]
+      vim_item.menu = vim_item.menu .. ' ' .. vim_item.kind
+      vim_item.kind = lspkind.symbolic(vim_item.kind)
+      return vim_item
+    end,
   },
   mapping = cmp.mapping.preset.insert {
     ['<C-n>'] = select_item_smart 'next',
