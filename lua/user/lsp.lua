@@ -345,7 +345,7 @@ local function lsp_init()
         opts.on_attach = function(client, ...)
           client.server_capabilities.documentFormattingProvider = false
           client.server_capabilities.documentRangeFormattingProvider = false
-          return on_attach(client, ...)
+          return on_attach_wrapper(client, ...)
         end
       end
       for k, v in pairs(lsp) do
