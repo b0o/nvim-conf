@@ -47,6 +47,11 @@ local sources = {
       diagnostics_format = '[SC#{c}] #{m} https://github.com/koalaman/shellcheck/wiki/SC#{c}',
       filetypes = sh_filetypes,
     },
+    {
+      'selene',
+      diagnostics_format = '[#{c}] #{m} https://kampfkarren.github.io/selene/lints/#{c}.html',
+      extra_args = { '--config', vim.fn.stdpath 'config' .. '/selene.toml' },
+    },
     'stylelint',
   },
   code_actions = {
