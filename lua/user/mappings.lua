@@ -50,8 +50,12 @@ m.nnoremap ([[q:]], [[<Nop>]])
 m.nnoremap ([[q/]], [[<Nop>]])
 m.nnoremap ([[q?]], [[<Nop>]])
 
-m.noremap ([[j]], function() return vim.v.count > 1 and "j" or "gj" end, m.silent, m.expr, "Line down")
-m.noremap ([[k]], function() return vim.v.count > 0 and "k" or "gk" end, m.silent, m.expr, "Like up")
+m.noremap ([[j]], function()
+  return vim.v.count > 1 and "j" or "gj"
+end, m.silent, m.expr, "Line down")
+m.noremap ([[k]], function()
+  return vim.v.count > 0 and "k" or "gk"
+end, m.silent, m.expr, "Like up")
 m.noremap ([[J]], [[5j]], "Jump down")
 m.noremap ([[K]], [[5k]], "Jump up")
 m.vnoremap ([[J]], [[5j]], "Jump down")
@@ -399,15 +403,21 @@ end)
 
 m.group(m.silent, { ft = "man" }, function()
   -- open manpage tag (e.g. isatty(3)) in current buffer
-  m.nnoremap ([[<C-]>]], function() fn.man('', vim.fn.expand('<cword>')) end,      "Man: Open tag in current buffer")
-  m.nnoremap ([[<M-]>]], function() fn.man('tab', vim.fn.expand('<cword>')) end,   "Man: Open tag in new tab")
-  m.nnoremap ([[}]],     function() fn.man('split', vim.fn.expand('<cword>')) end, "Man: Open tag in new split")
+  m.nnoremap ([[<C-]>]], function()
+    fn.man('', vim.fn.expand('<cword>'))
+  end, "Man: Open tag in current buffer")
+  m.nnoremap ([[<M-]>]], function()
+    fn.man('tab', vim.fn.expand('<cword>'))
+  end, "Man: Open tag in new tab")
+  m.nnoremap ([[}]],     function()
+    fn.man('split', vim.fn.expand('<cword>'))
+  end, "Man: Open tag in new split")
 
   -- TODO
   -- go back to previous manpage
---   nnoremap ([[<C-t>]],   [[:call man#pop_page))
---   nnoremap ([[<C-o>]],   [[:call man#pop_page()<CR>]])
---   nnoremap ([[<M-o>]],   [[<C-o>]])
+  -- nnoremap ([[<C-t>]],   [[:call man#pop_page))
+  -- nnoremap ([[<C-o>]],   [[:call man#pop_page()<CR>]])
+  -- nnoremap ([[<M-o>]],   [[<C-o>]])
 
   -- navigate to next/prev section
   m.nnoremap ("[[", [[:<C-u>call user#fn#manSectionMove('b', 'n', v:count1)<CR>]], "Man: Goto prev section")
@@ -486,7 +496,9 @@ M.on_lsp_attach = function(bufnr)
     m.nnoremap ([[<localleader>wa]], ithunk(vim.lsp.buf.add_workspace_folder),    "LSP: Add workspace folder")
     m.nnoremap ([[<localleader>wr]], ithunk(vim.lsp.buf.remove_workspace_folder), "LSP: Rm workspace folder")
 
-    m.nnoremap ([[<localleader>wl]], function() fn.inspect(vim.lsp.buf.list_workspace_folders()) end, "LSP: List workspace folders")
+    m.nnoremap ([[<localleader>wl]], function()
+      fn.inspect(vim.lsp.buf.list_workspace_folders())
+    end, "LSP: List workspace folders")
 
     m.nnoremap ([[<localleader>R]],  ithunk(vim.lsp.buf.rename), "LSP: Rename")
 
@@ -622,7 +634,6 @@ m.nmap     ([[<M-k>]], ithunk(tmux.move_top),    m.silent, "Goto window/tmux pan
 m.nmap     ([[<M-l>]], ithunk(tmux.move_right),  m.silent, "Goto window/tmux pane right")
 
 m.group(m.silent, function()
-  local tb = fn.require_on_call_rec 'telescope.builtin'
   local tu = fn.require_on_call_rec 'user.plugin.telescope'
   local tc = tu.cmds
 
@@ -635,11 +646,9 @@ m.group(m.silent, function()
   m.nnoremap ({[[<C-f>p]], [[<C-f><C-p>]]}, ithunk(tc.live_grep),   "Telescope: Live grep")
   m.nnoremap ({[[<C-f>o]], [[<C-f><C-o>]]}, ithunk(tc.oldfiles),    "Telescope: Old files")
   m.nnoremap ({[[<C-f>f]], [[<C-f><C-f>]]}, ithunk(tc.smart_files), "Telescope: Files")
+  m.nnoremap ({[[<C-f>w]], [[<C-f><C-w>]]}, ithunk(tc.windows, {}), "Telescope: Windows")
 
   m.nnoremap ({[[<C-M-f>]], [[<C-f>r]], [[<C-f><C-r>]]}, ithunk(tc.resume), "Telescope: Resume last picker")
-
-  local tcw = tc.windows
-  m.nnoremap ({[[<C-f>w]], [[<C-f><C-w>]]}, ithunk(tcw.windows, {}), "Telescope: Windows")
 
   local tcgw = tc.git_worktree
   m.nname([[<C-f>g]], "Telescope-Git")
@@ -907,7 +916,9 @@ m.nmap(xk[[<M-S-\>]], function()
   if  aerial_get_win() then
     local foc = require"aerial.util".is_aerial_buffer()
     aerial.close()
-    if foc then recent_wins.focus_most_recent() end
+    if foc then
+      recent_wins.focus_most_recent()
+    end
   else
     aerial_open()
   end
@@ -950,9 +961,14 @@ M.on_dap_attach = function()
     require'user.dap'.close(vim.bo.filetype)
   end, "DAP: Disconnect")
 
-  local breakpointCond = function() dap.set_breakpoint(vim.fn.input('Breakpoint condition: '))end
+  local breakpointCond = function()
+    dap.set_breakpoint(vim.fn.input('Breakpoint condition: '))
+  end
 
-  local toggleRepl = function() dap.repl.toggle({}, " vsplit")vim.fn.wincmd('l') end
+  local toggleRepl = function()
+    dap.repl.toggle({}, " vsplit")
+    vim.fn.wincmd('l')
+  end
 
   m.nname([[<leader>d]], "DAP")
   m.nnoremap([[<leader>dR]],  dap.restart,                                          "DAP: Restart")
