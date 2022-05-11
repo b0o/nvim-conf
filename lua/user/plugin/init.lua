@@ -74,10 +74,6 @@ require('winshift').setup {
   },
 }
 
----- matze/vim-move
-vim.g.move_key_modifier = 'C'
-vim.g.move_key_modifier_visualmode = 'C'
-
 ---- andymass/vim-matchup
 vim.g.matchup_matchparen_offscreen = { method = 'popup' }
 vim.g.matchup_matchparen_deferred = 1

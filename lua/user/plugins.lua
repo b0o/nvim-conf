@@ -74,6 +74,7 @@ local startup = function()
   use { 'godlygeek/tabular', cmd = { 'AddTabularPattern', 'AddTabularPipeline', 'Tabularize', 'GTabularize' } }
   use { 'tpope/vim-abolish', cmd = { 'Abolish', 'Subvert' } }
   use { 'wellle/visual-split.vim', cmd = { 'VSResize', 'VSSplit', 'VSSplitAbove', 'VSSplitBelow' } }
+  use { 'matze/vim-move', setup = [[ vim.g.move_key_modifier = 'C'; vim.g.move_key_modifier_visualmode = 'C' ]] }
   use {
     'rbong/vim-buffest',
     cmd = {
