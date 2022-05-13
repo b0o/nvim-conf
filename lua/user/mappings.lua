@@ -148,8 +148,8 @@ m.nnoremap ([[ga]], [[:exec "normal a".nr2char(getchar())."\e"<Cr>]], m.silent, 
 m.vnoremap ([[>]], [[>gv]], "Indent")
 m.vnoremap ([[<]], [[<gv]], "De-Indent")
 
-m.nnoremap ([[<M-o>]], [[m'Do<esc>p`']], "Insert a space and then paste before/after cursor")
-m.nnoremap ([[<M-O>]], [[m'DO<esc>p`']], "Insert a space and then paste before/after cursor")
+m.nnoremap ([[<M-o>]], [[m'Do<Esc>p`']], "Break line at cursor")
+m.nnoremap ([[<M-O>]], [[m'DO<Esc>p`']], "Break line at cursor (reverse)")
 
 m.nnoremap ([[Y]], [[y$]], "Yank until end of line")
 
@@ -165,8 +165,8 @@ m.nnoremap ([[<leader>y:]], [[:let @+=@:<Cr>:echom "Copied '" . @+ . "'"<Cr>]], 
 m.vnoremap ([[<C-p>]], [["+p]], "Paste from system clipboard")
 m.nnoremap ([[<C-p>]], [["+p]], "Paste from system clipboard")
 
-m.nnoremap ([[<M-p>]], [[a <esc>p]], "Insert a space and then paste after cursor")
-m.nnoremap ([[<M-P>]], [[i <esc>P]], "Insert a space and then paste before cursor")
+m.nnoremap ([[<M-p>]], [[a <Esc>p]], "Insert a space and then paste after cursor")
+m.nnoremap ([[<M-P>]], [[i <Esc>P]], "Insert a space and then paste before cursor")
 
 m.nnoremap ([[<C-M-j>]], [["dY"dp]], "Duplicate line downwards")
 m.nnoremap ([[<C-M-k>]], [["dY"dP]], "Duplicate line upwards")
@@ -203,10 +203,10 @@ m.inoremap ([[<M-d>]], [[<C-o>de]], "Kill word forward")
 m.inoremap ([[<M-Backspace>]], [[<C-o>dB]], "Kill word backward")
 m.inoremap ([[<C-k>]], [[<C-o>D]], "Kill to end of line")
 
-m.inoremap ([[<M-h>]], [[<left>]])
-m.inoremap ([[<M-j>]], [[<down>]])
-m.inoremap ([[<M-k>]], [[<up>]])
-m.inoremap ([[<M-l>]], [[<right>]])
+m.inoremap ([[<M-h>]], [[<Left>]])
+m.inoremap ([[<M-j>]], [[<Down>]])
+m.inoremap ([[<M-k>]], [[<Up>]])
+m.inoremap ([[<M-l>]], [[<Right>]])
 
 m.inoremap ([[<M-a>]], [[<C-o>_]])
 
@@ -220,10 +220,10 @@ vim.cmd([[
   let @k=''
   let @l=''
 ]])
-m.nnoremap ([[<F30>]], [["ldd:let @k=@k.@l | let @l=@k<cr>]], m.silent)
-m.nnoremap ([[<F24>]], [[:if @l != "" | let @k=@l | end<cr>"KgP:let @l=@k<cr>:let @k=""<cr>]], m.silent)
+m.nnoremap ([[<F30>]], [["ldd:let @k=@k.@l | let @l=@k<Cr>]], m.silent)
+m.nnoremap ([[<F24>]], [[:if @l != "" | let @k=@l | end<Cr>"KgP:let @l=@k<Cr>:let @k=""<Cr>]], m.silent)
 
-m.inoremap (xk[[<C-`>]], [[<C-o>~<left>]], "Toggle case")
+m.inoremap (xk[[<C-`>]], [[<C-o>~<Left>]], "Toggle case")
 
 -- emacs-style motion & editing in command mode
 m.cnoremap ([[<C-a>]], [[<Home>]]) -- Goto beginning of line
@@ -243,8 +243,8 @@ m.cnoremap ([[<M-k>]], [[<C-k>]]) -- Insert digraph
 -- beginning of the text entered in the command line when jumping, but only if
 -- the pop-up menu (completion menu) is not visible
 -- See: https://github.com/mhinz/vim-galore#saner-command-line-history
-m.cnoremap ([[<c-p>]],   [[pumvisible() ? "\<C-p>" : "\<up>"]],               m.expr, "History prev")
-m.cnoremap ([[<c-n>]],   [[pumvisible() ? "\<C-n>" : "\<down>"]],             m.expr, "History next")
+m.cnoremap ([[<c-p>]],   [[pumvisible() ? "\<C-p>" : "\<Up>"]],               m.expr, "History prev")
+m.cnoremap ([[<c-n>]],   [[pumvisible() ? "\<C-n>" : "\<Down>"]],             m.expr, "History next")
 m.cmap     ([[<M-/>]],   [[pumvisible() ? "\<C-y>" : "\<M-/>"]],              m.expr, "Accept completion suggestion")
 m.cmap     (xk[[<C-/>]], [[pumvisible() ? "\<C-y>\<Tab>" : nr2char(0x001f)]], m.expr, "Accept completion suggestion and continue completion")
 
@@ -346,7 +346,7 @@ m.vnoremap ([[<leader>S]],  [[:VSSplitAbove<Cr>]],    m.silent, "Visual Split (a
 m.vnoremap ([[<leader>ss]], [[:VSSplitAbove<Cr>]],    m.silent, "Visual Split (above)")
 m.vnoremap ([[<leader>sS]], [[:VSSplit<Cr>]],         m.silent, "Visual Split (below)")
 
-m.vnoremap ([[<leader>I]], [[<esc>:call user#fn#interleave()<Cr>]], m.silent, "Interleave two contiguous blocks")
+m.vnoremap ([[<leader>I]], [[<Esc>:call user#fn#interleave()<Cr>]], m.silent, "Interleave two contiguous blocks")
 
 -- Tabline
 local tabline = require'user.tabline'
@@ -416,18 +416,18 @@ m.group(m.silent, { ft = "man" }, function()
   -- TODO
   -- go back to previous manpage
   -- nnoremap ([[<C-t>]],   [[:call man#pop_page))
-  -- nnoremap ([[<C-o>]],   [[:call man#pop_page()<CR>]])
+  -- nnoremap ([[<C-o>]],   [[:call man#pop_page()<Cr>]])
   -- nnoremap ([[<M-o>]],   [[<C-o>]])
 
   -- navigate to next/prev section
-  m.nnoremap ("[[", [[:<C-u>call user#fn#manSectionMove('b', 'n', v:count1)<CR>]], "Man: Goto prev section")
-  m.nnoremap ("]]", [[:<C-u>call user#fn#manSectionMove('' , 'n', v:count1)<CR>]], "Man: Goto next section")
-  m.xnoremap ("[[", [[:<C-u>call user#fn#manSectionMove('b', 'v', v:count1)<CR>]], "Man: Goto prev section")
-  m.xnoremap ("]]", [[:<C-u>call user#fn#manSectionMove('' , 'v', v:count1)<CR>]], "Man: Goto next section")
+  m.nnoremap ("[[", [[:<C-u>call user#fn#manSectionMove('b', 'n', v:count1)<Cr>]], "Man: Goto prev section")
+  m.nnoremap ("]]", [[:<C-u>call user#fn#manSectionMove('' , 'n', v:count1)<Cr>]], "Man: Goto next section")
+  m.xnoremap ("[[", [[:<C-u>call user#fn#manSectionMove('b', 'v', v:count1)<Cr>]], "Man: Goto prev section")
+  m.xnoremap ("]]", [[:<C-u>call user#fn#manSectionMove('' , 'v', v:count1)<Cr>]], "Man: Goto next section")
 
   -- navigate to next/prev manpage tag
-  m.nnoremap ([[<Tab>]],   [[:call search('\(\w\+(\w\+)\)', 's')<CR>]],  "Man: Goto next tag")
-  m.nnoremap ([[<S-Tab>]], [[:call search('\(\w\+(\w\+)\)', 'sb')<CR>]], "Man: Goto prev tag")
+  m.nnoremap ([[<Tab>]],   [[:call search('\(\w\+(\w\+)\)', 's')<Cr>]],  "Man: Goto next tag")
+  m.nnoremap ([[<S-Tab>]], [[:call search('\(\w\+(\w\+)\)', 'sb')<Cr>]], "Man: Goto prev tag")
 
   -- search from beginning of line (useful for finding command args like -h)
   m.nnoremap ([[g/]], [[/^\s*\zs]], { silent = false }, "Man: Start BOL search")
@@ -623,8 +623,8 @@ m.group(m.silent, { ft = "packer" }, function()
 end)
 
 ---- numToStr/Comment.nvim
-m.map      ([[<M-/>]], [[gcc<Esc>]], m.silent) -- Toggle line comment
-m.inoremap ([[<M-/>]], [[v:count == 0 ? '<Esc><Cmd>set operatorfunc=v:lua.___comment_gcc<Cr>g@$a' : '<Esc><Cmd>lua ___comment_count_gcc()<Cr>a']], m.silent, m.expr, "Toggle line comment")
+m.nnoremap ([[<M-/>]], [[<Cmd>lua require("Comment.api").call("toggle_current_linewise_op")<Cr>g@$]], m.silent)
+m.xnoremap ([[<M-/>]], [[<ESC><Cmd>lua require("Comment.api").locked.toggle_linewise_op(vim.fn.visualmode())<Cr>]], m.silent)
 
 ---- aserowy/tmux.nvim
 local tmux = fn.require_on_exported_call 'tmux'
@@ -730,10 +730,10 @@ M.on_gistsigns_attach = function(bufnr)
     m.nnoremap([[<leader>hD]],  ithunk(gs.diffthis, "~"),             "Gitsigns: Diff this against last commit")
     m.nnoremap([[<leader>htd]], ithunk(gs.toggle_deleted),            "Gitsigns: Toggle deleted")
 
-    m.nnoremap ("]c", "&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", "Gitsigns: Next hunk", m.expr)
-    m.nnoremap ("[c", "&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", "Gitsigns: Prev hunk", m.expr)
-    m.onoremap([[ih]], ":<C-U>Gitsigns select_hunk<CR>",              "[TextObj] Gitsigns: Inner hunk")
-    m.xnoremap([[ih]], ":<C-U>Gitsigns select_hunk<CR>",              "[TextObj] Gitsigns: Inner hunk")
+    m.nnoremap ("]c", "&diff ? ']c' : '<Cmd>Gitsigns next_hunk<Cr>'", "Gitsigns: Next hunk", m.expr)
+    m.nnoremap ("[c", "&diff ? '[c' : '<Cmd>Gitsigns prev_hunk<Cr>'", "Gitsigns: Prev hunk", m.expr)
+    m.onoremap([[ih]], ":<C-U>Gitsigns select_hunk<Cr>",              "[TextObj] Gitsigns: Inner hunk")
+    m.xnoremap([[ih]], ":<C-U>Gitsigns select_hunk<Cr>",              "[TextObj] Gitsigns: Inner hunk")
   end)
 end
 
@@ -745,7 +745,7 @@ m.nmap ([[<Leader>a]], ":Tabularize /", "Tabularize")
 m.vmap ([[<Leader>a]], ":Tabularize /", "Tabularize")
 
 ---- KabbAmine/vCoolor.vim
-m.nmap([[<leader>co]], [[:VCoolor<CR>]], m.silent, "Open VCooler color picker")
+m.nmap([[<leader>co]], [[:VCoolor<Cr>]], m.silent, "Open VCooler color picker")
 
 ------ nvim-neo-tree/neo-tree.nvim & kyazdani42/nvim-tree.lua
 ---- nvim-neo-tree/neo-tree.nvim
@@ -991,8 +991,8 @@ M.on_dap_attach = function()
   m.nnoremap({ [[<leader>dsO]], [[<c-j>]] }, dap.step_over, "DAP: Step over")
   m.nnoremap({ [[<leader>dsc]], [[<c-h>]] }, dap.continue,  "DAP: Continue")
 
-  -- nnoremap([[<leader>da]],  require"debugHelper".attach()<CR>')
-  -- nnoremap([[<leader>dA]],  require"debugHelper".attachToRemote()<CR>')
+  -- nnoremap([[<leader>da]],  require"debugHelper".attach()<Cr>')
+  -- nnoremap([[<leader>dA]],  require"debugHelper".attachToRemote()<Cr>')
 end
 
 M.on_dap_detach = function()
