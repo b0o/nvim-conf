@@ -322,8 +322,9 @@ m.tnoremap ([[<M-j>]], [[<C-\><C-n><C-w>j]]) -- Goto tab down
 m.tnoremap ([[<M-k>]], [[<C-\><C-n><C-w>k]]) -- Goto tab up
 m.tnoremap ([[<M-l>]], [[<C-\><C-n><C-w>l]]) -- Goto tab right
 
-m.nnoremap ([[<leader>sa]], auto_resize.enable,  "Enable auto-resize")
-m.nnoremap ([[<leader>sA]], auto_resize.disable, "Disable auto-resize")
+m.nnoremap ([[<leader>sa]], [[:wincmd =<Cr>]],  "Auto-resize")
+-- m.nnoremap ([[<leader>sa]], auto_resize.enable,  "Enable auto-resize")
+-- m.nnoremap ([[<leader>sA]], auto_resize.disable, "Disable auto-resize")
 
 m.nnoremap ([[<leader>sf]], ithunk(fn.toggle_winfix, 'height'), "Toggle fixed window height")
 m.nnoremap ([[<leader>sF]], ithunk(fn.toggle_winfix, 'width'), "Toggle fixed window width")
