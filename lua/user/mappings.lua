@@ -26,7 +26,6 @@ M.xk = fn.utf8keys {
   [ [[<C-S-f>]] ] = 0x00f5,
   [ [[<C-S-t>]] ] = 0x00f6,
   [ [[<C-S-a>]] ] = 0x00f7,
-  [ [[<M-S-k>]] ] = 0x00f8,
   [ [[<C-S-p>]] ] = 0x00f9,
   [ [[<C-S-.>]] ] = 0x00fa,
   [ [[<C-.>]] ] = 0x00fb,
@@ -212,8 +211,8 @@ m.inoremap ([[<M-l>]], [[<right>]])
 m.inoremap ([[<M-a>]], [[<C-o>_]])
 
 -- unicode stuff
-m.inoremap (xk[[<M-S-k>]], [[<C-k>]], "Insert digraph")
-m.nnoremap ([[gxa]],       [[ga]], "Show char code in decimal, hexadecimal and octal")
+m.inoremap ([[<leader>di]], [[<C-k>]], "Insert digraph")
+m.nnoremap ([[gxa]],        [[ga]], "Show char code in decimal, hexadecimal and octal")
 
 -- nano-like kill buffer
 -- TODO
