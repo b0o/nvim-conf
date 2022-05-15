@@ -61,6 +61,19 @@ m.noremap ([[K]], [[5k]], "Jump up")
 m.vnoremap ([[J]], [[5j]], "Jump down")
 m.vnoremap ([[K]], [[5k]], "Jump up")
 
+m.nnoremap ([[<M-Down>]],   [[<C-e>]],       "Scroll view down 1")
+m.nnoremap ([[<M-Up>]],     [[<C-y>]],       "Scroll view up 1")
+m.nnoremap ([[<M-S-Down>]], [[5<C-e>]],      "Scroll view down 5")
+m.nnoremap ([[<M-S-Up>]],   [[5<C-y>]],      "Scroll view up 5")
+m.xnoremap ([[<M-Down>]],   [[<C-e>]],       "Scroll view down 1")
+m.xnoremap ([[<M-Up>]],     [[<C-y>]],       "Scroll view up 1")
+m.xnoremap ([[<M-S-Down>]], [[5<C-e>]],      "Scroll view down 5")
+m.xnoremap ([[<M-S-Up>]],   [[5<C-y>]],      "Scroll view up 5")
+m.inoremap ([[<M-Down>]],   [[<C-o><C-e>]],  "Scroll view down 1")
+m.inoremap ([[<M-Up>]],     [[<C-o><C-y>]],  "Scroll view up 1")
+m.inoremap ([[<M-S-Down>]], [[<C-o>5<C-e>]], "Scroll view down 5")
+m.inoremap ([[<M-S-Up>]],   [[<C-o>5<C-y>]], "Scroll view up 5")
+
 -- since the vim-wordmotion plugin overrides the normal `w` wordwise movement,
 -- make `W` behave as vanilla `w`
 m.nnoremap ([[W]], [[w]], "Move full word forward")
