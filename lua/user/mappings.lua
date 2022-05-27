@@ -60,8 +60,8 @@ m.noremap ([[k]], function()
 end, m.silent, m.expr, "Like up")
 m.noremap ([[J]], [[5j]], "Jump down")
 m.noremap ([[K]], [[5k]], "Jump up")
-m.vnoremap ([[J]], [[5j]], "Jump down")
-m.vnoremap ([[K]], [[5k]], "Jump up")
+m.xnoremap ([[J]], [[5j]], "Jump down")
+m.xnoremap ([[K]], [[5k]], "Jump up")
 
 m.nnoremap ([[<M-Down>]],   [[<C-e>]],       "Scroll view down 1")
 m.nnoremap ([[<M-Up>]],     [[<C-y>]],       "Scroll view up 1")
@@ -93,8 +93,8 @@ m.noremap ([[<C-s>]], [[:w<Cr>]], "Write buffer")
 -- TODO: need to force redraw
 m.nnoremap ([[<leader>/]], [[:%s/]], "Substitute")
 m.nnoremap ([[<leader>?]], [[:%S/]], "Substitute (rev)")
-m.vnoremap ([[<leader>/]], [[:s/]],  "Substitute")
-m.vnoremap ([[<leader>?]], [[:S/]],  "Substitute (rev)")
+m.xnoremap ([[<leader>/]], [[:s/]],  "Substitute")
+m.xnoremap ([[<leader>?]], [[:S/]],  "Substitute (rev)")
 
 -- Buffer-local option toggles
 local function map_toggle_locals(keys, opts, vals)
@@ -161,24 +161,24 @@ map_toggle_locals({'W', 'ww'},   {'wrap'})
 m.nnoremap ([[gi]], [[:exec "normal i".nr2char(getchar())."\e"<Cr>]], m.silent, "Insert a single character")
 m.nnoremap ([[ga]], [[:exec "normal a".nr2char(getchar())."\e"<Cr>]], m.silent, "Insert a single character")
 
-m.vnoremap ([[>]], [[>gv]], "Indent")
-m.vnoremap ([[<]], [[<gv]], "De-Indent")
+m.xnoremap ([[>]], [[>gv]], "Indent")
+m.xnoremap ([[<]], [[<gv]], "De-Indent")
 
 m.nnoremap ([[<M-o>]], [[m'Do<Esc>p`']], "Break line at cursor")
 m.nnoremap ([[<M-O>]], [[m'DO<Esc>p`']], "Break line at cursor (reverse)")
 
 m.nnoremap ([[Y]], [[y$]], "Yank until end of line")
 
-m.vnoremap ([[<leader>y]], [["+y]], "Yank to system clipboard")
+m.xnoremap ([[<leader>y]], [["+y]], "Yank to system clipboard")
 m.nnoremap ([[<leader>Y]], [["+yg_]], "Yank 'til EOL to system clipboard")
 m.nnoremap ([[<leader>yy]], [["+yy]], "Yank line to system clipboard")
 m.nnoremap ([[<C-y>]], [[pumvisible() ? "\<C-y>" : '"+yy']], m.expr)
-m.vnoremap ([[<C-y>]], [[pumvisible() ? "\<C-y>" : '"+y']], m.expr)
+m.xnoremap ([[<C-y>]], [[pumvisible() ? "\<C-y>" : '"+y']], m.expr)
 
 m.nnoremap ([[<leader>yp]], [[:let @+ = expand("%:p")<Cr>:echom "Copied " . @+<Cr>]], m.silent, "Yank file path")
 m.nnoremap ([[<leader>y:]], [[:let @+=@:<Cr>:echom "Copied '" . @+ . "'"<Cr>]], m.silent, "Yank last command")
 
-m.vnoremap ([[<C-p>]], [["+p]], "Paste from system clipboard")
+m.xnoremap ([[<C-p>]], [["+p]], "Paste from system clipboard")
 m.nnoremap ([[<C-p>]], [["+p]], "Paste from system clipboard")
 
 m.nnoremap ([[<M-p>]], [[a <Esc>p]], "Insert a space and then paste after cursor")
@@ -187,8 +187,8 @@ m.nnoremap ([[<M-P>]], [[i <Esc>P]], "Insert a space and then paste before curso
 m.nnoremap ([[<C-M-j>]], [["dY"dp]], "Duplicate line downwards")
 m.nnoremap ([[<C-M-k>]], [["dY"dP]], "Duplicate line upwards")
 
-m.vnoremap ([[<C-M-j>]], [["dy`<"dPjgv]], "Duplicate selection downwards")
-m.vnoremap ([[<C-M-k>]], [["dy`>"dpgv]], "Duplicate selection upwards")
+m.xnoremap ([[<C-M-j>]], [["dy`<"dPjgv]], "Duplicate selection downwards")
+m.xnoremap ([[<C-M-k>]], [["dy`>"dpgv]], "Duplicate selection upwards")
 
 -- Clear UI state:
 -- - Clear search highlight
@@ -362,11 +362,11 @@ m.nnoremap ([[<leader>st]], [[:split<Cr>]],  m.silent, "Split (horiz, cur)")
 m.nnoremap ([[<leader>vv]], [[:vsplit<Cr>]], m.silent, "Split (vert, cur)")
 m.nnoremap ([[<leader>vt]], [[:vsplit<Cr>]], m.silent, "Split (vert, cur)")
 
-m.vnoremap ([[<leader>S]],  [[:VSSplitAbove<Cr>]],    m.silent, "Visual Split (above)")
-m.vnoremap ([[<leader>ss]], [[:VSSplitAbove<Cr>]],    m.silent, "Visual Split (above)")
-m.vnoremap ([[<leader>sS]], [[:VSSplit<Cr>]],         m.silent, "Visual Split (below)")
+m.xnoremap ([[<leader>S]],  [[:VSSplitAbove<Cr>]],    m.silent, "Visual Split (above)")
+m.xnoremap ([[<leader>ss]], [[:VSSplitAbove<Cr>]],    m.silent, "Visual Split (above)")
+m.xnoremap ([[<leader>sS]], [[:VSSplit<Cr>]],         m.silent, "Visual Split (below)")
 
-m.vnoremap ([[<leader>I]], [[<Esc>:call user#fn#interleave()<Cr>]], m.silent, "Interleave two contiguous blocks")
+m.xnoremap ([[<leader>I]], [[<Esc>:call user#fn#interleave()<Cr>]], m.silent, "Interleave two contiguous blocks")
 
 -- Tabline
 local tabline = require'user.tabline'
@@ -376,7 +376,7 @@ m.nmap({ '<C-t><C-l>', '<C-t>l' }, tabline.tabpage_toggle_titlestyle, 'Tabpage: 
 -- PasteRestore
 -- paste register without overwriting with the original selection
 -- use P for original behavior
-m.vnoremap ([[p]], [[user#fn#pasteRestore()]], m.silent, m.expr)
+m.xnoremap ([[p]], [[user#fn#pasteRestore()]], m.silent, m.expr)
 
 m.nnoremap ([[<leader>T]], [[:Term!<Cr>]], m.silent, "New term (tab)")
 m.nnoremap ([[<leader>t]], [[:10Term<Cr>]], m.silent, "New term (split)")
@@ -523,10 +523,10 @@ M.on_lsp_attach = function(bufnr)
     m.nnoremap ([[<localleader>R]],  ithunk(vim.lsp.buf.rename), "LSP: Rename")
 
     m.nnoremap ({[[<localleader>A]], [[<localleader>ca]]}, ithunk(vim.lsp.buf.code_action),       "LSP: Code action")
-    m.vnoremap ({[[<localleader>A]], [[<localleader>ca]]}, ithunk(vim.lsp.buf.range_code_action), "LSP: Code action (range)")
+    m.xnoremap ({[[<localleader>A]], [[<localleader>ca]]}, ithunk(vim.lsp.buf.range_code_action), "LSP: Code action (range)")
 
     m.nnoremap ([[<localleader>F]], ithunk(vim.lsp.buf.format),           "LSP: Format")
-    m.vnoremap ([[<localleader>F]], ithunk(vim.lsp.buf.range_formatting), "LSP: Format (range)")
+    m.xnoremap ([[<localleader>F]], ithunk(vim.lsp.buf.range_formatting), "LSP: Format (range)")
 
     m.nname("<localleader>s", "LSP-Save")
     m.nnoremap ([[<localleader>S]],  ithunk(user_lsp.set_fmt_on_save),        "LSP: Toggle format on save")
@@ -738,9 +738,9 @@ M.on_gistsigns_attach = function(bufnr)
     m.nnoremap([[<leader>hs]],  ithunk(gs.stage_hunk),                "Gitsigns: Stage hunk")
     m.nnoremap([[<leader>hr]],  ithunk(gs.reset_hunk),                "Gitsigns: Reset hunk")
     m.nnoremap([[<leader>hu]],  ithunk(gs.undo_stage_hunk),           "Gitsigns: Undo stage hunk")
-    m.vnoremap([[<leader>hs]],  gitsigns_visual_op"stage_hunk",       "Gitsigns: Stage selected hunk(s)")
-    m.vnoremap([[<leader>hr]],  gitsigns_visual_op"reset_hunk",       "Gitsigns: Reset selected hunk(s)")
-    m.vnoremap([[<leader>hu]],  gitsigns_visual_op"undo_stage_hunk",  "Gitsigns: Undo stage hunk")
+    m.xnoremap([[<leader>hs]],  gitsigns_visual_op"stage_hunk",       "Gitsigns: Stage selected hunk(s)")
+    m.xnoremap([[<leader>hr]],  gitsigns_visual_op"reset_hunk",       "Gitsigns: Reset selected hunk(s)")
+    m.xnoremap([[<leader>hu]],  gitsigns_visual_op"undo_stage_hunk",  "Gitsigns: Undo stage hunk")
     m.nnoremap([[<leader>hS]],  ithunk(gs.stage_buffer),              "Gitsigns: Stage buffer")
     m.nnoremap([[<leader>hR]],  ithunk(gs.reset_buffer),              "Gitsigns: Reset buffer")
     m.nnoremap([[<leader>hp]],  ithunk(gs.preview_hunk),              "Gitsigns: Preview hunk")
@@ -762,7 +762,7 @@ m.nnoremap ([[<leader>ut]], [[:UndotreeToggle<Cr>]], "Undotree: Toggle")
 
 -- godlygeek/tabular
 m.nmap ([[<Leader>a]], ":Tabularize /", "Tabularize")
-m.vmap ([[<Leader>a]], ":Tabularize /", "Tabularize")
+m.xmap ([[<Leader>a]], ":Tabularize /", "Tabularize")
 
 ---- KabbAmine/vCoolor.vim
 m.nmap([[<leader>co]], [[:VCoolor<Cr>]], m.silent, "Open VCooler color picker")
