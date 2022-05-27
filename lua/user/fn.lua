@@ -324,6 +324,37 @@ M.help = function(...)
   end
 end
 
+-- Jump to prev/next buffer in jumplist
+M.jumplist_jump_buf = function(dir)
+  local jumplist, jumppos = unpack(vim.fn.getjumplist())
+  local initial = math.min(jumppos + 1, #jumplist)
+  local bufnr = vim.api.nvim_get_current_buf()
+  local target = { bufnr = bufnr }
+  local i = initial
+  while i > 0 and i <= #jumplist do
+    local j = jumplist[i]
+    if j.bufnr ~= target.bufnr then
+      target = j
+      break
+    end
+    i = i + dir
+  end
+  if target.bufnr == bufnr then
+    return
+  end
+  local dist = i - initial
+  if jumppos == #jumplist then
+    dist = dist - 1
+  end
+  local keys = vim.api.nvim_replace_termcodes(
+    ('%d<C-%s>'):format(math.abs(dist), dir > 0 and 'i' or 'o'),
+    true,
+    false,
+    true
+  )
+  vim.api.nvim_feedkeys(keys, 'n', false)
+end
+
 ---- Shatur/neovim-session-manager
 -- Wrapper functions which persist and load additional state with the session,
 -- such as whether nvim-tree is open.

@@ -30,6 +30,8 @@ M.xk = fn.utf8keys {
   [ [[<C-S-p>]] ] = 0x00f9,
   [ [[<C-S-.>]] ] = 0x00fa,
   [ [[<C-.>]] ] = 0x00fb,
+  [ [[<C-S-o>]] ] = 0x00fc,
+  [ [[<C-S-i>]] ] = 0x00fd,
   [ [[<C-/>]] ] = 0x001f,
 }
 local xk = M.xk
@@ -292,6 +294,10 @@ end
 m.nnoremap ([[<leader>zt]], cursor_lock("t"), m.silent, "Toggle cursor lock (top)")
 m.nnoremap ([[<leader>zz]], cursor_lock("z"), m.silent, "Toggle cursor lock (middle)")
 m.nnoremap ([[<leader>zb]], cursor_lock("b"), m.silent, "Toggle cursor lock (bottom)")
+
+---- Jumplist
+m.nnoremap (xk[[<C-S-o>]], ithunk(fn.jumplist_jump_buf, -1), m.silent, "Jumplist: Go to last buffer")
+m.nnoremap (xk[[<C-S-i>]], ithunk(fn.jumplist_jump_buf, 1),  m.silent, "Jumplist: Go to next buffer")
 
 ---- Tabs
 -- Navigate tabs
