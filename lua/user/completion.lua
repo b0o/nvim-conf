@@ -64,7 +64,7 @@ cmp.setup {
         git = ' [Git]',
         tmux = '[Tmux]',
       })[entry.source.name]
-      vim_item.menu = vim_item.menu .. ' ' .. vim_item.kind
+      vim_item.menu = (vim_item.menu or '') .. ' ' .. (vim_item.kind or '')
       vim_item.kind = lspkind.symbolic(vim_item.kind)
       return vim_item
     end,
@@ -264,6 +264,7 @@ require('cmp_git').setup {
     {
       debug_name = 'git_commits',
       trigger_character = ':',
+      -- selene: allow(unused_variable)
       ---@diagnostic disable-next-line: unused-local
       action = function(sources, trigger_char, callback, params, git_info)
         return sources.git:get_commits(callback, params, trigger_char)
@@ -272,6 +273,7 @@ require('cmp_git').setup {
     {
       debug_name = 'github_issues',
       trigger_character = '#',
+      -- selene: allow(unused_variable)
       ---@diagnostic disable-next-line: unused-local
       action = function(sources, trigger_char, callback, params, git_info)
         return sources.github:get_issues(callback, git_info, trigger_char)
@@ -280,6 +282,7 @@ require('cmp_git').setup {
     {
       debug_name = 'github_pulls',
       trigger_character = '!',
+      -- selene: allow(unused_variable)
       ---@diagnostic disable-next-line: unused-local
       action = function(sources, trigger_char, callback, params, git_info)
         return sources.github:get_pull_requests(callback, git_info, trigger_char)
@@ -288,6 +291,7 @@ require('cmp_git').setup {
     {
       debug_name = 'github_mentions',
       trigger_character = '@',
+      -- selene: allow(unused_variable)
       ---@diagnostic disable-next-line: unused-local
       action = function(sources, trigger_char, callback, params, git_info)
         return sources.github:get_mentions(callback, git_info, trigger_char)
@@ -296,6 +300,7 @@ require('cmp_git').setup {
     {
       debug_name = 'gitlab_issues',
       trigger_character = '#',
+      -- selene: allow(unused_variable)
       ---@diagnostic disable-next-line: unused-local
       action = function(sources, trigger_char, callback, params, git_info)
         return sources.gitlab:get_issues(callback, git_info, trigger_char)
@@ -304,6 +309,7 @@ require('cmp_git').setup {
     {
       debug_name = 'gitlab_mentions',
       trigger_character = '@',
+      -- selene: allow(unused_variable)
       ---@diagnostic disable-next-line: unused-local
       action = function(sources, trigger_char, callback, params, git_info)
         return sources.gitlab:get_mentions(callback, git_info, trigger_char)
@@ -312,6 +318,7 @@ require('cmp_git').setup {
     {
       debug_name = 'gitlab_mrs',
       trigger_character = '!',
+      -- selene: allow(unused_variable)
       ---@diagnostic disable-next-line: unused-local
       action = function(sources, trigger_char, callback, params, git_info)
         return sources.gitlab:get_merge_requests(callback, git_info, trigger_char)

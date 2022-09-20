@@ -73,7 +73,10 @@ local luals_conf = vim.tbl_extend(
 )
 
 local lsp_servers = {
-  'bashls',
+  {
+    'bashls',
+    cmd_env = { SHELLCHECK_PATH = '' },
+  },
   'ccls',
   {
     'cssls',
@@ -96,11 +99,11 @@ local lsp_servers = {
   {
     'jsonls',
     formatting = false,
-    cmd = {
-      'node',
-      '/usr/lib/code/extensions/json-language-features/server/dist/node/jsonServerMain.js',
-      '--stdio',
-    },
+    -- cmd = {
+    --   'node',
+    --   '/usr/lib/code/extensions/json-language-features/server/dist/node/jsonServerMain.js',
+    --   '--stdio',
+    -- },
     commands = {
       Format = {
         function()
@@ -111,6 +114,7 @@ local lsp_servers = {
     settings = fn.lazy_table(function()
       return {
         json = { schemas = require('schemastore').json.schemas() },
+        validate = { enable = true },
       }
     end),
   },
@@ -122,18 +126,27 @@ local lsp_servers = {
     'pylsp',
     cmd = {
       'pylsp',
-      '-v',
+      '-vvvv',
       '--log-file',
       vim.fn.stdpath 'cache' .. '/pylsp.log',
     },
     settings = {
       pylsp = {
         plugins = {
-          pylint = { enabled = true, args = { '-j0' } },
+          pylint = {
+            enabled = true,
+            args = { '-j0', '--load-plugins=pylint_paths' },
+            executable = 'pylint', -- SEE: https://github.com/python-lsp/python-lsp-server/issues/251
+          },
           yapf = { enabled = true },
-          pycodestyle = { enabled = false },
+          flake8 = { enabled = true },
+          rope = { enabled = true },
+
+          pylsp_mypy = { enabled = false },
           autopep8 = { enabled = false },
+          pycodestyle = { enabled = false },
           pydocstyle = { enabled = false },
+          pyflakes = { enabled = false },
         },
       },
     },
@@ -156,13 +169,36 @@ local lsp_servers = {
   'rnix',
   'sqls',
   luals_conf,
-  'tailwindcss',
+  -- 'tailwindcss',
   {
     'tsserver',
     formatting = false,
   },
   'vimls',
-  'yamlls',
+  {
+    'yamlls',
+    settings = {
+      redhat = { telemetry = { enabled = false } },
+      yaml = {
+        schemaStore = { enabled = true, url = 'www.schemastore.org/api/json/catalog.json?test=5678' },
+        -- schemaStore = {},
+        -- schemaStore = { url = 'www.schemastore.org/api/json/catalog.json?test=5678' },
+        -- schemas = {
+        --   ['https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json?test=1234'] = {
+        --     '**/docker-compose.yml',
+        --     '**/docker-compose.yaml',
+        --     '**/docker-compose.*.yml',
+        --     '**/docker-compose.*.yaml',
+        --     '**/compose.yml',
+        --     '**/compose.yaml',
+        --     '**/compose.*.yml',
+        --     '**/compose.*.yaml',
+        --   },
+        -- },
+      },
+      http = { proxy = 'http://localhost:9210' },
+    },
+  },
 }
 
 local fmt_triggers = {
@@ -192,6 +228,7 @@ local lsp_handlers = {
       vim.cmd(split_cmd)
       vim.lsp.util.jump_to_location(loc)
     end
+
     if vim.tbl_islist(result) then
       jumpto(result[1])
       if #result > 1 then
@@ -251,11 +288,12 @@ end
 local function on_first_attach()
   require('null-ls').setup(vim.tbl_extend('force', require 'user.plugin.null-ls', { on_attach = on_attach }))
   require('lsp_signature').setup(lsp_signature_config)
-  require('packer').loader('trouble.nvim', false)
+  --require('packer').loader('trouble.nvim', false)
 end
 
 local function on_attach_wrapper(...)
   if not M.on_attach_called then
+    -- selene: allow(mismatched_arg_count)
     ---@diagnostic disable-next-line: redundant-parameter
     on_first_attach(...)
     M.on_attach_called = true
@@ -276,7 +314,7 @@ function M.set_fmt_on_save(val, silent)
   if M.fmt_on_save_enabled then
     vim.api.nvim_create_autocmd(fmt_triggers[vim.o.filetype] or fmt_triggers.default, {
       callback = function()
-        vim.lsp.buf.formatting_sync(nil, 10000)
+        vim.lsp.buf.format()
       end,
       group = augid,
     })
@@ -317,8 +355,7 @@ function M.code_action_listener()
 end
 
 local function lsp_init()
-  -- vim.lsp.set_log_level 'trace'
-  vim.lsp.set_log_level 'warn'
+  vim.lsp.set_log_level(vim.lsp.log_levels.DEBUG)
   for k, v in pairs(lsp_handlers) do
     vim.lsp.handlers[k] = v
   end

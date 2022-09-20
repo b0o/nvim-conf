@@ -1,9 +1,10 @@
+local notify = require 'notify'
+
 local M = {}
 
 ---- rcarriga/nvim-notify
-require('notify').setup {
+notify.setup {
   render = 'default',
-  background_colour = '#252137',
   stages = 'slide',
   on_open = function(win)
     vim.api.nvim_win_set_config(win, { zindex = 500 })
@@ -25,13 +26,6 @@ M.notify = function(msg, lvl, opts)
   })[lvl]
   opts = vim.tbl_extend('force', _opts or {}, opts or {})
   if vim.g.nvim_focused then
-    local ok, notify = pcall(require, 'notify')
-    if not ok then
-      vim.defer_fn(function()
-        vim.notify(msg, lvl, opts)
-      end, 100)
-      return
-    end
     return notify.notify(msg, lvl, opts)
   else
     -- SEE: https://github.com/simrat39/desktop-notify.nvim/issues/4

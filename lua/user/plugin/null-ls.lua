@@ -8,13 +8,16 @@ local sh_filetypes = {
 
 local sources = {
   formatting = {
-    'eslint_d',
+    'eslint',
+    --'eslint_d',
     'gofmt',
     'goimports',
     'nixfmt',
     {
       'prettier',
       filetypes = {
+        'javascript',
+        'typescript',
         'css',
         'scss',
         'less',
@@ -41,7 +44,11 @@ local sources = {
     --     },
   },
   diagnostics = {
-    'eslint_d',
+    {
+      'eslint',
+      -- 'eslint_d',
+      diagnostics_format = '[#{c}] #{m} https://eslint.org/docs/rules/#{c}',
+    },
     {
       'shellcheck',
       diagnostics_format = '[SC#{c}] #{m} https://github.com/koalaman/shellcheck/wiki/SC#{c}',
@@ -59,19 +66,27 @@ local sources = {
       'shellcheck',
       filetypes = sh_filetypes,
     },
+    'eslint',
+    -- 'eslint_d',
     'gitsigns',
   },
 }
 
-local ignore_files = {
-  'PKGBUILD',
+local ignores = {
+  vim.regex [[^\(.\+\.\)\?PKGBUILD$]],
 }
 
 local function should_attach(bufnr)
   local bufname = vim.fn.fnamemodify(vim.fn.bufname(bufnr), ':t')
-  for _, ignore in ipairs(ignore_files) do
-    if bufname == ignore then
-      return false
+  for _, ignore in ipairs(ignores) do
+    if type(ignore) == 'userdata' then
+      if ignore:match_str(bufname) ~= nil then
+        return false
+      end
+    else
+      if bufname == ignore then
+        return false
+      end
     end
   end
   return true

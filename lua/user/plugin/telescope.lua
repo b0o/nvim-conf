@@ -3,6 +3,8 @@ local t = require 'telescope'
 local ta = require 'telescope.actions'
 local tb = require 'telescope.builtin'
 
+local action_state = require 'telescope.actions.state'
+
 local fn = require 'user.fn'
 local m = require 'user.mappings'
 
@@ -18,6 +20,88 @@ local select_or_show_builtins = function()
   dbounced_show_builtins()
 end
 
+-- Based on https://github.com/nvim-telescope/telescope.nvim/issues/1048#issuecomment-1225975038
+local function multiopen(method)
+  return function(prompt_bufnr)
+    local edit_file_cmd_map = {
+      vertical = 'vsplit',
+      horizontal = 'split',
+      tab = 'tabedit',
+      default = 'edit',
+    }
+    local edit_buf_cmd_map = {
+      vertical = 'vert sbuffer',
+      horizontal = 'sbuffer',
+      tab = 'tab sbuffer',
+      default = 'buffer',
+    }
+    local picker = action_state.get_current_picker(prompt_bufnr)
+    local multi_selection = picker:get_multi_selection()
+
+    if #multi_selection > 1 then
+      require('telescope.pickers').on_close_prompt(prompt_bufnr)
+      pcall(vim.api.nvim_set_current_win, picker.original_win_id)
+
+      for i, entry in ipairs(multi_selection) do
+        local filename, row, col
+
+        if entry.path or entry.filename then
+          filename = entry.path or entry.filename
+
+          row = entry.row or entry.lnum
+          col = vim.F.if_nil(entry.col, 1)
+        elseif not entry.bufnr then
+          local value = entry.value
+          if not value then
+            return
+          end
+
+          if type(value) == 'table' then
+            value = entry.display
+          end
+
+          local sections = vim.split(value, ':')
+
+          filename = sections[1]
+          row = tonumber(sections[2])
+          col = tonumber(sections[3])
+        end
+
+        local entry_bufnr = entry.bufnr
+
+        if entry_bufnr then
+          if not vim.api.nvim_buf_get_option(entry_bufnr, 'buflisted') then
+            vim.api.nvim_buf_set_option(entry_bufnr, 'buflisted', true)
+          end
+          local command = i == 1 and 'buffer' or edit_buf_cmd_map[method]
+          pcall(vim.cmd, string.format('%s %s', command, vim.api.nvim_buf_get_name(entry_bufnr)))
+        else
+          local command = i == 1 and 'edit' or edit_file_cmd_map[method]
+          if vim.api.nvim_buf_get_name(0) ~= filename or command ~= 'edit' then
+            filename = require('plenary.path'):new(vim.fn.fnameescape(filename)):normalize(vim.loop.cwd())
+            pcall(vim.cmd, string.format('%s %s', command, filename))
+          end
+        end
+
+        if row and col then
+          pcall(vim.api.nvim_win_set_cursor, 0, { row, col - 1 })
+        end
+      end
+    else
+      ta['select_' .. method](prompt_bufnr)
+    end
+  end
+end
+
+local function stopinsert(callback)
+  return function(prompt_bufnr)
+    vim.cmd.stopinsert()
+    vim.schedule(function()
+      callback(prompt_bufnr)
+    end)
+  end
+end
+
 t.setup {
   defaults = {
     layout_config = {
@@ -27,8 +111,13 @@ t.setup {
     },
     mappings = {
       i = {
+        ['<C-x>'] = stopinsert(multiopen 'horizontal'),
+        ['<C-v>'] = stopinsert(multiopen 'vertical'),
+        ['<C-t>'] = stopinsert(multiopen 'tab'),
+        ['<Cr>'] = stopinsert(multiopen 'default'),
+        [m.xk['<C-.>']] = ta.toggle_selection,
         [m.xk['<C-S-f>']] = ta.close,
-        ['<C-f>'] = select_or_show_builtins,
+        ['<C-s>'] = select_or_show_builtins,
         ['<M-n>'] = ta.cycle_history_next,
         ['<M-p>'] = ta.cycle_history_prev,
         ['<C-j>'] = ta.preview_scrolling_down,
@@ -36,8 +125,13 @@ t.setup {
         ['<C-d>'] = false,
       },
       n = {
+        ['<C-x>'] = multiopen 'horizontal',
+        ['<C-v>'] = multiopen 'vertical',
+        ['<C-t>'] = multiopen 'tab',
+        ['<Cr>'] = multiopen 'default',
+        [m.xk['<C-.>']] = ta.toggle_selection,
         [m.xk['<C-S-f>']] = ta.close,
-        ['<C-f>'] = dbounced_show_builtins:ref(),
+        ['<C-s>'] = dbounced_show_builtins:ref(),
         ['<M-n>'] = ta.cycle_history_next,
         ['<M-p>'] = ta.cycle_history_prev,
         ['<C-n>'] = ta.move_selection_next,
@@ -45,6 +139,12 @@ t.setup {
         ['<C-j>'] = ta.preview_scrolling_down,
         ['<C-k>'] = ta.preview_scrolling_up,
       },
+    },
+  },
+  extensions = {
+    live_grep_args = {
+      auto_quoting = true,
+      default_mappings = {},
     },
   },
 }
@@ -64,11 +164,15 @@ end
 
 local _cmds = {}
 
+_cmds.find_files = function()
+  tb.find_files { hidden = true }
+end
+
 -- Try to run git_files first, if not in a git directory then run the standard
 -- find_files.
 _cmds.smart_files = function()
   if not pcall(tb.git_files) then
-    tb.find_files { hidden = true }
+    _cmds.find_files()
   end
 end
 

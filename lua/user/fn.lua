@@ -50,6 +50,7 @@ M.inspect = function(...)
 end
 
 -- Make inspect global for convenience
+-- selene: allow(global_usage)
 _G.inspect = M.inspect
 
 -- Register a vim command
@@ -267,6 +268,16 @@ M.tbl_listvalues = function(tbl)
     table.insert(acc, v)
     return acc
   end, {})
+end
+
+-- Like vim.tbl_map, but fn is called with (k, v) pairs and returns (k, v) pairs
+M.tbl_map_entries = function(fn, tbl)
+  local res = {}
+  for k, v in pairs(tbl) do
+    local nk, nv = fn(k, v)
+    res[nk] = nv
+  end
+  return res
 end
 
 -- Open one or more man pages

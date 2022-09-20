@@ -3,6 +3,7 @@
 
 local packer = require 'user.packer'
 
+-- selene: allow(unused_variable)
 ---@diagnostic disable-next-line: unused-local
 local use, uselocal, xuse, xuselocal = packer.use, packer.uselocal, packer.xuse, packer.xuselocal
 
@@ -16,13 +17,17 @@ local startup = function()
   -- Meta
   use 'nvim-lua/plenary.nvim'
 
+  -- Colors
+  use 'Mofiqul/dracula.nvim'
+
   -- UI
-  uselocal { 'b0o/incline.nvim', conf = 'incline' }
+  uselocal { 'b0o/incline.nvim/worktree/develop/', conf = 'incline' }
+  use 'SmiteshP/nvim-gps'
   use 'Famiu/feline.nvim'
   use 'ericbn/vim-relativize'
   use 'folke/which-key.nvim'
   use { 'kevinhwang91/nvim-hlslens', conf = 'hlslens' }
-  uselocal 'kyazdani42/nvim-web-devicons'
+  use 'kyazdani42/nvim-web-devicons'
   use 'lukas-reineke/indent-blankline.nvim'
   use 'rcarriga/nvim-notify'
   use 'stevearc/dressing.nvim'
@@ -52,18 +57,19 @@ local startup = function()
   use { 'nvim-telescope/telescope.nvim', requires = 'nvim-lua/popup.nvim', lazymod = 'telescope' }
   use { 'kyoh86/telescope-windows.nvim', telescope_ext = 'windows' }
   use { 'nvim-telescope/telescope-github.nvim', telescope_ext = 'gh' }
+  use { 'natecraddock/telescope-zf-native.nvim', telescope_ext = 'zf-native' }
+  use { 'nvim-telescope/telescope-live-grep-args.nvim', telescope_ext = 'live_grep_args' }
 
   -- Editing
   use { 'andymass/vim-matchup', config = [[vim.g.matchup_motion_enabled = false]] }
   use 'b0o/vim-shot-f'
   use 'chaoren/vim-wordmotion'
-  use { 'chentau/marks.nvim', conf = 'marks' }
+  use { 'chentoast/marks.nvim', conf = 'marks' }
   use 'kana/vim-textobj-user'
   use { 'kana/vim-textobj-fold', after = 'vim-textobj-user' }
   use { 'kana/vim-textobj-indent', after = 'vim-textobj-user' }
   use { 'kana/vim-textobj-line', after = 'vim-textobj-user' }
   use { 'sgur/vim-textobj-parameter', after = 'vim-textobj-user' }
-  use 'matze/vim-move'
   use 'mg979/vim-visual-multi'
   use { 'numToStr/Comment.nvim', lazymod = { mod = 'Comment', conf = 'comment' }, keys = { { '', 'gcc' } } }
   use 'tpope/vim-repeat'
@@ -104,7 +110,7 @@ local startup = function()
   -- Treesitter
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
   use { 'nvim-treesitter/nvim-treesitter-textobjects', after = 'nvim-treesitter' }
-  use { 'romgrk/nvim-treesitter-context', after = 'nvim-treesitter' }
+  use { 'lewis6991/nvim-treesitter-context', after = 'nvim-treesitter' }
   use { 'nkrkv/nvim-treesitter-rescript', after = 'nvim-treesitter' }
   xuse { 'lewis6991/spellsitter.nvim', after = 'nvim-treesitter' }
   use { 'nvim-treesitter/playground', after = 'nvim-treesitter', cmd = 'TSPlaygroundToggle' }
@@ -117,7 +123,7 @@ local startup = function()
   use 'onsails/lspkind-nvim'
   use { 'jose-elias-alvarez/null-ls.nvim', module = 'null-ls' }
   use { 'ray-x/lsp_signature.nvim', module = 'lsp_signature' }
-  use { 'b0o/schemastore.nvim', module = 'schemastore' }
+  uselocal { 'b0o/schemastore.nvim', module = 'schemastore' }
   -- use {
   --   'folke/trouble.nvim',
   --   lazymod = 'trouble',
@@ -132,6 +138,7 @@ local startup = function()
   use { 'ThePrimeagen/git-worktree.nvim', lazymod = 'git-worktree', telescope_ext = 'git_worktree' }
   use { 'TimUntersberger/neogit', cmd = 'Neogit', lazymod = 'neogit' }
   use { 'mattn/gist-vim', requires = 'mattn/webapi-vim', cmd = 'Gist' }
+  use 'ruifm/gitlinker.nvim'
   use {
     'christoomey/vim-conflicted',
     cmd = { 'Conflicted', 'Merger', 'GitNextConflict' },
@@ -191,8 +198,9 @@ local startup = function()
   -- Snippets
   use {
     'L3MON4D3/LuaSnip',
-    -- conf = 'luasnip',
+    conf = 'luasnip',
   }
+  use 'rafamadriz/friendly-snippets'
 
   -- Completion
   use { 'hrsh7th/nvim-cmp', module = 'cmp' }
@@ -251,6 +259,7 @@ local startup = function()
   use 'lewis6991/impatient.nvim'
   use 'nathom/filetype.nvim'
   use 'antoinemadec/FixCursorHold.nvim'
+  use { 'dstein64/vim-startuptime', cmd = 'StartupTime' }
 end
 
 packer.startup {

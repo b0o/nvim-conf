@@ -19,6 +19,8 @@ let g:colors_name = 'lavi'
 let g:lavi_vim_version='0.1.0'
 set background=dark
 
+let g:lavi_bg = '#252137'
+
 let g:lavi_gui = {}
 
 let g:lavi_gui[0]  = '#463E57' " background
@@ -173,7 +175,7 @@ call s:hi('iCursor', g:lavi_gui[0], g:lavi_gui[4], '', 'NONE', '', '')
 call s:hi('LineNr', g:lavi_gui[3], '', g:lavi_term[3], 'NONE', '', '')
 call s:hi('MatchParen', g:lavi_gui[8], g:lavi_gui[3], g:lavi_term[8], g:lavi_term[3], '', '')
 call s:hi('NonText', g:lavi_gui[2], '', g:lavi_term[3], '', '', '')
-call s:hi('Normal', g:lavi_gui[4], '', 'NONE', 'NONE', '', '')
+call s:hi('Normal', g:lavi_gui[4], g:lavi_bg, 'NONE', 'NONE', '', '')
 call s:hi('NormalNC', g:lavi_gui[4], g:lavi_gui[20], 'NONE', 'NONE', '', '')
 call s:hi('PMenu', g:lavi_gui[4], g:lavi_gui[2], 'NONE', g:lavi_term[1], 'NONE', '')
 call s:hi('PmenuSbar', g:lavi_gui[4], g:lavi_gui[2], 'NONE', g:lavi_term[1], '', '')

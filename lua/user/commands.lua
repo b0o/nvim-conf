@@ -150,7 +150,7 @@ command { 'Cx', ':Chmod +x' }
 cabbrev('Cp', 'Copy')
 cabbrev('Du', 'Duplicate')
 cabbrev('Vd', 'VDuplicate')
-cabbrev('LI', 'lua inspect')
+cabbrev('LI', 'lua =')
 cabbrev('PS', 'PackerSync')
 
 return M

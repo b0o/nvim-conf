@@ -5,7 +5,7 @@ local update_delay = 500
 
 require('aerial').setup {
   backends = { 'lsp', 'treesitter', 'markdown' },
-  close_behavior = 'global',
+  attach_mode = 'global',
   default_direction = 'right',
   disable_max_lines = 3000,
   filter_kind = {
