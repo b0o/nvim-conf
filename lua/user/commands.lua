@@ -38,11 +38,17 @@ command { 'Format', vim.lsp.buf.formatting }
 command { 'DiffOrig', 'vert new | set buftype=nofile | read ++edit # | 0d_ | diffthis | wincmd p | diffthis' }
 
 command { '-nargs=*', [[-complete=help H lua require'user.fn'.help(<q-args>)]] }
-command { '-nargs=*', '-bar', '-complete=customlist,man#complete', 'Man', [[lua require'user.fn'.man('', <q-args>)]] }
 command {
   '-nargs=*',
   '-bar',
-  '-complete=customlist,man#complete',
+  "-complete=customlist,v:lua.require'man'.man_complete",
+  'Man',
+  [[lua require'user.fn'.man('', <q-args>)]],
+}
+command {
+  '-nargs=*',
+  '-bar',
+  "-complete=customlist,v:lua.require'man'.man_complete",
   'M',
   [[ lua require'user.fn'.man('tab', <q-args>)]],
 }
