@@ -306,7 +306,8 @@ M.man = function(dest, ...)
     if vim.fn.bufname(0) == '' and vim.fn.line '$' == 1 and vim.fn.getline(1) == '' then
       prefix = ''
     end
-    vim.cmd(prefix .. 'file ' .. page .. ' | call man#read_page("' .. page .. '")')
+    vim.cmd(prefix .. 'file ' .. page)
+    require('man').read_page(page)
   end
 end
 
