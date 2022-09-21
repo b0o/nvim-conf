@@ -358,12 +358,8 @@ M.jumplist_jump_buf = function(dir)
   if jumppos == #jumplist then
     dist = dist - 1
   end
-  local keys = vim.api.nvim_replace_termcodes(
-    ('%d<C-%s>'):format(math.abs(dist), dir > 0 and 'i' or 'o'),
-    true,
-    false,
-    true
-  )
+  local keys =
+    vim.api.nvim_replace_termcodes(('%d<C-%s>'):format(math.abs(dist), dir > 0 and 'i' or 'o'), true, false, true)
   vim.api.nvim_feedkeys(keys, 'n', false)
 end
 
