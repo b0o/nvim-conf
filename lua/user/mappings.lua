@@ -267,27 +267,24 @@ m.cmap(xk [[<C-/>]], [[pumvisible() ? "\<C-y>\<Tab>" : nr2char(0x001f)]], m.expr
 
 local function cursor_lock(lock)
   return function()
+    local win = vim.api.nvim_get_current_win()
+    local augid = vim.api.nvim_create_augroup('user_cursor_lock_' .. win, { clear = true })
     if not lock or vim.w.cursor_lock == lock then
       vim.w.cursor_lock = nil
-      vim.cmd(([[
-        augroup user_cursor_lock_%d
-          autocmd!
-        augroup END
-      ]]):format(vim.api.nvim_get_current_win()))
-
       fn.notify("Cursor lock disabled")
       return
     end
-
     vim.w.cursor_lock = lock
-    vim.cmd("silent normal z" .. lock)
-    vim.cmd(([[
-      augroup user_cursor_lock_%d
-        autocmd!
-        autocmd CursorMoved <buffer> lua if vim.w.cursor_lock then vim.cmd("silent normal z" .. vim.w.cursor_lock) end
-      augroup END
-    ]]):format(vim.api.nvim_get_current_win()))
-
+    vim.api.nvim_create_autocmd("CursorMoved", {
+      desc = "Cursor lock for window " .. win,
+      buffer = 0,
+      group = augid,
+      callback = function()
+        if vim.w.cursor_lock then
+          vim.cmd("silent normal z" .. vim.w.cursor_lock)
+        end
+      end
+    })
     fn.notify("Cursor lock enabled")
   end
 end
