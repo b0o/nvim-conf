@@ -222,7 +222,6 @@ local startup = function()
 
   -- Window Management
   use 'sindrets/winshift.nvim'
-  use 'luukvbaal/stabilize.nvim'
   use { 'mrjones2014/smart-splits.nvim', module = 'smart-splits' }
   use { 'aserowy/tmux.nvim', lazymod = 'tmux' }
 

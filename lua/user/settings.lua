@@ -60,6 +60,10 @@ vim.g.maplocalleader = ','
 
 vim.o.qftf = [[{info -> luaeval("require'user.quickfix'.qftf(_A)", info)}]]
 
+-- SEE: https://github.com/luukvbaal/stabilize.nvim
+-- SEE: https://github.com/neovim/neovim/pull/19243
+vim.o.splitkeep = 'screen'
+
 -- vim.o.foldmethod = 'expr'
 -- vim.o.foldlevelstart = 99
 -- vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
