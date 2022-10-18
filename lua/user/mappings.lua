@@ -155,6 +155,12 @@ map_toggle_locals({ 'st' }, { 'smarttab' })
 map_toggle_locals({ '|' }, { 'cursorcolumn' })
 map_toggle_locals({ 'W', 'ww' }, { 'wrap' })
 
+---- Cut/Copy Buffers
+local cutbuf = fn.require_on_call_rec('user.util.cutbuf')
+m.nnoremap([[<localleader>x]], ithunk(cutbuf.cut), m.silent, "cutbuf: cut")
+m.nnoremap([[<localleader>c]], ithunk(cutbuf.copy), m.silent, "cutbuf: copy")
+m.nnoremap([[<localleader>p]], ithunk(cutbuf.paste), m.silent, "cutbuf: paste")
+
 ---- Editing
 
 -- https://vim.fandom.com/wiki/Insert_a_single_character
