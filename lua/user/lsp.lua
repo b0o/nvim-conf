@@ -268,7 +268,6 @@ local function on_attach(client, bufnr)
   end
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   user_lsp_status.on_attach(client, bufnr)
-  require('aerial').on_attach(client, bufnr)
   if client.server_capabilities.codeActionProvider then
     local augid = vim.api.nvim_create_augroup('user_lsp_code_actions', { clear = true })
     local cal_dbounce = require('user.util.debounce').make(M.code_action_listener, { threshold = 500 })
