@@ -161,6 +161,10 @@ m.nnoremap([[<localleader>x]], ithunk(cutbuf.cut), m.silent, "cutbuf: cut")
 m.nnoremap([[<localleader>c]], ithunk(cutbuf.copy), m.silent, "cutbuf: copy")
 m.nnoremap([[<localleader>p]], ithunk(cutbuf.paste), m.silent, "cutbuf: paste")
 
+---- Maximize
+local maximize = fn.require_on_call_rec 'user.util.maximize'
+m.nnoremap([[<localleader>z]], ithunk(maximize.toggle), "Maximize current window")
+
 ---- Editing
 
 -- https://vim.fandom.com/wiki/Insert_a_single_character
