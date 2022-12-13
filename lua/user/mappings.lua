@@ -284,17 +284,19 @@ local function cursor_lock(lock)
       fn.notify("Cursor lock disabled")
       return
     end
+    local cb = function()
+      if vim.w.cursor_lock then
+        vim.cmd("silent normal z" .. vim.w.cursor_lock)
+      end
+    end
     vim.w.cursor_lock = lock
     vim.api.nvim_create_autocmd("CursorMoved", {
       desc = "Cursor lock for window " .. win,
       buffer = 0,
       group = augid,
-      callback = function()
-        if vim.w.cursor_lock then
-          vim.cmd("silent normal z" .. vim.w.cursor_lock)
-        end
-      end
+      callback = cb,
     })
+    cb()
     fn.notify("Cursor lock enabled")
   end
 end
