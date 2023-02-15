@@ -25,6 +25,7 @@ require('gitsigns').setup {
     delete = { hl = 'GitSignsDelete', text = '_', numhl = 'GitSignsDeleteNr', linehl = 'GitSignsDeleteLn' },
     topdelete = { hl = 'GitSignsDelete', text = '‾', numhl = 'GitSignsDeleteNr', linehl = 'GitSignsDeleteLn' },
     changedelete = { hl = 'GitSignsChange', text = '~', numhl = 'GitSignsChangeNr', linehl = 'GitSignsChangeLn' },
+    untracked = { hl = 'GitSignsAdd', text = '┆', numhl = 'GitSignsAddNr', linehl = 'GitSignsAddLn' },
   },
   signcolumn = true, -- Toggle with `:Gitsigns toggle_signs`
   numhl = false, -- Toggle with `:Gitsigns toggle_numhl`
@@ -127,17 +128,26 @@ require('dressing').setup {
 local shotf_cterm = 'lightcyan'
 local shotf_gui = '#7CFFE4'
 
-vim.g.shot_f_highlight_graph = string.format(
-  'cterm=bold ctermbg=NONE ctermfg=%s gui=underline guibg=NONE guifg=%s',
-  shotf_cterm,
-  shotf_gui
-)
+vim.g.shot_f_highlight_graph =
+  string.format('cterm=bold ctermbg=NONE ctermfg=%s gui=underline guibg=NONE guifg=%s', shotf_cterm, shotf_gui)
 
-vim.g.shot_f_highlight_blank = string.format(
-  'cterm=bold ctermbg=%s ctermfg=NONE guibg=%s guifg=NONE',
-  shotf_cterm,
-  shotf_gui
-)
+vim.g.shot_f_highlight_blank =
+  string.format('cterm=bold ctermbg=%s ctermfg=NONE guibg=%s guifg=NONE', shotf_cterm, shotf_gui)
+
+---- smjonas/live-command.nvim
+require('live-command').setup {
+  commands = {
+    Norm = { cmd = 'norm' },
+    S = { cmd = 'Subvert' },
+  },
+}
 
 ---- lewis6991/spellsitter.nvim
 -- require('spellsitter').setup()
+
+-- Do not source the default filetype.vim
+vim.g.did_load_filetypes = 1
+
+---- github/copilot.vim
+-- imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
+-- vim.g.copilot_no_tab_map = true

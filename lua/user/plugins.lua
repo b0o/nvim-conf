@@ -21,7 +21,7 @@ local startup = function()
   use 'Mofiqul/dracula.nvim'
 
   -- UI
-  uselocal { 'b0o/incline.nvim/worktree/develop/', conf = 'incline' }
+  uselocal { 'b0o/incline.nvim/worktree/main/', conf = 'incline' }
   use 'SmiteshP/nvim-gps'
   use 'Famiu/feline.nvim'
   use 'ericbn/vim-relativize'
@@ -31,7 +31,7 @@ local startup = function()
   use 'lukas-reineke/indent-blankline.nvim'
   use 'rcarriga/nvim-notify'
   use 'stevearc/dressing.nvim'
-  use { 'axieax/urlview.nvim', cmd = 'UrlView', telescope_ext = 'urlview' }
+  -- use { 'axieax/urlview.nvim', cmd = 'UrlView', telescope_ext = 'urlview' }
   use { 'kyazdani42/nvim-tree.lua', lazymod = 'nvim-tree', cmd = 'NvimTree*' }
   use {
     'nvim-neo-tree/neo-tree.nvim',
@@ -53,6 +53,12 @@ local startup = function()
   use { 'MunifTanjim/nui.nvim', module = 'nui' }
   use { 'winston0410/range-highlight.nvim', requires = 'winston0410/cmd-parser.nvim' }
 
+  -- Window Management
+  use 'sindrets/winshift.nvim'
+  use { 'mrjones2014/smart-splits.nvim', module = 'smart-splits' }
+  use { 'aserowy/tmux.nvim', lazymod = 'tmux' }
+  use { 'wellle/visual-split.vim', cmd = { 'VSResize', 'VSSplit', 'VSSplitAbove', 'VSSplitBelow' } }
+
   -- Telescope
   use { 'nvim-telescope/telescope.nvim', requires = 'nvim-lua/popup.nvim', lazymod = 'telescope' }
   use { 'kyoh86/telescope-windows.nvim', telescope_ext = 'windows' }
@@ -61,6 +67,7 @@ local startup = function()
   use { 'nvim-telescope/telescope-live-grep-args.nvim', telescope_ext = 'live_grep_args' }
 
   -- Editing
+  use { 'smjonas/live-command.nvim' }
   use { 'andymass/vim-matchup', config = [[vim.g.matchup_motion_enabled = false]] }
   use 'b0o/vim-shot-f'
   use 'chaoren/vim-wordmotion'
@@ -78,8 +85,7 @@ local startup = function()
   use 'triglav/vim-visual-increment'
   use { 'AndrewRadev/splitjoin.vim', cmd = { 'SplitjoinSplit', 'SplitjoinJoin' } }
   use { 'godlygeek/tabular', cmd = { 'AddTabularPattern', 'AddTabularPipeline', 'Tabularize', 'GTabularize' } }
-  use { 'tpope/vim-abolish', cmd = { 'Abolish', 'Subvert' } }
-  use { 'wellle/visual-split.vim', cmd = { 'VSResize', 'VSSplit', 'VSSplitAbove', 'VSSplitBelow' } }
+  use { 'tpope/vim-abolish' }
   use { 'matze/vim-move', setup = [[ vim.g.move_key_modifier = 'C'; vim.g.move_key_modifier_visualmode = 'C' ]] }
   use {
     'rbong/vim-buffest',
@@ -100,6 +106,10 @@ local startup = function()
     },
   }
 
+  -- AI
+  -- use 'github/copilot.vim'
+  use { 'zbirenbaum/copilot.lua', conf = 'copilot' }
+
   -- Quickfix/Loclist
   use { 'kevinhwang91/nvim-bqf', lazymod = 'bqf', ft = 'qf', event = 'QuickFixCmdPre' }
 
@@ -110,8 +120,9 @@ local startup = function()
   -- Treesitter
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
   use { 'nvim-treesitter/nvim-treesitter-textobjects', after = 'nvim-treesitter' }
-  use { 'lewis6991/nvim-treesitter-context', after = 'nvim-treesitter' }
+  use { 'nvim-treesitter/nvim-treesitter-context', after = 'nvim-treesitter' }
   use { 'nkrkv/nvim-treesitter-rescript', after = 'nvim-treesitter' }
+  use { 'JoosepAlviste/nvim-ts-context-commentstring', after = 'nvim-treesitter' }
   xuse { 'lewis6991/spellsitter.nvim', after = 'nvim-treesitter' }
   use { 'nvim-treesitter/playground', after = 'nvim-treesitter', cmd = 'TSPlaygroundToggle' }
 
@@ -121,14 +132,16 @@ local startup = function()
   use 'neovim/nvim-lspconfig'
   use 'nvim-lua/lsp-status.nvim'
   use 'onsails/lspkind-nvim'
+  use { 'DNLHC/glance.nvim', lazymod = 'glance', cmd = 'Glance' }
   use { 'jose-elias-alvarez/null-ls.nvim', module = 'null-ls' }
   use { 'ray-x/lsp_signature.nvim', module = 'lsp_signature' }
-  uselocal { 'b0o/schemastore.nvim', module = 'schemastore' }
-  -- use {
-  --   'folke/trouble.nvim',
-  --   lazymod = 'trouble',
-  --   cmd = { 'Trouble', 'TroubleClose', 'TroubleRefresh', 'TroubleToggle' },
-  -- }
+  use { 'b0o/schemastore.nvim', module = 'schemastore' }
+  -- uselocal { 'b0o/schemastore.nvim', module = 'schemastore' }
+  use {
+    'folke/trouble.nvim',
+    lazymod = 'trouble',
+    cmd = { 'Trouble', 'TroubleClose', 'TroubleRefresh', 'TroubleToggle' },
+  }
 
   -- Code Style, Formatting, Linting
   use 'editorconfig/editorconfig-vim'
@@ -220,11 +233,6 @@ local startup = function()
   use { 'mfussenegger/nvim-dap', module = 'dap' }
   use { 'jbyuki/one-small-step-for-vimkind', module = 'osv' } -- Lua DAP adapter, a.k.a. osv
 
-  -- Window Management
-  use 'sindrets/winshift.nvim'
-  use { 'mrjones2014/smart-splits.nvim', module = 'smart-splits' }
-  use { 'aserowy/tmux.nvim', lazymod = 'tmux' }
-
   -- Sessions
   use {
     'Shatur/neovim-session-manager',
@@ -237,6 +245,7 @@ local startup = function()
   use 'rescript-lang/vim-rescript'
   use 'aouelete/sway-vim-syntax'
   use 'fatih/vim-go'
+  use 'jose-elias-alvarez/typescript.nvim'
 
   -- Documentation
   use { 'alx741/vinfo', cmd = { 'Vinfo', 'VinfoClean', 'VinfoNext', 'VinfoPrevious' } }
@@ -247,7 +256,7 @@ local startup = function()
 
   --- Vim Plugin Development
   use { 'bfredl/nvim-luadev', ft = 'lua' }
-  use 'folke/lua-dev.nvim'
+  use { 'folke/neodev.nvim' }
   use {
     'rktjmp/lush.nvim',
     cmd = { 'LushRunQuickstart', 'LushRunTutorial', 'Lushify', 'LushImport' },
@@ -256,8 +265,7 @@ local startup = function()
 
   -- Performance
   use 'lewis6991/impatient.nvim'
-  use 'nathom/filetype.nvim'
-  use 'antoinemadec/FixCursorHold.nvim'
+  -- use 'antoinemadec/FixCursorHold.nvim'
   use { 'dstein64/vim-startuptime', cmd = 'StartupTime' }
 end
 

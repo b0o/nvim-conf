@@ -4,10 +4,9 @@ local fn = require 'user.fn'
 local update_delay = 500
 
 require('aerial').setup {
-  backends = { 'lsp', 'treesitter', 'markdown' },
+  backends = { 'lsp', 'treesitter', 'man', 'markdown' },
   attach_mode = 'global',
-  default_direction = 'right',
-  disable_max_lines = 3000,
+  disable_max_lines = 5000,
   filter_kind = {
     'Class',
     'Constructor',
@@ -21,8 +20,11 @@ require('aerial').setup {
   },
   highlight_on_hover = true,
   ignore = { filetypes = { 'gomod' } },
-  min_width = 30,
-  placement_editor_edge = true,
+  layout = {
+    min_width = 30,
+    default_direction = 'right',
+    placement = 'edge',
+  },
   update_events = 'TextChanged,InsertLeave',
   lsp = {
     update_when_errors = true,

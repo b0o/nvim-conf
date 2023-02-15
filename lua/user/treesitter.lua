@@ -51,6 +51,19 @@ require('nvim-treesitter.configs').setup {
     'wgsl',
     'yaml',
   },
+  context_commentstring = {
+    enable = true,
+    enable_autocmd = false,
+    config = {
+      javascript = {
+        __default = '// %s',
+        jsx_element = '{/* %s */}',
+        jsx_fragment = '{/* %s */}',
+        jsx_attribute = '// %s',
+        comment = '// %s',
+      },
+    },
+  },
   highlight = {
     enable = true,
     disable = { 'help' },
@@ -156,6 +169,7 @@ require('treesitter-context').setup {
   enable = true,
   throttle = true,
   max_lines = vim.o.scrolloff - 1,
+  -- zindex =
   patterns = {
     -- default = {
     --   'class',

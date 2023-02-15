@@ -8,7 +8,7 @@ local sh_filetypes = {
 
 local sources = {
   formatting = {
-    'eslint',
+    -- 'eslint',
     --'eslint_d',
     'gofmt',
     'goimports',
@@ -17,7 +17,9 @@ local sources = {
       'prettier',
       filetypes = {
         'javascript',
+        'javascriptreact',
         'typescript',
+        'typescriptreact',
         'css',
         'scss',
         'less',
@@ -44,11 +46,11 @@ local sources = {
     --     },
   },
   diagnostics = {
-    {
-      'eslint',
-      -- 'eslint_d',
-      diagnostics_format = '[#{c}] #{m} https://eslint.org/docs/rules/#{c}',
-    },
+    -- {
+    --   'eslint',
+    --   -- 'eslint_d',
+    --   diagnostics_format = '[#{c}] #{m} https://eslint.org/docs/rules/#{c}',
+    -- },
     {
       'shellcheck',
       diagnostics_format = '[SC#{c}] #{m} https://github.com/koalaman/shellcheck/wiki/SC#{c}',
@@ -58,6 +60,10 @@ local sources = {
       'selene',
       diagnostics_format = '[#{c}] #{m} https://kampfkarren.github.io/selene/lints/#{c}.html',
       extra_args = { '--config', vim.fn.stdpath 'config' .. '/selene.toml' },
+      cwd = function()
+        return vim.fs.dirname(vim.fs.find({ 'selene.toml' }, { upward = true, path = vim.api.nvim_buf_get_name(0) })[1])
+          or vim.fn.stdpath 'config'
+      end,
     },
     'stylelint',
   },
@@ -66,7 +72,7 @@ local sources = {
       'shellcheck',
       filetypes = sh_filetypes,
     },
-    'eslint',
+    -- 'eslint',
     -- 'eslint_d',
     'gitsigns',
   },

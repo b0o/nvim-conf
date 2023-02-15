@@ -1,8 +1,12 @@
 ---- numToStr/Comment.nvim
 local state = {}
 
+local ts_context_commentstring_pre_hook =
+  require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook()
+
 require('Comment').setup {
-  pre_hook = function(ctx)
+  pre_hook = function(ctx, ...)
+    -- If comment was triggered in visual mode, save the visual selection so it can be re-selected in post_hook
     if ctx.cmotion >= 3 and ctx.cmotion <= 5 then
       local c = vim.api.nvim_win_get_cursor(0)
       local m = {
@@ -18,6 +22,7 @@ require('Comment').setup {
     else
       state = {}
     end
+    return ts_context_commentstring_pre_hook(ctx, ...) -- Adds support for JSX comments
   end,
   ---@diagnostic disable-next-line: unused-local
   post_hook = function(_ctx)

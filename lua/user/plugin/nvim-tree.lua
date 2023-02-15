@@ -39,7 +39,7 @@ require('nvim-tree').setup {
     cmd = 'xdg-open',
   },
   filters = {
-    custom = { '.git', 'node_modules', '.cache' },
+    custom = { '.git', 'node_modules', '.cache', '.vscode' },
   },
   renderer = {
     indent_markers = { enable = true },

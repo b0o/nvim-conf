@@ -13,8 +13,8 @@
 -- end
 
 require 'user.settings'
-
 require 'user.plugins'
+
 vim.defer_fn(function()
   require 'user.commands'
   require 'user.lsp'
@@ -22,7 +22,6 @@ vim.defer_fn(function()
   require 'user.completion'
   require 'user.autocmds'
   require 'user.mappings'
-  -- require 'user.plugins'
   require 'user.plugin'
   require 'user.treesitter'
   require 'user.quickfix'

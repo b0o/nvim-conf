@@ -1,3 +1,4 @@
+local lsp = require 'user.lsp'
 local fn = require 'user.fn'
 local command, cabbrev = fn.command, fn.cabbrev
 
@@ -33,7 +34,7 @@ command { '-bang', '-count', '-nargs=*', 'Nterm', 'call user#fn#openTerm(<q-args
 command { '-bang', '-count', '-nargs=*', 'Vterm', 'call user#fn#openTerm(<q-args>, <count>, 0, <bang>0)' }
 command { '-bang', '-count', '-nargs=*', 'Vnterm', 'call user#fn#openTerm(<q-args>, <count>, 0, <bang>0)' }
 
-command { 'Format', vim.lsp.buf.formatting }
+command { 'Format', lsp.format }
 
 command { 'DiffOrig', 'vert new | set buftype=nofile | read ++edit # | 0d_ | diffthis | wincmd p | diffthis' }
 

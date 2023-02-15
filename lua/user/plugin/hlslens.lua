@@ -4,6 +4,8 @@ local hlslens = require 'hlslens'
 local hlslens_config
 local lens_backup
 
+hlslens.setup()
+
 function M.vmlens.start()
   if hlslens then
     hlslens_config = require 'hlslens.config'

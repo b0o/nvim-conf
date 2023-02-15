@@ -3,6 +3,7 @@ local user_lsp_status = require 'user.statusline.lsp'
 local nvim_cmp_lsp = require 'cmp_nvim_lsp'
 local fn = require 'user.fn'
 local root_pattern = require('lspconfig.util').root_pattern
+local Debounce = require 'user.util.debounce'
 
 local M = {
   fmt_on_save_enabled = false,
@@ -11,66 +12,16 @@ local M = {
   on_attach_called = false,
 }
 
-local luals_conf = vim.tbl_extend(
-  'keep',
-  { 'sumneko_lua' },
-  require('lua-dev').setup {
-    library = {
-      vimruntime = true,
-      types = true,
-      plugins = true,
-    },
-    lspconfig = {
-      cmd = {
-        'lua-language-server',
-        '-E',
-        '/usr/lib/lua-language-server/main.lua',
-        '--logpath="' .. vim.fn.stdpath 'cache' .. '/lua-language-server/log"',
-        '--metapath="' .. vim.fn.stdpath 'cache' .. '/lua-language-server/meta"',
-      },
-      settings = {
-        Lua = {
-          diagnostics = {
-            globals = {
-              -- Mapx.nvim globals
-              'map',
-              'nmap',
-              'vmap',
-              'xmap',
-              'smap',
-              'omap',
-              'imap',
-              'lmap',
-              'cmap',
-              'tmap',
-              'noremap',
-              'nnoremap',
-              'vnoremap',
-              'xnoremap',
-              'snoremap',
-              'onoremap',
-              'inoremap',
-              'lnoremap',
-              'cnoremap',
-              'tnoremap',
-              'mapbang',
-              'noremapbang',
+local format_timeout = 30000
+local format_on_save_timeout = 2000
 
-              -- Mulberry BDD
-              'Describe',
-              'It',
-              'Expect',
-              'Which',
-            },
-          },
-          telemetry = {
-            enable = false,
-          },
-        },
-      },
-    },
-  }
-)
+M.format = function(opts)
+  return vim.lsp.buf.format(vim.tbl_extend('force', { timeout_ms = format_timeout }, opts or {}))
+end
+
+M.range_formatting = function(opts, ...)
+  return vim.lsp.buf.range_formatting(vim.tbl_extend('force', { timeout_ms = format_timeout }, opts or {}), ...)
+end
 
 local lsp_servers = {
   {
@@ -90,10 +41,52 @@ local lsp_servers = {
   'dockerls',
   'dotls',
   {
+    'eslint',
+    cmd = { 'vscode-eslint-language-server-local', '--stdio' },
+    root_dir = root_pattern(
+      'eslint.config.js',
+      '.eslintrc',
+      '.eslintrc.js',
+      '.eslintrc.cjs',
+      '.eslintrc.yaml',
+      '.eslintrc.yml',
+      '.eslintrc.json',
+      'package.json'
+    ),
+    settings = {
+      experimentalUseFlatConfig = true,
+      codeAction = {
+        disableRuleComment = {
+          enable = true,
+          location = 'separateLine',
+        },
+        showDocumentation = {
+          enable = true,
+        },
+      },
+      codeActionOnSave = {
+        enable = false,
+        mode = 'all',
+      },
+      format = true,
+      -- nodePath = '',
+      onIgnoredFiles = 'off',
+      packageManager = 'npm',
+      quiet = false,
+      rulesCustomizations = {},
+      run = 'onType',
+      -- useESLintClass = false,
+      validate = 'on',
+      workingDirectory = {
+        mode = 'location',
+      },
+    },
+  },
+  {
     'gopls',
     formatting = false,
   },
-  'graphql',
+  -- 'graphql',
   'hie',
   'html',
   {
@@ -107,7 +100,7 @@ local lsp_servers = {
     commands = {
       Format = {
         function()
-          vim.lsp.buf.range_formatting({}, { 0, 0 }, { vim.fn.line '$', 0 })
+          M.range_formatting({}, { 0, 0 }, { vim.fn.line '$', 0 })
         end,
       },
     },
@@ -141,7 +134,6 @@ local lsp_servers = {
           yapf = { enabled = true },
           flake8 = { enabled = true },
           rope = { enabled = true },
-
           pylsp_mypy = { enabled = false },
           autopep8 = { enabled = false },
           pycodestyle = { enabled = false },
@@ -168,11 +160,103 @@ local lsp_servers = {
   'rust_analyzer',
   'rnix',
   'sqls',
-  luals_conf,
-  -- 'tailwindcss',
+  {
+    'lua_ls',
+    cmd = {
+      'lua-language-server',
+      '-E',
+      '/usr/lib/lua-language-server/main.lua',
+      '--logpath="' .. vim.fn.stdpath 'cache' .. '/lua-language-server/log"',
+      '--metapath="' .. vim.fn.stdpath 'cache' .. '/lua-language-server/meta"',
+    },
+    settings = {
+      Lua = {
+        completion = {
+          callSnippet = 'Replace',
+        },
+        diagnostics = {
+          globals = {
+            -- Mapx.nvim globals
+            'map',
+            'nmap',
+            'vmap',
+            'xmap',
+            'smap',
+            'omap',
+            'imap',
+            'lmap',
+            'cmap',
+            'tmap',
+            'noremap',
+            'nnoremap',
+            'vnoremap',
+            'xnoremap',
+            'snoremap',
+            'onoremap',
+            'inoremap',
+            'lnoremap',
+            'cnoremap',
+            'tnoremap',
+            'mapbang',
+            'noremapbang',
+
+            -- Mulberry BDD
+            'Describe',
+            'It',
+            'Expect',
+            'Which',
+          },
+        },
+        telemetry = {
+          enable = false,
+        },
+      },
+    },
+  },
+  {
+    'tailwindcss',
+    root_dir = root_pattern(
+      'tailwind.config.js',
+      'tailwind.config.cjs',
+      'tailwind.config.ts',
+      'postcss.config.js',
+      'postcss.config.ts'
+    ),
+    settings = {
+      scss = {
+        validate = false,
+      },
+      editor = {
+        quickSuggestions = { strings = true },
+        autoClosingQuotes = 'always',
+      },
+      tailwindCSS = {
+        -- experimental = {
+        --   classRegex = {
+        --     'tw`([^`]*)', -- tw`...`
+        --     'tw="([^"]*)', -- <div tw="..." />
+        --     'tw={"([^"}]*)', -- <div tw={"..."} />
+        --     'tw\\.\\w+`([^`]*)', -- tw.xxx`...`
+        --     'tw\\(.*?\\)`([^`]*)', -- tw(Component)`...`
+        --   },
+        -- },
+        includeLanguages = {
+          typescript = 'javascript',
+          typescriptreact = 'javascript',
+        },
+      },
+    },
+  },
   {
     'tsserver',
     formatting = false,
+    settings = {
+      diagnostics = {
+        ignoredCodes = {
+          7016, -- "Could not find a declaration file for module..."
+        },
+      },
+    },
   },
   'vimls',
   {
@@ -270,7 +354,7 @@ local function on_attach(client, bufnr)
   user_lsp_status.on_attach(client, bufnr)
   if client.server_capabilities.codeActionProvider then
     local augid = vim.api.nvim_create_augroup('user_lsp_code_actions', { clear = true })
-    local cal_dbounce = require('user.util.debounce').make(M.code_action_listener, { threshold = 500 })
+    local cal_dbounce = Debounce(M.code_action_listener, { threshold = 500 })
     vim.api.nvim_create_autocmd('CursorHold', {
       buffer = bufnr,
       group = augid,
@@ -313,7 +397,7 @@ function M.set_fmt_on_save(val, silent)
   if M.fmt_on_save_enabled then
     vim.api.nvim_create_autocmd(fmt_triggers[vim.o.filetype] or fmt_triggers.default, {
       callback = function()
-        vim.lsp.buf.format()
+        M.format { timeout_ms = format_on_save_timeout }
       end,
       group = augid,
     })
@@ -353,7 +437,18 @@ function M.code_action_listener()
   end)
 end
 
+local function setup_neodev()
+  require('neodev').setup {
+    library = {
+      vimruntime = true,
+      types = true,
+      plugins = true,
+    },
+  }
+end
+
 local function lsp_init()
+  setup_neodev()
   vim.lsp.set_log_level(vim.lsp.log_levels.DEBUG)
   for k, v in pairs(lsp_handlers) do
     vim.lsp.handlers[k] = v
@@ -362,7 +457,7 @@ local function lsp_init()
     local hl = 'DiagnosticSign' .. type
     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = '' })
   end
-  local capabilities = nvim_cmp_lsp.update_capabilities(lsp_status.capabilities)
+  local capabilities = nvim_cmp_lsp.default_capabilities()
   local lspconfig = require 'lspconfig'
   for _, lsp in ipairs(lsp_servers) do
     local opts = {
@@ -392,8 +487,22 @@ local function lsp_init()
     else
       name = lsp
     end
+    if name == 'typescript' or name == 'tsserver' then
+      require('typescript').setup {
+        disable_commands = false,
+        debug = false,
+        go_to_source_definition = {
+          fallback = true,
+        },
+        server = opts,
+      }
+      return
+    end
     if not lspconfig[name] then
       error('LSP: Server not found: ' .. name)
+    end
+    if type(lspconfig[name].setup) ~= 'function' then
+      error('LSP: not a function: ' .. name .. '.setup')
     end
     lspconfig[name].setup(opts)
     lsp_status.register_progress()

@@ -156,14 +156,40 @@ map_toggle_locals({ '|' }, { 'cursorcolumn' })
 map_toggle_locals({ 'W', 'ww' }, { 'wrap' })
 
 ---- Cut/Copy Buffers
-local cutbuf = fn.require_on_call_rec('user.util.cutbuf')
+local cutbuf = fn.require_on_call_rec 'user.util.cutbuf'
 m.nnoremap([[<localleader>x]], ithunk(cutbuf.cut), m.silent, "cutbuf: cut")
 m.nnoremap([[<localleader>c]], ithunk(cutbuf.copy), m.silent, "cutbuf: copy")
 m.nnoremap([[<localleader>p]], ithunk(cutbuf.paste), m.silent, "cutbuf: paste")
 
----- Maximize
-local maximize = fn.require_on_call_rec 'user.util.maximize'
-m.nnoremap([[<localleader>z]], ithunk(maximize.toggle), "Maximize current window")
+---- Zoomer
+local zoomer = fn.require_on_call_rec 'user.util.zoomer'
+zoomer.setup {
+  -- on_open = function(props)
+  --   local state = {
+  --     incline_ignore_wintypes = require 'incline.config'.ignore.wintypes,
+  --     incline_ignore_floating_wins = require 'incline.config'.ignore.floating_wins,
+  --   }
+  --   require 'incline'.setup {
+  --     ignore = {
+  --       wintypes = function(winid)
+  --         return winid == props.floatwin
+  --       end,
+  --       floating_wins = false,
+  --     }
+  --   }
+  --   return state
+  -- end,
+  -- on_close = function(props)
+  --   require 'incline'.setup {
+  --     ignore = {
+  --       wintypes = props.prev_state.incline_ignore_wintypes,
+  --       floating_wins = props.prev_state.incline_ignore_floating_wins,
+  --     }
+  --   }
+  -- end,
+  -- zindex = 40,
+}
+m.nnoremap([[<localleader>z]], ithunk(zoomer.toggle), "zoom current window")
 
 ---- Editing
 
@@ -305,6 +331,10 @@ m.nnoremap([[<leader>zt]], cursor_lock("t"), m.silent, "Toggle cursor lock (top)
 m.nnoremap([[<leader>zz]], cursor_lock("z"), m.silent, "Toggle cursor lock (middle)")
 m.nnoremap([[<leader>zb]], cursor_lock("b"), m.silent, "Toggle cursor lock (bottom)")
 
+m.inoremap([[<M-t>]], [[<C-o>zt]], m.silent, "Scroll current line to top of screen")
+m.inoremap([[<M-z>]], [[<C-o>zz]], m.silent, "Scroll current line to middle of screen")
+m.inoremap([[<M-b>]], [[<C-o>zb]], m.silent, "Scroll current line to bottom of screen")
+
 ---- Jumplist
 m.nnoremap(xk [[<C-S-o>]], ithunk(fn.jumplist_jump_buf, -1), m.silent, "Jumplist: Go to last buffer")
 m.nnoremap(xk [[<C-S-i>]], ithunk(fn.jumplist_jump_buf, 1), m.silent, "Jumplist: Go to next buffer")
@@ -389,7 +419,7 @@ m.nmap({ '<C-t><C-l>', '<C-t>l' }, tabline.tabpage_toggle_titlestyle, 'Tabpage: 
 m.xnoremap([[p]], [[user#fn#pasteRestore()]], m.silent, m.expr)
 
 m.nnoremap([[<leader>T]], [[:Term!<Cr>]], m.silent, "New term (tab)")
-m.nnoremap([[<leader>t]], [[:10Term<Cr>]], m.silent, "New term (split)")
+m.nnoremap([[<leader>t]], [[:30Term<Cr>]], m.silent, "New term (split)")
 
 m.tnoremap(xk [[<C-S-q>]], [[<C-\><C-n>:q<Cr>]]) -- Close terminal
 m.tnoremap(xk [[<C-S-n>]], [[<C-\><C-n>]]) -- Enter Normal mode
@@ -516,13 +546,12 @@ M.on_lsp_attach = function(bufnr)
       return
     end
 
-    m.nname("<localleader>g", "LSP-Goto")
-    m.nnoremap({ [[<localleader>gd]], [[gd]] }, ithunk(vim.lsp.buf.definition), "LSP: Goto definition")
-    m.nnoremap({ [[<localleader>gd]], [[gd]] }, ithunk(vim.lsp.buf.definition), "LSP: Goto definition")
+    m.nname("<localleader>g", "LSP-Glance")
     m.nnoremap([[<localleader>gD]], ithunk(vim.lsp.buf.declaration), "LSP: Goto declaration")
-    m.nnoremap([[<localleader>gi]], ithunk(vim.lsp.buf.implementation), "LSP: Goto implementation")
-    m.nnoremap([[<localleader>gt]], ithunk(vim.lsp.buf.type_definition), "LSP: Goto type definition")
-    m.nnoremap([[<localleader>gr]], ithunk(vim.lsp.buf.references), "LSP: Goto references")
+    m.nnoremap({ [[<localleader>gd]], [[gd]] }, [[<Cmd>Glance definitions<Cr>]], "LSP: Glance definitions")
+    m.nnoremap([[<localleader>gi]], [[<Cmd>Glance implementations<Cr>]], "LSP: Glance implementation")
+    m.nnoremap([[<localleader>gt]], [[<Cmd>Glance type_definitions<Cr>]], "LSP: Glance type definitions")
+    m.nnoremap([[<localleader>gr]], [[<Cmd>Glance references<Cr>]], "LSP: Glance references")
 
     m.nname("<localleader>w", "LSP-Workspace")
     m.nnoremap([[<localleader>wa]], ithunk(vim.lsp.buf.add_workspace_folder), "LSP: Add workspace folder")
@@ -538,8 +567,8 @@ M.on_lsp_attach = function(bufnr)
     m.xnoremap({ [[<localleader>A]], [[<localleader>ca]] }, ithunk(vim.lsp.buf.range_code_action),
       "LSP: Code action (range)")
 
-    m.nnoremap([[<localleader>F]], ithunk(vim.lsp.buf.format), "LSP: Format")
-    m.xnoremap([[<localleader>F]], ithunk(vim.lsp.buf.range_formatting), "LSP: Format (range)")
+    m.nnoremap([[<localleader>F]], ithunk(user_lsp.format), "LSP: Format")
+    m.xnoremap([[<localleader>F]], ithunk(user_lsp.range_formatting), "LSP: Format (range)")
 
     m.nname("<localleader>s", "LSP-Save")
     m.nnoremap([[<localleader>S]], ithunk(user_lsp.set_fmt_on_save), "LSP: Toggle format on save")
@@ -681,23 +710,23 @@ m.group(m.silent, function()
   m.nnoremap({ [[<C-f>h]], [[<C-f><C-h>]] }, ithunk(tc.help_tags), "Telescope: Help tags")
   m.nnoremap({ [[<C-f>t]], [[<C-f><C-t>]] }, ithunk(tc.tags), "Telescope: Tags")
   m.nnoremap({ [[<C-f>a]], [[<C-f><C-a>]] }, ithunk(tc.grep_string), "Telescope: Grep for string")
-  -- m.nnoremap({ [[<C-f>p]], [[<C-f><C-p>]] }, ithunk(tc.live_grep), "Telescope: Live grep")
   m.nnoremap({ [[<C-f>p]], [[<C-f><C-p>]] }, ithunk(tc.live_grep_args), "Telescope: Live grep")
   m.nnoremap({ [[<C-f>o]], [[<C-f><C-o>]] }, ithunk(tc.oldfiles), "Telescope: Old files")
   m.nnoremap({ [[<C-f>f]], [[<C-f><C-f>]] }, ithunk(tc.smart_files), "Telescope: Files (Smart)")
-  m.nnoremap({ [[<C-f>F]] }, ithunk(tc.find_files), "Telescope: Files")
+  m.nnoremap({ [[<C-f>F]] }, ithunk(tc.any_files), "Telescope: Any Files")
   m.nnoremap({ [[<C-f>w]], [[<C-f><C-w>]] }, ithunk(tc.windows, {}), "Telescope: Windows")
 
   m.nnoremap({ [[<C-M-f>]], [[<C-f>r]], [[<C-f><C-r>]] }, ithunk(tc.resume), "Telescope: Resume last picker")
 
   local tcgw = tc.git_worktree
   m.nname([[<C-f>g]], "Telescope-Git")
+  m.nnoremap([[<C-f>gf]], ithunk(tc.git_files), "Telescope-Git: Files")
   m.nnoremap([[<C-f>gw]], ithunk(tcgw.git_worktrees), "Telescope-Git: Worktrees")
 
   m.nname([[<M-f>]], "Telescope-Buffer")
   m.nnoremap({ [[<M-f>b]], [[<M-f><M-b>]] }, ithunk(tc.current_buffer_fuzzy_find), "Telescope-Buffer: Fuzzy find")
   m.nnoremap({ [[<M-f>t]], [[<M-f><M-t>]] }, ithunk(tc.tags), "Telescope-Buffer: Tags")
-  m.nnoremap({ [[<M-f>u]], [[<M-f><M-u>]] }, ithunk(tc.urlview), "Telescope-Buffer: URLs")
+  -- m.nnoremap({ [[<M-f>u]], [[<M-f><M-u>]] }, ithunk(tc.urlview), "Telescope-Buffer: URLs")
 
   m.nname([[<M-f>]], "Telescope-Workspace")
   m.nnoremap([[<C-f>A]], ithunk(tc.aerial), "Telescope-Workspace: Aerial")
@@ -917,19 +946,23 @@ local function aerial_get_win()
 end
 
 local function aerial_open(focus)
+  if not package.loaded.aerial then
+    require 'aerial'
+    require("aerial").close() -- force aerial setup
+  end
   local winid = aerial_get_win()
   if winid then
     vim.api.nvim_set_current_win(winid)
     return
   end
   if not require "aerial.backends".get() then
-    fn.notify("no aerial backend")
+    require("aerial").open()
     return
   end
 
   -- Get width of nvim-tree or neo-tree before opening aerial (sometimes
   -- opening aerial causes file tree windows to get smooshed)
-  local nvt_win = package.loaded['nvim-tree'] and require 'nvim-tree.view'.get_winnr()
+  local nvt_win = package.loaded['nvim-tree'] and require 'nvim-tree.view'.get_winnr(0)
   local nvt_width
   if nvt_win and vim.api.nvim_win_is_valid(nvt_win) then
     nvt_width = vim.api.nvim_win_get_width(nvt_win)
@@ -942,7 +975,7 @@ local function aerial_open(focus)
     end
   end
 
-  require "aerial.window".open(focus)
+  require("aerial").open { focus = focus or false }
 
   -- Reset tree window width in case smooshing occurred
   if nvt_width then
@@ -956,7 +989,7 @@ local function aerial_open(focus)
 end
 
 m.nmap(xk [[<M-S-\>]], function()
-  if aerial_get_win() then
+  if package.loaded.aerial and aerial_get_win() then
     local foc = require "aerial.util".is_aerial_buffer()
     aerial.close()
     if foc then
@@ -973,8 +1006,12 @@ m.nmap([[<M-\>]],
 
 m.group(m.silent, { ft = "aerial" }, function()
   local function aerial_select(opts)
+    local winid = recent_wins.get_most_recent_smart()
+    if not vim.api.nvim_win_is_valid(winid or -1) then
+      winid = nil
+    end
     require 'aerial.navigation'.select(vim.tbl_extend("force", {
-      winid = recent_wins.get_most_recent()
+      winid = winid
     }, opts or {}))
   end
 
@@ -1048,6 +1085,7 @@ end
 ---- sindrets/winshift.nvim
 m.nnoremap([[<Leader>M]], [[<Cmd>WinShift<Cr>]], "WinShift: Start")
 m.nnoremap([[<Leader>mm]], [[<Cmd>WinShift<Cr>]], "WinShift: Start")
+m.nnoremap([[<Leader>ws]], [[<Cmd>WinShift swap<Cr>]], "WinShift: Swap")
 
 ---- chentau/marks.nvim
 m.nmap([[<M-m>]], [[m;]], "Mark: create next")
@@ -1060,5 +1098,30 @@ m.noremap([[<M-[>]], ithunk(smart_splits.resize_left), 'Resize-Win: Left')
 m.noremap([[<M-]>]], ithunk(smart_splits.resize_right), 'Resize-Win: Right')
 m.noremap([[<M-{>]], ithunk(smart_splits.resize_up), 'Resize-Win: Up')
 m.noremap([[<M-}>]], ithunk(smart_splits.resize_down), 'Resize-Win: Down')
+
+---- github/copilot.vim
+-- m.inoremap(xk [[<C-\>]], [[copilot#Accept("\<CR>")]], m.silent, m.expr, "Copilot: Accept")
+-- m.inoremap([[]], [[copilot#Accept("\<CR>")]], m.silent, m.expr, "Copilot: Accept")
+
+---- zbirenbaum/copilot.lua
+local copilot_suggestion = fn.require_on_exported_call('copilot.suggestion')
+local copilot_panel = fn.require_on_exported_call('copilot.panel')
+local copilot_accept_or_insert = function(action, fallback)
+  return function()
+    if copilot_suggestion.is_visible() then
+      copilot_suggestion[action]()
+    else
+      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(fallback, true, false, true), "i", false)
+    end
+  end
+end
+
+m.inoremap(xk [[<C-\>]], copilot_accept_or_insert("accept", "<Cr>"), m.silent, "Copilot: Accept") -- For Alacritty w/custom conf
+m.inoremap([[]], copilot_accept_or_insert("accept", "<Cr>"), m.silent, "Copilot: Accept") -- For other terminals
+m.inoremap([[<M-\>]], copilot_accept_or_insert("accept_word", " "), m.silent, "Copilot: Accept Word")
+m.inoremap(xk [[<M-S-\>]], copilot_accept_or_insert("accept_line", "<Cr>"), m.silent, "Copilot: Accept Line")
+m.inoremap([[<M-[>]], ithunk(copilot_suggestion.prev), m.silent, "Copilot: Previous Suggestion")
+m.inoremap([[<M-]>]], ithunk(copilot_suggestion.next), m.silent, "Copilot: Next Suggestion")
+m.inoremap(xk [[<C-S-\>]], ithunk(copilot_panel.open), m.silent, "Copilot: Open panel")
 
 return M

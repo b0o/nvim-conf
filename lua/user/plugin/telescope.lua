@@ -7,10 +7,11 @@ local action_state = require 'telescope.actions.state'
 
 local fn = require 'user.fn'
 local m = require 'user.mappings'
+local Debounce = require 'user.util.debounce'
 
 local M = {}
 
-local dbounced_show_builtins = require('user.util.debounce').make(function()
+local dbounced_show_builtins = Debounce(function()
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Esc>', true, true, true), 'm', false)
   M.cmds.builtin()
 end, { threshold = vim.o.timeoutlen - 1 })
@@ -144,7 +145,6 @@ t.setup {
   extensions = {
     live_grep_args = {
       auto_quoting = true,
-      default_mappings = {},
     },
   },
 }
@@ -164,16 +164,32 @@ end
 
 local _cmds = {}
 
-_cmds.find_files = function()
-  tb.find_files { hidden = true }
+_cmds.smart_files = function()
+  tb.find_files {
+    prompt_title = 'Find Files (Smart)',
+    hidden = true,
+    file_ignore_patterns = {
+      '^.git/',
+      '^node_modules/',
+      '%.jpg$',
+      '%.png$',
+      '%.gif$',
+      '%.mp4$',
+      '%.exe$',
+      '%.gz$',
+      '%.zip$',
+      '%.webm$',
+      '%.avi$',
+      '%.mov$',
+    },
+  }
 end
 
--- Try to run git_files first, if not in a git directory then run the standard
--- find_files.
-_cmds.smart_files = function()
-  if not pcall(tb.git_files) then
-    _cmds.find_files()
-  end
+_cmds.any_files = function()
+  tb.find_files {
+    prompt_title = 'Find Files (Any)',
+    hidden = true,
+  }
 end
 
 _cmds.tags = function()
@@ -200,7 +216,7 @@ M.cmds = setmetatable({}, {
     -- debounced show_builtins function
     if type(v) == 'table' or type(v) == 'function' then
       local cb = function(func, ...)
-        dbounced_show_builtins:cancel()
+        dbounced_show_builtins:reset()
         func(...)
       end
       if type(v) == 'table' then

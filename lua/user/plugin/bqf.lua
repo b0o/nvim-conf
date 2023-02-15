@@ -1,4 +1,6 @@
 ---- kevinhwang91/nvim-bqf
+local Debounce = require 'user.util.debounce'
+
 local M = {}
 
 local loaded_preview_bufs = {}
@@ -35,7 +37,7 @@ local function register_preview_buf(qwinid, fbufnr)
   trap_cleanup(qwinid)
 end
 
-local _preview_fugitive = require('user.util.debounce').make(function(bufnr, qwinid, bufname)
+local _preview_fugitive = Debounce(function(bufnr, qwinid, bufname)
   if not vim.api.nvim_buf_is_loaded(bufnr) then
     vim.api.nvim_buf_call(bufnr, function()
       vim.cmd(('do fugitive BufReadCmd %s'):format(bufname))

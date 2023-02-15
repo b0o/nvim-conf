@@ -34,7 +34,7 @@ vim.o.timeoutlen = 1000
 vim.o.matchtime = 2 -- show matching parens/brackets for 200ms
 
 vim.o.updatetime = 4000
-vim.g.cursorhold_updatetime = 150 -- antoinemadec/FixCursorHold.nvim
+-- vim.g.cursorhold_updatetime = 150 -- antoinemadec/FixCursorHold.nvim
 
 vim.o.lazyredraw = true
 
