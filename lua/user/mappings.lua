@@ -344,10 +344,12 @@ m.nnoremap(xk [[<C-S-i>]], ithunk(fn.jumplist_jump_buf, 1), m.silent, "Jumplist:
 -- Go to a tab by index; If it doesn't exist, create a new tab
 local function tabnm(n)
   return function()
-    if vim.api.nvim_tabpage_is_valid(n) then
-      vim.cmd('tabn ' .. n)
-    else
+    local tabs = vim.api.nvim_list_tabpages()
+    if n > #tabs then
       vim.cmd('$tabnew')
+    else
+      local tabpage = tabs[n]
+      vim.api.nvim_set_current_tabpage(tabpage)
     end
   end
 end
