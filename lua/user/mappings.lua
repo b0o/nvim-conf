@@ -32,7 +32,7 @@ M.xk = fn.utf8keys {
   [ [[<C-.>]] ] = 0x00fb,
   [ [[<C-S-o>]] ] = 0x00fc,
   [ [[<C-S-i>]] ] = 0x00fd,
-  [ [[<C-/>]] ] = 0x001f,
+  [ [[<C-/>]] ] = 0x00d4,
 }
 local xk = M.xk
 
