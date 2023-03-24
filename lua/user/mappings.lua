@@ -1126,4 +1126,11 @@ m.inoremap([[<M-[>]], ithunk(copilot_suggestion.prev), m.silent, "Copilot: Previ
 m.inoremap([[<M-]>]], ithunk(copilot_suggestion.next), m.silent, "Copilot: Next Suggestion")
 m.inoremap(xk [[<C-S-\>]], ithunk(copilot_panel.open), m.silent, "Copilot: Open panel")
 
+---- jakemason/ouroboros.nvim
+m.group(m.silent, { ft = { "c", "cpp" } }, function()
+  m.nnoremap({ [[<leader>O]], [[<leader>oo]] }, [[:Ouroboros<Cr>]], "Ouroboros: Switch between header and source file")
+  m.nnoremap([[<leader>os]], [[:split | Ouroboros<Cr>]], "Ouroboros: Open other in split")
+  m.nnoremap([[<leader>ov]], [[:vsplit | Ouroboros<Cr>]], "Ouroboros: Open other in vsplit")
+end)
+
 return M

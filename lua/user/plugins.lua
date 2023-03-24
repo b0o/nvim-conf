@@ -246,6 +246,7 @@ local startup = function()
   use 'aouelete/sway-vim-syntax'
   use 'fatih/vim-go'
   use 'jose-elias-alvarez/typescript.nvim'
+  use 'jakemason/ouroboros.nvim' -- C/C++ header/source file switching
 
   -- Documentation
   use { 'alx741/vinfo', cmd = { 'Vinfo', 'VinfoClean', 'VinfoNext', 'VinfoPrevious' } }
