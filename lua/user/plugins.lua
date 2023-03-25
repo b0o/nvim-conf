@@ -59,6 +59,9 @@ local startup = function()
   use { 'aserowy/tmux.nvim', lazymod = 'tmux' }
   use { 'wellle/visual-split.vim', cmd = { 'VSResize', 'VSSplit', 'VSSplitAbove', 'VSSplitBelow' } }
 
+  -- Terminal
+  use { 'akinsho/nvim-toggleterm.lua', tag = '*', conf = 'toggleterm' }
+
   -- Telescope
   use { 'nvim-telescope/telescope.nvim', requires = 'nvim-lua/popup.nvim', lazymod = 'telescope' }
   use { 'kyoh86/telescope-windows.nvim', telescope_ext = 'windows' }

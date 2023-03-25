@@ -33,6 +33,10 @@ M.xk = fn.utf8keys {
   [ [[<C-S-o>]] ] = 0x00fc,
   [ [[<C-S-i>]] ] = 0x00fd,
   [ [[<C-/>]] ] = 0x00d4,
+  [ [[<C-M-/>]] ] = 0x00d5,
+  [ [[<C-S-/>]] ] = 0x00d6,
+  [ [[<M-S-/>]] ] = 0x00d7,
+  [ [[<C-M-S-/>]] ] = 0x00d8,
 }
 local xk = M.xk
 
@@ -1133,4 +1137,29 @@ m.group(m.silent, { ft = { "c", "cpp" } }, function()
   m.nnoremap([[<leader>ov]], [[:vsplit | Ouroboros<Cr>]], "Ouroboros: Open other in vsplit")
 end)
 
+---- akinsho/nvim-toggleterm.lua
+local toggleterm_smart_toggle = function()
+  local tabwins = vim.api.nvim_tabpage_list_wins(0)
+  local focwin = vim.api.nvim_get_current_win()
+  for _, win in ipairs(tabwins) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    if vim.api.nvim_buf_get_option(buf, "filetype") == "toggleterm" then
+      if win == focwin then
+        recent_wins.focus_most_recent()
+      else
+        vim.api.nvim_set_current_win(win)
+      end
+      return
+    end
+  end
+  vim.cmd("ToggleTerm")
+end
+m.nnoremap(xk [[<C-M-S-/>]], [[:ToggleTerm direction=float<Cr>]], "ToggleTerm: Toggle (float)")
+m.tnoremap(xk [[<C-M-S-/>]], [[<C-\><C-n>:ToggleTerm direction=float<Cr>]], "ToggleTerm: Toggle (float)")
+m.nnoremap(xk [[<M-S-/>]], [[:ToggleTerm direction=vertical<Cr>]], "ToggleTerm: Toggle (vertical)")
+m.tnoremap(xk [[<M-S-/>]], [[<C-\><C-n>:ToggleTerm direction=vertical<Cr>]], "ToggleTerm: Toggle (vertical)")
+m.nnoremap(xk [[<C-M-/>]], [[:ToggleTerm direction=horizontal<Cr>]], "ToggleTerm: Toggle (horizontal)")
+m.tnoremap(xk [[<C-M-/>]], [[<C-\><C-n>:ToggleTerm direction=horizontal<Cr>]], "ToggleTerm: Toggle (horizontal)")
+m.nnoremap(xk [[<C-/>]], toggleterm_smart_toggle, "ToggleTerm: Smart Toggle")
+m.tnoremap(xk [[<C-/>]], toggleterm_smart_toggle, "ToggleTerm: Smart Toggle")
 return M
