@@ -7,6 +7,6 @@ years. There are lots of things in here that are hyper-specific to my setup, but
 
 ## License
 
-&copy; 2015-2022 Maddison Hellstrom
+&copy; 2015-2023 Maddison Hellstrom
 
 MIT License
