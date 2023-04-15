@@ -14,7 +14,7 @@ local sources = {
     'goimports',
     'nixfmt',
     {
-      'prettier',
+      'prettierd',
       filetypes = {
         'javascript',
         'javascriptreact',
@@ -30,6 +30,7 @@ local sources = {
         'json',
       },
     },
+    -- 'prismaFmt',
     {
       'shellharden',
       filetypes = sh_filetypes,
@@ -46,6 +47,21 @@ local sources = {
     --     },
   },
   diagnostics = {
+    {
+      'cppcheck',
+      args = {
+        '--enable=warning,style,performance,portability',
+        '--template=gcc',
+        '--language=c++',
+        '--std=c++20',
+        '--suppress=unusedStructMember:*.h',
+        '--inline-suppr',
+        '$FILENAME',
+      },
+      filetypes = { 'cpp' },
+    },
+    -- 'clang_check',
+    'cpplint',
     -- {
     --   'eslint',
     --   -- 'eslint_d',

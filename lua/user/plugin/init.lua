@@ -1,8 +1,10 @@
 local fn = require 'user.fn'
+local colors = require 'user.colors'
+local mappings = require 'user.mappings'
 
 ---- AndrewRadev/splitjoin.vim
-vim.g.splitjoin_join_mapping = ''
-vim.g.splitjoin_split_mapping = ''
+-- vim.g.splitjoin_join_mapping = ''
+-- vim.g.splitjoin_split_mapping = ''
 
 ---- lukas-reineke/indent-blankline.nvim
 require('indent_blankline').setup {
@@ -151,3 +153,75 @@ vim.g.did_load_filetypes = 1
 ---- github/copilot.vim
 -- imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
 -- vim.g.copilot_no_tab_map = true
+
+---- monaqa/dial.nvim
+local augend = require 'dial.augend'
+require('dial.config').augends:register_group {
+  default = {
+    augend.integer.alias.decimal,
+    augend.integer.alias.hex,
+    augend.constant.new {
+      elements = { 'false', 'true' },
+      cyclic = false,
+    },
+    augend.constant.new {
+      elements = { 'False', 'True' },
+      cyclic = false,
+    },
+    augend.constant.alias.alpha,
+    augend.constant.alias.Alpha,
+    augend.semver.alias.semver,
+    augend.date.alias['%Y/%m/%d'],
+    augend.date.alias['%m/%d/%Y'],
+    augend.date.alias['%d/%m/%Y'],
+    augend.date.alias['%m/%d/%y'],
+    augend.date.alias['%m/%d'],
+    augend.date.alias['%Y-%m-%d'],
+    augend.date.alias['%H:%M:%S'],
+    augend.date.alias['%H:%M'],
+    augend.constant.new {
+      elements = { 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun' },
+      word = true,
+      cyclic = true,
+    },
+    augend.constant.new {
+      elements = { 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' },
+      word = true,
+      cyclic = true,
+    },
+  },
+}
+
+---- jinh0/eyeliner.nvim
+require('eyeliner').setup {
+  highlight_on_key = true,
+}
+vim.api.nvim_set_hl(0, 'EyelinerPrimary', { fg = colors.cyan, bold = true, underline = true })
+vim.api.nvim_set_hl(0, 'EyelinerSecondary', { fg = colors.yellow, bold = true, underline = true })
+
+---- chrisgrieser/nvim-recorder
+require('recorder').setup {
+  -- Named registers where macros are saved. The first register is the default
+  -- register/macro-slot used after startup.
+  slots = { 'a', 'b', 'c', 'd' },
+
+  -- default keymaps, see README for description what the commands do
+  mapping = {
+    startStopRecording = mappings.xk [[<C-M-S-q>]],
+    playMacro = mappings.xk [[<C-M-q>]],
+    switchSlot = '<C-q>',
+    editMacro = 'cq',
+    yankMacro = 'yq', -- also decodes it for turning macros to mappings
+    addBreakPoint = '##', -- ⚠️ this should be a string you don't use in insert mode during a macro
+  },
+
+  -- clears all macros-slots on startup
+  clear = false,
+
+  -- log level used for any notification, mostly relevant for nvim-notify
+  -- (note that by default, nvim-notify does not show the levels trace and debug.)
+  logLevel = vim.log.levels.INFO,
+
+  -- experimental, see README
+  dapSharedKeymaps = false,
+}

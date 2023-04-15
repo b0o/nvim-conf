@@ -48,9 +48,9 @@ cmp.setup {
   view = {
     entries = { name = 'custom', selection_order = 'bottom_up' },
   },
-  experimental = {
-    ghost_text = true,
-  },
+  -- experimental = {
+  --   ghost_text = true,
+  -- },
   formatting = {
     fields = { 'kind', 'abbr', 'menu' },
     format = function(entry, vim_item)

@@ -16,6 +16,6 @@ local M = {}
 -- local m = require('luasnip.extras').m
 -- local lambda = require('luasnip.extras').l
 
-require('luasnip.loaders.from_vscode').lazy_load()
+-- require('luasnip.loaders.from_vscode').lazy_load()
 
 return M

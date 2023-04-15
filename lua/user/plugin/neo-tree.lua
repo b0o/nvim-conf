@@ -53,10 +53,10 @@ require('neo-tree').setup {
     width = 30,
     mappings = {
       ['<Tab>'] = 'toggle_node',
-      ['<2-LeftMouse>'] = 'open',
-      ['<Cr>'] = 'open',
-      ['<C-x>'] = 'open_split',
-      ['<C-v>'] = 'open_vsplit',
+      ['<2-LeftMouse>'] = 'open_with_window_picker',
+      ['<Cr>'] = 'open_with_window_picker',
+      ['<C-x>'] = 'split_with_window_picker',
+      ['<C-v>'] = 'vsplit_with_window_picker',
       ['<C-t>'] = 'open_tabnew',
       --['C'] = 'close_node',
       --['<Bs>'] = 'navigate_up',
@@ -88,7 +88,7 @@ require('neo-tree').setup {
         ['<C-l>'] = 'clear_filter',
         ['<Bs>'] = 'navigate_up',
         ['.'] = 'set_root',
-        ['<C-x>'] = 'open_split',
+        ['<C-x>'] = 'split_with_window_picker',
       },
     },
     filtered_items = {

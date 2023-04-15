@@ -23,6 +23,7 @@ local startup = function()
   -- UI
   uselocal { 'b0o/incline.nvim/worktree/main/', conf = 'incline' }
   use 'SmiteshP/nvim-gps'
+  use 'chriskempson/base16-vim'
   use 'Famiu/feline.nvim'
   use 'ericbn/vim-relativize'
   use 'folke/which-key.nvim'
@@ -31,6 +32,8 @@ local startup = function()
   use 'lukas-reineke/indent-blankline.nvim'
   use 'rcarriga/nvim-notify'
   use 'stevearc/dressing.nvim'
+  use 'VonHeikemen/fine-cmdline.nvim'
+  use { 's1n7ax/nvim-window-picker', lazymod = 'window-picker' }
   -- use { 'axieax/urlview.nvim', cmd = 'UrlView', telescope_ext = 'urlview' }
   use { 'kyazdani42/nvim-tree.lua', lazymod = 'nvim-tree', cmd = 'NvimTree*' }
   use {
@@ -60,7 +63,7 @@ local startup = function()
   use { 'wellle/visual-split.vim', cmd = { 'VSResize', 'VSSplit', 'VSSplitAbove', 'VSSplitBelow' } }
 
   -- Terminal
-  use { 'akinsho/nvim-toggleterm.lua', tag = '*', conf = 'toggleterm' }
+  use { 'akinsho/nvim-toggleterm.lua', conf = 'toggleterm' }
 
   -- Telescope
   use { 'nvim-telescope/telescope.nvim', requires = 'nvim-lua/popup.nvim', lazymod = 'telescope' }
@@ -72,7 +75,8 @@ local startup = function()
   -- Editing
   use { 'smjonas/live-command.nvim' }
   use { 'andymass/vim-matchup', config = [[vim.g.matchup_motion_enabled = false]] }
-  use 'b0o/vim-shot-f'
+  use 'chrisgrieser/nvim-recorder'
+  use 'jinh0/eyeliner.nvim'
   use 'chaoren/vim-wordmotion'
   use { 'chentoast/marks.nvim', conf = 'marks' }
   use 'kana/vim-textobj-user'
@@ -83,35 +87,37 @@ local startup = function()
   use 'mg979/vim-visual-multi'
   use { 'numToStr/Comment.nvim', lazymod = { mod = 'Comment', conf = 'comment' }, keys = { { '', 'gcc' } } }
   use 'tpope/vim-repeat'
-  use 'tpope/vim-speeddating'
+  -- use 'tpope/vim-speeddating'
   use { 'tpope/vim-surround', config = [[vim.g.surround_no_insert_mappings = true]] }
-  use 'triglav/vim-visual-increment'
-  use { 'AndrewRadev/splitjoin.vim', cmd = { 'SplitjoinSplit', 'SplitjoinJoin' } }
+  use 'monaqa/dial.nvim'
+  -- use 'triglav/vim-visual-increment'
+  -- use { 'AndrewRadev/splitjoin.vim', cmd = { 'SplitjoinSplit', 'SplitjoinJoin' } }
   use { 'godlygeek/tabular', cmd = { 'AddTabularPattern', 'AddTabularPipeline', 'Tabularize', 'GTabularize' } }
   use { 'tpope/vim-abolish' }
   use { 'matze/vim-move', setup = [[ vim.g.move_key_modifier = 'C'; vim.g.move_key_modifier_visualmode = 'C' ]] }
-  use {
-    'rbong/vim-buffest',
-    cmd = {
-      'Regsplit',
-      'Regvsplit',
-      'Regtabedit',
-      'Regedit',
-      'Regpedit',
-      'Qflistsplit',
-      'Qflistvsplit',
-      'Qflisttabedit',
-      'Qflistedit',
-      'Loclistsplit',
-      'Loclistvsplit',
-      'Loclisttabedit',
-      'Locflistedit',
-    },
-  }
+  -- use {
+  --   'rbong/vim-buffest',
+  --   cmd = {
+  --     'Regsplit',
+  --     'Regvsplit',
+  --     'Regtabedit',
+  --     'Regedit',
+  --     'Regpedit',
+  --     'Qflistsplit',
+  --     'Qflistvsplit',
+  --     'Qflisttabedit',
+  --     'Qflistedit',
+  --     'Loclistsplit',
+  --     'Loclistvsplit',
+  --     'Loclisttabedit',
+  --     'Locflistedit',
+  --   },
+  -- }
 
   -- AI
   -- use 'github/copilot.vim'
   use { 'zbirenbaum/copilot.lua', conf = 'copilot' }
+  use { 'dpayne/CodeGPT.nvim', conf = 'codegpt' }
 
   -- Quickfix/Loclist
   use { 'kevinhwang91/nvim-bqf', lazymod = 'bqf', ft = 'qf', event = 'QuickFixCmdPre' }
@@ -124,9 +130,10 @@ local startup = function()
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
   use { 'nvim-treesitter/nvim-treesitter-textobjects', after = 'nvim-treesitter' }
   use { 'nvim-treesitter/nvim-treesitter-context', after = 'nvim-treesitter' }
-  use { 'nkrkv/nvim-treesitter-rescript', after = 'nvim-treesitter' }
+  -- use { 'nkrkv/nvim-treesitter-rescript', after = 'nvim-treesitter' }
   use { 'JoosepAlviste/nvim-ts-context-commentstring', after = 'nvim-treesitter' }
-  xuse { 'lewis6991/spellsitter.nvim', after = 'nvim-treesitter' }
+  use { 'Wansmer/sibling-swap.nvim', after = 'nvim-treesitter' }
+  -- xuse { 'lewis6991/spellsitter.nvim', after = 'nvim-treesitter' }
   use { 'nvim-treesitter/playground', after = 'nvim-treesitter', cmd = 'TSPlaygroundToggle' }
 
   -- LSP
@@ -135,6 +142,7 @@ local startup = function()
   use 'neovim/nvim-lspconfig'
   use 'nvim-lua/lsp-status.nvim'
   use 'onsails/lspkind-nvim'
+  use { 'lewis6991/hover.nvim', lazymod = 'hover' }
   use { 'DNLHC/glance.nvim', lazymod = 'glance', cmd = 'Glance' }
   use { 'jose-elias-alvarez/null-ls.nvim', module = 'null-ls' }
   use { 'ray-x/lsp_signature.nvim', module = 'lsp_signature' }
@@ -216,7 +224,7 @@ local startup = function()
     'L3MON4D3/LuaSnip',
     conf = 'luasnip',
   }
-  use 'rafamadriz/friendly-snippets'
+  -- use 'rafamadriz/friendly-snippets'
 
   -- Completion
   use { 'hrsh7th/nvim-cmp', module = 'cmp' }
@@ -229,12 +237,12 @@ local startup = function()
   use { 'andersevenrud/cmp-tmux', after = 'nvim-cmp' }
   use { 'petertriho/cmp-git', after = 'nvim-cmp' }
   use { 'hrsh7th/cmp-cmdline', after = 'nvim-cmp' }
-  xuse { 'hrsh7th/cmp-calc', after = 'nvim-cmp' }
-  xuse { 'f3fora/cmp-spell', after = 'nvim-cmp' }
+  -- xuse { 'hrsh7th/cmp-calc', after = 'nvim-cmp' }
+  -- xuse { 'f3fora/cmp-spell', after = 'nvim-cmp' }
 
   -- Debugging
-  use { 'mfussenegger/nvim-dap', module = 'dap' }
-  use { 'jbyuki/one-small-step-for-vimkind', module = 'osv' } -- Lua DAP adapter, a.k.a. osv
+  -- use { 'mfussenegger/nvim-dap', module = 'dap' }
+  -- use { 'jbyuki/one-small-step-for-vimkind', module = 'osv' } -- Lua DAP adapter, a.k.a. osv
 
   -- Sessions
   use {
@@ -243,9 +251,9 @@ local startup = function()
   }
 
   -- Language-specific
-  use 'Akin909/vim-dune'
+  -- use 'Akin909/vim-dune'
   use 'mboughaba/i3config.vim'
-  use 'rescript-lang/vim-rescript'
+  -- use 'rescript-lang/vim-rescript'
   use 'aouelete/sway-vim-syntax'
   use 'fatih/vim-go'
   use 'jose-elias-alvarez/typescript.nvim'

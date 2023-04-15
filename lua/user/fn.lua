@@ -376,7 +376,7 @@ M.session_save = function()
   if require('nvim-tree.view').is_visible() then
     meta.nvimTreeOpen = true
     meta.nvimTreeFocused = vim.fn.bufname(vim.fn.bufnr()) == 'NvimTree'
-    require('nvim-tree.view').close()
+    vim.cmd 'NvimTreeClose'
   end
 
   require('treesitter-context').disable()
@@ -388,7 +388,7 @@ M.session_save = function()
   require('treesitter-context').enable()
 
   if meta.nvimTreeOpen then
-    require('nvim-tree').open()
+    vim.cmd 'NvimTreeOpen'
     if not meta.nvimTreeFocused and vim.api.nvim_win_is_valid(meta.focused) then
       vim.api.nvim_set_current_win(meta.focused)
     end
@@ -404,10 +404,10 @@ M.session_load = function()
     vim.schedule(function()
       require('user.tabline').restore_tabpage_titles()
       if meta.nvimTreeOpen then
-        require('nvim-tree').open()
+        vim.cmd 'NvimTreeOpen'
       end
       if meta.nvimTreeFocused then
-        require('nvim-tree').focus()
+        vim.cmd 'NvimTreeFocus'
       elseif meta.focused and vim.api.nvim_win_is_valid(meta.focused) then
         vim.api.nvim_set_current_win(meta.focused)
       end

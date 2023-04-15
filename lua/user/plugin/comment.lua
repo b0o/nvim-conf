@@ -41,3 +41,5 @@ require('Comment').setup {
 }
 
 require('Comment.ft').set('rescript', { '//%s', '/*%s*/' })
+require('Comment.ft').set('capnp', { '#%s' })
+require('Comment.ft').set('systemd', { '#%s' })

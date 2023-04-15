@@ -1,6 +1,7 @@
 local neogit = require 'neogit'
 
 neogit.setup {
+  auto_show_console = false, -- disable annoying console window when commiting with fugitive
   -- disable_signs = false,
   -- disable_hint = false,
   -- disable_context_highlighting = false,

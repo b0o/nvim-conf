@@ -18,6 +18,8 @@ local auto_resize = require 'user.util.auto-resize'
 M.xk = fn.utf8keys {
   [ [[<C-S-q>]] ] = 0xff01,
   [ [[<C-S-n>]] ] = 0xff02,
+  [ [[<C-M-q>]] ] = 0xff03,
+  [ [[<C-M-S-q>]] ] = 0xff04,
   [ [[<C-\>]] ] = 0x00f0,
   [ [[<C-S-\>]] ] = 0x00f1,
   [ [[<M-S-\>]] ] = 0x00f2,
@@ -32,11 +34,13 @@ M.xk = fn.utf8keys {
   [ [[<C-.>]] ] = 0x00fb,
   [ [[<C-S-o>]] ] = 0x00fc,
   [ [[<C-S-i>]] ] = 0x00fd,
+  [ [[<M-c>]] ] = 0x00fe,
   [ [[<C-/>]] ] = 0x00d4,
   [ [[<C-M-/>]] ] = 0x00d5,
   [ [[<C-S-/>]] ] = 0x00d6,
   [ [[<M-S-/>]] ] = 0x00d7,
   [ [[<C-M-S-/>]] ] = 0x00d8,
+  [ [[<M-Space>]] ] = 0x00d9,
 }
 local xk = M.xk
 
@@ -229,6 +233,26 @@ m.nnoremap([[<C-M-k>]], [["dY"dP]], "Duplicate line upwards")
 
 m.xnoremap([[<C-M-j>]], [["dy`<"dPjgv]], "Duplicate selection downwards")
 m.xnoremap([[<C-M-k>]], [["dy`>"dpgv]], "Duplicate selection upwards")
+
+-- match the indentation of the next line
+local function match_indent(dir)
+  return function()
+    local target_line = vim.fn.search([[\S]], "nW" .. (dir == -1 and "bz" or ""))
+    if target_line == 0 then
+      return
+    end
+    local cur = vim.api.nvim_win_get_cursor(0)
+    local indent = vim.fn.indent(cur[1])
+    local new_indent = vim.fn.indent(target_line)
+    local text = vim.fn.trim(vim.api.nvim_get_current_line())
+    local new_text = string.rep(" ", new_indent) .. text
+    vim.api.nvim_set_current_line(new_text)
+    vim.api.nvim_win_set_cursor(0, { cur[1], cur[2] + (new_indent - indent) })
+  end
+end
+
+m.inoremap([[<M-,>]], match_indent(-1), "Match indent of prev line")
+m.inoremap([[<M-.>]], match_indent(1), "Match indent of next line")
 
 -- Clear UI state:
 -- - Clear search highlight
@@ -424,10 +448,6 @@ m.nmap({ '<C-t><C-l>', '<C-t>l' }, tabline.tabpage_toggle_titlestyle, 'Tabpage: 
 -- use P for original behavior
 m.xnoremap([[p]], [[user#fn#pasteRestore()]], m.silent, m.expr)
 
-m.nnoremap([[<leader>T]], [[:Term!<Cr>]], m.silent, "New term (tab)")
-m.nnoremap([[<leader>t]], [[:30Term<Cr>]], m.silent, "New term (split)")
-
-m.tnoremap(xk [[<C-S-q>]], [[<C-\><C-n>:q<Cr>]]) -- Close terminal
 m.tnoremap(xk [[<C-S-n>]], [[<C-\><C-n>]]) -- Enter Normal mode
 m.tnoremap([[<C-n>]], [[<C-n>]])
 m.tnoremap([[<C-p>]], [[<C-p>]])
@@ -636,11 +656,15 @@ M.on_lsp_attach = function(bufnr)
     m.nnoremap({ [[<localleader>so]], [[<leader>so]] },
       ithunk(fn.require_on_call_rec('user.plugin.telescope').cmds.lsp_document_symbols), "LSP: Telescope symbol search")
 
+    local hover = fn.require_on_call_rec('hover')
     m.nname("<localleader>h", "LSP-Hover")
     m.nnoremap([[<localleader>hs]], ithunk(vim.lsp.buf.signature_help), "LSP: Signature help")
-    m.nnoremap([[<localleader>ho]], ithunk(vim.lsp.buf.hover), "LSP: Hover")
-    m.nnoremap([[<M-i>]], ithunk(vim.lsp.buf.hover), "LSP: Hover")
-    m.inoremap([[<M-i>]], ithunk(vim.lsp.buf.hover), "LSP: Hover")
+    m.nnoremap([[<localleader>ho]], ithunk(hover.hover), "LSP: Hover")
+    m.nnoremap([[<M-i>]], ithunk(hover.hover), "LSP: Hover")
+    m.inoremap([[<M-i>]], ithunk(hover.hover), "LSP: Hover")
+    -- m.nnoremap([[<localleader>ho]], ithunk(vim.lsp.buf.hover), "LSP: Hover")
+    -- m.nnoremap([[<M-i>]], ithunk(vim.lsp.buf.hover), "LSP: Hover")
+    -- m.inoremap([[<M-i>]], ithunk(vim.lsp.buf.hover), "LSP: Hover")
     m.nnoremap([[<M-S-i>]], ithunk(user_lsp.peek_definition), "LSP: Peek definition")
   end)
 end
@@ -650,8 +674,8 @@ end
 m.nnoremap([[<leader><leader>]], [[:WhichKey<Cr>]], "WhichKey: Show all")
 
 ---- AndrewRadev/splitjoin.vim
-m.nnoremap([[gJ]], [[:SplitjoinJoin<Cr>]], "Splitjoin: Join")
-m.nnoremap([[gS]], [[:SplitjoinSplit<Cr>]], "Splitjoin: Split")
+-- m.nnoremap([[gJ]], [[:SplitjoinJoin<Cr>]], "Splitjoin: Join")
+-- m.nnoremap([[gS]], [[:SplitjoinSplit<Cr>]], "Splitjoin: Split")
 
 ---- wbthomason/packer.nvim
 m.nname("<leader>p", "Packer")
@@ -701,10 +725,25 @@ end, m.silent)
 
 ---- aserowy/tmux.nvim
 local tmux = fn.require_on_exported_call 'tmux'
+local function tmux_move(dir)
+  return function()
+    if vim.bo.filetype == "toggleterm" then
+      local key = ({ left = 'h', right = 'l', top = 'k', bottom = 'j' })[dir]
+      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(xk [[<M-Space>]] .. key, true, false, true), 'n', false)
+    else
+      tmux["move_" .. dir]()
+    end
+  end
+end
+
 m.nmap([[<M-h>]], ithunk(tmux.move_left), m.silent, "Goto window/tmux pane left")
 m.nmap([[<M-j>]], ithunk(tmux.move_bottom), m.silent, "Goto window/tmux pane down")
 m.nmap([[<M-k>]], ithunk(tmux.move_top), m.silent, "Goto window/tmux pane up")
 m.nmap([[<M-l>]], ithunk(tmux.move_right), m.silent, "Goto window/tmux pane right")
+m.tnoremap([[<M-h>]], tmux_move "left", m.silent, "Goto window/tmux pane left")
+m.tnoremap([[<M-j>]], tmux_move "bottom", m.silent, "Goto window/tmux pane down")
+m.tnoremap([[<M-k>]], tmux_move "top", m.silent, "Goto window/tmux pane up")
+m.tnoremap([[<M-l>]], tmux_move "right", m.silent, "Goto window/tmux pane right")
 
 m.group(m.silent, function()
   local tu = fn.require_on_call_rec 'user.plugin.telescope'
@@ -1117,18 +1156,32 @@ local copilot_accept_or_insert = function(action, fallback)
     if copilot_suggestion.is_visible() then
       copilot_suggestion[action]()
     else
-      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(fallback, true, false, true), "i", false)
+      vim.api.nvim_put(vim.split(fallback, "\n"), "c", false, true)
     end
   end
 end
 
-m.inoremap(xk [[<C-\>]], copilot_accept_or_insert("accept", "<Cr>"), m.silent, "Copilot: Accept") -- For Alacritty w/custom conf
-m.inoremap([[]], copilot_accept_or_insert("accept", "<Cr>"), m.silent, "Copilot: Accept") -- For other terminals
+m.inoremap(xk [[<C-\>]], copilot_accept_or_insert("accept", "\n"), m.silent, "Copilot: Accept") -- For Alacritty w/custom conf
+m.inoremap([[]], copilot_accept_or_insert("accept", "\n"), m.silent, "Copilot: Accept") -- For other terminals
 m.inoremap([[<M-\>]], copilot_accept_or_insert("accept_word", " "), m.silent, "Copilot: Accept Word")
-m.inoremap(xk [[<M-S-\>]], copilot_accept_or_insert("accept_line", "<Cr>"), m.silent, "Copilot: Accept Line")
+m.inoremap(xk [[<M-S-\>]], copilot_accept_or_insert("accept_line", "\n"), m.silent, "Copilot: Accept Line")
 m.inoremap([[<M-[>]], ithunk(copilot_suggestion.prev), m.silent, "Copilot: Previous Suggestion")
 m.inoremap([[<M-]>]], ithunk(copilot_suggestion.next), m.silent, "Copilot: Next Suggestion")
 m.inoremap(xk [[<C-S-\>]], ithunk(copilot_panel.open), m.silent, "Copilot: Open panel")
+
+---- monaqa/dial.nvim
+local dial_map = fn.require_on_call_rec('dial.map')
+m.nnoremap([[<C-a>]], dial_map.inc_normal(), "Dial: Increment")
+m.nnoremap([[<C-x>]], dial_map.dec_normal(), "Dial: Decrement")
+m.vnoremap([[<C-a>]], dial_map.inc_visual(), "Dial: Increment")
+m.vnoremap([[<C-x>]], dial_map.dec_visual(), "Dial: Decrement")
+m.vnoremap([[g<C-a>]], dial_map.inc_gvisual(), "Dial: Increment")
+m.vnoremap([[g<C-x>]], dial_map.dec_gvisual(), "Dial: Decrement")
+
+---- Wansmer/sibling-swap.nvim
+local sibling_swap = fn.require_on_call_rec('sibling-swap')
+m.nnoremap(xk [[<C-.>]], ithunk(sibling_swap.swap_with_right), "Sibling-Swap: Swap with right")
+m.nnoremap([[<F34>]], ithunk(sibling_swap.swap_with_left), "Sibling-Swap: Swap with left")
 
 ---- jakemason/ouroboros.nvim
 m.group(m.silent, { ft = { "c", "cpp" } }, function()
@@ -1162,4 +1215,12 @@ m.nnoremap(xk [[<C-M-/>]], [[:ToggleTerm direction=horizontal<Cr>]], "ToggleTerm
 m.tnoremap(xk [[<C-M-/>]], [[<C-\><C-n>:ToggleTerm direction=horizontal<Cr>]], "ToggleTerm: Toggle (horizontal)")
 m.nnoremap(xk [[<C-/>]], toggleterm_smart_toggle, "ToggleTerm: Smart Toggle")
 m.tnoremap(xk [[<C-/>]], toggleterm_smart_toggle, "ToggleTerm: Smart Toggle")
+
+---- dpayne/CodeGPT.nvim
+m.nnoremap(xk [[<M-c>]], [[<cmd>FineCmdline Chat <Cr>]], "CodeGPT: Chat")
+m.vnoremap(xk [[<M-c>]], [[<cmd>FineCmdline '<,'>Chat <Cr>]], "CodeGPT: Chat")
+
+-- romgrk/nvim-treesitter-context
+m.nnoremap([[<leader>tsc]], [[<cmd>TSContextToggle<Cr>]], "Treesitter Context: Toggle")
+
 return M

@@ -28,7 +28,19 @@ local lsp_servers = {
     'bashls',
     cmd_env = { SHELLCHECK_PATH = '' },
   },
-  'ccls',
+  -- 'ccls',
+  {
+    'clangd',
+    filetypes = {
+      'c',
+      'cpp',
+      'objc',
+      'objcpp',
+      'cuda',
+      -- 'proto' -- clangd doesn't seem to work with proto files
+    },
+  },
+  'cmake',
   {
     'cssls',
     settings = {
@@ -115,6 +127,7 @@ local lsp_servers = {
     'ocamllsp',
     root_dir = root_pattern('*.opam', 'esy.json', 'package.json', '.git', '.merlin'),
   },
+  'prismals',
   {
     'pylsp',
     cmd = {
@@ -128,7 +141,12 @@ local lsp_servers = {
         plugins = {
           pylint = {
             enabled = true,
-            args = { '-j0', '--load-plugins=pylint_paths' },
+            args = {
+              '-j0',
+              '--load-plugins=pylint_paths',
+              '--extension-pkg-whitelist=pygame', -- SEE: https://stackoverflow.com/questions/50569453/why-does-it-say-that-module-pygame-has-no-init-member
+              '--generated-members=from_json,query,capnp', -- SEE: https://stackoverflow.com/questions/56844378/pylint-no-member-issue-but-code-still-works-vscode
+            },
             executable = 'pylint', -- SEE: https://github.com/python-lsp/python-lsp-server/issues/251
           },
           yapf = { enabled = true },
@@ -264,7 +282,8 @@ local lsp_servers = {
     settings = {
       redhat = { telemetry = { enabled = false } },
       yaml = {
-        schemaStore = { enabled = true, url = 'www.schemastore.org/api/json/catalog.json?test=5678' },
+        schemaStore = { enabled = true },
+        -- schemaStore = { enabled = true, url = 'www.schemastore.org/api/json/catalog.json?test=5678' },
         -- schemaStore = {},
         -- schemaStore = { url = 'www.schemastore.org/api/json/catalog.json?test=5678' },
         -- schemas = {
@@ -280,7 +299,7 @@ local lsp_servers = {
         --   },
         -- },
       },
-      http = { proxy = 'http://localhost:9210' },
+      -- http = { proxy = 'http://localhost:9210' },
     },
   },
 }
@@ -301,7 +320,6 @@ local lsp_handlers = {
     underline = true,
     update_in_insert = false,
   }),
-
   ['textDocument/definition'] = function(_, result)
     if result == nil or vim.tbl_isempty(result) then
       print 'Definition not found'
@@ -324,10 +342,8 @@ local lsp_handlers = {
       jumpto(result)
     end
   end,
-
-  ['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = M.border }),
+  -- ['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = M.border }),
   ['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = M.border }),
-
   ['window/showMessage'] = function(_, result, ctx)
     local client = vim.lsp.get_client_by_id(ctx.client_id)
     local lvl = ({ 'ERROR', 'WARN', 'INFO', 'DEBUG' })[result.type]
@@ -344,6 +360,31 @@ local lsp_handlers = {
 ---- ray-x/lsp_signature.nvim
 local lsp_signature_config = {
   zindex = 99, -- Keep signature popup below the completion PUM
+  bind = false,
+  floating_window = false, -- Disable by default, use toggle_key to enable
+  hint_enable = false,
+  toggle_key = '<M-s>',
+}
+
+---- lewis6991/hover.nvim
+local hover_config = {
+  init = function()
+    -- Require providers
+    require 'hover.providers.lsp'
+    require 'hover.providers.gh'
+    -- require 'hover.providers.gh_user'
+    -- require('hover.providers.jira')
+    require 'hover.providers.man'
+    -- require 'hover.providers.dictionary'
+  end,
+  preview_opts = {
+    -- border = nil,
+    border = M.border,
+  },
+  -- Whether the contents of a currently open hover window should be moved
+  -- to a :h preview-window when pressing the hover keymap.
+  preview_window = false,
+  title = false,
 }
 
 local function on_attach(client, bufnr)
@@ -371,6 +412,7 @@ end
 local function on_first_attach()
   require('null-ls').setup(vim.tbl_extend('force', require 'user.plugin.null-ls', { on_attach = on_attach }))
   require('lsp_signature').setup(lsp_signature_config)
+  require('hover').setup(hover_config)
   --require('packer').loader('trouble.nvim', false)
 end
 
@@ -388,6 +430,10 @@ local function on_exit(code, signal, id)
   user_lsp_status.on_exit(code, signal, id)
 end
 
+local no_format_on_save_fts = {
+  'gitcommit',
+}
+
 -- Enables/disables format on save
 -- If val is nil, format on save is toggled
 -- If silent is not false, a message will be displayed
@@ -397,6 +443,9 @@ function M.set_fmt_on_save(val, silent)
   if M.fmt_on_save_enabled then
     vim.api.nvim_create_autocmd(fmt_triggers[vim.o.filetype] or fmt_triggers.default, {
       callback = function()
+        if vim.tbl_contains(no_format_on_save_fts, vim.bo.filetype) then
+          return
+        end
         M.format { timeout_ms = format_on_save_timeout }
       end,
       group = augid,

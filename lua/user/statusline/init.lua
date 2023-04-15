@@ -7,6 +7,7 @@ local file_info = require 'user.statusline.file_info'
 
 require 'user.statusline.lsp'
 require 'user.statusline.dap'
+require 'user.statusline.codegpt'
 
 local fn = require 'user.fn'
 
@@ -56,7 +57,6 @@ local vi_mode_colors = {
 local filetypes_override_name = {
   'NvimTree',
   'Trouble',
-
   ['neo-tree'] = 'NeoTree',
   aerial = 'Aerial',
   fugitive = 'Fugitive',
@@ -68,12 +68,9 @@ local filetypes_override_name = {
 
 local config = {
   preset = 'default',
-
   theme = colors,
   separators = separators,
-
   vi_mode_colors = vi_mode_colors,
-
   force_inactive = {
     filetypes = fn.tbl_listkeys(filetypes_override_name),
     buftypes = {
@@ -82,12 +79,10 @@ local config = {
     },
     bufnames = {},
   },
-
   components = {
     active = {},
     inactive = {},
   },
-
   custom_providers = require('user.statusline.providers').providers,
 }
 
@@ -193,6 +188,10 @@ config.components.active[1] = {
 }
 
 config.components.active[2] = {
+  {
+    provider = 'codegpt',
+    hl = { fg = 'mistyrose', bold = false },
+  },
   {
     provider = 'lsp_progress',
     hl = { fg = 'mistyrose', bold = false },

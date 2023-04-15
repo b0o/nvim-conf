@@ -13,6 +13,9 @@ notify.setup {
 
 M.notify = function(msg, lvl, opts)
   lvl = lvl or vim.log.levels.INFO
+  if msg == 'warning: multiple different client offset_encodings detected for buffer, this is not supported yet' then
+    return
+  end
   local lvls = vim.log.levels
   local keep = function()
     return true

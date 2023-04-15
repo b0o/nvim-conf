@@ -445,6 +445,7 @@ else
 
   local colors = {
     theme_bg = '#222032',
+    -- fg = 'black',
     fg = 'white',
     fg_nc = '#B4A7DE',
     bg = 'NONE',
@@ -491,7 +492,6 @@ else
       return {
         guibg = bg,
         guifg = fg,
-
         -- { '', guifg = bg, guibg = lower_bg },
         ' ',
         { icon, guifg = icon_fg },
@@ -518,7 +518,8 @@ else
       -- options = { winhighlight = { 'Normal:InclineNormal' } },
     },
     hide = {
-      cursorline = 'focused_win',
+      -- cursorline = 'focused_win',
+      cursor_overlap = 'focused_win',
       -- focused_win = true,
       -- only_win = true,
       -- only_win = 'count_ignored',
