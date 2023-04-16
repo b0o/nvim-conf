@@ -1,8 +1,6 @@
 ---- akinsho/nvim-toggleterm.lua
 local xk = require('user.mappings').xk
 
-print 'Loading nvim-toggleterm.lua'
-
 require('toggleterm').setup {
   -- size can be a number or function which is passed the current terminal
   -- size = 20 | function(term)

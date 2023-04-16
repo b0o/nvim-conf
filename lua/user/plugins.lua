@@ -71,7 +71,12 @@ local startup = function()
   use { 'nvim-telescope/telescope-github.nvim', telescope_ext = 'gh' }
   use { 'natecraddock/telescope-zf-native.nvim', telescope_ext = 'zf-native' }
   use { 'nvim-telescope/telescope-live-grep-args.nvim', telescope_ext = 'live_grep_args' }
-  use { 'nvim-telescope/telescope-frecency.nvim', telescope_ext = 'frecency', requires = 'kkharji/sqlite.lua' }
+  use {
+    'axkirillov/easypick.nvim',
+    cmd = { 'Easypick' },
+    requires = 'nvim-telescope/telescope.nvim',
+    conf = 'easypick',
+  }
 
   -- Editing
   use { 'smjonas/live-command.nvim' }
