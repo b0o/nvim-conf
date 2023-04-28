@@ -14,7 +14,13 @@ local sources = {
     'goimports',
     'nixfmt',
     {
-      'prettierd',
+      'prettier',
+      extra_args = {
+        '--plugin',
+        'prettier-plugin-tailwindcss',
+        '--plugin-search-dir',
+        vim.env['XDG_DATA_HOME'] .. '/pnpm/global/5/node_modules',
+      },
       filetypes = {
         'javascript',
         'javascriptreact',
