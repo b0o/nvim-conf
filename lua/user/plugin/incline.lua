@@ -1,5 +1,9 @@
 ---- b0o/incline.nvim
 local incline = require 'incline'
+
+-- This file is a total mess because I like testing out different configurations
+-- and I don't want to delete them. I'll clean it up later.
+
 -- local colors = require 'user.colors'
 -- local config = require 'incline.config'
 
