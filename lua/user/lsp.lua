@@ -249,15 +249,13 @@ local lsp_servers = {
         autoClosingQuotes = 'always',
       },
       tailwindCSS = {
-        -- experimental = {
-        --   classRegex = {
-        --     'tw`([^`]*)', -- tw`...`
-        --     'tw="([^"]*)', -- <div tw="..." />
-        --     'tw={"([^"}]*)', -- <div tw={"..."} />
-        --     'tw\\.\\w+`([^`]*)', -- tw.xxx`...`
-        --     'tw\\(.*?\\)`([^`]*)', -- tw(Component)`...`
-        --   },
-        -- },
+        experimental = {
+          classRegex = {
+            [[[\S]*ClassName="([^"]*)]], -- <MyComponent containerClassName="..." />
+            [[[\S]*ClassName={"([^"}]*)]], -- <MyComponent containerClassName={"..."} />
+            [[[\S]*ClassName={"([^'}]*)]], -- <MyComponent containerClassName={'...'} />
+          },
+        },
         includeLanguages = {
           typescript = 'javascript',
           typescriptreact = 'javascript',
