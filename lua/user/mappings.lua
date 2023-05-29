@@ -677,6 +677,12 @@ m.nnoremap([[<leader><leader>]], [[:WhichKey<Cr>]], "WhichKey: Show all")
 -- m.nnoremap([[gJ]], [[:SplitjoinJoin<Cr>]], "Splitjoin: Join")
 -- m.nnoremap([[gS]], [[:SplitjoinSplit<Cr>]], "Splitjoin: Split")
 
+---- Wansmer/treesj
+local treesj = fn.require_on_call_rec('treesj')
+m.nnoremap([[gJ]], ithunk(treesj.toggle), "Treesj: Toggle")
+m.nnoremap([[gsj]], ithunk(treesj.join), "Treesj: Join")
+m.nnoremap({ [[gS]], [[gss]] }, ithunk(treesj.split), "Treesj: Split")
+
 ---- wbthomason/packer.nvim
 m.nname("<leader>p", "Packer")
 m.nnoremap([[<leader>pC]], [[:PackerClean<Cr>]], "Packer: Clean")

@@ -98,6 +98,7 @@ local startup = function()
   use 'monaqa/dial.nvim'
   -- use 'triglav/vim-visual-increment'
   -- use { 'AndrewRadev/splitjoin.vim', cmd = { 'SplitjoinSplit', 'SplitjoinJoin' } }
+  use 'Wansmer/treesj'
   use { 'godlygeek/tabular', cmd = { 'AddTabularPattern', 'AddTabularPipeline', 'Tabularize', 'GTabularize' } }
   use { 'tpope/vim-abolish' }
   use { 'matze/vim-move', setup = [[ vim.g.move_key_modifier = 'C'; vim.g.move_key_modifier_visualmode = 'C' ]] }
