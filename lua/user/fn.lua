@@ -404,6 +404,7 @@ M.session_load = function()
     vim.schedule(function()
       require('user.tabline').restore_tabpage_titles()
       if meta.nvimTreeOpen then
+        require 'nvim-tree'
         vim.cmd 'NvimTreeOpen'
       end
       if meta.nvimTreeFocused then
