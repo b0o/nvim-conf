@@ -48,6 +48,7 @@ require('nvim-tree').setup {
     add_trailing = true,
     group_empty = true,
     icons = {
+      git_placement = 'after',
       glyphs = {
         default = '',
         symlink = '',
