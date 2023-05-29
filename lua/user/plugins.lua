@@ -283,7 +283,6 @@ local startup = function()
   }
 
   -- Performance
-  use 'lewis6991/impatient.nvim'
   -- use 'antoinemadec/FixCursorHold.nvim'
   use { 'dstein64/vim-startuptime', cmd = 'StartupTime' }
 end
