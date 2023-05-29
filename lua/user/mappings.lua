@@ -306,18 +306,18 @@ m.nnoremap([[<F24>]], [[:if @l != "" | let @k=@l | end<Cr>"KgP:let @l=@k<Cr>:let
 m.inoremap(xk [[<C-`>]], [[<C-o>~<Left>]], "Toggle case")
 
 -- emacs-style motion & editing in command mode
-m.cnoremap([[<C-a>]], [[<Home>]]) -- Goto beginning of line
-m.cnoremap([[<C-b>]], [[<Left>]]) -- Goto char backward
-m.cnoremap([[<C-d>]], [[<Delete>]]) -- Kill char forward
-m.cnoremap([[<C-f>]], [[<Right>]]) -- Goto char forward
-m.cnoremap([[<C-g>]], [[<C-c>]]) -- Cancel
+m.cnoremap([[<C-a>]], [[<Home>]])                                           -- Goto beginning of line
+m.cnoremap([[<C-b>]], [[<Left>]])                                           -- Goto char backward
+m.cnoremap([[<C-d>]], [[<Delete>]])                                         -- Kill char forward
+m.cnoremap([[<C-f>]], [[<Right>]])                                          -- Goto char forward
+m.cnoremap([[<C-g>]], [[<C-c>]])                                            -- Cancel
 m.cnoremap([[<C-k>]], [[<C-\>e(" ".getcmdline())[:getcmdpos()-1][1:]<Cr>]]) -- Kill to end of line
-m.cnoremap([[<M-f>]], [[<C-\>euser#fn#cmdlineMoveWord( 1, 0)<Cr>]]) -- Goto word forward
-m.cnoremap([[<M-b>]], [[<C-\>euser#fn#cmdlineMoveWord(-1, 0)<Cr>]]) -- Goto word backward
-m.cnoremap([[<M-d>]], [[<C-\>euser#fn#cmdlineMoveWord( 1, 1)<Cr>]]) -- Kill word forward
+m.cnoremap([[<M-f>]], [[<C-\>euser#fn#cmdlineMoveWord( 1, 0)<Cr>]])         -- Goto word forward
+m.cnoremap([[<M-b>]], [[<C-\>euser#fn#cmdlineMoveWord(-1, 0)<Cr>]])         -- Goto word backward
+m.cnoremap([[<M-d>]], [[<C-\>euser#fn#cmdlineMoveWord( 1, 1)<Cr>]])         -- Kill word forward
 m.cnoremap([[<M-Backspace>]], [[<C-\>euser#fn#cmdlineMoveWord(-1, 1)<Cr>]]) -- Kill word backward
 
-m.cnoremap([[<M-k>]], [[<C-k>]]) -- Insert digraph
+m.cnoremap([[<M-k>]], [[<C-k>]])                                            -- Insert digraph
 
 -- Make c-n and c-p behave like up/down arrows, i.e. take into account the
 -- beginning of the text entered in the command line when jumping, but only if
@@ -597,10 +597,10 @@ M.on_lsp_attach = function(bufnr)
     m.xnoremap([[<localleader>F]], ithunk(user_lsp.range_formatting), "LSP: Format (range)")
 
     m.nname("<localleader>s", "LSP-Save")
-    m.nnoremap([[<localleader>S]], ithunk(user_lsp.set_fmt_on_save), "LSP: Toggle format on save")
-    m.nnoremap([[<localleader>ss]], ithunk(user_lsp.set_fmt_on_save), "LSP: Toggle format on save")
-    m.nnoremap([[<localleader>se]], ithunk(user_lsp.set_fmt_on_save, true), "LSP: Enable format on save")
-    m.nnoremap([[<localleader>sd]], ithunk(user_lsp.set_fmt_on_save, false), "LSP: Disable format on save")
+    m.nnoremap({ [[<localleader>S]], [[<localleader>ss]] }, [[:FormatToggle<Cr>]], "LSP: Toggle format on save")
+    m.nnoremap([[<localleader>se]], [[:FormatEnable<Cr>]], "LSP: Enable format on save")
+    m.nnoremap([[<localleader>sd]], [[:FormatDisable<Cr>]], "LSP: Disable format on save")
+
 
     local function gotoDiag(dir, sev)
       return function()
@@ -1169,7 +1169,7 @@ local copilot_accept_or_insert = function(action, fallback)
 end
 
 m.inoremap(xk [[<C-\>]], copilot_accept_or_insert("accept", "\n"), m.silent, "Copilot: Accept") -- For Alacritty w/custom conf
-m.inoremap([[]], copilot_accept_or_insert("accept", "\n"), m.silent, "Copilot: Accept") -- For other terminals
+m.inoremap([[]], copilot_accept_or_insert("accept", "\n"), m.silent, "Copilot: Accept")        -- For other terminals
 m.inoremap([[<M-\>]], copilot_accept_or_insert("accept_word", " "), m.silent, "Copilot: Accept Word")
 m.inoremap(xk [[<M-S-\>]], copilot_accept_or_insert("accept_line", "\n"), m.silent, "Copilot: Accept Line")
 m.inoremap([[<M-[>]], ithunk(copilot_suggestion.prev), m.silent, "Copilot: Previous Suggestion")
@@ -1227,7 +1227,44 @@ m.tnoremap(xk [[<C-/>]], toggleterm_smart_toggle, "ToggleTerm: Smart Toggle")
 m.nnoremap(xk [[<M-c>]], [[<cmd>FineCmdline Chat <Cr>]], "CodeGPT: Chat")
 m.vnoremap(xk [[<M-c>]], [[<cmd>FineCmdline '<,'>Chat <Cr>]], "CodeGPT: Chat")
 
--- romgrk/nvim-treesitter-context
+---- romgrk/nvim-treesitter-context
 m.nnoremap([[<leader>tsc]], [[<cmd>TSContextToggle<Cr>]], "Treesitter Context: Toggle")
+
+---- ThePrimeagen/refactoring.nvim
+local refactoring = fn.require_on_call_rec('refactoring')
+
+m.nname("<localleader>r", "Refactoring")
+m.vname("<localleader>r", "Refactoring")
+-- Remaps for the refactoring operations currently offered by the plugin
+-- vim.api.nvim_set_keymap("v", "<leader>re", [[ <Esc><Cmd>lua require('refactoring').refactor('Extract Function')<CR>]], {noremap = true, silent = true, expr = false})
+m.vnoremap([[<localleader>re]], ithunk(refactoring.refactor, "Extract Function"), "Refactoring: Extract Function")
+-- vim.api.nvim_set_keymap("v", "<leader>rf", [[ <Esc><Cmd>lua require('refactoring').refactor('Extract Function To File')<CR>]], {noremap = true, silent = true, expr = false})
+m.vnoremap([[<localleader>rf]], ithunk(refactoring.refactor, "Extract Function To File"),
+  "Refactoring: Extract Function To File")
+-- vim.api.nvim_set_keymap("v", "<leader>rv", [[ <Esc><Cmd>lua require('refactoring').refactor('Extract Variable')<CR>]], {noremap = true, silent = true, expr = false})
+m.vnoremap([[<localleader>rv]], ithunk(refactoring.refactor, "Extract Variable"), "Refactoring: Extract Variable")
+-- vim.api.nvim_set_keymap("v", "<leader>ri", [[ <Esc><Cmd>lua require('refactoring').refactor('Inline Variable')<CR>]], {noremap = true, silent = true, expr = false})
+m.vnoremap([[<localleader>ri]], ithunk(refactoring.refactor, "Inline Variable"), "Refactoring: Inline Variable")
+
+m.nname("<localleader>rb", "Refactoring: Extract Block")
+-- Extract block doesn't need visual mode
+-- vim.api.nvim_set_keymap("n", "<leader>rb", [[ <Cmd>lua require('refactoring').refactor('Extract Block')<CR>]], {noremap = true, silent = true, expr = false})
+m.nnoremap({ [[<localleader>rB]], [[<localleader>rbb]] }, ithunk(refactoring.refactor, "Extract Block"),
+  "Refactoring: Extract Block")
+-- vim.api.nvim_set_keymap("n", "<leader>rbf", [[ <Cmd>lua require('refactoring').refactor('Extract Block To File')<CR>]], {noremap = true, silent = true, expr = false})
+m.nnoremap([[<localleader>rbf]], ithunk(refactoring.refactor, "Extract Block To File"),
+  "Refactoring: Extract Block To File")
+
+-- Inline variable can also pick up the identifier currently under the cursor without visual mode
+-- vim.api.nvim_set_keymap("n", "<leader>ri", [[ <Cmd>lua require('refactoring').refactor('Inline Variable')<CR>]], {noremap = true, silent = true, expr = false})
+m.nnoremap([[<localleader>ri]], ithunk(refactoring.refactor, "Inline Variable"), "Refactoring: Inline Variable")
+
+-- vim.api.nvim_set_keymap(
+--     "v",
+--     "<leader>rr",
+--     ":lua require('refactoring').select_refactor()<CR>",
+--     { noremap = true, silent = true, expr = false }
+-- )
+m.vnoremap([[<localleader>rr]], ithunk(refactoring.select_refactor), "Refactoring: Select Refactor")
 
 return M
