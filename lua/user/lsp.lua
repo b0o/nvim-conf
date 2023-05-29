@@ -1,4 +1,5 @@
 local lsp_status = require 'lsp-status'
+local lsp_format = require 'lsp-format'
 local user_lsp_status = require 'user.statusline.lsp'
 local nvim_cmp_lsp = require 'cmp_nvim_lsp'
 local fn = require 'user.fn'
@@ -13,10 +14,12 @@ local M = {
 }
 
 local format_timeout = 30000
-local format_on_save_timeout = 2000
 
 M.format = function(opts)
-  return vim.lsp.buf.format(vim.tbl_extend('force', { timeout_ms = format_timeout }, opts or {}))
+  vim.lsp.buf.format(vim.tbl_extend('force', {
+    timeout_ms = format_timeout,
+    async = false,
+  }, opts or {}))
 end
 
 M.range_formatting = function(opts, ...)
@@ -28,7 +31,6 @@ local lsp_servers = {
     'bashls',
     cmd_env = { SHELLCHECK_PATH = '' },
   },
-  -- 'ccls',
   {
     'clangd',
     filetypes = {
@@ -37,7 +39,6 @@ local lsp_servers = {
       'objc',
       'objcpp',
       'cuda',
-      -- 'proto' -- clangd doesn't seem to work with proto files
     },
   },
   'cmake',
@@ -49,7 +50,6 @@ local lsp_servers = {
       less = { validate = false },
     },
   },
-  --   'denols', -- TODO: Prevent denols from starting in NodeJS projects
   'dockerls',
   'dotls',
   {
@@ -81,13 +81,11 @@ local lsp_servers = {
         mode = 'all',
       },
       format = true,
-      -- nodePath = '',
       onIgnoredFiles = 'off',
       packageManager = 'npm',
       quiet = false,
       rulesCustomizations = {},
       run = 'onType',
-      -- useESLintClass = false,
       validate = 'on',
       workingDirectory = {
         mode = 'location',
@@ -98,17 +96,11 @@ local lsp_servers = {
     'gopls',
     formatting = false,
   },
-  -- 'graphql',
   'hie',
   'html',
   {
     'jsonls',
     formatting = false,
-    -- cmd = {
-    --   'node',
-    --   '/usr/lib/code/extensions/json-language-features/server/dist/node/jsonServerMain.js',
-    --   '--stdio',
-    -- },
     commands = {
       Format = {
         function()
@@ -129,37 +121,12 @@ local lsp_servers = {
   },
   'prismals',
   {
-    'pylsp',
-    cmd = {
-      'pylsp',
-      '-vvvv',
-      '--log-file',
-      vim.fn.stdpath 'cache' .. '/pylsp.log',
-    },
-    settings = {
-      pylsp = {
-        plugins = {
-          pylint = {
-            enabled = true,
-            args = {
-              '-j0',
-              '--load-plugins=pylint_paths',
-              '--extension-pkg-whitelist=pygame', -- SEE: https://stackoverflow.com/questions/50569453/why-does-it-say-that-module-pygame-has-no-init-member
-              '--generated-members=from_json,query,capnp', -- SEE: https://stackoverflow.com/questions/56844378/pylint-no-member-issue-but-code-still-works-vscode
-            },
-            executable = 'pylint', -- SEE: https://github.com/python-lsp/python-lsp-server/issues/251
-          },
-          yapf = { enabled = true },
-          flake8 = { enabled = true },
-          rope = { enabled = true },
-          pylsp_mypy = { enabled = false },
-          autopep8 = { enabled = false },
-          pycodestyle = { enabled = false },
-          pydocstyle = { enabled = false },
-          pyflakes = { enabled = false },
-        },
-      },
-    },
+    'pyright',
+    formatting = false,
+  },
+  {
+    'ruff_lsp',
+    hover = false,
   },
   {
     'rescriptls',
@@ -177,14 +144,13 @@ local lsp_servers = {
   },
   'rust_analyzer',
   'rnix',
-  'sqls',
+  -- 'sqls',
   {
     'lua_ls',
     cmd = {
       'lua-language-server',
       '-E',
       '/usr/lib/lua-language-server/main.lua',
-      '--logpath="' .. vim.fn.stdpath 'cache' .. '/lua-language-server/log"',
       '--metapath="' .. vim.fn.stdpath 'cache' .. '/lua-language-server/meta"',
     },
     settings = {
@@ -281,30 +247,10 @@ local lsp_servers = {
       redhat = { telemetry = { enabled = false } },
       yaml = {
         schemaStore = { enabled = true },
-        -- schemaStore = { enabled = true, url = 'www.schemastore.org/api/json/catalog.json?test=5678' },
-        -- schemaStore = {},
-        -- schemaStore = { url = 'www.schemastore.org/api/json/catalog.json?test=5678' },
-        -- schemas = {
-        --   ['https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json?test=1234'] = {
-        --     '**/docker-compose.yml',
-        --     '**/docker-compose.yaml',
-        --     '**/docker-compose.*.yml',
-        --     '**/docker-compose.*.yaml',
-        --     '**/compose.yml',
-        --     '**/compose.yaml',
-        --     '**/compose.*.yml',
-        --     '**/compose.*.yaml',
-        --   },
-        -- },
       },
-      -- http = { proxy = 'http://localhost:9210' },
     },
   },
-}
-
-local fmt_triggers = {
-  default = 'BufWritePre',
-  sh = 'BufWritePost',
+  'zls',
 }
 
 local lsp_handlers = {
@@ -312,13 +258,12 @@ local lsp_handlers = {
     virtual_text = {
       source = 'if_many',
       severity = vim.diagnostic.severity.ERROR,
-      -- severity = { min = vim.diagnostic.severity.ERROR },
     },
     signs = true,
     underline = true,
     update_in_insert = false,
   }),
-  ['textDocument/definition'] = function(_, result)
+  ['textDocument/definition'] = function(_, result, ctx)
     if result == nil or vim.tbl_isempty(result) then
       print 'Definition not found'
       return nil
@@ -326,13 +271,12 @@ local lsp_handlers = {
     local function jumpto(loc)
       local split_cmd = vim.uri_from_bufnr(0) == loc.targetUri and 'split' or 'tabnew'
       vim.cmd(split_cmd)
-      vim.lsp.util.jump_to_location(loc)
+      vim.lsp.util.jump_to_location(loc, ctx.client.offset_encoding)
     end
-
     if vim.tbl_islist(result) then
       jumpto(result[1])
       if #result > 1 then
-        vim.fn.setqflist(vim.lsp.util.locations_to_items(result))
+        vim.fn.setqflist(vim.lsp.util.locations_to_items(result, ctx.client.offset_encoding))
         vim.api.nvim_command 'copen'
         vim.api.nvim_command 'wincmd p'
       end
@@ -345,7 +289,7 @@ local lsp_handlers = {
   ['window/showMessage'] = function(_, result, ctx)
     local client = vim.lsp.get_client_by_id(ctx.client_id)
     local lvl = ({ 'ERROR', 'WARN', 'INFO', 'DEBUG' })[result.type]
-    vim.notify({ result.message }, lvl, {
+    vim.notify(result.message, lvl, {
       title = 'LSP | ' .. client.name,
       timeout = 10000,
       keep = function()
@@ -367,30 +311,30 @@ local lsp_signature_config = {
 ---- lewis6991/hover.nvim
 local hover_config = {
   init = function()
-    -- Require providers
     require 'hover.providers.lsp'
     require 'hover.providers.gh'
-    -- require 'hover.providers.gh_user'
-    -- require('hover.providers.jira')
     require 'hover.providers.man'
-    -- require 'hover.providers.dictionary'
   end,
   preview_opts = {
-    -- border = nil,
     border = M.border,
   },
-  -- Whether the contents of a currently open hover window should be moved
-  -- to a :h preview-window when pressing the hover keymap.
   preview_window = false,
   title = false,
 }
 
+local no_format_on_save_fts = {
+  'gitcommit',
+}
+
 local function on_attach(client, bufnr)
-  if client.server_capabilities.documentFormattingProvider then
-    M.set_fmt_on_save(true, true)
-  end
+  ---@diagnostic disable-next-line: redundant-parameter
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   user_lsp_status.on_attach(client, bufnr)
+
+  ---@diagnostic disable-next-line: redundant-parameter
+  if not vim.tbl_contains(no_format_on_save_fts, vim.api.nvim_buf_get_option(bufnr, 'filetype')) then
+    lsp_format.on_attach(client, bufnr)
+  end
   if client.server_capabilities.codeActionProvider then
     local augid = vim.api.nvim_create_augroup('user_lsp_code_actions', { clear = true })
     local cal_dbounce = Debounce(M.code_action_listener, { threshold = 500 })
@@ -408,10 +352,11 @@ local function on_attach(client, bufnr)
 end
 
 local function on_first_attach()
-  require('null-ls').setup(vim.tbl_extend('force', require 'user.plugin.null-ls', { on_attach = on_attach }))
+  require('null-ls').setup(vim.tbl_extend('force', require 'user.plugin.null-ls', {
+    on_attach = on_attach,
+  }))
   require('lsp_signature').setup(lsp_signature_config)
   require('hover').setup(hover_config)
-  --require('packer').loader('trouble.nvim', false)
 end
 
 local function on_attach_wrapper(...)
@@ -426,32 +371,6 @@ end
 
 local function on_exit(code, signal, id)
   user_lsp_status.on_exit(code, signal, id)
-end
-
-local no_format_on_save_fts = {
-  'gitcommit',
-}
-
--- Enables/disables format on save
--- If val is nil, format on save is toggled
--- If silent is not false, a message will be displayed
-function M.set_fmt_on_save(val, silent)
-  M.fmt_on_save_enabled = val ~= nil and val or not M.fmt_on_save_enabled
-  local augid = vim.api.nvim_create_augroup('user_lsp_fmt_on_save', { clear = true })
-  if M.fmt_on_save_enabled then
-    vim.api.nvim_create_autocmd(fmt_triggers[vim.o.filetype] or fmt_triggers.default, {
-      callback = function()
-        if vim.tbl_contains(no_format_on_save_fts, vim.bo.filetype) then
-          return
-        end
-        M.format { timeout_ms = format_on_save_timeout }
-      end,
-      group = augid,
-    })
-  end
-  if not silent then
-    print('Format on save ' .. (M.fmt_on_save_enabled and 'enabled' or 'disabled') .. '.')
-  end
 end
 
 function M.peek_definition()
@@ -496,7 +415,8 @@ end
 
 local function lsp_init()
   setup_neodev()
-  vim.lsp.set_log_level(vim.lsp.log_levels.DEBUG)
+  lsp_format.setup()
+  vim.lsp.set_log_level(vim.lsp.log_levels.WARN)
   for k, v in pairs(lsp_handlers) do
     vim.lsp.handlers[k] = v
   end
@@ -519,13 +439,20 @@ local function lsp_init()
     if type(lsp) == 'table' then
       ---@diagnostic disable-next-line: cast-local-type
       name = lsp[1]
-      if lsp.formatting == false then
-        lsp.formatting = nil
+      if lsp.formatting ~= nil then
         opts.on_attach = function(client, ...)
-          client.server_capabilities.documentFormattingProvider = false
-          client.server_capabilities.documentRangeFormattingProvider = false
+          client.server_capabilities.documentFormattingProvider = lsp.formatting
+          client.server_capabilities.documentRangeFormattingProvider = lsp.formatting
           return on_attach_wrapper(client, ...)
         end
+        lsp.formatting = nil
+      end
+      if lsp.hover ~= nil then
+        opts.on_attach = function(client, ...)
+          client.server_capabilities.hoverProvider = lsp.hover
+          return on_attach_wrapper(client, ...)
+        end
+        lsp.hover = nil
       end
       for k, v in pairs(lsp) do
         if k ~= 1 then
@@ -544,17 +471,17 @@ local function lsp_init()
         },
         server = opts,
       }
-      return
+    else
+      if not lspconfig[name] then
+        error('LSP: Server not found: ' .. name)
+      end
+      if type(lspconfig[name].setup) ~= 'function' then
+        error('LSP: not a function: ' .. name .. '.setup')
+      end
+      lspconfig[name].setup(opts)
+      lsp_status.register_progress()
+      lsp_status.config { current_function = false }
     end
-    if not lspconfig[name] then
-      error('LSP: Server not found: ' .. name)
-    end
-    if type(lspconfig[name].setup) ~= 'function' then
-      error('LSP: not a function: ' .. name .. '.setup')
-    end
-    lspconfig[name].setup(opts)
-    lsp_status.register_progress()
-    lsp_status.config { current_function = false }
   end
 end
 
