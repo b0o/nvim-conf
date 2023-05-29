@@ -34,8 +34,7 @@ local startup = function()
   use 'stevearc/dressing.nvim'
   use 'VonHeikemen/fine-cmdline.nvim'
   use { 's1n7ax/nvim-window-picker', lazymod = 'window-picker' }
-  -- use { 'axieax/urlview.nvim', cmd = 'UrlView', telescope_ext = 'urlview' }
-  use { 'kyazdani42/nvim-tree.lua', lazymod = 'nvim-tree', cmd = 'NvimTree*' }
+  use { 'kyazdani42/nvim-tree.lua', conf = 'nvim-tree' }
   use {
     'nvim-neo-tree/neo-tree.nvim',
     branch = 'v2.x',
@@ -49,7 +48,7 @@ local startup = function()
     config = [[vim.cmd'command! Notifications :lua require("notify")._print_history()<CR>']],
   }
   use {
-    'stevearc/aerial.nvim/worktree/current',
+    'stevearc/aerial.nvim',
     lazymod = 'aerial',
     telescope_ext = 'aerial',
   }
@@ -93,36 +92,15 @@ local startup = function()
   use 'mg979/vim-visual-multi'
   use { 'numToStr/Comment.nvim', lazymod = { mod = 'Comment', conf = 'comment' }, keys = { { '', 'gcc' } } }
   use 'tpope/vim-repeat'
-  -- use 'tpope/vim-speeddating'
   use { 'tpope/vim-surround', config = [[vim.g.surround_no_insert_mappings = true]] }
   use 'monaqa/dial.nvim'
-  -- use 'triglav/vim-visual-increment'
-  -- use { 'AndrewRadev/splitjoin.vim', cmd = { 'SplitjoinSplit', 'SplitjoinJoin' } }
   use 'Wansmer/treesj'
   use { 'godlygeek/tabular', cmd = { 'AddTabularPattern', 'AddTabularPipeline', 'Tabularize', 'GTabularize' } }
   use { 'tpope/vim-abolish' }
+  use { 'ThePrimeagen/refactoring.nvim', lazymod = 'refactoring' }
   use { 'matze/vim-move', setup = [[ vim.g.move_key_modifier = 'C'; vim.g.move_key_modifier_visualmode = 'C' ]] }
-  -- use {
-  --   'rbong/vim-buffest',
-  --   cmd = {
-  --     'Regsplit',
-  --     'Regvsplit',
-  --     'Regtabedit',
-  --     'Regedit',
-  --     'Regpedit',
-  --     'Qflistsplit',
-  --     'Qflistvsplit',
-  --     'Qflisttabedit',
-  --     'Qflistedit',
-  --     'Loclistsplit',
-  --     'Loclistvsplit',
-  --     'Loclisttabedit',
-  --     'Locflistedit',
-  --   },
-  -- }
 
   -- AI
-  -- use 'github/copilot.vim'
   use { 'zbirenbaum/copilot.lua', conf = 'copilot' }
   use { 'dpayne/CodeGPT.nvim', conf = 'codegpt' }
 
@@ -137,16 +115,14 @@ local startup = function()
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
   use { 'nvim-treesitter/nvim-treesitter-textobjects', after = 'nvim-treesitter' }
   use { 'nvim-treesitter/nvim-treesitter-context', after = 'nvim-treesitter' }
-  -- use { 'nkrkv/nvim-treesitter-rescript', after = 'nvim-treesitter' }
   use { 'JoosepAlviste/nvim-ts-context-commentstring', after = 'nvim-treesitter' }
   use { 'Wansmer/sibling-swap.nvim', after = 'nvim-treesitter' }
-  -- xuse { 'lewis6991/spellsitter.nvim', after = 'nvim-treesitter' }
   use { 'nvim-treesitter/playground', after = 'nvim-treesitter', cmd = 'TSPlaygroundToggle' }
 
   -- LSP
-  -- use 'neovim/nvim-lspconfig'
-  use 'folke/lsp-colors.nvim'
   use 'neovim/nvim-lspconfig'
+  use 'folke/lsp-colors.nvim'
+  use 'lukas-reineke/lsp-format.nvim'
   use 'nvim-lua/lsp-status.nvim'
   use 'onsails/lspkind-nvim'
   use { 'lewis6991/hover.nvim', lazymod = 'hover' }
@@ -154,7 +130,6 @@ local startup = function()
   use { 'jose-elias-alvarez/null-ls.nvim', module = 'null-ls' }
   use { 'ray-x/lsp_signature.nvim', module = 'lsp_signature' }
   use { 'b0o/schemastore.nvim', module = 'schemastore' }
-  -- uselocal { 'b0o/schemastore.nvim', module = 'schemastore' }
   use {
     'folke/trouble.nvim',
     lazymod = 'trouble',
@@ -227,11 +202,7 @@ local startup = function()
   }
 
   -- Snippets
-  use {
-    'L3MON4D3/LuaSnip',
-    conf = 'luasnip',
-  }
-  -- use 'rafamadriz/friendly-snippets'
+  use 'L3MON4D3/LuaSnip'
 
   -- Completion
   use { 'hrsh7th/nvim-cmp', module = 'cmp' }
@@ -244,8 +215,6 @@ local startup = function()
   use { 'andersevenrud/cmp-tmux', after = 'nvim-cmp' }
   use { 'petertriho/cmp-git', after = 'nvim-cmp' }
   use { 'hrsh7th/cmp-cmdline', after = 'nvim-cmp' }
-  -- xuse { 'hrsh7th/cmp-calc', after = 'nvim-cmp' }
-  -- xuse { 'f3fora/cmp-spell', after = 'nvim-cmp' }
 
   -- Debugging
   -- use { 'mfussenegger/nvim-dap', module = 'dap' }
@@ -258,13 +227,12 @@ local startup = function()
   }
 
   -- Language-specific
-  -- use 'Akin909/vim-dune'
   use 'mboughaba/i3config.vim'
-  -- use 'rescript-lang/vim-rescript'
   use 'aouelete/sway-vim-syntax'
   use 'fatih/vim-go'
   use 'jose-elias-alvarez/typescript.nvim'
   use 'jakemason/ouroboros.nvim' -- C/C++ header/source file switching
+  use 'ziglang/zig.vim'
 
   -- Documentation
   use { 'alx741/vinfo', cmd = { 'Vinfo', 'VinfoClean', 'VinfoNext', 'VinfoPrevious' } }
@@ -283,7 +251,6 @@ local startup = function()
   }
 
   -- Performance
-  -- use 'antoinemadec/FixCursorHold.nvim'
   use { 'dstein64/vim-startuptime', cmd = 'StartupTime' }
 end
 
@@ -292,7 +259,4 @@ packer.startup {
   config = {
     max_jobs = tonumber(vim.fn.system 'nproc 2>/dev/null || echo 8'),
   },
-  -- rocks = {
-  --   'base64',
-  -- },
 }
