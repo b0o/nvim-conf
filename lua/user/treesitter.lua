@@ -52,6 +52,7 @@ require('nvim-treesitter.configs').setup {
     'vim',
     -- 'wgsl',
     'yaml',
+    'zig',
   },
   context_commentstring = {
     enable = true,
