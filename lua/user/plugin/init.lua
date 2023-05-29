@@ -84,7 +84,6 @@ vim.g.matchup_matchparen_deferred_show_delay = 40
 
 ---- mbbill/undotree
 vim.g.undotree_SetFocusWhenToggle = 1
-vim.g.undotree_DiffCommand = 'delta'
 
 ---- fatih/vim-go
 vim.g.go_doc_keywordprg_enabled = 0
