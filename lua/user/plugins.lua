@@ -25,7 +25,6 @@ local startup = function()
   use 'SmiteshP/nvim-gps'
   use 'chriskempson/base16-vim'
   use 'Famiu/feline.nvim'
-  use 'ericbn/vim-relativize'
   use 'folke/which-key.nvim'
   use { 'kevinhwang91/nvim-hlslens', conf = 'hlslens' }
   use 'kyazdani42/nvim-web-devicons'
