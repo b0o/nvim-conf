@@ -11,7 +11,7 @@ vim.o.backupdir = vim.fn.stdpath 'data' .. '/backup'
 
 vim.wo.number = true
 vim.wo.relativenumber = true
-vim.wo.numberwidth = 3
+vim.wo.numberwidth = 1
 
 vim.o.hidden = true
 

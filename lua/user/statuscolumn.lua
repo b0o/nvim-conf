@@ -44,7 +44,7 @@ local get_num = function(lnum, relnum, virtnum, statusline_winid)
 end
 
 M.render = function()
-  return [[%s%=]] .. get_num(vim.v.lnum, vim.v.relnum, vim.v.virtnum, vim.g.statusline_winid) .. [[%=]]
+  return [[%s%=]] .. get_num(vim.v.lnum, vim.v.relnum, vim.v.virtnum, vim.g.statusline_winid) .. [[%= ]]
 end
 
 return M
