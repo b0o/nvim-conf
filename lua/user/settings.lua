@@ -11,7 +11,7 @@ vim.o.backupdir = vim.fn.stdpath 'data' .. '/backup'
 
 vim.wo.number = true
 vim.wo.relativenumber = true
-vim.wo.numberwidth = 1
+vim.wo.numberwidth = 3
 
 vim.o.hidden = true
 
@@ -38,7 +38,7 @@ vim.o.updatetime = 500
 
 vim.o.lazyredraw = true
 
-vim.o.signcolumn = 'auto:2-5'
+vim.o.signcolumn = 'auto:1-2'
 
 vim.o.clipboard = 'unnamedplus' -- Enable yanking between vim sessions and system
 
@@ -74,6 +74,7 @@ vim.o.titlestring = '%F'
 
 vim.o.showtabline = 2
 vim.o.tabline = "%!luaeval('require[[user.tabline]].tabline()')"
+vim.o.statuscolumn = "%!luaeval('require[[user.statuscolumn]].update()')"
 
 vim.o.cursorline = true
 
@@ -85,6 +86,7 @@ vim.o.ruler = 0
 vim.o.showmatch = true
 
 vim.o.scrolloff = 5
+vim.o.smoothscroll = true -- scroll by screen line rather than by text line when wrap is set
 
 vim.cmd [[
   set guicursor=n-v-c:block-Cursor
