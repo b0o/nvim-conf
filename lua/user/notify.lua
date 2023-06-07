@@ -12,6 +12,7 @@ notify.setup {
 }
 
 local ignored_messages = {
+  'method textDocument/codeAction is not supported by any of the servers registered for the current buffer',
   'warning: multiple different client offset_encodings detected for buffer, this is not supported yet',
   'No code actions available',
 }
