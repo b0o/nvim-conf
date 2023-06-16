@@ -1251,14 +1251,10 @@ m.vnoremap([[<localleader>rr]], ithunk(refactoring.select_refactor), "Refactorin
 ---- nvim-neotest/neotest
 local neotest = fn.require_on_call_rec('neotest')
 local neotest_summary = fn.require_on_call_rec('neotest.consumers.summary')
-local neotest_run = function(...)
-  neotest.run.run(...)
-  neotest_summary.open()
-end
 m.nname("<leader>n", "Neoest")
-m.nnoremap({ [[<leader>N]], [[<leader>nn]] }, ithunk(neotest_run), "Neotest: Run Nearest Test")
+m.nnoremap({ [[<leader>N]], [[<leader>nn]] }, ithunk(neotest.run.run), "Neotest: Run Nearest Test")
 m.nnoremap([[<leader>nf]], function()
-  neotest_run(vim.fn.expand("%"))
+  neotest.run.run(vim.fn.expand("%"))
 end, "Neotest: Run File")
 m.nnoremap({ "[t", "[n" }, ithunk(neotest.jump.prev, { status = "failed" }), "Neotest: Jump Prev Failed")
 m.nnoremap({ "]t", "]n" }, ithunk(neotest.jump.next, { status = "failed" }), "Neotest: Jump Next Failed")
