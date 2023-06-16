@@ -138,6 +138,21 @@ local startup = function()
   -- Code Style, Formatting, Linting
   use 'editorconfig/editorconfig-vim'
 
+  -- Debugging
+  -- use { 'mfussenegger/nvim-dap', module = 'dap' }
+  -- use { 'jbyuki/one-small-step-for-vimkind', module = 'osv' } -- Lua DAP adapter, a.k.a. osv
+
+  -- Testing
+
+  use {
+    'rcarriga/neotest',
+    lazymod = 'neotest',
+    cmd = { 'Neotest' },
+    requires = {
+      'marilari88/neotest-vitest',
+    },
+  }
+
   -- Git
   use 'lewis6991/gitsigns.nvim'
   use { 'ThePrimeagen/git-worktree.nvim', lazymod = 'git-worktree', telescope_ext = 'git_worktree' }
@@ -214,10 +229,6 @@ local startup = function()
   use { 'andersevenrud/cmp-tmux', after = 'nvim-cmp' }
   use { 'petertriho/cmp-git', after = 'nvim-cmp' }
   use { 'hrsh7th/cmp-cmdline', after = 'nvim-cmp' }
-
-  -- Debugging
-  -- use { 'mfussenegger/nvim-dap', module = 'dap' }
-  -- use { 'jbyuki/one-small-step-for-vimkind', module = 'osv' } -- Lua DAP adapter, a.k.a. osv
 
   -- Sessions
   use {

@@ -15,6 +15,9 @@ local ignored_messages = {
   'method textDocument/codeAction is not supported by any of the servers registered for the current buffer',
   'warning: multiple different client offset_encodings detected for buffer, this is not supported yet',
   'No code actions available',
+  'No tests above cursor',
+  'No tests below cursor',
+  "Couldn't find any tests in file",
 }
 
 M.notify = function(msg, lvl, opts)

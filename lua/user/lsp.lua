@@ -408,7 +408,7 @@ local function setup_neodev()
     library = {
       vimruntime = true,
       types = true,
-      plugins = true,
+      plugins = { 'neotest' },
     },
   }
 end

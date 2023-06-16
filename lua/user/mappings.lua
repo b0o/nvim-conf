@@ -653,9 +653,6 @@ M.on_lsp_attach = function(bufnr)
     m.nnoremap([[[E]], gotoDiag("first", "ERROR"), "LSP: Goto first error")
     m.nnoremap([[]E]], gotoDiag("last", "ERROR"), "LSP: Goto last error")
 
-    m.nnoremap(']t', ithunk(trouble.next, { skip_groups = true, jump = true }), "Trouble: Next")
-    m.nnoremap('[t', ithunk(trouble.previous, { skip_groups = true, jump = true }), "Trouble: Previous")
-
     m.nname("<localleader>s", "LSP-Search")
     m.nnoremap({ [[<localleader>so]], [[<leader>so]] },
       ithunk(fn.require_on_call_rec('user.plugin.telescope').cmds.lsp_document_symbols), "LSP: Telescope symbol search")
@@ -1270,5 +1267,35 @@ m.nnoremap([[<localleader>ri]], ithunk(refactoring.refactor, "Inline Variable"),
 --     { noremap = true, silent = true, expr = false }
 -- )
 m.vnoremap([[<localleader>rr]], ithunk(refactoring.select_refactor), "Refactoring: Select Refactor")
+
+---- rcarriga/neotest
+local neotest = fn.require_on_call_rec('neotest')
+local neotest_summary = fn.require_on_call_rec('neotest.consumers.summary')
+local neotest_run = function(...)
+  neotest.run.run(...)
+  neotest_summary.open()
+end
+m.nname("<leader>t", "Neoest")
+m.nnoremap({ [[<leader>T]], [[<leader>tt]] }, ithunk(neotest_run), "Neotest: Run Nearest Test")
+m.nnoremap([[<leader>tf]], function()
+  neotest_run(vim.fn.expand("%"))
+end, "Neotest: Run File")
+m.nnoremap("[t", ithunk(neotest.jump.prev, { status = "failed" }), "Neotest: Jump Prev Failed")
+m.nnoremap("]t", ithunk(neotest.jump.next, { status = "failed" }), "Neotest: Jump Next Failed")
+m.nnoremap([[<M-n>]], function()
+  neotest_summary.open()
+  if vim.bo.filetype == "neotest-summary" then
+    vim.cmd("wincmd p")
+  else
+    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+      ---@diagnostic disable-next-line: redundant-parameter
+      if vim.api.nvim_buf_get_option(vim.api.nvim_win_get_buf(win), "filetype") == "neotest-summary" then
+        vim.api.nvim_set_current_win(win)
+        return
+      end
+    end
+  end
+end, "Neotest: Open or Focus Summary")
+m.nnoremap([[<M-S-n>]], ithunk(neotest.summary.toggle), "Neotest: Toggle Summary")
 
 return M
