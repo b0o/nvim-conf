@@ -1248,20 +1248,20 @@ m.nnoremap([[<localleader>rbf]], ithunk(refactoring.refactor, "Extract Block To 
 m.nnoremap([[<localleader>ri]], ithunk(refactoring.refactor, "Inline Variable"), "Refactoring: Inline Variable")
 m.vnoremap([[<localleader>rr]], ithunk(refactoring.select_refactor), "Refactoring: Select Refactor")
 
----- rcarriga/neotest
+---- nvim-neotest/neotest
 local neotest = fn.require_on_call_rec('neotest')
 local neotest_summary = fn.require_on_call_rec('neotest.consumers.summary')
 local neotest_run = function(...)
   neotest.run.run(...)
   neotest_summary.open()
 end
-m.nname("<leader>t", "Neoest")
-m.nnoremap({ [[<leader>T]], [[<leader>tt]] }, ithunk(neotest_run), "Neotest: Run Nearest Test")
-m.nnoremap([[<leader>tf]], function()
+m.nname("<leader>n", "Neoest")
+m.nnoremap({ [[<leader>N]], [[<leader>nn]] }, ithunk(neotest_run), "Neotest: Run Nearest Test")
+m.nnoremap([[<leader>nf]], function()
   neotest_run(vim.fn.expand("%"))
 end, "Neotest: Run File")
-m.nnoremap("[t", ithunk(neotest.jump.prev, { status = "failed" }), "Neotest: Jump Prev Failed")
-m.nnoremap("]t", ithunk(neotest.jump.next, { status = "failed" }), "Neotest: Jump Next Failed")
+m.nnoremap({ "[t", "[n" }, ithunk(neotest.jump.prev, { status = "failed" }), "Neotest: Jump Prev Failed")
+m.nnoremap({ "]t", "]n" }, ithunk(neotest.jump.next, { status = "failed" }), "Neotest: Jump Next Failed")
 m.nnoremap([[<M-n>]], function()
   neotest_summary.open()
   if vim.bo.filetype == "neotest-summary" then

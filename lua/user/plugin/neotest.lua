@@ -1,4 +1,4 @@
----- rcarriga/neotest
+---- nvim-neotest/neotest
 require('neotest').setup {
   adapters = {
     require 'neotest-vitest',

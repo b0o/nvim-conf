@@ -145,7 +145,7 @@ local startup = function()
   -- Testing
 
   use {
-    'rcarriga/neotest',
+    'nvim-neotest/neotest',
     lazymod = 'neotest',
     cmd = { 'Neotest' },
     requires = {
