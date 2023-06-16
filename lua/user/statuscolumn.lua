@@ -14,7 +14,8 @@ local function hw(hl, text)
   return cb(text)
 end
 
-local fives = hw { guifg = colors.light_lavender }
+local fives = hw { guifg = colors.bg }
+local inactive = hw { guifg = colors.inactive_bg }
 
 local get_num = function(lnum, relnum, virtnum, statusline_winid)
   local num = lnum
@@ -22,21 +23,28 @@ local get_num = function(lnum, relnum, virtnum, statusline_winid)
     return ''
   end
 
-  local focused_winid = vim.api.nvim_get_current_win()
-
   ---@diagnostic disable-next-line: redundant-parameter
   if not vim.api.nvim_win_get_option(statusline_winid, 'number') then
     return ''
   end
 
-  local mode = vim.api.nvim_get_mode().mode:lower()
-  if relnum ~= 0 and statusline_winid == focused_winid and (mode:find 'n' or mode:find 'v') then
-    ---@diagnostic disable-next-line: redundant-parameter
-    if vim.api.nvim_win_get_option(statusline_winid, 'relativenumber') then
-      num = relnum
+  if statusline_winid ~= vim.api.nvim_get_current_win() then
+    if relnum ~= 0 then
+      num = inactive(num)
     end
-    if relnum % 5 == 0 then
-      num = fives(num)
+    return num
+  end
+
+  local mode = vim.api.nvim_get_mode().mode:lower()
+  if relnum ~= 0 then
+    if mode:find 'n' or mode:find 'v' then
+      ---@diagnostic disable-next-line: redundant-parameter
+      if vim.api.nvim_win_get_option(statusline_winid, 'relativenumber') then
+        num = relnum
+      end
+      num = relnum % 5 == 0 and fives(num) or inactive(num)
+    else
+      num = inactive(num)
     end
   end
 

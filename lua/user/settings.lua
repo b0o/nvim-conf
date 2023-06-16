@@ -116,7 +116,7 @@ end
 
 vim.g.lavi_italic = 1
 vim.g.lavi_italic_comments = 1
-vim.g.lavi_cursor_line_number_background = 1
+vim.g.lavi_cursor_line_number_background = 0
 
 if vim.fn.exists 'g:colorscheme' then
   vim.cmd [[
