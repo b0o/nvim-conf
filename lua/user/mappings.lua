@@ -1233,39 +1233,19 @@ m.nnoremap([[<leader>tsc]], [[<cmd>TSContextToggle<Cr>]], "Treesitter Context: T
 
 ---- ThePrimeagen/refactoring.nvim
 local refactoring = fn.require_on_call_rec('refactoring')
-
 m.nname("<localleader>r", "Refactoring")
 m.vname("<localleader>r", "Refactoring")
--- Remaps for the refactoring operations currently offered by the plugin
--- vim.api.nvim_set_keymap("v", "<leader>re", [[ <Esc><Cmd>lua require('refactoring').refactor('Extract Function')<CR>]], {noremap = true, silent = true, expr = false})
 m.vnoremap([[<localleader>re]], ithunk(refactoring.refactor, "Extract Function"), "Refactoring: Extract Function")
--- vim.api.nvim_set_keymap("v", "<leader>rf", [[ <Esc><Cmd>lua require('refactoring').refactor('Extract Function To File')<CR>]], {noremap = true, silent = true, expr = false})
 m.vnoremap([[<localleader>rf]], ithunk(refactoring.refactor, "Extract Function To File"),
   "Refactoring: Extract Function To File")
--- vim.api.nvim_set_keymap("v", "<leader>rv", [[ <Esc><Cmd>lua require('refactoring').refactor('Extract Variable')<CR>]], {noremap = true, silent = true, expr = false})
 m.vnoremap([[<localleader>rv]], ithunk(refactoring.refactor, "Extract Variable"), "Refactoring: Extract Variable")
--- vim.api.nvim_set_keymap("v", "<leader>ri", [[ <Esc><Cmd>lua require('refactoring').refactor('Inline Variable')<CR>]], {noremap = true, silent = true, expr = false})
 m.vnoremap([[<localleader>ri]], ithunk(refactoring.refactor, "Inline Variable"), "Refactoring: Inline Variable")
-
 m.nname("<localleader>rb", "Refactoring: Extract Block")
--- Extract block doesn't need visual mode
--- vim.api.nvim_set_keymap("n", "<leader>rb", [[ <Cmd>lua require('refactoring').refactor('Extract Block')<CR>]], {noremap = true, silent = true, expr = false})
 m.nnoremap({ [[<localleader>rB]], [[<localleader>rbb]] }, ithunk(refactoring.refactor, "Extract Block"),
   "Refactoring: Extract Block")
--- vim.api.nvim_set_keymap("n", "<leader>rbf", [[ <Cmd>lua require('refactoring').refactor('Extract Block To File')<CR>]], {noremap = true, silent = true, expr = false})
 m.nnoremap([[<localleader>rbf]], ithunk(refactoring.refactor, "Extract Block To File"),
   "Refactoring: Extract Block To File")
-
--- Inline variable can also pick up the identifier currently under the cursor without visual mode
--- vim.api.nvim_set_keymap("n", "<leader>ri", [[ <Cmd>lua require('refactoring').refactor('Inline Variable')<CR>]], {noremap = true, silent = true, expr = false})
 m.nnoremap([[<localleader>ri]], ithunk(refactoring.refactor, "Inline Variable"), "Refactoring: Inline Variable")
-
--- vim.api.nvim_set_keymap(
---     "v",
---     "<leader>rr",
---     ":lua require('refactoring').select_refactor()<CR>",
---     { noremap = true, silent = true, expr = false }
--- )
 m.vnoremap([[<localleader>rr]], ithunk(refactoring.select_refactor), "Refactoring: Select Refactor")
 
 ---- rcarriga/neotest
