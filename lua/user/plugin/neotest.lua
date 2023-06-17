@@ -10,4 +10,14 @@ require('neotest').setup {
   summary = {
     open = [[botright vsplit +set\ nowrap | vertical resize 50]],
   },
+  icons = {
+    running_animated = {
+      '⠟',
+      '⠯',
+      '⠷',
+      '⠾',
+      '⠽',
+      '⠻',
+    },
+  },
 }
