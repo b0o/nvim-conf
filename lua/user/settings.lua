@@ -81,7 +81,7 @@ vim.o.cursorline = true
 vim.o.showmode = false
 vim.o.showcmd = true
 vim.o.laststatus = 0
-vim.o.ruler = 0
+vim.o.ruler = false
 
 vim.o.showmatch = true
 
