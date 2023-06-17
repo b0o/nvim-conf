@@ -7,4 +7,7 @@ require('neotest').setup {
     enabled = false,
     open = false,
   },
+  summary = {
+    open = [[botright vsplit +set\ nowrap | vertical resize 50]],
+  },
 }
