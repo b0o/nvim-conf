@@ -105,7 +105,7 @@ local plugins = {
   'monaqa/dial.nvim',
   'Wansmer/treesj',
   { 'godlygeek/tabular', cmd = { 'AddTabularPattern', 'AddTabularPipeline', 'Tabularize', 'GTabularize' } },
-  { 'tpope/vim-abolish' },
+  'tpope/vim-abolish',
   { 'ThePrimeagen/refactoring.nvim', conf = 'refactoring' },
   {
     'matze/vim-move',
@@ -131,10 +131,10 @@ local plugins = {
 
   -- Treesitter
   { 'nvim-treesitter/nvim-treesitter', build = ':TSUpdate' },
-  { 'nvim-treesitter/nvim-treesitter-textobjects' },
-  { 'nvim-treesitter/nvim-treesitter-context' },
-  { 'JoosepAlviste/nvim-ts-context-commentstring' },
-  { 'Wansmer/sibling-swap.nvim' },
+  'nvim-treesitter/nvim-treesitter-textobjects',
+  'nvim-treesitter/nvim-treesitter-context',
+  'JoosepAlviste/nvim-ts-context-commentstring',
+  'Wansmer/sibling-swap.nvim',
   { 'nvim-treesitter/playground', cmd = 'TSPlaygroundToggle' },
 
   -- LSP
@@ -155,9 +155,9 @@ local plugins = {
     },
   },
   { 'DNLHC/glance.nvim', conf = 'glance', cmd = 'Glance' },
-  { 'jose-elias-alvarez/null-ls.nvim' },
-  { 'ray-x/lsp_signature.nvim' },
-  { 'b0o/schemastore.nvim' },
+  'jose-elias-alvarez/null-ls.nvim',
+  'ray-x/lsp_signature.nvim',
+  'b0o/schemastore.nvim',
   {
     'folke/trouble.nvim',
     conf = 'trouble',
