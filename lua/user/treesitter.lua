@@ -39,7 +39,6 @@ require('nvim-treesitter.configs').setup {
     'prisma',
     -- 'r',
     'regex',
-    -- 'rescript',
     -- 'rst',
     -- 'ruby',
     -- 'rust',
@@ -179,13 +178,6 @@ require('treesitter-context').setup {
     --   'class',
     --   'function',
     --   'method',
-    -- },
-    -- rescript = {
-    --   'block',
-    --   'type_declaration',
-    --   'call_expression',
-    --   'let_binding',
-    --   'jsx_element',
     -- },
     -- ocaml = {
     --   'module_definition',

@@ -128,20 +128,6 @@ local lsp_servers = {
     'ruff_lsp',
     hover = false,
   },
-  {
-    'rescriptls',
-    cmd = {
-      'node',
-      '--inspect',
-      (function()
-        if vim.env.GIT_PROJECTS_DIR then
-          return vim.env.GIT_PROJECTS_DIR .. '/rescript-vscode/server/out/server.js'
-        end
-        return vim.fn.stdpath 'data' .. '/site/pack/packer/start/vim-rescript/server/out/server.js'
-      end)(),
-      '--stdio',
-    },
-  },
   'rust_analyzer',
   'rnix',
   -- 'sqls',

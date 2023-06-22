@@ -39,17 +39,6 @@ require('aerial').setup {
   },
 }
 
-local treesitter_langs = require 'aerial.backends.treesitter.language_kind_map'
-
--- SEE: queries/rescript/aerial.scm
-treesitter_langs.rescript = {
-  ['function'] = 'Function',
-  module_declaration = 'Module',
-  type_declaration = 'Type',
-  type_annotation = 'Interface',
-  external_declaration = 'Interface',
-}
-
 fn.tmpl_hi [[
   hi AerialLine    guibg=${lavender}
   hi AerialLineNC  guibg=${deep_anise}
