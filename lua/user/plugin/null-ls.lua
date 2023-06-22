@@ -15,6 +15,23 @@ local sources = {
     'goimports',
     'nixfmt',
     {
+      'dprint',
+      filetypes = {
+        'javascript',
+        'javascriptreact',
+        'typescript',
+        'typescriptreact',
+
+        'dockerfile',
+        'json',
+        'jsonc',
+        'markdown',
+        'roslyn',
+        'rust',
+        'toml',
+      },
+    },
+    {
       'prettierd',
       -- extra_args = {
       -- Not sure why the next four lines are necessary, but the tailwind plugin isn't
@@ -25,18 +42,19 @@ local sources = {
       -- vim.env['XDG_DATA_HOME'] .. '/pnpm/global/5/node_modules',
       -- },
       filetypes = {
-        'javascript',
-        'javascriptreact',
-        'typescript',
-        'typescriptreact',
+        -- 'javascript',
+        -- 'javascriptreact',
+        -- 'typescript',
+        -- 'typescriptreact',
+
         'css',
-        'scss',
-        'less',
-        'html',
-        'yaml',
-        'markdown',
         'graphql',
-        'json',
+        'html',
+        -- 'json',
+        'less',
+        -- 'markdown',
+        'scss',
+        'yaml',
       },
     },
     -- 'prismaFmt',
