@@ -684,44 +684,6 @@ m.nnoremap([[gJ]], ithunk(treesj.toggle), "Treesj: Toggle")
 m.nnoremap([[gsj]], ithunk(treesj.join), "Treesj: Join")
 m.nnoremap({ [[gS]], [[gss]] }, ithunk(treesj.split), "Treesj: Split")
 
----- wbthomason/packer.nvim
-m.nname("<leader>p", "Packer")
-m.nnoremap([[<leader>pC]], [[:PackerClean<Cr>]], "Packer: Clean")
-m.nnoremap([[<leader>pc]], [[:PackerCompile<Cr>]], "Packer: Compile")
-m.nnoremap([[<leader>pi]], [[:PackerInstall<Cr>]], "Packer: Install")
-m.nnoremap([[<leader>pu]], [[:PackerUpdate<Cr>]], "Packer: Update")
-m.nnoremap([[<leader>ps]], [[:PackerSync<Cr>]], "Packer: Sync")
-m.nnoremap([[<leader>pl]], [[:PackerLoad<Cr>]], "Packer: Load")
-
-m.group(m.silent, { ft = "packer" }, function()
-  m.nmap([[O]], function()
-    if not vim.env.BROWSER or vim.env.BROWSER == "" then
-      vim.notify("Packer: Can't open repo: BROWSER environment variable is unset", vim.log.levels.ERROR)
-      return
-    end
-    local pd = require 'packer.display'
-    local plugin_name = pd.status.disp:find_nearest_plugin()
-    local plugin = pd.status.disp.items[plugin_name]
-    local spec = plugin and plugin.spec
-    if not spec then
-      vim.notify("Packer: Plugin not available", vim.log.levels.WARN)
-      return
-    end
-    local url = spec.url
-    if not url then
-      vim.notify("Packer: Plugin URL not available", vim.log.levels.WARN)
-      return
-    end
-    local current_line = pd.status.disp:get_current_line()
-    local commit_hash = vim.fn.matchstr(current_line, [[^\X*\zs[0-9a-f]\{7,9}]])
-    if commit_hash and commit_hash ~= "" then
-      url = url .. '/commit/' .. commit_hash
-    end
-    vim.notify("Opening " .. url)
-    vim.fn.system({ vim.env.BROWSER, url })
-  end, "Packer: Open plugin or commit in browser")
-end)
-
 ---- numToStr/Comment.nvim
 local comment = fn.require_on_call_rec('Comment.api')
 m.nnoremap([[<M-/>]], ithunk(comment.toggle.linewise), m.silent)

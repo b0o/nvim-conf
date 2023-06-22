@@ -63,21 +63,6 @@ autocmd('TermClose', { pattern = 'term://*', command = [[call user#fn#closeBufWi
 
 ------ Plugins
 
----- wbthomason/packer.nvim
-autocmd('BufWritePost', {
-  pattern = vim.fn.stdpath 'config' .. '/lua/user/plugins.lua',
-  callback = function()
-    vim.schedule(require('user.fn').packer_compile)
-  end,
-})
-
-autocmd('User', {
-  pattern = 'PackerCompileDone',
-  callback = function()
-    vim.notify 'Packer configuration recompiled'
-  end,
-})
-
 ---- kyazdani42/nvim-tree.lua
 autocmd('BufEnter', {
   nested = true,

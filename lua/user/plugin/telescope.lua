@@ -154,7 +154,7 @@ local function load_extensions()
   if extensions_loaded then
     return
   end
-  for _, ext in ipairs(require('user.packer').telescope_exts) do
+  for _, ext in ipairs(require('user.plugins').telescope_exts) do
     if not rawget(t.extensions, ext) then
       t.load_extension(ext)
     end

@@ -61,7 +61,6 @@ local filetypes_override_name = {
   aerial = 'Aerial',
   fugitive = 'Fugitive',
   fugitiveblame = 'FugitiveBlame',
-  packer = 'Packer',
   qf = 'Quickfix',
   startify = 'Startify',
 }
