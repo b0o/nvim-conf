@@ -45,6 +45,7 @@ require('copilot').setup {
     cvs = true,
     ['.'] = true,
   },
-  copilot_node_command = 'node', -- Node.js version must be > 16.x
+  -- Node.js version must be > 16.x
+  copilot_node_command = vim.env.HOME .. '/.asdf/shims/node',
   server_opts_overrides = {},
 }
