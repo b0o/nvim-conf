@@ -144,6 +144,16 @@ local plugins = {
   'nvim-lua/lsp-status.nvim',
   'onsails/lspkind-nvim',
   'lewis6991/hover.nvim',
+  {
+    'pmizio/typescript-tools.nvim',
+    conf = 'typescript-tools',
+    ft = {
+      'typescript',
+      'javascript',
+      'typescriptreact',
+      'javascriptreact',
+    },
+  },
   { 'DNLHC/glance.nvim', conf = 'glance', cmd = 'Glance' },
   { 'jose-elias-alvarez/null-ls.nvim' },
   { 'ray-x/lsp_signature.nvim' },
@@ -254,7 +264,6 @@ local plugins = {
   'mboughaba/i3config.vim',
   'aouelete/sway-vim-syntax',
   'fatih/vim-go',
-  'jose-elias-alvarez/typescript.nvim',
   'jakemason/ouroboros.nvim', -- C/C++ header/source file switching
   'ziglang/zig.vim',
 

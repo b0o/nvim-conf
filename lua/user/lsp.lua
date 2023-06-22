@@ -227,17 +227,6 @@ local lsp_servers = {
       },
     },
   },
-  {
-    'tsserver',
-    formatting = false,
-    settings = {
-      diagnostics = {
-        ignoredCodes = {
-          7016, -- "Could not find a declaration file for module..."
-        },
-      },
-    },
-  },
   'vimls',
   {
     'yamlls',
@@ -367,6 +356,8 @@ local function on_attach_wrapper(...)
   return on_attach(...)
 end
 
+M.on_attach = on_attach_wrapper
+
 local function on_exit(code, signal, id)
   user_lsp_status.on_exit(code, signal, id)
 end
@@ -460,26 +451,15 @@ local function lsp_init()
     else
       name = lsp
     end
-    if name == 'typescript' or name == 'tsserver' then
-      require('typescript').setup {
-        disable_commands = false,
-        debug = false,
-        go_to_source_definition = {
-          fallback = true,
-        },
-        server = opts,
-      }
-    else
-      if not lspconfig[name] then
-        error('LSP: Server not found: ' .. name)
-      end
-      if type(lspconfig[name].setup) ~= 'function' then
-        error('LSP: not a function: ' .. name .. '.setup')
-      end
-      lspconfig[name].setup(opts)
-      lsp_status.register_progress()
-      lsp_status.config { current_function = false }
+    if not lspconfig[name] then
+      error('LSP: Server not found: ' .. name)
     end
+    if type(lspconfig[name].setup) ~= 'function' then
+      error('LSP: not a function: ' .. name .. '.setup')
+    end
+    lspconfig[name].setup(opts)
+    lsp_status.register_progress()
+    lsp_status.config { current_function = false }
   end
 end
 
