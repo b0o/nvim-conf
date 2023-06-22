@@ -50,7 +50,10 @@ local lsp_servers = {
       less = { validate = false },
     },
   },
-  'dockerls',
+  {
+    'dockerls',
+    formatting = false,
+  },
   'dotls',
   {
     'eslint',
@@ -80,7 +83,7 @@ local lsp_servers = {
         enable = false,
         mode = 'all',
       },
-      format = true,
+      format = false,
       onIgnoredFiles = 'off',
       packageManager = 'npm',
       quiet = false,
@@ -110,7 +113,16 @@ local lsp_servers = {
     },
     settings = fn.lazy_table(function()
       return {
-        json = { schemas = require('schemastore').json.schemas() },
+        json = {
+          schemas = vim.list_extend({
+            {
+              description = 'dprint configuration file',
+              fileMatch = { 'dprint.json', 'dprint.jsonc', '.dprint.json', '.dprint.jsonc' },
+              name = 'dprint.json',
+              url = 'https://dprint.dev/schemas/v0.json',
+            },
+          }, require('schemastore').json.schemas()),
+        },
         validate = { enable = true },
       }
     end),
