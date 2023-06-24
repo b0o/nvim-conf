@@ -404,7 +404,20 @@ end
 
 local function lsp_init()
   setup_neodev()
-  lsp_format.setup()
+  lsp_format.setup {
+    typescript = {
+      exclude = { 'typescript-tools' },
+    },
+    typescriptreact = {
+      exclude = { 'typescript-tools' },
+    },
+    javascript = {
+      exclude = { 'typescript-tools' },
+    },
+    javascriptreact = {
+      exclude = { 'typescript-tools' },
+    },
+  }
   vim.lsp.set_log_level(vim.lsp.log_levels.WARN)
   for k, v in pairs(lsp_handlers) do
     vim.lsp.handlers[k] = v
