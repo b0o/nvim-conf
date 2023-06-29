@@ -3,6 +3,7 @@ local a = vim.api
 local devicons = require 'nvim-web-devicons'
 local incline = require 'incline'
 local colors = require 'user.colors'
+local fn = require 'user.fn'
 
 local extra_colors = {
   theme_bg = '#222032',
@@ -74,11 +75,11 @@ incline.setup {
     ---@diagnostic disable-next-line: redundant-parameter
     local filetype = a.nvim_buf_get_option(props.buf, 'filetype')
 
-    local fname, icon, icon_fg
+    local fname, icon, icon_bg
     if bufname == '' then
       fname = '[No name]'
     else
-      icon, icon_fg = devicons.get_icon_color(bufname)
+      icon, icon_bg = devicons.get_icon_color(bufname)
       local Path = require 'plenary.path'
       local sep = Path.path.sep
       local rel = vim.fn.fnamemodify(bufname, ':.')
@@ -102,14 +103,15 @@ incline.setup {
         icon_name = devicons.get_icon_name_by_filetype(filetype)
       end
       if icon_name and icon_name ~= '' then
-        icon, icon_fg = require('nvim-web-devicons').get_icon_color(icon_name)
+        icon, icon_bg = require('nvim-web-devicons').get_icon_color(icon_name)
       end
     end
 
     local has_error = #vim.diagnostic.get(props.buf, { severity = vim.diagnostic.severity.ERROR }) > 0
 
     icon = icon or ''
-    icon_fg = props.focused and (icon_fg or extra_colors.fg) or extra_colors.fg_nc
+    icon_bg = props.focused and (icon_bg or extra_colors.fg) or extra_colors.fg_nc
+    local icon_fg = fn.contrast_color(icon_bg)
 
     local extra = {}
 
@@ -131,8 +133,8 @@ incline.setup {
           ' ',
           icon,
           ' ',
-          guifg = buf_focused and colors.licorice or colors.deep_velvet,
-          guibg = props.focused and icon_fg or (buf_focused and icon_fg or nil),
+          guifg = buf_focused and icon_fg or colors.deep_velvet,
+          guibg = props.focused and icon_bg or (buf_focused and icon_bg or nil),
         },
         { has_error and '  ' or ' ', guifg = props.focused and colors.red or nil },
         { fname, gui = modified and 'bold,italic' or nil },
