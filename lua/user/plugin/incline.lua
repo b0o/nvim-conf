@@ -119,8 +119,8 @@ incline.setup {
       local client_or_server = get_react_use_directive(props.buf)
       if client_or_server then
         local use_directive_icon = ({
-          ['use server'] = ' 󰬀󰫲󰫿󱂌󰫲󰫿 ',
-          ['use client'] = ' 󰫰󱎦󱂈󰫲󰫻󰬁 ',
+          ['use server'] = ' 󰬀󰫲󰫿󱂌󰫲󰫿 ', -- "server" written with nerd font icons
+          ['use client'] = ' 󰫰󱎦󱂈󰫲󰫻󰬁 ', -- "client" written with nerd font icons
         })[client_or_server]
         table.insert(extra, { use_directive_icon, guifg = fg })
       end
