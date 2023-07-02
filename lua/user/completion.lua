@@ -114,17 +114,13 @@ cmp.setup {
   },
   sources = cmp.config.sources({
     { name = 'nvim_lsp' },
-
-    { name = 'treesitter' },
+  }, {
     { name = 'luasnip' },
     { name = 'nvim_lua' },
-
-    { name = 'buffer', keyword_length = 5 },
-    { name = 'tmux', keyword_length = 5 },
-
-    { name = 'path' },
   }, {
-    { name = 'buffer' },
+    { name = 'tmux', keyword_length = 5 },
+    { name = 'treesitter' },
+    { name = 'buffer', keyword_length = 5 },
   }),
 }
 
