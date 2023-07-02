@@ -141,6 +141,7 @@ end
 
 magicFileCmd(fn.magic_saveas, 'Copy')
 magicFileCmd(fn.magic_saveas, 'Duplicate', 'split')
+magicFileCmd(fn.magic_saveas, 'XDuplicate', 'split')
 magicFileCmd(fn.magic_saveas, 'VDuplicate', 'vsplit')
 magicFileCmd(fn.magic_saveas, 'Vduplicate', 'vsplit')
 magicFileCmd(fn.magic_newfile, 'New')
@@ -155,6 +156,7 @@ command { 'Cx', ':Chmod +x' }
 
 ------ Abbreviations
 cabbrev('Cp', 'Copy')
+cabbrev('XDu', 'Duplicate')
 cabbrev('Du', 'Duplicate')
 cabbrev('Vd', 'VDuplicate')
 cabbrev('LI', 'lua =')
