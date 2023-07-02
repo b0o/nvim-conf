@@ -492,6 +492,33 @@ m.group(m.silent, { ft = "lua" }, function()
   m.xmap([[<leader><F12>]], "<Cmd>Put lua require'user.fn'.luarun()<Cr>", "Lua: Eval selection (Append)")
 end)
 
+m.group(m.silent, { ft = { "typescriptreact", "javascriptreact" } }, function()
+  local tailwind_sort = function()
+    fn.transform_visual_selection({ "rustywind", "--stdin", "--custom-regex", "(.*)" }, function(pre)
+      -- if the selection includes quotes at the beginning and end, remove them
+      local first = pre:sub(0, 1)
+      local last = pre:sub(-1)
+      if first == last and (first == "'" or first == '"' or first == "`") then
+        return pre:sub(2, -2), { first, last }
+      end
+      return pre
+    end, function(post, ctx)
+      -- if the selection was quoted, re-add the quotes
+      if ctx then
+        return ctx[1] .. post .. ctx[2]
+      end
+      return post
+    end)
+  end
+  m.xmap([[<leader>ft]], function()
+    tailwind_sort()
+  end)
+  m.nmap([[<leader>ft]], function()
+    require 'nvim-treesitter.textobjects.select'.select_textobject("@string", "textobjects", "x")
+    tailwind_sort()
+  end)
+end)
+
 m.group(m.silent, { ft = "man" }, function()
   -- open manpage tag (e.g. isatty(3)) in current buffer
   m.nnoremap([[<C-]>]], function()
