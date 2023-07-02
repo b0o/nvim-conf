@@ -777,4 +777,48 @@ M.contrast_color = function(bg_hex)
   end
 end
 
+M.replace_visual_selection = function(str)
+  local selection = M.get_visual_selection()
+  if selection == nil or vim.tbl_isempty(selection) then
+    return
+  end
+  vim.api.nvim_buf_set_text(
+    0,
+    selection.start.line - 1,
+    selection.start.col - 1,
+    selection.finish.line - 1,
+    selection.finish.col,
+    type(str) == 'table' and str or { str }
+  )
+end
+
+-- Function to transform string
+-- preFn can return a second value, `ctx`, which will be passed to postFn as the second argument
+M.transform_string = function(str, cmd, preFn, postFn)
+  local function identityFn(x)
+    return x
+  end
+  -- If preFn or postFn are not provided, default to identityFn
+  preFn = preFn or identityFn
+  postFn = postFn or identityFn
+
+  -- Transform the string
+  local transformed, ctx = preFn(str)
+
+  -- Pass the result to cmd and then to postFn
+  local cmd_output = vim.fn.system(cmd, transformed)
+  return postFn(cmd_output, ctx)
+end
+
+-- Main function
+M.transform_visual_selection = function(cmd, preFn, postFn)
+  -- Get visual selection, transform it, and replace it
+  local selection = M.get_visual_selection()
+  if selection == nil or vim.tbl_isempty(selection) then
+    return
+  end
+  local final_output = M.transform_string(table.concat(selection.lines, '\n'), cmd, preFn, postFn)
+  M.replace_visual_selection(final_output)
+end
+
 return M
