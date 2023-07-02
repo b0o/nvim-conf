@@ -129,10 +129,45 @@ M.get_visual_selection = function(mode)
     ecol = nil
   end
 
+  local result = {
+    start = { line = sline, col = scol },
+    finish = { line = eline, col = ecol },
+    mode = mode,
+    lines = {},
+  }
+
   local lines = vim.api.nvim_buf_get_lines(0, sline - 1, eline, 0)
+
+  if #lines > 0 then
+    local start_text, end_text
+    if #lines == 1 then
+      start_text = string.sub(lines[1], scol, ecol)
+    else
+      start_text = string.sub(lines[1], scol)
+      end_text = string.sub(lines[#lines], 1, ecol)
+    end
+
+    local selection = { start_text }
+    if #lines > 2 then
+      vim.list_extend(selection, vim.list_slice(lines, 2, #lines - 1))
+    end
+    table.insert(selection, end_text)
+    result.lines = selection
+  end
+
+  return result
+end
+
+-- Get the visual selection as a list-like table of lines
+M.get_visual_selection_list = function(mode)
+  local selection = M.get_visual_selection(mode)
+  local lines = selection.lines
   if #lines == 0 then
     return
   end
+
+  local scol = selection.start.col
+  local ecol = selection.finish.col
 
   local start_text, end_text
   if #lines == 1 then
@@ -142,13 +177,13 @@ M.get_visual_selection = function(mode)
     end_text = string.sub(lines[#lines], 1, ecol)
   end
 
-  local selection = { start_text }
+  local result = { start_text }
   if #lines > 2 then
-    vim.list_extend(selection, vim.list_slice(lines, 2, #lines - 1))
+    vim.list_extend(result, vim.list_slice(lines, 2, #lines - 1))
   end
-  table.insert(selection, end_text)
+  table.insert(result, end_text)
 
-  return selection
+  return result
 end
 
 -- Execute the visual selection or cursor line as a sequence of lua expressions
@@ -166,7 +201,7 @@ M.luarun = function(file)
     if mode == 'n' then
       text = vim.api.nvim_get_current_line()
     elseif mode == 'v' or mode == 'V' or mode == 'CTRL-V' or mode == '\22' then
-      local selection = M.get_visual_selection(mode)
+      local selection = M.get_visual_selection_list(mode)
       text = table.concat(selection, '\n')
     else
       return
