@@ -238,6 +238,103 @@ m.nnoremap([[<C-M-k>]], [["dY"dP]], "Duplicate line upwards")
 m.xnoremap([[<C-M-j>]], [["dy`<"dPjgv]], "Duplicate selection downwards")
 m.xnoremap([[<C-M-k>]], [["dy`>"dpgv]], "Duplicate selection upwards")
 
+-- Selection Wrapping
+-- TODO: Support function calls, e.g. "foo(" -> ")"
+local function get_closing_seq(input_str)
+  local pairings = {
+    -- brackets
+    ['('] = ')',
+    ['{'] = '}',
+    ['['] = ']',
+    ['<'] = '>',
+    -- quotes
+    ['"'] = '"',
+    ["'"] = "'",
+    ['`'] = '`',
+    -- misc
+    ['|'] = '|',
+    ['/'] = '/',
+    ['_'] = '_',
+    [' '] = ' ',
+    ['*'] = '*',
+  }
+  local str = ""
+  local valid = true
+  local i = 1
+  while i <= #input_str do
+    local tag, tag_name = input_str:sub(i):match('^(<([^/> ]*)[^>]*>)')
+    if tag then
+      str = '</' .. tag_name .. '>' .. str
+      i = i + #tag
+    else
+      local c = input_str:sub(i, i)
+      if pairings[c] then
+        str = pairings[c] .. str
+      else
+        valid = false
+        break
+      end
+    end
+    i = i + 1
+  end
+  if valid then
+    return str
+  end
+  return nil
+end
+
+local function wrap_visual_selection()
+  local lhs = vim.fn.input({ prompt = "LHS: ", cancelreturn = -1 })
+  if lhs == -1 then
+    return
+  end
+  local default_rhs = get_closing_seq(lhs) or lhs
+  local rhs = vim.fn.input({ prompt = "RHS: ", default = default_rhs, cancelreturn = -1 })
+  if rhs == -1 then
+    return
+  end
+  fn.transform_visual_selection(function(text, meta)
+    local mode = meta.selection.mode
+
+    if mode == '' or mode == '<CTRL-V>' then
+      -- TODO: implement block-wise
+      return text
+    end
+
+    if mode == 'v' then
+      return lhs .. text .. rhs
+    end
+
+    if mode == 'V' then
+      local indent = fn.get_indent_info()
+      local lines = vim.split(text, '\n')
+      local current_indent = ''
+      if #lines > 0 then
+        current_indent = lines[1]:match('^' .. indent.char .. '*')
+      end
+      local new_lines = {}
+      table.insert(new_lines, current_indent .. lhs)
+      for _, line in ipairs(lines) do
+        table.insert(new_lines, indent.char:rep(indent.size) .. line)
+      end
+      table.insert(new_lines, current_indent .. rhs)
+      return new_lines
+    end
+  end)
+end
+
+m.xnoremap([[<M-w>]], wrap_visual_selection, "Wrap selection")
+
+m.nnoremap([[<M-S-W>]], function()
+  vim.cmd([[normal! V]])
+  wrap_visual_selection()
+end, "Wrap line")
+
+m.nnoremap([[<M-w>]], function()
+  vim.cmd([[normal! viw]])
+  wrap_visual_selection()
+end, "Wrap word")
+
 -- match the indentation of the next line
 local function match_indent(dir)
   return function()

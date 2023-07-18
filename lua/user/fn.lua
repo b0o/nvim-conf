@@ -782,6 +782,16 @@ M.replace_visual_selection = function(str)
   if selection == nil or vim.tbl_isempty(selection) then
     return
   end
+  if selection.mode == 'V' then
+    vim.api.nvim_buf_set_lines(
+      0,
+      selection.start.line - 1,
+      selection.finish.line,
+      false,
+      type(str) == 'table' and str or { str }
+    )
+    return
+  end
   vim.api.nvim_buf_set_text(
     0,
     selection.start.line - 1,
@@ -794,8 +804,15 @@ end
 
 -- Function to transform string
 -- preFn can return a second value, `ctx`, which will be passed to postFn as the second argument
-M.transform_string = function(str, cmd, preFn, postFn)
-  local function identityFn(x)
+-- M.transform_string = function(str, cmd, preFn, postFn, meta)
+M.transform_string = function(opts)
+  local str = opts.str
+  local cmd = opts.cmd
+  local preFn = opts.preFn
+  local postFn = opts.postFn
+  local meta = opts.meta
+
+  local function identityFn(x, ...)
     return x
   end
   -- If preFn or postFn are not provided, default to identityFn
@@ -803,22 +820,51 @@ M.transform_string = function(str, cmd, preFn, postFn)
   postFn = postFn or identityFn
 
   -- Transform the string
-  local transformed, ctx = preFn(str)
+  local transformed, ctx = preFn(str, meta)
 
   -- Pass the result to cmd and then to postFn
-  local cmd_output = vim.fn.system(cmd, transformed)
-  return postFn(cmd_output, ctx)
+  local cmd_output
+  if type(cmd) == 'function' then
+    cmd_output = cmd(transformed, meta)
+  else
+    cmd_output = vim.fn.system(cmd, transformed)
+  end
+  return postFn(cmd_output, ctx, meta)
 end
 
--- Main function
 M.transform_visual_selection = function(cmd, preFn, postFn)
   -- Get visual selection, transform it, and replace it
   local selection = M.get_visual_selection()
   if selection == nil or vim.tbl_isempty(selection) then
     return
   end
-  local final_output = M.transform_string(table.concat(selection.lines, '\n'), cmd, preFn, postFn)
+  local final_output = M.transform_string {
+    str = table.concat(selection.lines, '\n'),
+    cmd = cmd,
+    preFn = preFn,
+    postFn = postFn,
+    meta = { selection = selection },
+  }
   M.replace_visual_selection(final_output)
+end
+
+--- @param bufnr number | nil
+--- @return { char: string, size: number }
+M.get_indent_info = function(bufnr)
+  bufnr = bufnr or 0
+
+  ---@diagnostic disable-next-line: redundant-parameter
+  local expandtab = vim.api.nvim_buf_get_option(bufnr, 'expandtab')
+  ---@diagnostic disable-next-line: redundant-parameter
+  local tabstop = vim.api.nvim_buf_get_option(bufnr, 'tabstop')
+  ---@diagnostic disable-next-line: redundant-parameter
+  local shiftwidth = vim.api.nvim_buf_get_option(bufnr, 'shiftwidth')
+
+  if expandtab then
+    return { char = ' ', size = shiftwidth }
+  else
+    return { char = '	', size = tabstop }
+  end
 end
 
 return M
