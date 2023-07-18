@@ -111,6 +111,20 @@ cmp.setup {
       end
       luasnip.jump(-1)
     end,
+    ['<C-l>'] = function()
+      if cmp.visible() then
+        cmp.confirm { select = true }
+        return
+      end
+      cmp.complete {
+        config = {
+          sources = {
+            { name = 'emmet_vim' },
+          },
+        },
+      }
+      cmp.select_next_item()
+    end,
   },
   sources = cmp.config.sources({
     { name = 'nvim_lsp' },

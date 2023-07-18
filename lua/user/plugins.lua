@@ -253,6 +253,7 @@ local plugins = {
   'andersevenrud/cmp-tmux',
   'petertriho/cmp-git',
   'hrsh7th/cmp-cmdline',
+  { 'dcampos/cmp-emmet-vim', dependencies = 'mattn/emmet-vim' },
 
   -- Sessions
   {
