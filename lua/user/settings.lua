@@ -155,7 +155,7 @@ end
 
 setup_provider('python3', { vim.env.HOME, '/.asdf/shims/python3' })
 setup_provider('node', { vim.env.XDG_DATA_HOME, '/yarn/global/node_modules/neovim/bin/cli.js' })
-setup_provider('node', { '/usr/bin/ruby' })
+setup_provider('ruby', { '/usr/bin/ruby' })
 
 ---- Builtin plugins
 vim.g.loaded_matchparen = 1
