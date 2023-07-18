@@ -1360,4 +1360,7 @@ m.nnoremap([[<M-n>]], function()
 end, "Neotest: Open or Focus Summary")
 m.nnoremap([[<M-S-n>]], ithunk(neotest.summary.toggle), "Neotest: Toggle Summary")
 
+---- mg979/vim-visual-multi
+m.xmap([[<leader>v]], [[<Plug>(VM-Visual-Cursors)]], "Visual Multi: Start Visual Multi")
+
 return M
