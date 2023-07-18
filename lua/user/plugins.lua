@@ -77,7 +77,7 @@ local plugins = {
   },
 
   -- Editing
-  { 'smjonas/live-command.nvim' },
+  'smjonas/live-command.nvim',
   {
     'andymass/vim-matchup',
     config = function()
@@ -114,6 +114,13 @@ local plugins = {
       vim.g.move_key_modifier_visualmode = 'C'
     end,
   },
+  {
+    'windwp/nvim-autopairs',
+    event = 'InsertEnter',
+    opts = {
+      fast_wrap = {},
+    },
+  },
 
   -- AI
   { 'zbirenbaum/copilot.lua', conf = 'copilot' },
@@ -136,6 +143,7 @@ local plugins = {
   'JoosepAlviste/nvim-ts-context-commentstring',
   'Wansmer/sibling-swap.nvim',
   { 'nvim-treesitter/playground', cmd = 'TSPlaygroundToggle' },
+  'windwp/nvim-ts-autotag',
 
   -- LSP
   'neovim/nvim-lspconfig',

@@ -53,6 +53,10 @@ require('nvim-treesitter.configs').setup {
     'yaml',
     'zig',
   },
+  ---- windwp/nvim-ts-autotag
+  autotag = {
+    enable = true,
+  },
   context_commentstring = {
     enable = true,
     enable_autocmd = false,
