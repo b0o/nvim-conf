@@ -1094,8 +1094,11 @@ local function aerial_open(focus)
     vim.api.nvim_set_current_win(winid)
     return
   end
-  if not require "aerial.backends".get() then
+  if not pcall(require "aerial.backends".get) then
     require("aerial").open()
+    if not focus then
+      recent_wins.focus_most_recent()
+    end
     return
   end
 
