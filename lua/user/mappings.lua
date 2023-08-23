@@ -693,7 +693,7 @@ M.on_lsp_attach = function(bufnr)
   lsp_attached_bufs[bufnr] = true
 
   local user_lsp = fn.require_on_call_rec 'user.lsp'
-  local trouble = fn.require_on_call_rec('trouble')
+  local trouble = fn.require_on_call_rec 'trouble'
 
   m.group({ buffer = bufnr, silent = true }, function()
     if not vim.api.nvim_buf_is_valid(bufnr) then
@@ -717,9 +717,12 @@ M.on_lsp_attach = function(bufnr)
 
     m.nnoremap([[<localleader>R]], ithunk(vim.lsp.buf.rename), "LSP: Rename")
 
-    m.nnoremap({ [[<localleader>A]], [[<localleader>ca]] }, ithunk(vim.lsp.buf.code_action), "LSP: Code action")
-    m.xnoremap({ [[<localleader>A]], [[<localleader>ca]] }, ithunk(vim.lsp.buf.range_code_action),
-      "LSP: Code action (range)")
+    -- m.nnoremap({ [[<localleader>A]], [[<localleader>ca]] }, ithunk(vim.lsp.buf.code_action), "LSP: Code action")
+    -- m.xnoremap({ [[<localleader>A]], [[<localleader>ca]] }, ithunk(vim.lsp.buf.range_code_action),
+    --   "LSP: Code action (range)")
+    local code_actions = fn.require_on_call_rec("actions-preview").code_actions
+    m.nnoremap({ [[<localleader>A]], [[<localleader>ca]] }, ithunk(code_actions), "LSP: Code action")
+    m.xnoremap({ [[<localleader>A]], [[<localleader>ca]] }, ithunk(code_actions), "LSP: Code action")
 
     m.nnoremap([[<localleader>F]], ithunk(user_lsp.format), "LSP: Format")
     m.xnoremap([[<localleader>F]], ithunk(user_lsp.range_formatting), "LSP: Format (range)")

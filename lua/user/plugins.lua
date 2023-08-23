@@ -171,6 +171,7 @@ local plugins = {
     conf = 'trouble',
     cmd = { 'Trouble', 'TroubleClose', 'TroubleRefresh', 'TroubleToggle' },
   },
+  'aznhe21/actions-preview.nvim',
 
   -- Code Style, Formatting, Linting
   'editorconfig/editorconfig-vim',
