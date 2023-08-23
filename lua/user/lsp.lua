@@ -384,8 +384,9 @@ function M.code_action_listener()
     end
     M.code_actions[result.bufnr] = M.code_actions[result.bufnr] or {}
     M.code_actions[result.bufnr][result.client_id] = actions and #actions or 0
+    M.code_actions[result.bufnr].count = nil
     local count = 0
-    for _, sub_count in ipairs(M.code_actions[result.bufnr]) do
+    for _, sub_count in pairs(M.code_actions[result.bufnr]) do
       count = count + sub_count
     end
     M.code_actions[result.bufnr].count = count
