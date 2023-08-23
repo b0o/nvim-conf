@@ -8,6 +8,8 @@
 " Repository: https://github.com/b0o/nvim-conf
 " License: MIT
 
+" TODO: Migrate to Lua
+
 if v:version > 580
   hi clear
   if exists('syntax_on')
@@ -282,6 +284,9 @@ if g:lavi_bold_vertical_split_line == 0
 else
   call s:hi('VertSplit', g:lavi_gui[2], g:lavi_gui[1], g:lavi_term[3], g:lavi_term[1], 'NONE', '')
 endif
+
+"+--- Conceal ---+
+call s:hi('Conceal', g:lavi_gui[14], g:lavi_gui[18], 'NONE', '', '', '')
 
 "+----------------------+
 "+ Language Base Groups +
