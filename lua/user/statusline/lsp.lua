@@ -58,7 +58,7 @@ function M.getExitedBufClients(bufnr)
   return getBufClients(bufnr, M.clients.exited)
 end
 
-function M.on_attach(client, bufnr)
+function M.on_attach(client, _bufnr)
   local clientData = getClientData(client)
   M.clients.running[client.id] = clientData
   M.clients.exited[client.id] = nil
