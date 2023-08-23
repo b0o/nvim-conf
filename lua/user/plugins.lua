@@ -189,7 +189,7 @@ local plugins = {
   -- Git
   'lewis6991/gitsigns.nvim',
   { 'ThePrimeagen/git-worktree.nvim', conf = 'git-worktree', telescope_ext = 'git_worktree' },
-  { 'TimUntersberger/neogit', cmd = 'Neogit', conf = 'neogit' },
+  { 'NeogitOrg/neogit', cmd = 'Neogit', conf = 'neogit' },
   { 'mattn/gist-vim', dependencies = 'mattn/webapi-vim', cmd = 'Gist' },
   'ruifm/gitlinker.nvim',
   {
