@@ -402,8 +402,14 @@ hi! link dtTypeValue Keyword
 if g:lavi_uniform_diff_background == 0
   call s:hi('DiffAdd', g:lavi_gui[14], '', g:lavi_term[14], 'NONE', 'inverse', '')
   call s:hi('DiffChange', g:lavi_gui[13], '', g:lavi_term[13], 'NONE', 'inverse', '')
-  call s:hi('DiffDelete', g:lavi_gui[11], '', g:lavi_term[11], 'NONE', 'inverse', '')
+  call s:hi('DiffDelete', g:lavi_gui[11], 'black', g:lavi_term[11], 'NONE', 'inverse', '')
   call s:hi('DiffText', g:lavi_gui[9], '', g:lavi_term[9], 'NONE', 'inverse', '')
+
+  hi! NeogitCursorLine gui=nocombine
+  call s:hi('NeogitDiffAdd', 'DarkBlue', g:lavi_gui[14], '', g:lavi_term[14], '', '')
+  call s:hi('NeogitDiffAddHighlight', 'DarkBlue', g:lavi_gui[14], '', g:lavi_term[14], '', '')
+  call s:hi('NeogitDiffDelete', 'black', g:lavi_gui[11], '', g:lavi_term[11], '', '')
+  call s:hi('NeogitDiffDeleteHighlight', 'black', g:lavi_gui[11], '', g:lavi_term[11], '', '')
 else
   call s:hi('DiffAdd', g:lavi_gui[14], g:lavi_gui[1], g:lavi_term[14], g:lavi_term[1], '', '')
   call s:hi('DiffChange', g:lavi_gui[13], g:lavi_gui[1], g:lavi_term[13], g:lavi_term[1], '', '')
