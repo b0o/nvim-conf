@@ -165,6 +165,34 @@ local function shorten_path_styled(path, opts)
   }
 end
 
+local function git_status(bufname)
+  if bufname == '' then
+    return
+  end
+  local nvim_tree_git = require 'nvim-tree.git'
+  if not nvim_tree_git then
+    return
+  end
+  local cwd = vim.fn.getcwd()
+  local proj = nvim_tree_git.get_project(cwd)
+  if not proj then
+    proj = nvim_tree_git.load_project_status(cwd)
+  end
+  local file_status = proj.files[bufname]
+  if not file_status then
+    return
+  end
+  local icons = require('nvim-tree.renderer.components.git').git_icons[file_status]
+  if not icons then
+    return
+  end
+  local res = {}
+  for _, icon in ipairs(icons) do
+    table.insert(res, { icon.str, ' ', group = icon.hl })
+  end
+  return res
+end
+
 incline.setup {
   render = function(props)
     local bufname = a.nvim_buf_get_name(props.buf)
@@ -236,6 +264,7 @@ incline.setup {
         { has_error and '  ' or ' ', guifg = props.focused and colors.red or nil },
         { fname, gui = modified and 'bold,italic' or nil },
         { modified and ' * ' or ' ', guifg = extra_colors.fg },
+        git_status(bufname),
         guibg = bg,
         guifg = fg,
       },
