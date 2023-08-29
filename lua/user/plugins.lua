@@ -125,6 +125,7 @@ local plugins = {
   -- AI
   { 'zbirenbaum/copilot.lua', conf = 'copilot' },
   { 'dpayne/CodeGPT.nvim', conf = 'codegpt' },
+  { 'piersolenski/wtf.nvim', conf = 'wtf' },
 
   -- Quickfix/Loclist
   { 'kevinhwang91/nvim-bqf', conf = 'bqf', ft = 'qf', event = 'QuickFixCmdPre' },

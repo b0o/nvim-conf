@@ -8,6 +8,7 @@ local file_info = require 'user.statusline.file_info'
 require 'user.statusline.lsp'
 require 'user.statusline.dap'
 require 'user.statusline.codegpt'
+require 'user.statusline.wtf'
 
 local fn = require 'user.fn'
 
@@ -152,10 +153,10 @@ config.components.active[1] = {
       { str = 'slant_right_2_thin', hl = { fg = 'fg' } },
     },
   },
-  {
-    provider = 'lsp_code_actions',
-    hl = { fg = 'green' },
-  },
+  -- {
+  --   provider = 'lsp_code_actions',
+  --   hl = { fg = 'green' },
+  -- },
   {
     provider = 'diagnostic_errors',
     enabled = function()
@@ -189,6 +190,10 @@ config.components.active[1] = {
 config.components.active[2] = {
   {
     provider = 'codegpt',
+    hl = { fg = 'mistyrose', bold = false },
+  },
+  {
+    provider = 'wtf',
     hl = { fg = 'mistyrose', bold = false },
   },
   {
