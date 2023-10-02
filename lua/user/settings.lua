@@ -36,8 +36,6 @@ vim.o.matchtime = 2 -- show matching parens/brackets for 200ms
 vim.o.updatetime = 500
 -- vim.g.cursorhold_updatetime = 150 -- antoinemadec/FixCursorHold.nvim
 
-vim.o.lazyredraw = true
-
 vim.o.signcolumn = 'auto:1-2'
 
 vim.o.clipboard = 'unnamedplus' -- Enable yanking between vim sessions and system
