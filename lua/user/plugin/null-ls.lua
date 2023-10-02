@@ -7,73 +7,72 @@ local sh_filetypes = {
 }
 
 local sources = {
-  formatting = {
-    'black',
-    -- 'eslint',
-    --'eslint_d',
-    'gofmt',
-    'goimports',
-    'nixfmt',
-    {
-      'dprint',
-      filetypes = {
-        'javascript',
-        'javascriptreact',
-        'typescript',
-        'typescriptreact',
-
-        'dockerfile',
-        'json',
-        'jsonc',
-        'markdown',
-        'roslyn',
-        'rust',
-        'toml',
-      },
-    },
-    {
-      'prettierd',
-      -- extra_args = {
-      -- Not sure why the next four lines are necessary, but the tailwind plugin isn't
-      -- working without it.
-      -- '--plugin',
-      -- 'prettier-plugin-tailwindcss',
-      -- '--plugin-search-dir',
-      -- vim.env['XDG_DATA_HOME'] .. '/pnpm/global/5/node_modules',
-      -- },
-      filetypes = {
-        -- 'javascript',
-        -- 'javascriptreact',
-        -- 'typescript',
-        -- 'typescriptreact',
-
-        'css',
-        'graphql',
-        'html',
-        -- 'json',
-        'less',
-        -- 'markdown',
-        'scss',
-        'yaml',
-      },
-    },
-    -- 'prismaFmt',
-    {
-      'shellharden',
-      filetypes = sh_filetypes,
-    },
-    {
-      'shfmt',
-      filetypes = sh_filetypes,
-    },
-    'stylelint',
-    'stylua',
-    -- 'yapf',
-    --     {
-    --       'trim_whitespace',
-    --       filetypes = {},
-    --     },
-  },
+  -- formatting = {
+  -- 'black',
+  -- 'eslint',
+  --'eslint_d',
+  -- 'gofmt',
+  -- 'goimports',
+  -- 'nixfmt',
+  -- {
+  --   'dprint',
+  --   filetypes = {
+  --     'javascript',
+  --     'javascriptreact',
+  --     'typescript',
+  --     'typescriptreact',
+  --
+  --     'dockerfile',
+  --     'json',
+  --     'jsonc',
+  --     'markdown',
+  --     'rust',
+  --     'toml',
+  --   },
+  -- },
+  -- {
+  --   'prettierd',
+  --   -- extra_args = {
+  --   -- Not sure why the next four lines are necessary, but the tailwind plugin isn't
+  --   -- working without it.
+  --   -- '--plugin',
+  --   -- 'prettier-plugin-tailwindcss',
+  --   -- '--plugin-search-dir',
+  --   -- vim.env['XDG_DATA_HOME'] .. '/pnpm/global/5/node_modules',
+  --   -- },
+  --   filetypes = {
+  --     -- 'javascript',
+  --     -- 'javascriptreact',
+  --     -- 'typescript',
+  --     -- 'typescriptreact',
+  --
+  --     'css',
+  --     'graphql',
+  --     'html',
+  --     -- 'json',
+  --     'less',
+  --     -- 'markdown',
+  --     'scss',
+  --     'yaml',
+  --   },
+  -- },
+  -- 'prismaFmt',
+  -- {
+  --   'shellharden',
+  --   filetypes = sh_filetypes,
+  -- },
+  -- {
+  --   'shfmt',
+  --   filetypes = sh_filetypes,
+  -- },
+  -- 'stylelint',
+  -- 'stylua',
+  -- 'yapf',
+  --     {
+  --       'trim_whitespace',
+  --       filetypes = {},
+  --     },
+  -- },
   diagnostics = {
     {
       'cppcheck',
@@ -103,7 +102,7 @@ local sources = {
     {
       'selene',
       diagnostics_format = '[#{c}] #{m} https://kampfkarren.github.io/selene/lints/#{c}.html',
-      extra_args = { '--config', vim.fn.stdpath 'config' .. '/selene.toml' },
+      -- extra_args = { '--config', vim.fn.stdpath 'config' .. '/selene.toml' },
       cwd = function()
         return vim.fs.dirname(vim.fs.find({ 'selene.toml' }, { upward = true, path = vim.api.nvim_buf_get_name(0) })[1])
           or vim.fn.stdpath 'config'

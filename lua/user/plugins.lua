@@ -149,7 +149,7 @@ local plugins = {
   -- LSP
   'neovim/nvim-lspconfig',
   'folke/lsp-colors.nvim',
-  'lukas-reineke/lsp-format.nvim',
+  { 'stevearc/conform.nvim', conf = 'conform' },
   'nvim-lua/lsp-status.nvim',
   'onsails/lspkind-nvim',
   'lewis6991/hover.nvim',
