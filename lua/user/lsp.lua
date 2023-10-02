@@ -114,14 +114,7 @@ local lsp_servers = {
     settings = fn.lazy_table(function()
       return {
         json = {
-          schemas = vim.list_extend({
-            {
-              description = 'dprint configuration file',
-              fileMatch = { 'dprint.json', 'dprint.jsonc', '.dprint.json', '.dprint.jsonc' },
-              name = 'dprint.json',
-              url = 'https://dprint.dev/schemas/v0.json',
-            },
-          }, require('schemastore').json.schemas()),
+          schemas = require('schemastore').json.schemas(),
         },
         validate = { enable = true },
       }
