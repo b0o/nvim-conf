@@ -7,15 +7,18 @@ local mappings = require 'user.mappings'
 -- vim.g.splitjoin_split_mapping = ''
 
 ---- lukas-reineke/indent-blankline.nvim
-require('indent_blankline').setup {
+require('ibl').setup {
+  indent = {
+    char = '│',
+  },
   show_whitespace = true,
   strict_tabs = true,
   use_treesitter = false,
   show_current_context = false,
 }
 fn.tmpl_hi [[
-  hi link IndentBlanklineSpaceChar Comment
-  hi IndentBlanklineContextChar guifg=${mid_velvet} gui=nocombine
+  hi link IblWhitespace Comment
+  hi IblIndent guifg=${mid_velvet} gui=nocombine
 ]]
 
 ---- lewis6991/gitsigns.nvim
