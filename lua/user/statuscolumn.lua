@@ -14,7 +14,7 @@ local function hw(hl, text)
   return cb(text)
 end
 
-local fives = hw { guifg = colors.bg }
+-- local fives = hw { guifg = colors.bg }
 local inactive = hw { guifg = colors.inactive_bg }
 
 local get_num = function(lnum, relnum, virtnum, statusline_winid)
@@ -42,7 +42,8 @@ local get_num = function(lnum, relnum, virtnum, statusline_winid)
       if vim.api.nvim_win_get_option(statusline_winid, 'relativenumber') then
         num = relnum
       end
-      num = relnum % 5 == 0 and fives(num) or inactive(num)
+      -- num = relnum % 5 == 0 and fives(num) or inactive(num)
+      num = inactive(num)
     else
       num = inactive(num)
     end
