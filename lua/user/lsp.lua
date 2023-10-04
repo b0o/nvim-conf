@@ -1,10 +1,7 @@
-local lsp_status = require 'lsp-status'
-local lsp_format = require 'lsp-format'
 local user_lsp_status = require 'user.statusline.lsp'
 local nvim_cmp_lsp = require 'cmp_nvim_lsp'
 local fn = require 'user.fn'
 local root_pattern = require('lspconfig.util').root_pattern
-local Debounce = require 'user.util.debounce'
 
 local M = {
   fmt_on_save_enabled = false,
@@ -12,19 +9,6 @@ local M = {
   signs = { Error = ' ', Warn = ' ', Hint = ' ', Info = ' ' },
   on_attach_called = false,
 }
-
-local format_timeout = 30000
-
-M.format = function(opts)
-  vim.lsp.buf.format(vim.tbl_extend('force', {
-    timeout_ms = format_timeout,
-    async = false,
-  }, opts or {}))
-end
-
-M.range_formatting = function(opts, ...)
-  return vim.lsp.buf.range_formatting(vim.tbl_extend('force', { timeout_ms = format_timeout }, opts or {}), ...)
-end
 
 local lsp_servers = {
   {
@@ -124,7 +108,6 @@ local lsp_servers = {
     'ocamllsp',
     root_dir = root_pattern('*.opam', 'esy.json', 'package.json', '.git', '.merlin'),
   },
-  'prismals',
   {
     'pyright',
     formatting = false,
@@ -146,44 +129,11 @@ local lsp_servers = {
     },
     settings = {
       Lua = {
-        completion = {
-          callSnippet = 'Replace',
-        },
-        diagnostics = {
-          globals = {
-            -- Mapx.nvim globals
-            'map',
-            'nmap',
-            'vmap',
-            'xmap',
-            'smap',
-            'omap',
-            'imap',
-            'lmap',
-            'cmap',
-            'tmap',
-            'noremap',
-            'nnoremap',
-            'vnoremap',
-            'xnoremap',
-            'snoremap',
-            'onoremap',
-            'inoremap',
-            'lnoremap',
-            'cnoremap',
-            'tnoremap',
-            'mapbang',
-            'noremapbang',
-
-            -- Mulberry BDD
-            'Describe',
-            'It',
-            'Expect',
-            'Which',
-          },
-        },
         telemetry = {
           enable = false,
+        },
+        workspace = {
+          checkThirdParty = false,
         },
       },
     },
@@ -226,7 +176,12 @@ local lsp_servers = {
     settings = {
       redhat = { telemetry = { enabled = false } },
       yaml = {
-        schemaStore = { enabled = true },
+        schemaStore = {
+          enable = true,
+          -- Avoid TypeError: Cannot read properties of undefined (reading 'length')
+          url = '',
+        },
+        schemas = require('schemastore').yaml.schemas(),
       },
     },
   },
@@ -264,19 +219,6 @@ local lsp_handlers = {
       jumpto(result)
     end
   end,
-  -- ['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = M.border }),
-  ['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = M.border }),
-  ['window/showMessage'] = function(_, result, ctx)
-    local client = vim.lsp.get_client_by_id(ctx.client_id)
-    local lvl = ({ 'ERROR', 'WARN', 'INFO', 'DEBUG' })[result.type]
-    vim.notify(result.message, lvl, {
-      title = 'LSP | ' .. client.name,
-      timeout = 10000,
-      keep = function()
-        return lvl == 'ERROR' or lvl == 'WARN'
-      end,
-    })
-  end,
 }
 
 ---- ray-x/lsp_signature.nvim
@@ -302,30 +244,9 @@ local hover_config = {
   title = false,
 }
 
-local no_format_on_save_fts = {
-  'gitcommit',
-}
-
 local function on_attach(client, bufnr)
-  ---@diagnostic disable-next-line: redundant-parameter
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   user_lsp_status.on_attach(client, bufnr)
-
-  ---@diagnostic disable-next-line: redundant-parameter
-  if not vim.tbl_contains(no_format_on_save_fts, vim.api.nvim_buf_get_option(bufnr, 'filetype')) then
-    lsp_format.on_attach(client, bufnr)
-  end
-  if client.server_capabilities.codeActionProvider then
-    local augid = vim.api.nvim_create_augroup('user_lsp_code_actions', { clear = true })
-    local cal_dbounce = Debounce(M.code_action_listener, { threshold = 500 })
-    vim.api.nvim_create_autocmd('CursorHold', {
-      buffer = bufnr,
-      group = augid,
-      callback = function(...)
-        cal_dbounce(...)
-      end,
-    })
-  end
   vim.schedule(function()
     require('user.mappings').on_lsp_attach(bufnr)
   end)
@@ -365,27 +286,6 @@ function M.peek_definition()
   end)
 end
 
-M.code_actions = {}
-function M.code_action_listener()
-  local bufnr = vim.api.nvim_get_current_buf()
-  local context = { diagnostics = vim.lsp.diagnostic.get_line_diagnostics() }
-  local params = vim.lsp.util.make_range_params()
-  params.context = context
-  pcall(vim.lsp.buf_request, bufnr, 'textDocument/codeAction', params, function(err, actions, result)
-    if err or not result or not result.bufnr then
-      return
-    end
-    M.code_actions[result.bufnr] = M.code_actions[result.bufnr] or {}
-    M.code_actions[result.bufnr][result.client_id] = actions and #actions or 0
-    M.code_actions[result.bufnr].count = nil
-    local count = 0
-    for _, sub_count in pairs(M.code_actions[result.bufnr]) do
-      count = count + sub_count
-    end
-    M.code_actions[result.bufnr].count = count
-  end)
-end
-
 local function setup_neodev()
   require('neodev').setup {
     library = {
@@ -398,20 +298,6 @@ end
 
 local function lsp_init()
   setup_neodev()
-  lsp_format.setup {
-    typescript = {
-      exclude = { 'typescript-tools' },
-    },
-    typescriptreact = {
-      exclude = { 'typescript-tools' },
-    },
-    javascript = {
-      exclude = { 'typescript-tools' },
-    },
-    javascriptreact = {
-      exclude = { 'typescript-tools' },
-    },
-  }
   vim.lsp.set_log_level(vim.lsp.log_levels.WARN)
   for k, v in pairs(lsp_handlers) do
     vim.lsp.handlers[k] = v
@@ -465,9 +351,8 @@ local function lsp_init()
       error('LSP: not a function: ' .. name .. '.setup')
     end
     lspconfig[name].setup(opts)
-    lsp_status.register_progress()
-    lsp_status.config { current_function = false }
   end
+  vim.cmd [[LspStart]]
 end
 
 lsp_init()

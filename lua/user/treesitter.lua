@@ -9,7 +9,7 @@ require('nvim-treesitter.configs').setup {
     'c',
     'capnp',
     'cmake',
-    'comment',
+    -- 'comment',
     'cpp',
     'css',
     'dockerfile',
@@ -31,6 +31,7 @@ require('nvim-treesitter.configs').setup {
     'lua',
     'make',
     'markdown',
+    'markdown_inline',
     -- 'nix',
     -- 'ocaml',
     -- 'ocaml_interface',
@@ -44,7 +45,7 @@ require('nvim-treesitter.configs').setup {
     -- 'rust',
     -- 'scss',
     -- 'teal',
-    -- 'toml',
+    'toml',
     'tsx',
     'typescript',
     'vim',
@@ -72,7 +73,7 @@ require('nvim-treesitter.configs').setup {
   },
   highlight = {
     enable = true,
-    disable = { 'help' },
+    -- disable = { 'help' },
   },
   incremental_selection = {
     enable = true,
@@ -165,9 +166,9 @@ require('nvim-treesitter.configs').setup {
       show_help = '?',
     },
   },
-  matchup = {
-    enable = true,
-  },
+  -- matchup = {
+  --   enable = true,
+  -- },
 }
 
 -- romgrk/nvim-treesitter-context
@@ -197,4 +198,32 @@ require('treesitter-context').setup {
 require('sibling-swap').setup {
   use_default_keymaps = false,
   allow_interline_swaps = true,
+}
+
+---- Wansmer/treesj
+require('treesj').setup {
+  -- Use default keymaps
+  -- (<space>m - toggle, <space>j - join, <space>s - split)
+  use_default_keymaps = false,
+
+  -- Node with syntax error will not be formatted
+  check_syntax_error = true,
+
+  -- If line after join will be longer than max value,
+  -- node will not be formatted
+  max_join_length = 120,
+
+  -- hold|start|end:
+  -- hold - cursor follows the node/place on which it was called
+  -- start - cursor jumps to the first symbol of the node being formatted
+  -- end - cursor jumps to the last symbol of the node being formatted
+  cursor_behavior = 'hold',
+
+  -- Notify about possible problems or not
+  notify = true,
+  langs = { --[[ configuration for languages ]]
+  },
+
+  -- Use `dot` for repeat action
+  dot_repeat = true,
 }

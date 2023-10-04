@@ -165,7 +165,8 @@ local function shorten_path_styled(path, opts)
   }
 end
 
-local function git_status(bufname)
+local function git_status(props)
+  local bufname = a.nvim_buf_get_name(props.buf)
   if bufname == '' then
     return
   end
@@ -188,7 +189,7 @@ local function git_status(bufname)
   end
   local res = {}
   for _, icon in ipairs(icons) do
-    table.insert(res, { icon.str, ' ', group = icon.hl })
+    table.insert(res, { icon.str, ' ', group = icon.hl[1] })
   end
   return res
 end
@@ -264,7 +265,7 @@ incline.setup {
         { has_error and '  ' or ' ', guifg = props.focused and colors.red or nil },
         { fname, gui = modified and 'bold,italic' or nil },
         { modified and ' * ' or ' ', guifg = extra_colors.fg },
-        git_status(bufname),
+        git_status,
         guibg = bg,
         guifg = fg,
       },

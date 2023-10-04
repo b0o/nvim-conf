@@ -1,7 +1,5 @@
 ---- kyazdani42/nvim-tree.lua
 
-local fn = require 'user.fn'
-
 -- vim.g.nvim_tree_indent_markers = 1
 -- vim.g.nvim_tree_git_hl = 1
 -- vim.g.nvim_tree_highlight_opened_files = 1
@@ -24,6 +22,14 @@ for hi, c in pairs {
 end
 
 require('nvim-tree').setup {
+  actions = {
+    open_file = {
+      window_picker = {
+        enable = true,
+        picker = require('window-picker').pick_window,
+      },
+    },
+  },
   open_on_tab = true,
   hijack_cursor = true,
   update_cwd = true,
@@ -40,11 +46,12 @@ require('nvim-tree').setup {
   },
   filters = {
     custom = { '.git', 'node_modules', '.cache', '.vscode' },
+    exclude = { '[.]env', '[.]env[.].*' },
   },
   renderer = {
     indent_markers = { enable = true },
     highlight_git = true,
-    highlight_opened_files = '1',
+    highlight_opened_files = 'all',
     add_trailing = true,
     group_empty = true,
     icons = {
@@ -78,3 +85,5 @@ require('nvim-tree').setup {
     adaptive_size = false,
   },
 }
+
+require('nvim-tree.commands').setup()

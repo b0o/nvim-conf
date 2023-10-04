@@ -320,4 +320,9 @@ function M.do_rename_tab()
   input:map('n', '<Esc>', input.input_props.on_close, { noremap = true })
 end
 
+function M.toggle_hide()
+  local state = vim.o.showtabline
+  vim.o.showtabline = state == 2 and 0 or 2
+end
+
 return M

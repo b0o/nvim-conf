@@ -3,9 +3,9 @@
 local colors = require 'user.colors'
 
 require('window-picker').setup {
-  autoselect_one = true,
-  include_current = false,
+  hint = 'floating-big-letter',
   filter_rules = {
+    autoselect_one = false,
     -- filter using buffer options
     bo = {
       -- if the file type is one of following, the window will be ignored
@@ -15,6 +15,7 @@ require('window-picker').setup {
       buftype = { 'terminal', 'quickfix' },
     },
   },
-  other_win_hl_color = colors.deep_anise,
+  -- other_win_hl_color = colors.deep_anise,
   fg_color = colors.hydrangea,
+  show_prompt = false,
 }

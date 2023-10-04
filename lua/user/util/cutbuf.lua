@@ -1,4 +1,5 @@
-local fn = require 'user.fn'
+local lazy = require 'user.util.lazy'
+local fn = lazy.require_on_call_rec 'user.fn'
 
 local MODE_NONE = 1
 local MODE_CUT = 2

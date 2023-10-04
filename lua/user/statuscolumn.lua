@@ -57,3 +57,84 @@ M.render = function()
 end
 
 return M
+
+-- local gitsigns = require 'gitsigns'
+--
+-- local M = {}
+--
+-- local function hw(group, text)
+--   return '%#' .. group .. '#' .. text .. '%*'
+-- end
+--
+--
+-- -- Example result:
+-- -- { {
+-- --     added = {
+-- --       count = 6,
+-- --       lines = { "// foo", "et pool: any | undefined;", "// bar", "// qux", "// lol", "// wut" },
+-- --       start = 18
+-- --     },
+-- --     head = "@@ -18,1 +18,6 @@",
+-- --     lines = { "-let pool: any | undefined;", "+// foo", "+et pool: any | undefined;", "+// bar", "+// qux", "+// lol", "+// wut" },
+-- --     removed = {
+-- --       count = 1,
+-- --       lines = { "let pool: any | undefined;" },
+-- --       start = 18
+-- --     },
+-- --     type = "change"
+-- --   } }
+-- local get_hunks = gitsigns.get_hunks
+--
+-- M.state = {
+--   winid = nil,
+--   bufnr = nil,
+--   lnum = nil,
+--
+--   -- gitsigns
+--   hunks = {},
+--
+--   -- bufnr -> { [lnum]: { col, col, .. } }
+--   cache = {},
+-- }
+--
+-- M.render = function(winid, bufnr, lnum)
+--   _ = { winid, lnum }
+--   local res = {
+--     git = ' ',
+--     num = lnum,
+--   }
+--   local hunks = M.state.hunks[bufnr]
+--   if hunks then
+--     for _, hunk in ipairs(hunks) do
+--       if lnum >= hunk.added.start and lnum <= hunk.added.start + hunk.added.count then
+--         res.git = hw('GitSignsAdd', '│')
+--       end
+--       if lnum >= hunk.removed.start and lnum <= hunk.removed.start + hunk.removed.count then
+--         res.git = hw('GitSignsDelete', '│')
+--       end
+--     end
+--   end
+--   return res.num .. ' ' .. res.git
+-- end
+--
+-- M.update = function()
+--   if vim.g.statusline_winid == M.state.winid then
+--     return M.state.cache[M.state.bufnr][vim.v.lnum]
+--   end
+--
+--   M.state.winid = vim.g.statusline_winid
+--   M.state.bufnr = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
+--   M.state.lnum = nil
+--   M.state.hunks[M.state.bufnr] = get_hunks(M.state.bufnr)
+--   M.state.cache[M.state.bufnr] = {}
+--
+--   -- loop over all lines in the buffer and calculate the statusline, then cache it
+--   for lnum = 1, vim.api.nvim_buf_line_count(M.state.bufnr) do
+--     M.state.cache[M.state.bufnr][lnum] = M.render(M.state.winid, M.state.bufnr, lnum)
+--   end
+--
+--   -- finally, return the statusline for the current line
+--   return M.state.cache[M.state.bufnr][vim.v.lnum]
+-- end
+--
+-- return M

@@ -196,6 +196,11 @@ call s:hi('healthSuccess', g:lavi_gui[14], g:lavi_gui[1], g:lavi_term[14], g:lav
 call s:hi('healthWarning', g:lavi_gui[13], g:lavi_gui[1], g:lavi_term[13], g:lavi_term[1], '', '')
 call s:hi('TermCursorNC', '', g:lavi_gui[1], '', g:lavi_term[1], '', '')
 
+"+- Floating Windows -+
+call s:hi('NormalFloat', g:lavi_gui[4], g:lavi_bg, 'NONE', 'NONE', '', '')
+call s:hi('NormalFloatNC', g:lavi_gui[4], g:lavi_gui[20], 'NONE', 'NONE', '', '')
+call s:hi('FloatBorder', g:lavi_gui[4], g:lavi_bg, 'NONE', 'NONE', '', '')
+
 "+- Vim 8 Terminal Colors -+
 if has('terminal')
   let g:terminal_ansi_colors = [

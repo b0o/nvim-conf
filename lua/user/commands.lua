@@ -1,13 +1,16 @@
-local lsp = require 'user.lsp'
-local fn = require 'user.fn'
-local command, cabbrev = fn.command, fn.cabbrev
+local lazy = require 'user.util.lazy'
+local command_util = require 'user.util.command'
+
+local fn = lazy.require_on_call_rec 'user.fn'
+local lsp = lazy.require_on_call_rec 'user.lsp'
+
+local command, cabbrev = command_util.command, command_util.cabbrev
 
 local M = {
   cmp = {},
 }
 
 ------ User Commands
-command { '-nargs=+', '-complete=command', 'Put', "pu=execute('<args>')" }
 command {
   '-nargs=+',
   '-complete=command',
@@ -75,8 +78,8 @@ command {
 
 command { '-count', '-nargs=*', 'LaunchVimInstance', 'call user#fn#launchVimInstance(<q-args>)' }
 
-command { 'SessionSave', require('user.fn').session_save }
-command { 'SessionLoad', require('user.fn').session_load }
+command { 'SessionSave', fn.session_save }
+command { 'SessionLoad', fn.session_load }
 cabbrev('SS', 'SessionSave')
 cabbrev('SL', 'SessionLoad')
 
@@ -92,7 +95,7 @@ command {
       if w ~= curwin then
         vim.api.nvim_win_close(w, o.bang == '!')
       end
-    end, require('user.fn').tabpage_list_normal_wins())
+    end, fn.tabpage_list_normal_wins())
   end,
 }
 
@@ -149,6 +152,42 @@ magicFileCmd(fn.magic_newfile, 'Newsplit', 'split')
 magicFileCmd(fn.magic_newfile, 'XNew', 'split')
 magicFileCmd(fn.magic_newfile, 'VNew', 'vsplit')
 magicFileCmd(fn.magic_newfile, 'VNewsplit', 'split')
+
+---- Search
+
+-- Copy matches of a regex to the clipboard.
+-- If bang
+function write_matches_to_clipboard(regex, bang)
+  local matches = {}
+  local bufnr = vim.api.nvim_get_current_buf()
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+  for _, line in ipairs(lines) do
+    local match = vim.fn.matchlist(line, regex)
+    if #match > 0 then
+      if bang then
+        table.insert(matches, match[0])
+      else
+        for i = 2, #match do
+          table.insert(matches, match[i])
+        end
+      end
+    end
+  end
+  vim.fn.setreg('+', table.concat(matches, '\n'))
+  print('Copied ' .. #matches .. ' matches to clipboard')
+end
+
+-- If invoked as a preview callback, performs 'inccommand' preview by
+-- highlighting regex matches in the current buffer.
+local function write_matches_to_clipboard_preview(opts, preview_ns, preview_buf) end
+
+vim.api.nvim_create_user_command('CopyMatches', function(o)
+  write_matches_to_clipboard(o.args, o.bang)
+end, {
+  bang = true,
+  nargs = 1,
+  preview = write_matches_to_clipboard_preview,
+})
 
 ------ Plugins
 ---- tpope/vim-eunuch

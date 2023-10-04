@@ -1,5 +1,3 @@
-local fn = require 'user.fn'
-
 vim.o.spell = false
 vim.o.spellfile = vim.fn.stdpath 'config' .. '/spellfile.utf-8.add'
 
@@ -56,8 +54,6 @@ vim.o.modeline = true -- always parse modelines when loading files
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ','
 
-vim.o.qftf = [[{info -> luaeval("require'user.quickfix'.qftf(_A)", info)}]]
-
 -- SEE: https://github.com/luukvbaal/stabilize.nvim
 -- SEE: https://github.com/neovim/neovim/pull/19243
 vim.o.splitkeep = 'screen'
@@ -65,6 +61,9 @@ vim.o.splitkeep = 'screen'
 -- vim.o.foldmethod = 'expr'
 -- vim.o.foldlevelstart = 99
 -- vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
+
+-- Disable intro message
+vim.opt.shortmess:append 'I'
 
 vim.o.title = true
 -- vim.o.titlestring = '%{luaeval("require[[user.tabline]].titlestring()")}'
@@ -80,6 +79,7 @@ vim.o.showmode = false
 vim.o.showcmd = true
 vim.o.laststatus = 0
 vim.o.ruler = false
+vim.o.cmdheight = 0
 
 vim.o.showmatch = true
 
@@ -125,11 +125,6 @@ if vim.fn.exists 'g:colorscheme' then
     endtry
   ]]
 end
-
--- Notify with nvim-notify if nvim is focused,
--- otherwise send a desktop notification.
-vim.g.nvim_focused = true
-vim.notify = fn.require_on_exported_call('user.notify').notify
 
 ---- Providers
 vim.g.loaded_perl_provider = 0

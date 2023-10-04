@@ -60,10 +60,9 @@ local filetypes_override_name = {
   'Trouble',
   ['neo-tree'] = 'NeoTree',
   aerial = 'Aerial',
-  fugitive = 'Fugitive',
-  fugitiveblame = 'FugitiveBlame',
   qf = 'Quickfix',
   startify = 'Startify',
+  'TelescopePrompt',
 }
 
 local config = {
@@ -196,10 +195,10 @@ config.components.active[2] = {
     provider = 'wtf',
     hl = { fg = 'mistyrose', bold = false },
   },
-  {
-    provider = 'lsp_progress',
-    hl = { fg = 'mistyrose', bold = false },
-  },
+  -- {
+  --   provider = 'lsp_progress',
+  --   hl = { fg = 'mistyrose', bold = false },
+  -- },
 }
 
 config.components.active[3] = {

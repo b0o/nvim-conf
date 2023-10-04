@@ -2,7 +2,7 @@ local M = {
   clients = { running = {}, exited = {} },
 }
 
-local lsp_status = require 'lsp-status'
+-- local lsp_status = require 'lsp-status'
 local messages = require('lsp-status/messaging').messages
 
 local icons = {
@@ -67,7 +67,7 @@ function M.on_attach(client, _bufnr)
       M.clients.exited[id] = nil
     end
   end
-  lsp_status.on_attach(client)
+  -- lsp_status.on_attach(client)
 end
 
 function M.on_exit(code, signal, id)
@@ -80,27 +80,27 @@ end
 
 -- Adapted from
 -- https://github.com/nvim-lua/lsp-status.nvim/blob/master/lua/lsp-status/statusline.lua
-function M.status_progress()
-  local msgs = {}
-  for _, msg in ipairs(messages()) do
-    local contents = msg.content
-    if msg.progress then
-      contents = msg.title
-      if msg.message then
-        contents = string.format('%s %s', contents, msg.message)
-      end
-      if msg.percentage then
-        contents = string.format('%s (%.0f%%%%)', contents, msg.percentage)
-      end
-      if msg.spinner then
-        local frame = icons.spinner_frames[(msg.spinner % #icons.spinner_frames) + 1]
-        contents = string.format('%s %s', frame, contents)
-      end
-    end
-    table.insert(msgs, string.format('%s %s', aliases[msg.name] or msg.name, contents))
-  end
-  return table.concat(msgs, icons.separator)
-end
+-- function M.status_progress()
+--   local msgs = {}
+--   for _, msg in ipairs(messages()) do
+--     local contents = msg.content
+--     if msg.progress then
+--       contents = msg.title
+--       if msg.message then
+--         contents = string.format('%s %s', contents, msg.message)
+--       end
+--       if msg.percentage then
+--         contents = string.format('%s (%.0f%%%%)', contents, msg.percentage)
+--       end
+--       if msg.spinner then
+--         local frame = icons.spinner_frames[(msg.spinner % #icons.spinner_frames) + 1]
+--         contents = string.format('%s %s', frame, contents)
+--       end
+--     end
+--     table.insert(msgs, string.format('%s %s', aliases[msg.name] or msg.name, contents))
+--   end
+--   return table.concat(msgs, icons.separator)
+-- end
 
 function M.status_clients(status)
   return function()
@@ -126,12 +126,12 @@ function M.status_clients(status)
   end
 end
 
-function M.code_actions()
-  local bufnr = vim.api.nvim_get_current_buf()
-  local code_actions = require('user.lsp').code_actions[bufnr]
-  local buf_has_actions = code_actions and code_actions.count and code_actions.count > 0
-  return buf_has_actions and tostring(code_actions.count) or '', icons.code_actions
-end
+-- function M.code_actions()
+--   local bufnr = vim.api.nvim_get_current_buf()
+--   local code_actions = require('user.lsp').code_actions[bufnr]
+--   local buf_has_actions = code_actions and code_actions.count and code_actions.count > 0
+--   return buf_has_actions and tostring(code_actions.count) or '', icons.code_actions
+-- end
 
 local register = require('user.statusline.providers').register
 
@@ -141,7 +141,7 @@ register('lsp_clients_starting', M.status_clients 'starting')
 register('lsp_clients_exited', M.status_clients 'exited')
 register('lsp_clients_exited_ok', M.status_clients 'exited_ok')
 register('lsp_clients_exited_err', M.status_clients 'exited_err')
-register('lsp_progress', M.status_progress)
-register('lsp_code_actions', M.code_actions)
+-- register('lsp_progress', M.status_progress)
+-- register('lsp_code_actions', M.code_actions)
 
 return M

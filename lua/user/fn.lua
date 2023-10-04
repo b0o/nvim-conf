@@ -53,44 +53,6 @@ end
 -- selene: allow(global_usage)
 _G.inspect = M.inspect
 
--- Register a vim command
-M.command = function(t)
-  local c = {}
-  for _, e in ipairs(t) do
-    if type(e) == 'function' or type(e) == 'table' then
-      local replacements = {}
-      if type(e) == 'table' then
-        local et = e
-        e = table.remove(e, 1)
-        for _, r in ipairs(et) do
-          local rep = ({
-            args = '{ <f-args> }',
-            line1 = '<line1>',
-            line2 = '<line2>',
-            range = '<range>',
-            count = '<count>',
-            bang = '<q-bang>',
-            mods = '<q-mods>',
-            reg = '<q-reg>',
-          })[r]
-          if rep then
-            table.insert(replacements, ('%s = %s'):format(r, rep))
-          end
-        end
-      end
-      local cb = M.new_callback(e)
-      e = ([[lua require'user.fn'.callback(%d, {%s})]]):format(cb, table.concat(replacements, ','))
-    end
-    table.insert(c, e)
-  end
-  vim.cmd('command!' .. table.concat(c, ' '))
-end
-
--- Register a command-line abbreviation
-M.cabbrev = function(a, c)
-  vim.cmd(('cabbrev %s %s'):format(a, c))
-end
-
 -- Get the visual selection as a list-like table of lines
 M.get_visual_selection = function(mode)
   if mode == nil then
@@ -260,24 +222,6 @@ M.get_runtime_path = function()
   return runtime_path
 end
 
--- bind a function to some arguments and return a new function (the thunk) that
--- can be called later.
--- Useful for setting up callbacks without anonymous functions.
-M.thunk = function(fn, ...)
-  local bound = { ... }
-  return function(...)
-    return fn(unpack(vim.list_extend(vim.list_extend({}, bound), { ... })))
-  end
-end
-
--- Like thunk(), but arguments passed to the thunk are ignored.
-M.ithunk = function(fn, ...)
-  local bound = { ... }
-  return function()
-    return fn(unpack(bound))
-  end
-end
-
 M.tbl_reduce = function(tbl, fn, acc)
   for k, v in pairs(tbl) do
     acc = fn(acc, v, k)
@@ -407,8 +351,7 @@ M.session_save = function()
     nvimTreeOpen = false,
     nvimTreeFocused = false,
   }
-
-  if require('nvim-tree.view').is_visible() then
+  if package.loaded['nvim-tree'] and require('nvim-tree.view').is_visible() then
     meta.nvimTreeOpen = true
     meta.nvimTreeFocused = vim.fn.bufname(vim.fn.bufnr()) == 'NvimTree'
     vim.cmd 'NvimTreeClose'
@@ -433,13 +376,11 @@ end
 -- Load the session associated with the CWD
 M.session_load = function()
   local cb = M.new_callback(function()
-    local meta = loadstring('return ' .. (vim.g.SessionMeta or '{}'))()
-    vim.g.SessionMeta = nil
-
     vim.schedule(function()
+      local meta = loadstring('return ' .. (vim.g.SessionMeta or '{}'))()
+      vim.g.SessionMeta = nil
       require('user.tabline').restore_tabpage_titles()
       if meta.nvimTreeOpen then
-        require 'nvim-tree'
         vim.cmd 'NvimTreeOpen'
       end
       if meta.nvimTreeFocused then
@@ -648,10 +589,6 @@ M.get_wins_of_type = function(wintype)
   return vim.tbl_filter(function(winid)
     return vim.fn.win_gettype(winid) == wintype
   end, vim.api.nvim_list_wins())
-end
-
-M.get_qfwin = function()
-  return M.get_wins_of_type('quickfix')[1]
 end
 
 M.is_normal_win = function(winid)

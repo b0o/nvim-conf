@@ -1,21 +1,19 @@
-local defaults = require 'feline.defaults'
-
 local colors_gui = vim.g.colors_gui or {}
 
 local colors = {
-  black = colors_gui['1'] or defaults.black,
-  white = colors_gui['5'] or defaults.white,
+  black = colors_gui['1'] or 'black',
+  white = colors_gui['5'] or 'white',
 
-  skyblue = colors_gui['7'] or defaults.skyblue,
-  cyan = colors_gui['8'] or defaults.cyan,
-  fg = colors_gui['4'] or defaults.fg,
-  green = colors_gui['14'] or defaults.green,
-  oceanblue = colors_gui['9'] or defaults.oceanblue,
-  magenta = colors_gui['15'] or defaults.magenta,
-  orange = colors_gui['17'] or defaults.orange,
-  red = colors_gui['12'] or defaults.red,
-  violet = colors_gui['10'] or defaults.violet,
-  yellow = colors_gui['13'] or defaults.yellow,
+  skyblue = colors_gui['7'] or 'skyblue',
+  cyan = colors_gui['8'] or 'cyan',
+  fg = colors_gui['4'] or 'fg',
+  green = colors_gui['14'] or 'green',
+  oceanblue = colors_gui['9'] or 'oceanblue',
+  magenta = colors_gui['15'] or 'magenta',
+  orange = colors_gui['17'] or 'orange',
+  red = colors_gui['12'] or 'red',
+  violet = colors_gui['10'] or 'violet',
+  yellow = colors_gui['13'] or 'yellow',
 
   butter = '#fffacf',
 
@@ -64,8 +62,8 @@ local colors = {
   light_lavender = '#EAD6FF',
 }
 
-colors.inactive_bg = colors_gui['0'] or defaults.bg
-colors.active_bg = colors_gui['3'] or defaults.bg
+colors.inactive_bg = colors_gui['0'] or 'NONE'
+colors.active_bg = colors_gui['3'] or 'NONE'
 colors.bg = colors.active_bg
 
 return colors

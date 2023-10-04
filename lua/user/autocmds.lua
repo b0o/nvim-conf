@@ -75,14 +75,3 @@ autocmd('BufEnter', {
     end
   end,
 })
-
----- TimUntersberger/neogit
-autocmd('User', {
-  pattern = 'FugitiveChanged',
-  callback = function()
-    local neogit = package.loaded.neogit
-    if neogit then
-      neogit.dispatch_refresh()
-    end
-  end,
-})

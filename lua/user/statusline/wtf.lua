@@ -1,8 +1,10 @@
-local wtf = require 'wtf'
-
 local M = {}
 
 function M.wtf()
+  local wtf = package.loaded['wtf']
+  if not wtf then
+    return ''
+  end
   return wtf.get_status()
 end
 
