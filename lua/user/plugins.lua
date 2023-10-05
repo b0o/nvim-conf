@@ -359,7 +359,6 @@ local plugins = {
       }
     end,
   },
-  'lewis6991/hover.nvim',
   'nvimtools/none-ls.nvim',
   'ray-x/lsp_signature.nvim',
   'b0o/schemastore.nvim',

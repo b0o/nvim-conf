@@ -30,7 +30,6 @@
   "gitlinker.nvim": { "branch": "master", "commit": "cc59f732f3d043b626c8702cb725c82e54d35c25" },
   "gitsigns.nvim": { "branch": "main", "commit": "2272cf9f0c092e908f892f5b075e6cc2a8d3d07d" },
   "glance.nvim": { "branch": "master", "commit": "8ed5cf3b3b1231ea696d88c9efd977027429d869" },
-  "hover.nvim": { "branch": "main", "commit": "f74d2924564ba5fd8faa2d7e7cf6065de26f9820" },
   "i3config.vim": { "branch": "master", "commit": "5c753c56c033d3b17e5005a67cdb9653bbb88ba7" },
   "inc-rename.nvim": { "branch": "main", "commit": "ed0f6f2b917cac4eb3259f907da0a481b27a3b7e" },
   "indent-blankline.nvim": { "branch": "master", "commit": "fd30910d517aa8aa98c64f1a96bc1857f411b895" },

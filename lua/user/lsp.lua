@@ -230,20 +230,6 @@ local lsp_signature_config = {
   toggle_key = '<M-s>',
 }
 
----- lewis6991/hover.nvim
-local hover_config = {
-  init = function()
-    require 'hover.providers.lsp'
-    require 'hover.providers.gh'
-    require 'hover.providers.man'
-  end,
-  preview_opts = {
-    border = M.border,
-  },
-  preview_window = false,
-  title = false,
-}
-
 local function on_attach(client, bufnr)
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   user_lsp_status.on_attach(client, bufnr)
@@ -257,7 +243,6 @@ local function on_first_attach()
     on_attach = on_attach,
   }))
   require('lsp_signature').setup(lsp_signature_config)
-  require('hover').setup(hover_config)
 end
 
 local function on_attach_wrapper(...)
