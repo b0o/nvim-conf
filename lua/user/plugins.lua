@@ -211,6 +211,29 @@ local plugins = {
         ['<M-,>'] = ',', -- Remap , to <M-,> because , conflicts with <localleader>
       }
     end,
+    keys = {
+      '<C-n>',
+      '<C-Down>',
+      '<C-Up>',
+      [[\\A]],
+      [[\\/]],
+      [[\\\]],
+      [[\\gS]],
+      { [[\\A]], mode = 'v' },
+      { [[\\/]], mode = 'v' },
+      { [[\\f]], mode = 'v' },
+      { [[\\c]], mode = 'v' },
+      { [[\\a]], mode = 'v' },
+      { [[\\s]], mode = 'v' },
+      { [[\\r]], mode = 'v' },
+    },
+    cmd = {
+      'VMDebug',
+      'VMClear',
+      'VMRegisters',
+      'VMSearch',
+      'VMLive',
+    },
   },
   {
     'numToStr/Comment.nvim',
