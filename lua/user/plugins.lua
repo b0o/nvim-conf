@@ -226,6 +226,7 @@ local plugins = {
       { [[\\a]], mode = 'v' },
       { [[\\s]], mode = 'v' },
       { [[\\r]], mode = 'v' },
+      { '<Plug>(VM-Visual-Cursors)', mode = 'x' },
     },
     cmd = {
       'VMDebug',
