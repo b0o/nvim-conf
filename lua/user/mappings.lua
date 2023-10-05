@@ -384,9 +384,6 @@ m.nnoremap([[<Esc>]], function()
   vim.cmd "echo ''"
 end, m.silent, 'Clear UI')
 
--- See: https://github.com/mhinz/vim-galore#saner-ctrl-l
-m.nnoremap([[<C-l>]], [[:nohlsearch<Cr>:diffupdate<Cr>:syntax sync fromstart<Cr><c-l>]], m.silent, 'Redraw')
-
 m.noremap([[gF]], [[<C-w>gf]], 'Go to file under cursor (new tab)')
 
 -- emacs-style motion & editing in insert mode
