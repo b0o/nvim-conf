@@ -192,7 +192,10 @@ local plugins = {
       vim.api.nvim_set_hl(0, 'EyelinerSecondary', { fg = colors.yellow, bold = true, underline = true })
     end,
   },
-  'chaoren/vim-wordmotion',
+  {
+    'chaoren/vim-wordmotion',
+    event = 'VeryLazy',
+  },
   { 'chentoast/marks.nvim', conf = 'user.plugin.marks' },
   {
     'kana/vim-textobj-user',
@@ -498,7 +501,11 @@ local plugins = {
     conf = { 'vcoolor', nolua = true },
     cmd = { 'VCoolIns', 'VCoolor' },
   },
-  { 'rrethy/vim-hexokinase', build = 'make hexokinase' },
+  {
+    'rrethy/vim-hexokinase',
+    build = 'make hexokinase',
+    event = 'BufRead',
+  },
 
   --- Vim Plugin Development
   { 'bfredl/nvim-luadev', ft = 'lua' },
