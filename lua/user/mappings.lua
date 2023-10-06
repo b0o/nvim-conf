@@ -1305,12 +1305,12 @@ m.inoremap(xk [[<C-S-\>]], iwrap(copilot_panel.open), m.silent, 'Copilot: Open p
 
 ---- monaqa/dial.nvim
 local dial_map = require 'dial.map'
-m.nnoremap([[<C-a>]], dial_map.inc_normal(), m.expr, 'Dial: Increment')
-m.nnoremap([[<C-x>]], dial_map.dec_normal(), m.expr, 'Dial: Decrement')
-m.vnoremap([[<C-a>]], dial_map.inc_visual(), m.expr, 'Dial: Increment')
-m.vnoremap([[<C-x>]], dial_map.dec_visual(), m.expr, 'Dial: Decrement')
-m.vnoremap([[g<C-a>]], dial_map.inc_gvisual(), m.expr, 'Dial: Increment')
-m.vnoremap([[g<C-x>]], dial_map.dec_gvisual(), m.expr, 'Dial: Decrement')
+m.nnoremap([[<C-a>]], dial_map.inc_normal(), 'Dial: Increment')
+m.nnoremap([[<C-x>]], dial_map.dec_normal(), 'Dial: Decrement')
+m.vnoremap([[<C-a>]], dial_map.inc_visual(), 'Dial: Increment')
+m.vnoremap([[<C-x>]], dial_map.dec_visual(), 'Dial: Decrement')
+m.vnoremap([[g<C-a>]], dial_map.inc_gvisual(), 'Dial: Increment')
+m.vnoremap([[g<C-x>]], dial_map.dec_gvisual(), 'Dial: Decrement')
 
 ---- Wansmer/sibling-swap.nvim
 local sibling_swap = fn.require_on_call_rec 'sibling-swap'
