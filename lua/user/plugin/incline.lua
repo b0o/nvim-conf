@@ -233,7 +233,9 @@ incline.setup {
       end
     end
 
-    local has_error = #vim.diagnostic.get(props.buf, { severity = vim.diagnostic.severity.ERROR }) > 0
+    local diag_disabled = vim.diagnostic.is_disabled(props.buf)
+    local has_error = not diag_disabled
+      and #vim.diagnostic.get(props.buf, { severity = vim.diagnostic.severity.ERROR }) > 0
 
     icon = icon or ''
     icon_bg = props.focused and (icon_bg or extra_colors.fg) or extra_colors.fg_nc
@@ -262,7 +264,8 @@ incline.setup {
           guifg = buf_focused and icon_fg or colors.deep_velvet,
           guibg = props.focused and icon_bg or (buf_focused and icon_bg or nil),
         },
-        { has_error and '  ' or ' ', guifg = props.focused and colors.red or nil },
+        { diag_disabled and ' 󱒼 ' or '', guifg = buf_focused and colors.deep_velvet or colors.deep_anise },
+        { has_error and '  ' or ' ', guifg = colors.red },
         { fname, gui = modified and 'bold,italic' or nil },
         { modified and ' * ' or ' ', guifg = extra_colors.fg },
         git_status,
