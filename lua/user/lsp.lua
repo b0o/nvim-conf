@@ -3,11 +3,14 @@ local nvim_cmp_lsp = require 'cmp_nvim_lsp'
 local fn = require 'user.fn'
 local root_pattern = require('lspconfig.util').root_pattern
 
+local methods = vim.lsp.protocol.Methods
+
 local M = {
   fmt_on_save_enabled = false,
   border = { { '╭' }, { '─' }, { '╮' }, { '│' }, { '╯' }, { '─' }, { '╰' }, { '│' } },
   signs = { Error = ' ', Warn = ' ', Hint = ' ', Info = ' ' },
   on_attach_called = false,
+  inlay_hints_enabled = {},
 }
 
 local lsp_servers = {
@@ -233,6 +236,38 @@ local lsp_signature_config = {
 local function on_attach(client, bufnr)
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   user_lsp_status.on_attach(client, bufnr)
+
+  -- Enable inlay hints if the client supports it.
+  -- Credit @MariaSolOs:
+  -- https://github.com/MariaSolOs/dotfiles/blob/8607ace4af5eb2e9001b3f14870c2ffc937f4dcd/.config/nvim/lua/lsp.lua#L118
+  if client.supports_method(methods.textDocument_inlayHint) then
+    local inlay_hints_group = vim.api.nvim_create_augroup('InlayHints', { clear = true })
+
+    -- Initial inlay hint display.
+    local mode = vim.api.nvim_get_mode().mode
+    M.inlay_hints_enabled[bufnr] = mode == 'n' or mode == 'v'
+    vim.lsp.inlay_hint(bufnr, M.inlay_hints_enabled[bufnr])
+
+    vim.api.nvim_create_autocmd('InsertEnter', {
+      group = inlay_hints_group,
+      buffer = bufnr,
+      callback = function()
+        if M.inlay_hints_enabled[bufnr] then
+          vim.lsp.inlay_hint(bufnr, false)
+        end
+      end,
+    })
+    vim.api.nvim_create_autocmd('InsertLeave', {
+      group = inlay_hints_group,
+      buffer = bufnr,
+      callback = function()
+        if M.inlay_hints_enabled[bufnr] then
+          vim.lsp.inlay_hint(bufnr, true)
+        end
+      end,
+    })
+  end
+
   vim.schedule(function()
     require('user.mappings').on_lsp_attach(bufnr)
   end)
@@ -269,6 +304,15 @@ function M.peek_definition()
     end
     vim.lsp.util.preview_location(result[1])
   end)
+end
+
+function M.set_inlay_hints(bufnr, status)
+  bufnr = fn.resolve_bufnr(bufnr)
+  if status == nil then
+    status = not M.inlay_hints_enabled[bufnr]
+  end
+  M.inlay_hints_enabled[bufnr] = status
+  vim.lsp.inlay_hint(bufnr, status)
 end
 
 local function setup_neodev()

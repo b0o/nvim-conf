@@ -719,3 +719,6 @@ call s:hi('GitSignsDelete', g:lavi_gui[11], '', g:lavi_term[11], '', '', '')
 
 call s:hi('MarkSignHL', g:lavi_gui[16], '', 'NONE', g:lavi_term[16], s:italic, '')
 call s:hi('MarkSignNumHL', g:lavi_gui[4], '', 'NONE', '', s:bold . s:italic, '')
+
+" LSP
+hi! link LspInlayHint Comment

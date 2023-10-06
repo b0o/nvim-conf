@@ -700,6 +700,11 @@ M.on_lsp_attach = function(bufnr)
       return
     end
 
+    m.nname('<localleader>i', 'LSP-InlayHints')
+    m.nnoremap([[<localleader>ii]], iwrap(user_lsp.set_inlay_hints, 0), 'LSP: Toggle inlay hints')
+    m.nnoremap([[<localleader>ie]], iwrap(user_lsp.set_inlay_hints, 0, true), 'LSP: Enable inlay hints')
+    m.nnoremap([[<localleader>id]], iwrap(user_lsp.set_inlay_hints, 0, false), 'LSP: Disable inlay hints')
+
     m.nname('<localleader>g', 'LSP-Glance')
     m.nnoremap([[<localleader>gD]], iwrap(vim.lsp.buf.declaration), 'LSP: Goto declaration')
     m.nnoremap({ [[<localleader>gd]], [[gd]] }, [[<Cmd>Glance definitions<Cr>]], 'LSP: Glance definitions')
