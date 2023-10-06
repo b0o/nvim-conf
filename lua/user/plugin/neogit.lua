@@ -47,18 +47,18 @@ neogit.setup {
   -- status = {
   --   recent_commit_count = 10,
   -- },
-  commit_editor = {
-    kind = 'floating',
-  },
-  commit_select_view = {
-    kind = 'floating',
-  },
+  -- commit_editor = {
+  --   kind = 'floating',
+  -- },
+  -- commit_select_view = {
+  --   kind = 'floating',
+  -- },
   -- commit_view = {
   --   kind = 'vsplit',
   -- },
-  log_view = {
-    kind = 'floating',
-  },
+  -- log_view = {
+  -- kind = 'floating',
+  -- },
   -- rebase_editor = {
   --   kind = 'split',
   -- },

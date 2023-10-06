@@ -906,7 +906,7 @@ local async_action = function(cmd, ...)
   end
 end
 
-m.nnoremap({ [[<leader>G]], [[<leader>gg]], [[<leader>gs]] }, '<Cmd>Neogit kind=floating<Cr>', m.silent, 'Neogit')
+m.nnoremap({ [[<leader>G]], [[<leader>gg]], [[<leader>gs]] }, '<Cmd>Neogit<Cr>', m.silent, 'Neogit')
 
 m.nname('<leader>g', 'Git')
 m.nname('<leader>ga', 'Git-Add')
