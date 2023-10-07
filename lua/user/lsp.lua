@@ -2,12 +2,13 @@ local user_lsp_status = require 'user.statusline.lsp'
 local nvim_cmp_lsp = require 'cmp_nvim_lsp'
 local fn = require 'user.fn'
 local root_pattern = require('lspconfig.util').root_pattern
+local ui = require 'user.ui'
 
 local methods = vim.lsp.protocol.Methods
 
 local M = {
   fmt_on_save_enabled = false,
-  border = { { '╭' }, { '─' }, { '╮' }, { '│' }, { '╯' }, { '─' }, { '╰' }, { '│' } },
+  border = ui.border,
   signs = { Error = ' ', Warn = ' ', Hint = ' ', Info = ' ' },
   on_attach_called = false,
   inlay_hints_enabled = {},
