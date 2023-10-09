@@ -7,7 +7,9 @@ require('typescript-tools').setup {
     publish_diagnostic_on = 'insert_leave',
     tsserver_file_preferences = {
       includeCompletionsForModuleExports = true,
-      includeInlayParameterNameHints = 'all',
+
+      -- inlay hints
+      includeInlayParameterNameHints = 'literals',
       includeInlayParameterNameHintsWhenArgumentMatchesName = false,
       includeInlayFunctionParameterTypeHints = true,
       includeInlayVariableTypeHints = true,

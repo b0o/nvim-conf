@@ -11,6 +11,7 @@ local M = {
   border = ui.border,
   signs = { Error = ' ', Warn = ' ', Hint = ' ', Info = ' ' },
   on_attach_called = false,
+  inlay_hints_enabled_global = false,
   inlay_hints_enabled = {},
 }
 
@@ -245,8 +246,9 @@ local function on_attach(client, bufnr)
     local inlay_hints_group = vim.api.nvim_create_augroup('InlayHints', { clear = true })
 
     -- Initial inlay hint display.
-    local mode = vim.api.nvim_get_mode().mode
-    M.inlay_hints_enabled[bufnr] = mode == 'n' or mode == 'v'
+    if M.inlay_hints_enabled[bufnr] == nil then
+      M.inlay_hints_enabled[bufnr] = M.inlay_hints_enabled_global
+    end
     vim.lsp.inlay_hint(bufnr, M.inlay_hints_enabled[bufnr])
 
     vim.api.nvim_create_autocmd('InsertEnter', {
@@ -305,6 +307,16 @@ function M.peek_definition()
     end
     vim.lsp.util.preview_location(result[1])
   end)
+end
+
+function M.set_inlay_hints_global(status)
+  if status == nil then
+    status = not M.inlay_hints_enabled_global
+  end
+  M.inlay_hints_enabled_global = status
+  for bufnr, _ in pairs(M.inlay_hints_enabled) do
+    M.set_inlay_hints(bufnr, status)
+  end
 end
 
 function M.set_inlay_hints(bufnr, status)

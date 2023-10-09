@@ -647,7 +647,7 @@ end)
 
 ------ LSP
 m.nname('<leader>l', 'LSP')
-m.nnoremap([[<leader>li]], '<Cmd>LspInfo<Cr>', m.silent, 'LSP: Show LSP information')
+m.nnoremap([[<leader>lif]], '<Cmd>LspInfo<Cr>', m.silent, 'LSP: Show LSP information')
 m.nnoremap([[<leader>lr]], '<Cmd>LspRestart<Cr>', m.silent, 'LSP: Restart LSP')
 m.nnoremap([[<leader>ls]], '<Cmd>LspStart<Cr>', m.silent, 'LSP: Start LSP')
 m.nnoremap([[<leader>lS]], '<Cmd>LspStop<Cr>', m.silent, 'LSP: Stop LSP')
@@ -681,6 +681,12 @@ M.on_first_lsp_attach = function()
     m.silent,
     'Trouble: Toggle Focus'
   )
+
+  local user_lsp = fn.require_on_call_rec 'user.lsp'
+  m.nname('<leader>li', 'LSP-InlayHints')
+  m.nnoremap([[<leader>lii]], iwrap(user_lsp.set_inlay_hints_global), 'LSP: Toggle inlay hints')
+  m.nnoremap([[<leader>lie]], iwrap(user_lsp.set_inlay_hints_global, true), 'LSP: Enable inlay hints')
+  m.nnoremap([[<leader>lid]], iwrap(user_lsp.set_inlay_hints_global, false), 'LSP: Disable inlay hints')
 end
 
 M.on_lsp_attach = function(bufnr)
@@ -701,9 +707,9 @@ M.on_lsp_attach = function(bufnr)
     end
 
     m.nname('<localleader>i', 'LSP-InlayHints')
-    m.nnoremap([[<localleader>ii]], iwrap(user_lsp.set_inlay_hints, 0), 'LSP: Toggle inlay hints')
-    m.nnoremap([[<localleader>ie]], iwrap(user_lsp.set_inlay_hints, 0, true), 'LSP: Enable inlay hints')
-    m.nnoremap([[<localleader>id]], iwrap(user_lsp.set_inlay_hints, 0, false), 'LSP: Disable inlay hints')
+    m.nnoremap([[<localleader>ii]], iwrap(user_lsp.set_inlay_hints, 0), 'LSP: Toggle inlay hints for buffer')
+    m.nnoremap([[<localleader>ie]], iwrap(user_lsp.set_inlay_hints, 0, true), 'LSP: Enable inlay hints for buffer')
+    m.nnoremap([[<localleader>id]], iwrap(user_lsp.set_inlay_hints, 0, false), 'LSP: Disable inlay hints for buffer')
 
     m.nname('<localleader>g', 'LSP-Glance')
     m.nnoremap([[<localleader>gD]], iwrap(vim.lsp.buf.declaration), 'LSP: Goto declaration')
