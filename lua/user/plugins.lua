@@ -129,10 +129,9 @@ local plugins = {
     conf = 'user.plugin.winshift',
   },
 
-  'mrjones2014/smart-splits.nvim',
   {
-    'aserowy/tmux.nvim',
-    conf = 'user.plugin.tmux',
+    'mrjones2014/smart-splits.nvim',
+    lazy = false,
   },
   {
     'wellle/visual-split.vim',

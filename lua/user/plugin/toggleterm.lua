@@ -57,7 +57,7 @@ require('toggleterm').setup {
   -- persist_mode = true, -- if set to true (default) the previous terminal mode will be remembered
   -- direction = 'vertical' | 'horizontal' | 'tab' | 'float',
   -- close_on_exit = true, -- close the terminal window when the process exits
-  shell = 'tmux -L tmux-nvim -f $XDG_CONFIG_HOME/tmux/tmux-nvim.conf',
+  -- shell = 'tmux -L tmux-nvim -f $XDG_CONFIG_HOME/tmux/tmux-nvim.conf',
   -- auto_scroll = true, -- automatically scroll to the bottom on terminal output
   -- -- This field is only relevant if direction is set to 'float'
   float_opts = {

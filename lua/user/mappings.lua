@@ -832,28 +832,7 @@ m.xnoremap([[<M-/>]], function()
   comment.toggle.linewise(vim.fn.visualmode())
 end, m.silent)
 
----- aserowy/tmux.nvim
-local tmux = fn.require_on_exported_call 'tmux'
-local function tmux_move(dir)
-  return function()
-    if vim.bo.filetype == 'toggleterm' then
-      local key = ({ left = 'h', right = 'l', top = 'k', bottom = 'j' })[dir]
-      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(xk [[<M-Space>]] .. key, true, false, true), 'n', false)
-    else
-      tmux['move_' .. dir]()
-    end
-  end
-end
-
-m.nmap([[<M-h>]], iwrap(tmux.move_left), m.silent, 'Goto window/tmux pane left')
-m.nmap([[<M-j>]], iwrap(tmux.move_bottom), m.silent, 'Goto window/tmux pane down')
-m.nmap([[<M-k>]], iwrap(tmux.move_top), m.silent, 'Goto window/tmux pane up')
-m.nmap([[<M-l>]], iwrap(tmux.move_right), m.silent, 'Goto window/tmux pane right')
-m.tnoremap([[<M-h>]], tmux_move 'left', m.silent, 'Goto window/tmux pane left')
-m.tnoremap([[<M-j>]], tmux_move 'bottom', m.silent, 'Goto window/tmux pane down')
-m.tnoremap([[<M-k>]], tmux_move 'top', m.silent, 'Goto window/tmux pane up')
-m.tnoremap([[<M-l>]], tmux_move 'right', m.silent, 'Goto window/tmux pane right')
-
+---- nvim-telescope/telescope.nvim
 m.group(m.silent, function()
   local tu = fn.require_on_call_rec 'user.plugin.telescope'
   local tc = tu.cmds
@@ -1284,11 +1263,16 @@ m.nnoremap([[]"]], [[[']], 'Mark: goto previous')
 m.nnoremap([[<leader>']], iwrap(fn.require_on_call_rec('marks').toggle_signs), 'Mark: toggle signs')
 
 ---- mrjones2014/smart-splits.nvim
-local smart_splits = fn.require_on_exported_call 'smart-splits'
+local smart_splits = require 'smart-splits'
 m.noremap([[<M-[>]], iwrap(smart_splits.resize_left), 'Resize-Win: Left')
 m.noremap([[<M-]>]], iwrap(smart_splits.resize_right), 'Resize-Win: Right')
 m.noremap([[<M-{>]], iwrap(smart_splits.resize_up), 'Resize-Win: Up')
 m.noremap([[<M-}>]], iwrap(smart_splits.resize_down), 'Resize-Win: Down')
+
+m.nmap([[<M-h>]], iwrap(smart_splits.move_cursor_left), 'Goto window/pane left')
+m.nmap([[<M-j>]], iwrap(smart_splits.move_cursor_down), 'Goto window/pane down')
+m.nmap([[<M-k>]], iwrap(smart_splits.move_cursor_up), 'Goto window/pane up')
+m.nmap([[<M-l>]], iwrap(smart_splits.move_cursor_right), 'Goto window/pane right')
 
 ---- github/copilot.vim
 -- m.inoremap(xk [[<C-\>]], [[copilot#Accept("\<CR>")]], m.silent, m.expr, "Copilot: Accept")
