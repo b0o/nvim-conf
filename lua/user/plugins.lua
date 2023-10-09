@@ -371,7 +371,11 @@ local plugins = {
   'ray-x/lsp_signature.nvim',
   'b0o/schemastore.nvim',
   'aznhe21/actions-preview.nvim',
-  { 'smjonas/inc-rename.nvim', config = true },
+  {
+    'smjonas/inc-rename.nvim',
+    cmd = { 'IncRename' },
+    config = true,
+  },
   {
     'DNLHC/glance.nvim',
     conf = 'user.plugin.glance',

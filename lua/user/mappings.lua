@@ -727,8 +727,9 @@ M.on_lsp_attach = function(bufnr)
     end, 'LSP: List workspace folders')
 
     m.nnoremap([[<localleader>R]], function()
+      require 'inc_rename'
       return ':IncRename ' .. vim.fn.expand '<cword>'
-    end, 'LSP: Rename', m.expr)
+    end, m.expr, 'LSP: Rename')
 
     -- m.nnoremap({ [[<localleader>A]], [[<localleader>ca]] }, ithunk(vim.lsp.buf.code_action), "LSP: Code action")
     -- m.xnoremap({ [[<localleader>A]], [[<localleader>ca]] }, ithunk(vim.lsp.buf.range_code_action),
