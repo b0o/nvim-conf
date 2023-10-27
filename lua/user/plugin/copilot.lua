@@ -1,7 +1,11 @@
 ---- zbirenbaum/copilot.lua
+local M = {
+  status = '',
+}
+
 require('copilot').setup {
   panel = {
-    enabled = true,
+    enabled = false,
     auto_refresh = true,
     keymap = {
       jump_prev = '[[',
@@ -49,3 +53,12 @@ require('copilot').setup {
   copilot_node_command = vim.env.HOME .. '/.asdf/shims/node',
   server_opts_overrides = {},
 }
+
+require('copilot.api').register_status_notification_handler(function(data)
+  M.status = data.status
+  vim.schedule(function()
+    vim.cmd [[redrawstatus]]
+  end)
+end)
+
+return M

@@ -8,6 +8,7 @@ local file_info = require 'user.statusline.file_info'
 require 'user.statusline.lsp'
 require 'user.statusline.dap'
 require 'user.statusline.codegpt'
+require 'user.statusline.copilot'
 require 'user.statusline.wtf'
 
 local fn = require 'user.fn'
@@ -184,17 +185,36 @@ config.components.active[1] = {
     end,
     hl = { fg = 'skyblue' },
   },
-}
-
-config.components.active[2] = {
+  {
+    provider = 'copilot',
+    hl = { fg = 'cyan', bold = false },
+    left_sep = ' ',
+  },
   {
     provider = 'codegpt',
-    hl = { fg = 'mistyrose', bold = false },
+    hl = { fg = 'green', bold = false },
+    left_sep = ' ',
   },
   {
     provider = 'wtf',
-    hl = { fg = 'mistyrose', bold = false },
+    hl = { fg = 'green', bold = false },
+    left_sep = ' ',
   },
+}
+
+config.components.active[2] = {
+  -- {
+  --   provider = 'copilot',
+  --   hl = { fg = 'mistyrose', bold = false },
+  -- },
+  -- {
+  --   provider = 'codegpt',
+  --   hl = { fg = 'mistyrose', bold = false },
+  -- },
+  -- {
+  --   provider = 'wtf',
+  --   hl = { fg = 'mistyrose', bold = false },
+  -- },
   -- {
   --   provider = 'lsp_progress',
   --   hl = { fg = 'mistyrose', bold = false },
