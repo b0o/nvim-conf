@@ -54,10 +54,20 @@ require('copilot').setup {
   server_opts_overrides = {},
 }
 
+local ns = vim.api.nvim_create_namespace 'user.copilot'
+
 require('copilot.api').register_status_notification_handler(function(data)
   M.status = data.status
   vim.schedule(function()
     vim.cmd [[redrawstatus]]
+    vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
+    if vim.fn.mode() == 'i' and data.status == 'InProgress' then
+      vim.api.nvim_buf_set_extmark(0, ns, vim.fn.line '.' - 1, 0, {
+        virt_text = { { ' 🤖Thinking...', 'Comment' } },
+        virt_text_pos = 'eol',
+        hl_mode = 'combine',
+      })
+    end
   end)
 end)
 
