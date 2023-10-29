@@ -13,13 +13,14 @@ local wincfg = {
 
 -- Select item next/prev, taking into account whether the cmp window is
 -- top-down or bottoom-up so that the movement is always in the same direction.
-local select_item_smart = function(dir)
+local select_item_smart = function(dir, opts)
   return function(fallback)
     if cmp.visible() then
+      opts = opts or { behavior = cmp.SelectBehavior.Select }
       if cmp.core.view.custom_entries_view:is_direction_top_down() then
-        ({ next = cmp.select_next_item, prev = cmp.select_prev_item })[dir]()
+        ({ next = cmp.select_next_item, prev = cmp.select_prev_item })[dir](opts)
       else
-        ({ prev = cmp.select_next_item, next = cmp.select_prev_item })[dir]()
+        ({ prev = cmp.select_next_item, next = cmp.select_prev_item })[dir](opts)
       end
     else
       fallback()
@@ -91,26 +92,52 @@ cmp.setup {
         cmp.complete()
       end
     end,
-    [xk [[<C-.>]]] = function()
-      if cmp.visible() then
-        local selected = cmp.core.view:get_selected_entry() or cmp.core.view:get_first_entry()
-        if selected and selected:get_kind() == require('cmp.types').lsp.CompletionItemKind.Snippet then
-          cmp.confirm { select = true }
-          return
+    [xk [[<C-.>]]] = {
+      i = function()
+        if cmp.visible() then
+          local selected = cmp.core.view:get_selected_entry() or cmp.core.view:get_first_entry()
+          if selected and selected:get_kind() == require('cmp.types').lsp.CompletionItemKind.Snippet then
+            cmp.confirm { select = true }
+            return
+          end
         end
-      end
-      if luasnip.expand_or_jumpable() then
-        luasnip.expand_or_jump()
-      else
+        if luasnip.expand_or_locally_jumpable() then
+          luasnip.expand_or_jump()
+        else
+          luasnip.jump(1)
+        end
+      end,
+      s = function()
         luasnip.jump(1)
-      end
-    end,
-    [xk [[<C-S-.>]]] = function()
-      if cmp.visible() then
-        cmp.close()
-      end
-      luasnip.jump(-1)
-    end,
+      end,
+    },
+    [xk [[<C-S-.>]]] = {
+      i = function()
+        if cmp.visible() then
+          cmp.close()
+        end
+        luasnip.jump(-1)
+      end,
+      s = function()
+        luasnip.jump(-1)
+      end,
+    },
+    [xk [[<C-M-.>]]] = {
+      i = function()
+        luasnip.jump(1)
+      end,
+      s = function()
+        luasnip.jump(1)
+      end,
+    },
+    [xk [[<C-M-S-.>]]] = {
+      i = function()
+        luasnip.jump(-1)
+      end,
+      s = function()
+        luasnip.jump(-1)
+      end,
+    },
     ['<C-l>'] = function()
       if cmp.visible() then
         cmp.confirm { select = true }
@@ -128,8 +155,8 @@ cmp.setup {
   },
   sources = cmp.config.sources({
     { name = 'nvim_lsp' },
-  }, {
     { name = 'luasnip' },
+  }, {
     { name = 'nvim_lua' },
   }, {
     { name = 'tmux', keyword_length = 5 },
@@ -140,8 +167,8 @@ cmp.setup {
 
 cmp.setup.cmdline('/', {
   mapping = cmp.mapping.preset.cmdline {
-    ['<C-n>'] = { c = select_item_smart 'next' },
-    ['<C-p>'] = { c = select_item_smart 'prev' },
+    ['<C-n>'] = { c = select_item_smart('next', {}) },
+    ['<C-p>'] = { c = select_item_smart('prev', {}) },
   },
   sources = {
     { name = 'buffer' },
@@ -153,8 +180,8 @@ cmp.setup.cmdline('/', {
 
 cmp.setup.cmdline(':', {
   mapping = cmp.mapping.preset.cmdline {
-    ['<C-n>'] = { c = select_item_smart 'next' },
-    ['<C-p>'] = { c = select_item_smart 'prev' },
+    ['<C-n>'] = { c = select_item_smart('next', {}) },
+    ['<C-p>'] = { c = select_item_smart('prev', {}) },
     ['<C-e>'] = { c = cmp.mapping.close() },
     ['<Tab>'] = {
       c = function()
