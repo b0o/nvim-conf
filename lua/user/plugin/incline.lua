@@ -17,51 +17,6 @@ local extra_colors = {
 
 local M = {}
 
-local react_use_directive_query_str = [[
-  (program
-    ((expression_statement (string (string_fragment) @directive))
-        (#any-of? @directive "use client" "use server")))
-]]
-
--- lang -> query
---- @type table<string, Query>
-local react_use_directive_query = {}
-
--- bufnr -> {directive: string, timestamp: number}
---- @type table<number, {directive: string, timestamp: number}>
-local get_react_use_directive_cache = {}
-
---- @param bufnr number
---- @return "use client" | "use server" | nil
-local function get_react_use_directive(bufnr)
-  local cached = get_react_use_directive_cache[bufnr]
-  if cached and cached.timestamp > vim.uv.now() - 1000 then
-    return cached.directive
-  end
-  local parser = vim.treesitter.get_parser(bufnr)
-  local root = parser:parse()[1]:root()
-  local lang = parser:lang()
-  local query = react_use_directive_query[lang]
-  if not query then
-    local ok, maybe_query = pcall(vim.treesitter.query.parse, lang, react_use_directive_query_str)
-    if not ok then
-      return
-    end
-    query = maybe_query
-    react_use_directive_query[lang] = query
-  end
-  ---@diagnostic disable-next-line: missing-parameter
-  for _, node in query:iter_captures(root, bufnr) do
-    local directive = vim.treesitter.get_node_text(node, bufnr)
-    get_react_use_directive_cache[bufnr] = {
-      directive = directive,
-      -- add random jitter to avoid cache stampede
-      timestamp = vim.uv.now() + math.random(0, 1000),
-    }
-    return directive
-  end
-end
-
 --- Given a path, return a shortened version of it.
 --- @param path string an absolute or relative path
 --- @param opts table
@@ -242,17 +197,6 @@ incline.setup {
     local icon_fg = fn.contrast_color(icon_bg)
 
     local extra = {}
-
-    if filetype == 'javascriptreact' or filetype == 'typescriptreact' then
-      local client_or_server = get_react_use_directive(props.buf)
-      if client_or_server then
-        local use_directive_icon = ({
-          ['use server'] = ' 󰬀󰫲󰫿󱂌󰫲󰫿 ', -- "server" written with nerd font icons
-          ['use client'] = ' 󰫰󱎦󱂈󰫲󰫻󰬁 ', -- "client" written with nerd font icons
-        })[client_or_server]
-        table.insert(extra, { use_directive_icon, guifg = fg })
-      end
-    end
 
     return {
       extra,
