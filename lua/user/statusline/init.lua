@@ -8,7 +8,6 @@ local file_info = require 'user.statusline.file_info'
 require 'user.statusline.lsp'
 require 'user.statusline.dap'
 require 'user.statusline.codegpt'
-require 'user.statusline.copilot'
 require 'user.statusline.wtf'
 
 local fn = require 'user.fn'
@@ -184,11 +183,6 @@ config.components.active[1] = {
       return lsp.diagnostics_exist(vim.diagnostic.severity.INFO)
     end,
     hl = { fg = 'skyblue' },
-  },
-  {
-    provider = 'copilot',
-    hl = { fg = 'cyan', bold = false },
-    left_sep = ' ',
   },
   {
     provider = 'codegpt',
