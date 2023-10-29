@@ -203,5 +203,5 @@ neogit.setup {
 vim.api.nvim_create_autocmd('FileType', {
   group = vim.api.nvim_create_augroup('user.neogit', {}),
   pattern = 'NeogitCommitMessage',
-  command = 'silent! set filetype=gitcommit',
+  command = 'silent! set filetype=gitcommit buflisted',
 })
