@@ -453,9 +453,6 @@ local plugins = {
     cmd = { 'Chmod', 'Delete', 'Edit', 'Grep', 'Mkdir', 'Move', 'Rename', 'Unlink', 'Wall', 'Write' },
   },
 
-  -- Snippets
-  'L3MON4D3/LuaSnip',
-
   -- Completion
   {
     'hrsh7th/nvim-cmp',
@@ -468,11 +465,21 @@ local plugins = {
       'hrsh7th/cmp-path',
       'hrsh7th/cmp-nvim-lua',
       'ray-x/cmp-treesitter',
-      'saadparwaiz1/cmp_luasnip',
       'andersevenrud/cmp-tmux',
       'petertriho/cmp-git',
       'hrsh7th/cmp-cmdline',
       { 'dcampos/cmp-emmet-vim', dependencies = 'mattn/emmet-vim' },
+      -- Snippets
+      {
+        'L3MON4D3/LuaSnip',
+        -- install jsregexp (optional)
+        run = 'make install_jsregexp',
+        conf = 'user.plugin.luasnip',
+        dependencies = {
+          'rafamadriz/friendly-snippets',
+          'saadparwaiz1/cmp_luasnip',
+        },
+      },
     },
   },
 

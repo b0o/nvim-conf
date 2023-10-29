@@ -1,0 +1,47 @@
+{
+  "describe": {
+    "prefix": ["de", "desc"],
+    "body": "describe('${1:group}', () => {\n\t$0\n})",
+    "description": "creates a describe block"
+  },
+  "test": {
+    "prefix": ["te", "test"],
+    "body": "test('${1:description}', () => {\n\t$0\n})",
+    "description": "creates a test block"
+  },
+  "expect": {
+    "prefix": ["exp"],
+    "body": "expect(${1:actual}).${2:toBe}(${3:expected})",
+    "description": "creates an expect statement"
+  },
+  "expect-typeof": {
+    "prefix": ["expt"],
+    "body": "expectTypeof(${1:actual}).${2:toEqualTypeOf}(${3:expected})",
+    "description": "creates an expect statement for typeof"
+  },
+  "describe-test": {
+    "prefix": ["dt", "desctest"],
+    "body": "describe('${1:group}', () => {\n\ttest('${2:description}', () => {\n\t\t$0\n\t})\n})",
+    "description": "creates a describe block with a test block inside"
+  },
+  "describe-test-expect": {
+    "prefix": ["dte", "desctestexpect"],
+    "body": "describe('${1:group}', () => {\n\ttest('${2:description}', () => {\n\t\texpect(${3:actual}).${4:toBe}(${5:expected})\n\t})\n})",
+    "description": "creates a describe block with a test block inside with an expect statement inside"
+  },
+  "describe-test-expect-typeof": {
+    "prefix": ["dtet", "desctestexpecttypeof"],
+    "body": "describe('${1:group}', () => {\n\ttest('${2:description}', () => {\n\t\texpectTypeof(${3:actual}).${4:toEqualTypeOf}(${5:expected})\n\t})\n})",
+    "description": "creates a describe block with a test block inside with an expect statement inside for typeof"
+  },
+  "test-expect": {
+    "prefix": ["tex", "testexpect"],
+    "body": "test('${1:description}', () => {\n\texpect(${2:actual}).${3:toBe}(${4:expected})\n})",
+    "description": "creates a test block with an expect statement inside"
+  },
+  "test-expect-typeof": {
+    "prefix": ["tet", "testexpecttypeof"],
+    "body": "test('${1:description}', () => {\n\texpectTypeof(${2:actual}).${3:toEqualTypeOf}(${4:expected})\n})",
+    "description": "creates a test block with an expect statement inside for typeof"
+  }
+}
