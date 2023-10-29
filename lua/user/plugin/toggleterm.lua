@@ -26,7 +26,9 @@ require('toggleterm').setup {
   end,
   open_mapping = xk [[<C-S-/>]],
   -- on_create = fun(t: Terminal), -- function to run when the terminal is first created
-  -- on_open = fun(t: Terminal), -- function to run when the terminal opens
+  on_open = function()
+    vim.cmd 'startinsert!'
+  end,
   -- on_close = fun(t: Terminal), -- function to run when the terminal closes
   -- on_stdout = fun(t: Terminal, job: number, data: string[], name: string) -- callback for processing output on stdout
   -- on_stderr = fun(t: Terminal, job: number, data: string[], name: string) -- callback for processing output on stderr
