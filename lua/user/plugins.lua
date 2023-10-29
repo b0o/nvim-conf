@@ -367,7 +367,6 @@ local plugins = {
     end,
   },
   'nvimtools/none-ls.nvim',
-  'ray-x/lsp_signature.nvim',
   'b0o/schemastore.nvim',
   'aznhe21/actions-preview.nvim',
   {

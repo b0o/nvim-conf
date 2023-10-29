@@ -226,15 +226,6 @@ local lsp_handlers = {
   end,
 }
 
----- ray-x/lsp_signature.nvim
-local lsp_signature_config = {
-  zindex = 99, -- Keep signature popup below the completion PUM
-  bind = false,
-  floating_window = false, -- Disable by default, use toggle_key to enable
-  hint_enable = false,
-  toggle_key = '<M-s>',
-}
-
 local function on_attach(client, bufnr)
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   user_lsp_status.on_attach(client, bufnr)
@@ -285,7 +276,6 @@ local function on_first_attach()
   require('null-ls').setup(vim.tbl_extend('force', require 'user.plugin.null-ls', {
     on_attach = on_attach,
   }))
-  require('lsp_signature').setup(lsp_signature_config)
 end
 
 local function on_attach_wrapper(...)
