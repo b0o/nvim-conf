@@ -425,6 +425,9 @@ endif
 hi! link diffAdded DiffAdd
 hi! link diffChanged DiffChange
 hi! link diffRemoved DiffDelete
+" Groups for tree-sitter-diff
+hi! link @text.diff.add DiffAdd
+hi! link @text.diff.delete DiffDelete
 
 call s:hi('gitconfigVariable', g:lavi_gui[7], '', g:lavi_term[7], '', '', '')
 
