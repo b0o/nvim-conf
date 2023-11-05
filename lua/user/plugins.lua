@@ -1,5 +1,3 @@
-local ui = require 'user.ui'
-
 local M = {
   telescope_exts = {},
 }
@@ -10,7 +8,7 @@ local opts = {
     lazy = true,
   },
   ui = {
-    border = ui.border,
+    border = 'rounded',
   },
 }
 

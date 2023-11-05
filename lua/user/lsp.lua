@@ -2,13 +2,12 @@ local user_lsp_status = require 'user.statusline.lsp'
 local nvim_cmp_lsp = require 'cmp_nvim_lsp'
 local fn = require 'user.fn'
 local root_pattern = require('lspconfig.util').root_pattern
-local ui = require 'user.ui'
 
 local methods = vim.lsp.protocol.Methods
 
 local M = {
   fmt_on_save_enabled = false,
-  border = ui.border,
+  border = 'rounded',
   signs = { Error = ' ', Warn = ' ', Hint = ' ', Info = ' ' },
   on_attach_called = false,
   inlay_hints_enabled_global = false,
@@ -270,7 +269,7 @@ end
 local function on_first_attach()
   vim.diagnostic.config {
     float = {
-      border = M.border,
+      border = 'rounded',
     },
   }
   require('null-ls').setup(vim.tbl_extend('force', require 'user.plugin.null-ls', {
