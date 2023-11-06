@@ -137,7 +137,7 @@ local lsp_servers = {
           enable = false,
         },
         workspace = {
-          checkThirdParty = false,
+          checkThirdParty = 'Disable',
         },
       },
     },
