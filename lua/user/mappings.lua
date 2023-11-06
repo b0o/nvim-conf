@@ -386,7 +386,23 @@ m.nnoremap([[<Esc>]], function()
   vim.cmd "echo ''"
 end, m.silent, 'Clear UI')
 
-m.noremap([[gF]], [[<C-w>gf]], 'Go to file under cursor (new tab)')
+-- Like 'gf', but if the file doesn't exist, open Telescope with the filename
+-- as the default text
+-- Credit: justabubble123 on Discord
+local function gf_telescope(cmd)
+  local file = vim.fn.expand '<cfile>'
+  if not file or file == '' then
+    return
+  end
+  if not vim.loop.fs_stat(file) then
+    require('telescope.builtin').find_files { default_text = file }
+    return
+  end
+  vim.cmd((cmd or 'edit') .. ' ' .. file)
+end
+
+m.noremap([[gf]], iwrap(gf_telescope), 'Go to file under cursor')
+m.noremap([[gF]], iwrap(gf_telescope, 'tabe'), 'Go to file under cursor (new tab)')
 
 -- emacs-style motion & editing in insert mode
 m.inoremap([[<C-a>]], [[<Home>]], 'Goto beginning of line')
