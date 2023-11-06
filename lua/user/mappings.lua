@@ -1034,6 +1034,56 @@ local setup_neotree = function()
 end
 
 ---- kyazdani42/nvim-tree.lua
+local function nvim_tree_open_oil(enter)
+  return function()
+    local oil = require 'oil'
+    local tree = require 'nvim-tree.lib'
+
+    local node = tree.get_node_at_cursor()
+    local path, is_dir
+    if node and node.fs_stat then
+      is_dir = node.fs_stat.type == 'directory'
+      path = is_dir and enter and node.absolute_path or node.parent.absolute_path
+    else
+      local base = tree.get_nodes().absolute_path
+      is_dir = node.name == '..' or node.name == '.'
+      path = enter and node.name == '..' and base .. '/..' or base
+    end
+
+    if is_dir and enter then
+      oil.toggle_float(path)
+      return
+    end
+
+    local function bufenter_cb(e, tries)
+      if not oil.get_entry_on_line(e.buf, 1) then
+        tries = tries or 0
+        if tries <= 8 then
+          vim.defer_fn(function()
+            bufenter_cb(e, tries + 1)
+          end, tries * tries)
+        end
+        return
+      end
+      for i = 1, vim.api.nvim_buf_line_count(e.buf) do
+        local entry = oil.get_entry_on_line(e.buf, i)
+        if entry and entry.name == node.name then
+          vim.api.nvim_win_set_cursor(0, { i, 0 })
+          break
+        end
+      end
+    end
+
+    vim.api.nvim_create_autocmd('BufEnter', {
+      once = true,
+      pattern = 'oil://*',
+      callback = bufenter_cb,
+    })
+
+    oil.toggle_float(path)
+  end
+end
+
 local setup_nvimtree = function()
   m.nmap(xk [[<C-S-\>]], function()
     if require('nvim-tree.view').is_visible() then
@@ -1063,6 +1113,9 @@ local setup_nvimtree = function()
     m.nnoremap([[gr]], withSelected 'Git reset --quiet', 'Nvim-Tree: Git reset')
     m.nnoremap([[gb]], withSelected 'tabnew | Git blame', 'Nvim-Tree: Git blame')
     m.nnoremap([[gd]], withSelected 'tabnew | Gdiffsplit', 'Nvim-Tree: Git diff')
+
+    m.nnoremap([[i]], nvim_tree_open_oil(false), 'Nvim-Tree: Open Oil')
+    m.nnoremap([[I]], nvim_tree_open_oil(true), 'Nvim-Tree: Open Oil (enter dir)')
   end)
 end
 
