@@ -915,7 +915,21 @@ local async_action = function(cmd, ...)
   end
 end
 
-m.nnoremap({ [[<leader>G]], [[<leader>gg]], [[<leader>gs]] }, '<Cmd>Neogit<Cr>', m.silent, 'Neogit')
+m.nnoremap({ [[<leader>G]], [[<leader>gg]], [[<leader>gs]] }, function()
+  -- If a NeogitStatus window is open, focus it
+  local bufnr = vim.fn.bufnr 'NeogitStatus'
+  if bufnr ~= -1 then
+    -- get the window id of the first window that has the NeogitStatus buffer
+    local winid = vim.fn.win_findbuf(bufnr)[1]
+    -- if the window id is valid, focus it
+    if winid ~= -1 then
+      vim.api.nvim_set_current_win(winid)
+      return
+    end
+  end
+  -- Otherwise, open a new one
+  vim.cmd 'Neogit'
+end, m.silent, 'Neogit')
 
 m.nname('<leader>g', 'Git')
 m.nname('<leader>ga', 'Git-Add')
