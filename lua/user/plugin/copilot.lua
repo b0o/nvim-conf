@@ -43,6 +43,7 @@ require('copilot').setup {
     hgcommit = true,
     svn = true,
     cvs = true,
+    oil = false,
     ['.'] = true,
   },
   -- Node.js version must be > 16.x

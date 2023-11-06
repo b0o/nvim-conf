@@ -96,6 +96,11 @@ local plugins = {
     end,
   },
   {
+    'stevearc/oil.nvim',
+    conf = 'user.plugin.oil',
+    cmd = 'Oil',
+  },
+  {
     'stevearc/aerial.nvim',
     conf = 'user.plugin.aerial',
     telescope_ext = 'aerial',
