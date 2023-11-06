@@ -151,6 +151,11 @@ end
 
 incline.setup {
   render = function(props)
+    -- Don't render if a Telescope buffer is focused
+    if vim.bo.filetype:find 'Telescope' then
+      return
+    end
+
     local bufname = a.nvim_buf_get_name(props.buf)
 
     local buf_focused = props.buf == a.nvim_get_current_buf()
