@@ -178,29 +178,37 @@ cmp.setup.cmdline('/', {
   },
 })
 
+local function handle_tab_complete(direction)
+  return function()
+    if vim.api.nvim_get_mode().mode == 'c' and cmp.get_selected_entry() == nil then
+      local text = vim.fn.getcmdline()
+      ---@diagnostic disable-next-line: param-type-mismatch
+      local expanded = vim.fn.expandcmd(text)
+      if expanded ~= text then
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-U>', true, true, true) .. expanded, 'n', false)
+        cmp.complete()
+      elseif cmp.visible() then
+        direction()
+      else
+        cmp.complete()
+      end
+    else
+      if cmp.visible() then
+        direction()
+      else
+        cmp.complete()
+      end
+    end
+  end
+end
+
 cmp.setup.cmdline(':', {
   mapping = cmp.mapping.preset.cmdline {
+    ['<Tab>'] = { c = handle_tab_complete(cmp.select_next_item) },
+    ['<S-Tab>'] = { c = handle_tab_complete(cmp.select_prev_item) },
     ['<C-n>'] = { c = select_item_smart('next', {}) },
     ['<C-p>'] = { c = select_item_smart('prev', {}) },
     ['<C-e>'] = { c = cmp.mapping.close() },
-    ['<Tab>'] = {
-      c = function()
-        if cmp.visible() then
-          cmp.select_next_item()
-        else
-          cmp.complete()
-        end
-      end,
-    },
-    ['<S-Tab>'] = {
-      c = function()
-        if cmp.visible() then
-          cmp.select_prev_item()
-        else
-          cmp.complete()
-        end
-      end,
-    },
     [xk '<C-S-n>'] = {
       c = function()
         cmp.close()
