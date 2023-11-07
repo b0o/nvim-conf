@@ -34,7 +34,6 @@ local plugins = {
     conf = 'user.statusline',
   },
   'kyazdani42/nvim-web-devicons',
-  'SmiteshP/nvim-gps',
   {
     'folke/which-key.nvim',
     event = 'VeryLazy',
@@ -63,23 +62,10 @@ local plugins = {
     conf = 'user.plugin.ibl',
   },
   {
-    'stevearc/dressing.nvim',
-    event = 'VeryLazy',
-    opts = {
-      select = {
-        backend = { 'telescope', 'fzf_lua', 'fzf', 'builtin', 'nui' },
-      },
-    },
-  },
-  {
     name = 'incline.nvim',
     dir = vim.env.HOME .. '/proj/incline.nvim/worktree/main',
     conf = 'user.plugin.incline',
     event = 'VeryLazy',
-  },
-  {
-    'kevinhwang91/nvim-hlslens',
-    conf = 'user.plugin.hlslens',
   },
   {
     's1n7ax/nvim-window-picker',
@@ -115,11 +101,6 @@ local plugins = {
     module = 'nui',
   },
   {
-    'winston0410/range-highlight.nvim',
-    dependencies = 'winston0410/cmd-parser.nvim',
-    config = true,
-  },
-  {
     'folke/noice.nvim',
     event = 'VeryLazy',
     conf = 'user.plugin.noice',
@@ -140,10 +121,6 @@ local plugins = {
   {
     'mrjones2014/smart-splits.nvim',
     lazy = false,
-  },
-  {
-    'wellle/visual-split.vim',
-    cmd = { 'VSResize', 'VSSplit', 'VSSplitAbove', 'VSSplitBelow' },
   },
 
   -- Terminal
@@ -203,12 +180,12 @@ local plugins = {
       vim.api.nvim_set_hl(0, 'EyelinerPrimary', { fg = colors.cyan, bold = true, underline = true })
       vim.api.nvim_set_hl(0, 'EyelinerSecondary', { fg = colors.yellow, bold = true, underline = true })
     end,
+    keys = { 'f', 'F', 't', 'T' },
   },
   {
     'chaoren/vim-wordmotion',
     event = 'VeryLazy',
   },
-  { 'chentoast/marks.nvim', conf = 'user.plugin.marks' },
   {
     'kana/vim-textobj-user',
     event = 'VeryLazy',
@@ -309,11 +286,6 @@ local plugins = {
     end,
     cmd = 'Chat',
   },
-  {
-    'piersolenski/wtf.nvim',
-    conf = 'user.plugin.wtf',
-    cmd = 'Wtf',
-  },
 
   -- Backup, Undo
   {
@@ -356,13 +328,11 @@ local plugins = {
     cmd = { 'LspInfo', 'LspStart', 'LspStop', 'LspRestart', 'LspLog' },
     event = 'BufReadPost',
   },
-  'folke/lsp-colors.nvim',
   {
     'stevearc/conform.nvim',
     conf = 'user.plugin.conform',
     event = 'BufWritePre',
   },
-  'nvim-lua/lsp-status.nvim',
   {
     'onsails/lspkind-nvim',
     module = 'lspkind',
@@ -434,12 +404,6 @@ local plugins = {
     dependencies = 'mattn/webapi-vim',
     cmd = 'Gist',
   },
-  'ruifm/gitlinker.nvim',
-  {
-    'christoomey/vim-conflicted',
-    cmd = { 'Conflicted', 'Merger', 'GitNextConflict' },
-    -- keys = { '<Plug>DiffgetLocal', '<Plug>DiffgetUpstream', '<Plug>DiffgetLocal', '<Plug>DiffgetUpstream' },
-  },
   {
     'sindrets/diffview.nvim',
     conf = 'user.plugin.diffview',
@@ -497,7 +461,6 @@ local plugins = {
   },
 
   -- Language-specific
-  'mboughaba/i3config.vim',
   'aouelete/sway-vim-syntax',
   -- 'HerringtonDarkholme/yats.vim', -- typescript syntax highlighting
   {
@@ -512,10 +475,6 @@ local plugins = {
     'jakemason/ouroboros.nvim',
     ft = { 'c', 'cpp' },
   },
-  'ziglang/zig.vim',
-
-  -- Documentation
-  { 'alx741/vinfo', cmd = { 'Vinfo', 'VinfoClean', 'VinfoNext', 'VinfoPrevious' } },
 
   -- Color
   {
@@ -532,10 +491,6 @@ local plugins = {
   --- Vim Plugin Development
   { 'bfredl/nvim-luadev', ft = 'lua' },
   'folke/neodev.nvim',
-  {
-    'rktjmp/lush.nvim',
-    cmd = { 'LushRunQuickstart', 'LushRunTutorial', 'Lushify', 'LushImport' },
-  },
 }
 
 local function preprocess_plugin_specs(specs)

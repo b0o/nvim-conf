@@ -569,10 +569,6 @@ m.nnoremap([[<leader>st]], '<Cmd>split<Cr>', m.silent, 'Split (horiz, cur)')
 m.nnoremap([[<leader>vv]], '<Cmd>vsplit<Cr>', m.silent, 'Split (vert, cur)')
 m.nnoremap([[<leader>vt]], '<Cmd>vsplit<Cr>', m.silent, 'Split (vert, cur)')
 
-m.xnoremap([[<leader>S]], '<Cmd>VSSplitAbove<Cr>', m.silent, 'Visual Split (above)')
-m.xnoremap([[<leader>ss]], '<Cmd>VSSplitAbove<Cr>', m.silent, 'Visual Split (above)')
-m.xnoremap([[<leader>sS]], '<Cmd>VSSplit<Cr>', m.silent, 'Visual Split (below)')
-
 m.xnoremap([[<leader>I]], [[<Esc>:call user#fn#interleave()<Cr>]], m.silent, 'Interleave two contiguous blocks')
 
 -- Tabline
@@ -1342,11 +1338,6 @@ m.nnoremap([[<Leader>M]], [[<Cmd>WinShift<Cr>]], 'WinShift: Start')
 m.nnoremap([[<Leader>mm]], [[<Cmd>WinShift<Cr>]], 'WinShift: Start')
 m.nnoremap([[<Leader>ws]], [[<Cmd>WinShift swap<Cr>]], 'WinShift: Swap')
 
----- chentau/marks.nvim
-m.nmap([[<M-m>]], [[m;]], 'Mark: create next')
-m.nnoremap([[]"]], [[[']], 'Mark: goto previous')
-m.nnoremap([[<leader>']], iwrap(fn.require_on_call_rec('marks').toggle_signs), 'Mark: toggle signs')
-
 ---- mrjones2014/smart-splits.nvim
 local smart_splits = require 'smart-splits'
 m.noremap([[<M-[>]], iwrap(smart_splits.resize_left), 'Resize-Win: Left')
@@ -1358,10 +1349,6 @@ m.nmap([[<M-h>]], iwrap(smart_splits.move_cursor_left), 'Goto window/pane left')
 m.nmap([[<M-j>]], iwrap(smart_splits.move_cursor_down), 'Goto window/pane down')
 m.nmap([[<M-k>]], iwrap(smart_splits.move_cursor_up), 'Goto window/pane up')
 m.nmap([[<M-l>]], iwrap(smart_splits.move_cursor_right), 'Goto window/pane right')
-
----- github/copilot.vim
--- m.inoremap(xk [[<C-\>]], [[copilot#Accept("\<CR>")]], m.silent, m.expr, "Copilot: Accept")
--- m.inoremap([[]], [[copilot#Accept("\<CR>")]], m.silent, m.expr, "Copilot: Accept")
 
 ---- zbirenbaum/copilot.lua
 local copilot_suggestion = fn.require_on_exported_call 'copilot.suggestion'
