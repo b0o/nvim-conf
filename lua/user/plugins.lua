@@ -50,6 +50,11 @@ local plugins = {
         v = { 'j', 'k', "'" },
         n = { "'" },
       },
+      window = {
+        border = 'rounded',
+        padding = { 0, 0, 0, 0 },
+      },
+      show_help = false,
     },
   },
   {
