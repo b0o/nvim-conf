@@ -922,7 +922,7 @@ m.nnoremap({ [[<leader>G]], [[<leader>gg]], [[<leader>gs]] }, function()
     -- get the window id of the first window that has the NeogitStatus buffer
     local winid = vim.fn.win_findbuf(bufnr)[1]
     -- if the window id is valid, focus it
-    if winid ~= -1 then
+    if winid and winid ~= -1 then
       vim.api.nvim_set_current_win(winid)
       return
     end
