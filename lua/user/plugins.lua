@@ -203,30 +203,7 @@ local plugins = {
         ['<M-,>'] = ',', -- Remap , to <M-,> because , conflicts with <localleader>
       }
     end,
-    keys = {
-      '<C-n>',
-      '<C-Down>',
-      '<C-Up>',
-      [[\\A]],
-      [[\\/]],
-      [[\\\]],
-      [[\\gS]],
-      { [[\\A]], mode = 'v' },
-      { [[\\/]], mode = 'v' },
-      { [[\\f]], mode = 'v' },
-      { [[\\c]], mode = 'v' },
-      { [[\\a]], mode = 'v' },
-      { [[\\s]], mode = 'v' },
-      { [[\\r]], mode = 'v' },
-      { '<Plug>(VM-Visual-Cursors)', mode = 'x' },
-    },
-    cmd = {
-      'VMDebug',
-      'VMClear',
-      'VMRegisters',
-      'VMSearch',
-      'VMLive',
-    },
+    event = 'VeryLazy',
   },
   {
     'numToStr/Comment.nvim',
@@ -249,8 +226,14 @@ local plugins = {
     'godlygeek/tabular',
     cmd = { 'AddTabularPattern', 'AddTabularPipeline', 'Tabularize', 'GTabularize' },
   },
-  'tpope/vim-abolish',
-  { 'ThePrimeagen/refactoring.nvim', conf = 'user.plugin.refactoring' },
+  {
+    'tpope/vim-abolish',
+    cmd = { 'Subvert', 'Abolish' },
+  },
+  {
+    'ThePrimeagen/refactoring.nvim',
+    conf = 'user.plugin.refactoring',
+  },
   {
     'matze/vim-move',
     init = function()
@@ -304,7 +287,7 @@ local plugins = {
   {
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
-    event = 'BufRead',
+    lazy = false,
     conf = 'user.treesitter',
     dependencies = {
       'nvim-treesitter/nvim-treesitter-textobjects',
@@ -318,7 +301,6 @@ local plugins = {
   {
     'nvim-treesitter/playground',
     cmd = 'TSPlaygroundToggle',
-    dependencies = 'nvim-treesitter/nvim-treesitter',
   },
 
   -- LSP
@@ -375,7 +357,10 @@ local plugins = {
   },
 
   -- Code Style, Formatting, Linting
-  'editorconfig/editorconfig-vim',
+  {
+    'editorconfig/editorconfig-vim',
+    event = 'BufRead',
+  },
 
   -- Testing
   {
@@ -461,7 +446,10 @@ local plugins = {
   },
 
   -- Language-specific
-  'aouelete/sway-vim-syntax',
+  {
+    'aouelete/sway-vim-syntax',
+    ft = 'sway',
+  },
   -- 'HerringtonDarkholme/yats.vim', -- typescript syntax highlighting
   {
     'fatih/vim-go',
