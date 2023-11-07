@@ -34,7 +34,7 @@ local separators = {
   right_rounded_thin = '',
   circle = '●',
   moon = '',
-  heart = '♥ ',
+  heart = '❤ ',
 }
 
 local vi_mode_colors = {
