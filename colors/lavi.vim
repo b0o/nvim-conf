@@ -21,7 +21,7 @@ let g:colors_name = 'lavi'
 let g:lavi_vim_version='0.1.0'
 set background=dark
 
-let g:lavi_bg = '#252137'
+let g:lavi_bg = '#201C33'
 
 let g:lavi_gui = {}
 
@@ -54,7 +54,7 @@ let g:lavi_gui[16] = '#B891FF'
 let g:lavi_gui[17] = '#ff9969' " normal orange
 let g:lavi_gui[18]  = '#3F3650'
 let g:lavi_gui[19]  = '#9385F8'
-let g:lavi_gui[20]  = '#222032'
+let g:lavi_gui[20]  = '#1E1A30'
 
 let g:lavi_gui["3_bright"] = '#7E7490'
 let g:lavi_gui_3_bright = g:lavi_gui["3_bright"]
