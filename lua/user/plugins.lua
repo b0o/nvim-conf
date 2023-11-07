@@ -536,9 +536,6 @@ local plugins = {
     'rktjmp/lush.nvim',
     cmd = { 'LushRunQuickstart', 'LushRunTutorial', 'Lushify', 'LushImport' },
   },
-
-  -- Performance
-  { 'dstein64/vim-startuptime', cmd = 'StartupTime' },
 }
 
 local function preprocess_plugin_specs(specs)
