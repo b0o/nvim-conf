@@ -1356,15 +1356,14 @@ local copilot_accept_or_insert = function(action, fallback)
   return function()
     if copilot_suggestion.is_visible() then
       copilot_suggestion[action]()
-    else
+    elseif fallback then
       vim.api.nvim_put(vim.split(fallback, '\n'), 'c', false, true)
     end
   end
 end
 
-m.inoremap(xk [[<C-\>]], copilot_accept_or_insert('accept', '\n'), m.silent, 'Copilot: Accept') -- For Alacritty w/custom conf
-m.inoremap([[]], copilot_accept_or_insert('accept', '\n'), m.silent, 'Copilot: Accept') -- For other terminals
-m.inoremap([[<M-\>]], copilot_accept_or_insert('accept_word', ' '), m.silent, 'Copilot: Accept Word')
+m.inoremap({ xk [[<C-\>]], [[]] }, copilot_accept_or_insert('accept', '\n'), m.silent, 'Copilot: Accept')
+m.inoremap([[<M-\>]], copilot_accept_or_insert 'accept_word', m.silent, 'Copilot: Accept Word')
 m.inoremap(xk [[<M-S-\>]], copilot_accept_or_insert('accept_line', '\n'), m.silent, 'Copilot: Accept Line')
 m.inoremap([[<M-[>]], iwrap(copilot_suggestion.prev), m.silent, 'Copilot: Previous Suggestion')
 m.inoremap([[<M-]>]], iwrap(copilot_suggestion.next), m.silent, 'Copilot: Next Suggestion')
