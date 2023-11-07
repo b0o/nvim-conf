@@ -21,5 +21,30 @@ oil.setup {
     ['<M-i>'] = 'actions.select',
     ['<C-v>'] = 'actions.select_vsplit',
     ['<C-x>'] = 'actions.select_split',
+    ['<C-s>'] = {
+      callback = function()
+        oil.save()
+      end,
+      desc = 'Oil: Save',
+      mode = { 'n', 'i', 'v' },
+    },
+    ['Q'] = {
+      callback = function()
+        local modified = vim.bo.modified
+        if modified then
+          local choice = vim.fn.confirm('Save changes?', '&Save\n&Discard\n&Cancel', 3)
+          if choice == 1 then
+            oil.save()
+          elseif choice == 2 then
+            oil.discard_all_changes()
+          else
+            return
+          end
+        end
+        oil.close()
+      end,
+      desc = 'Oil: Close',
+      mode = { 'n' },
+    },
   },
 }
