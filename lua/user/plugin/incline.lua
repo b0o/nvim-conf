@@ -121,6 +121,9 @@ local function shorten_path_styled(path, opts)
 end
 
 local function git_status(props)
+  if not package.loaded['nvim-tree'] then
+    return
+  end
   local bufname = a.nvim_buf_get_name(props.buf)
   if bufname == '' then
     return
