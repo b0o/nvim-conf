@@ -382,7 +382,6 @@ m.inoremap([[<M-.>]], match_indent(1), 'Match indent of next line')
 -- - Close floating windows
 m.nnoremap([[<Esc>]], function()
   vim.cmd 'nohlsearch'
-  fn.close_float_wins()
   vim.cmd "echo ''"
 end, m.silent, 'Clear UI')
 
