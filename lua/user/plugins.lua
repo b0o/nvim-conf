@@ -356,12 +356,6 @@ local plugins = {
     cmd = { 'Trouble', 'TroubleClose', 'TroubleRefresh', 'TroubleToggle' },
   },
 
-  -- Code Style, Formatting, Linting
-  {
-    'editorconfig/editorconfig-vim',
-    event = 'BufRead',
-  },
-
   -- Testing
   {
     'nvim-neotest/neotest',
