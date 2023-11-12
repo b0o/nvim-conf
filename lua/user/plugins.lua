@@ -287,7 +287,6 @@ local plugins = {
   {
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
-    lazy = false,
     conf = 'user.treesitter',
     dependencies = {
       'nvim-treesitter/nvim-treesitter-textobjects',
