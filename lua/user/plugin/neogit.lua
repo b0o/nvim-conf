@@ -143,18 +143,18 @@ neogit.setup {
       ['Z'] = false,
       ['<M-s>'] = 'StashPopup',
     },
-    -- finder = {
-    --   ['<cr>'] = 'Select',
-    --   ['<c-c>'] = 'Close',
-    --   ['<esc>'] = 'Close',
-    --   ['<c-n>'] = 'Next',
-    --   ['<c-p>'] = 'Previous',
-    --   ['<down>'] = 'Next',
-    --   ['<up>'] = 'Previous',
-    --   ['<tab>'] = 'MultiselectToggleNext',
-    --   ['<s-tab>'] = 'MultiselectTogglePrevious',
-    --   ['<c-j>'] = 'NOP',
-    -- },
+    finder = {
+      --   ['<cr>'] = 'Select',
+      --   ['<c-c>'] = 'Close',
+      ['<esc>'] = false,
+      --   ['<c-n>'] = 'Next',
+      --   ['<c-p>'] = 'Previous',
+      --   ['<down>'] = 'Next',
+      --   ['<up>'] = 'Previous',
+      --   ['<tab>'] = 'MultiselectToggleNext',
+      --   ['<s-tab>'] = 'MultiselectTogglePrevious',
+      --   ['<c-j>'] = 'NOP',
+    },
     -- Setting any of these to `false` will disable the mapping.
     status = {
       -- ['q'] = 'Close',
@@ -174,7 +174,7 @@ neogit.setup {
       -- ['$'] = 'CommandHistory',
       -- ['#'] = 'Console',
       -- ['<c-r>'] = 'RefreshBuffer',
-      ['<enter>'] = 'VSplitOpen',
+      -- ['<enter>'] = 'VSplitOpen',
       -- ['<c-v>'] = 'VSplitOpen',
       -- ['<c-x>'] = 'SplitOpen',
       -- ['<c-t>'] = 'TabOpen',
@@ -197,13 +197,25 @@ neogit.setup {
     },
   },
 }
+local augroup = vim.api.nvim_create_augroup('user.neogit', {})
 
 -- Neogit uses the filetype `NeogitCommitMessage` for the commit message buffer.
 -- this causes some problems and has no real benefit, so we switch it back to
 -- `gitcommit`.
 -- https://github.com/NeogitOrg/neogit/issues/405#issuecomment-1374652332
 vim.api.nvim_create_autocmd('FileType', {
-  group = vim.api.nvim_create_augroup('user.neogit', {}),
+  group = augroup,
   pattern = 'NeogitCommitMessage',
   command = 'silent! set filetype=gitcommit buflisted',
+})
+
+-- Unmap <esc> in NeogitLogView
+vim.api.nvim_create_autocmd('FileType', {
+  group = augroup,
+  pattern = 'NeogitLogView',
+  callback = function()
+    vim.defer_fn(function()
+      vim.api.nvim_buf_del_keymap(0, 'n', '<esc>')
+    end, 200)
+  end,
 })
