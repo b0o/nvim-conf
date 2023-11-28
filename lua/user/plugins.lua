@@ -464,9 +464,19 @@ local plugins = {
     cmd = { 'VCoolIns', 'VCoolor' },
   },
   {
-    'rrethy/vim-hexokinase',
-    build = 'make hexokinase',
+    'NvChad/nvim-colorizer.lua',
     event = 'BufRead',
+    opts = {
+      user_default_options = {
+        RGB = true,
+        RRGGBB = true,
+        names = true,
+        RRGGBBAA = true,
+        css = true,
+        tailwind = true,
+        mode = 'virtualtext',
+      },
+    },
   },
 
   --- Vim Plugin Development
