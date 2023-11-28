@@ -589,6 +589,9 @@ m.tnoremap([[<M-p>]], [[<M-p>]])
 
 m.nnoremap([[<Leader>ml]], '<Cmd>call AppendModeline()<Cr>', m.silent, 'Append modeline with current settings')
 
+---- Syntax
+m.nnoremap([[<leader>hi]], '<Cmd>Inspect<Cr>', m.silent, 'Inspect syntax under cursor')
+
 ------ Filetypes
 m.group(m.silent, { ft = 'lua' }, function()
   m.nmap([[<leader><Enter>]], fn.luarun, 'Lua: Eval line')
