@@ -4,6 +4,9 @@ local otter = require 'otter'
 local keeper = require 'otter.keeper'
 local extensions = require 'otter.tools.extensions'
 
+-- If you want to use an injected language that's not in Otter's
+-- default list, you can add it here. Otherwise, you may get an error
+-- at runtime for unknown languages.
 extensions.glsl = 'glsl'
 
 otter.setup {
