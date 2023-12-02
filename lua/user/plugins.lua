@@ -325,6 +325,11 @@ local plugins = {
       }
     end,
   },
+  {
+    'jmbuhr/otter.nvim',
+    dependencies = { 'neovim/nvim-lspconfig' },
+    conf = 'user.plugin.otter',
+  },
   'nvimtools/none-ls.nvim',
   'b0o/schemastore.nvim',
   'aznhe21/actions-preview.nvim',

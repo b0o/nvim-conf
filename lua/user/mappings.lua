@@ -817,12 +817,13 @@ M.on_lsp_attach = function(bufnr)
       'LSP: Telescope symbol search'
     )
 
+    local user_otter = fn.require_on_call_rec 'user.plugin.otter'
+
     m.nname('<localleader>h', 'LSP-Hover')
     m.nnoremap([[<localleader>hs]], iwrap(vim.lsp.buf.signature_help), 'LSP: Signature help')
-    m.nnoremap([[<localleader>ho]], iwrap(vim.lsp.buf.hover), 'LSP: Hover')
-    m.noremap([[<M-i>]], iwrap(vim.lsp.buf.hover), 'LSP: Hover')
-    m.inoremap([[<M-i>]], iwrap(vim.lsp.buf.hover), 'LSP: Hover')
     m.nnoremap([[<M-S-i>]], iwrap(user_lsp.peek_definition), 'LSP: Peek definition')
+    m.noremap([[<M-i>]], iwrap(user_otter.lsp_action, 'hover'), 'LSP: Hover')
+    m.inoremap([[<M-i>]], iwrap(user_otter.lsp_action, 'hover'), 'LSP: Hover')
   end)
 end
 
