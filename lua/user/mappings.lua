@@ -422,6 +422,10 @@ m.inoremap([[<M-l>]], [[<Right>]])
 
 m.inoremap([[<M-a>]], [[<C-o>_]])
 
+local km = fn.require_on_call_rec 'user.util.km'
+m.inoremap('<Bs>', iwrap(km.insert_backspace_fix), m.silent, 'Enhanced Backspace')
+m.inoremap('<C-Bs>', '<Bs>', m.silent, 'Normal Backspace')
+
 -- unicode stuff
 m.inoremap(xk [[<C-'>]], [[<C-k>]], 'Insert digraph')
 m.nnoremap([[gxa]], [[ga]], 'Show char code in decimal, hexadecimal and octal')
