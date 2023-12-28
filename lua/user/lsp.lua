@@ -45,7 +45,6 @@ local lsp_servers = {
   'dotls',
   {
     'eslint',
-    cmd = { 'vscode-eslint-language-server-local', '--stdio' },
     root_dir = root_pattern(
       'eslint.config.js',
       '.eslintrc',
@@ -83,6 +82,7 @@ local lsp_servers = {
       },
     },
   },
+  'glsl_analyzer',
   {
     'gopls',
     formatting = false,
@@ -117,6 +117,7 @@ local lsp_servers = {
     formatting = false,
   },
   {
+    -- python
     'ruff_lsp',
     hover = false,
   },
@@ -170,6 +171,18 @@ local lsp_servers = {
         includeLanguages = {
           typescript = 'javascript',
           typescriptreact = 'javascript',
+        },
+      },
+    },
+  },
+  {
+    'tsserver',
+    enabled = false,
+    formatting = false,
+    settings = {
+      diagnostics = {
+        ignoredCodes = {
+          7016, -- "Could not find a declaration file for module..."
         },
       },
     },
@@ -232,21 +245,21 @@ local function on_attach(client, bufnr)
   -- Enable inlay hints if the client supports it.
   -- Credit @MariaSolOs:
   -- https://github.com/MariaSolOs/dotfiles/blob/8607ace4af5eb2e9001b3f14870c2ffc937f4dcd/.config/nvim/lua/lsp.lua#L118
-  if client.supports_method(methods.textDocument_inlayHint) then
+  if methods and client.supports_method(methods.textDocument_inlayHint) then
     local inlay_hints_group = vim.api.nvim_create_augroup('InlayHints', { clear = true })
 
     -- Initial inlay hint display.
     if M.inlay_hints_enabled[bufnr] == nil then
       M.inlay_hints_enabled[bufnr] = M.inlay_hints_enabled_global
     end
-    vim.lsp.inlay_hint(bufnr, M.inlay_hints_enabled[bufnr])
+    vim.lsp.inlay_hint.enable(bufnr, M.inlay_hints_enabled[bufnr])
 
     vim.api.nvim_create_autocmd('InsertEnter', {
       group = inlay_hints_group,
       buffer = bufnr,
       callback = function()
         if M.inlay_hints_enabled[bufnr] then
-          vim.lsp.inlay_hint(bufnr, false)
+          vim.lsp.inlay_hint.enable(bufnr, false)
         end
       end,
     })
@@ -255,7 +268,7 @@ local function on_attach(client, bufnr)
       buffer = bufnr,
       callback = function()
         if M.inlay_hints_enabled[bufnr] then
-          vim.lsp.inlay_hint(bufnr, true)
+          vim.lsp.inlay_hint.enable(bufnr, true)
         end
       end,
     })
@@ -319,21 +332,10 @@ function M.set_inlay_hints(bufnr, status)
     status = not M.inlay_hints_enabled[bufnr]
   end
   M.inlay_hints_enabled[bufnr] = status
-  vim.lsp.inlay_hint(bufnr, status)
-end
-
-local function setup_neodev()
-  require('neodev').setup {
-    library = {
-      vimruntime = true,
-      types = true,
-      plugins = { 'neotest' },
-    },
-  }
+  vim.lsp.inlay_hint.enable(bufnr, status)
 end
 
 local function lsp_init()
-  setup_neodev()
   vim.lsp.set_log_level(vim.lsp.log_levels.WARN)
   for k, v in pairs(lsp_handlers) do
     vim.lsp.handlers[k] = v
@@ -344,7 +346,13 @@ local function lsp_init()
   end
   local capabilities = nvim_cmp_lsp.default_capabilities()
   local lspconfig = require 'lspconfig'
-  for _, lsp in ipairs(lsp_servers) do
+  local function is_enabled(server)
+    if type(server) == 'table' then
+      return server.enabled ~= false
+    end
+    return true
+  end
+  for _, lsp in ipairs(vim.tbl_filter(is_enabled, lsp_servers)) do
     local opts = {
       on_attach = on_attach_wrapper,
       on_exit = on_exit,
@@ -371,6 +379,17 @@ local function lsp_init()
           return on_attach_wrapper(client, ...)
         end
         lsp.hover = nil
+      end
+      if lsp.on_attach ~= nil then
+        local lsp_on_attach = lsp.on_attach
+        local opts_on_attach = opts.on_attach
+        opts.on_attach = function(...)
+          if lsp_on_attach(...) == false then
+            return false
+          end
+          return opts_on_attach(...)
+        end
+        lsp.on_attach = nil
       end
       for k, v in pairs(lsp) do
         if k ~= 1 then
