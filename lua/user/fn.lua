@@ -577,13 +577,10 @@ M.get_path_separator = function()
   return '/'
 end
 
-M.resolve_bufnr = function(bufnr)
-  return bufnr ~= 0 and bufnr or vim.api.nvim_get_current_buf()
-end
+local apiutil = M.require_on_call_rec 'user.apiutil'
 
-M.resolve_winnr = function(winnr)
-  return winnr ~= 0 and winnr or vim.api.nvim_get_current_win()
-end
+M.resolve_bufnr = apiutil.resolve_bufnr
+M.resolve_winnr = apiutil.resolve_winnr
 
 M.get_wins_of_type = function(wintype)
   return vim.tbl_filter(function(winid)
