@@ -91,6 +91,16 @@ local lsp_servers = {
   'html',
   {
     'jsonls',
+    on_attach = function(client, bufnr)
+      local filename = vim.api.nvim_buf_get_name(bufnr)
+      if filename:match '%.ts%.snap$' or filename:match '%.js%.snap$' then
+        vim.defer_fn(function()
+          vim.lsp.buf_detach_client(bufnr, client.id)
+          vim.diagnostic.disable(bufnr)
+        end, 0)
+        return false
+      end
+    end,
     formatting = false,
     commands = {
       Format = {
