@@ -136,19 +136,29 @@ local lsp_servers = {
   -- 'sqls',
   {
     'lua_ls',
-    cmd = {
-      'lua-language-server',
-      '-E',
-      '/usr/lib/lua-language-server/main.lua',
-      '--metapath="' .. vim.fn.stdpath 'cache' .. '/lua-language-server/meta"',
-    },
     settings = {
       Lua = {
         telemetry = {
           enable = false,
         },
         workspace = {
-          checkThirdParty = 'Disable',
+          library = {
+            '${3rd}/luv/library',
+            vim.env.VIMRUNTIME,
+            vim.fn.stdpath 'data' .. '/lazy/plenary.nvim',
+            vim.fn.stdpath 'data' .. '/lazy/telescope.nvim',
+          },
+          maxPreload = 1600,
+          preloadFileSize = 1000,
+          checkThirdParty = false,
+        },
+        runtime = {
+          version = 'LuaJIT',
+          pathStrict = true,
+          path = {
+            'lua/?.lua',
+            'lua/?/init.lua',
+          },
         },
       },
     },
