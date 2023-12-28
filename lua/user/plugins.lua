@@ -138,21 +138,35 @@ local plugins = {
     conf = 'user.plugin.noice',
     dependencies = {
       'MunifTanjim/nui.nvim',
-      'rcarriga/nvim-notify',
-      -- 'hrsh7th/nvim-cmp',
+      {
+        'rcarriga/nvim-notify',
+        opts = {
+          top_down = false,
+          on_open = function(win)
+            vim.api.nvim_win_set_config(win, { zindex = 200 })
+          end,
+        },
+      },
     },
   },
 
-  -- Window Management
+  -- Window/Buffer/Tab Management
   {
     'sindrets/winshift.nvim',
     cmd = 'WinShift',
     conf = 'user.plugin.winshift',
   },
-
   {
     'mrjones2014/smart-splits.nvim',
     lazy = false,
+  },
+  {
+    'famiu/bufdelete.nvim',
+    config = function()
+      local command = require('user.util.command').command
+      command { 'Bd', ':Bdelete' }
+    end,
+    cmd = { 'Bdelete', 'Bd' },
   },
 
   -- Terminal
@@ -230,7 +244,7 @@ local plugins = {
   },
   {
     'mg979/vim-visual-multi',
-    config = function()
+    init = function()
       vim.g.VM_custom_motions = {
         ['<M-,>'] = ',', -- Remap , to <M-,> because , conflicts with <localleader>
       }
@@ -284,6 +298,7 @@ local plugins = {
     event = 'InsertEnter',
     opts = {
       fast_wrap = {},
+      map_bs = false, -- To keep <Bs> mapping intact
     },
   },
 
@@ -353,6 +368,7 @@ local plugins = {
       require('lspkind').init {
         symbol_map = {
           Type = '',
+          Copilot = '',
         },
       }
     end,
@@ -518,7 +534,6 @@ local plugins = {
 
   --- Vim Plugin Development
   { 'bfredl/nvim-luadev', ft = 'lua' },
-  'folke/neodev.nvim',
 }
 
 local function preprocess_plugin_specs(specs)
