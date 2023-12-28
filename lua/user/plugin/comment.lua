@@ -42,3 +42,4 @@ require('Comment').setup {
 
 require('Comment.ft').set('capnp', { '#%s' })
 require('Comment.ft').set('systemd', { '#%s' })
+require('Comment.ft').set('jq', { '#%s' })
