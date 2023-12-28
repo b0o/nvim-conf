@@ -211,7 +211,7 @@ end
 local function tabline()
   local tabpages = vim.api.nvim_list_tabpages()
   local current_tabpage = vim.api.nvim_get_current_tabpage()
-  local s = ''
+  local s = ' '
   for i, t in ipairs(tabpages) do
     local hl = 'TabLine'
     if t == current_tabpage then
