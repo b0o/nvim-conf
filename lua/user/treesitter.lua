@@ -197,6 +197,22 @@ require('treesitter-context').setup {
   },
 }
 
+---- JoosepAlviste/nvim-ts-context-commentstring
+vim.g.skip_ts_context_commentstring_module = true
+require('ts_context_commentstring').setup {
+  enable = true,
+  enable_autocmd = false,
+  languages = {
+    javascript = {
+      __default = '// %s',
+      jsx_element = '{/* %s */}',
+      jsx_fragment = '{/* %s */}',
+      jsx_attribute = '// %s',
+      comment = '// %s',
+    },
+  },
+}
+
 ---- Wansmer/sibling-swap.nvim
 require('sibling-swap').setup {
   use_default_keymaps = false,
