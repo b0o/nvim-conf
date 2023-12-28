@@ -5,11 +5,10 @@ local keymap = require 'cmp.utils.keymap'
 local luasnip = require 'luasnip'
 local lspkind = require 'lspkind'
 local xk = require('user.mappings').xk
-local fn = require 'user.fn'
 
-local wincfg = {
+local wincfg = vim.tbl_extend('force', cmp.config.window.bordered(), {
   winhighlight = 'Normal:CmpNormal,FloatBorder:CmpBorder,CursorLine:CmpSel,Search:None',
-}
+})
 
 -- Select item next/prev, taking into account whether the cmp window is
 -- top-down or bottoom-up so that the movement is always in the same direction.
@@ -49,24 +48,27 @@ cmp.setup {
   view = {
     entries = { name = 'custom', selection_order = 'bottom_up' },
   },
-  -- experimental = {
-  --   ghost_text = true,
-  -- },
   formatting = {
     fields = { 'kind', 'abbr', 'menu' },
     format = function(entry, vim_item)
       vim_item.menu = ({
-        nvim_lsp = ' [LSP]',
-        treesitter = '  [TS]',
-        luasnip = '[Snip]',
-        nvim_lua = ' [Lua]',
-        buffer = ' [Buf]',
-        path = '[Path]',
-        git = ' [Git]',
-        tmux = '[Tmux]',
-      })[entry.source.name]
-      vim_item.menu = (vim_item.menu or '') .. ' ' .. (vim_item.kind or '')
-      vim_item.kind = lspkind.symbolic(vim_item.kind)
+        cmdline = ' Cmd',
+        nvim_lsp = ' LSP',
+        otter = ' Ott',
+        treesitter = '  TS',
+        luasnip = 'Snip',
+        nvim_lua = ' Lua',
+        buffer = ' Buf',
+        path = 'Path',
+        git = ' Git',
+        tmux = 'Tmux',
+      })[entry.source.name] or entry.source.name
+      local sym = lspkind.symbolic(vim_item.kind)
+      if sym == '' then
+        sym = '∅'
+      end
+      vim_item.menu = (vim_item.menu or '') .. '->' .. (vim_item.kind or '')
+      vim_item.kind = ' ' .. sym .. ' '
       return vim_item
     end,
   },
@@ -156,6 +158,7 @@ cmp.setup {
   sources = cmp.config.sources({
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
+    { name = 'otter' },
   }, {
     { name = 'nvim_lua' },
   }, {
@@ -371,48 +374,3 @@ require('cmp_git').setup {
     },
   },
 }
-
-fn.tmpl_hi [[
-  hi! CmpNormal                guibg=#4F4365
-  hi! CmpBorder                guibg=NONE     guifg=${inactive_bg}
-  hi! CmpSel                   guibg=#7A6FA6  guifg=#F8EBF8
-
-  hi! CmpItemMenu              guifg=${dust}
-  hi! CmpItemAbbr              guifg=${fg}
-  hi! CmpItemAbbrMatch         guifg=#FAC9FF
-  hi! CmpItemAbbrMatchFuzzy    guifg=#FAC9FF
-
-  hi! CmpItemAbbrDeprecated    guifg=${cayenne}   gui=strikethrough
-
-  hi! CmpItemKindMethod        guifg=${velvet}
-  hi! CmpItemKindConstructor   guifg=${velvet}
-  hi! CmpItemKindFunction      guifg=${velvet}
-
-  hi! CmpItemKindVariable      guifg=${blush}
-  hi! CmpItemKindConstant      guifg=${blush}
-  hi! CmpItemKindValue         guifg=${blush}
-  hi! CmpItemKindField         guifg=${blush}
-  hi! CmpItemKindProperty      guifg=${blush}
-  hi! CmpItemKindEnumMember    guifg=${blush}
-  hi! CmpItemKindReference     guifg=${blush}
-
-  hi! CmpItemKindOperator      guifg=${dust}
-  hi! CmpItemKindKeyword       guifg=${dust}
-  hi! CmpItemKindTypeParameter guifg=${dust}
-
-  hi! CmpItemKindModule        guifg=${milk}
-  hi! CmpItemKindClass         guifg=${milk}
-  hi! CmpItemKindInterface     guifg=${milk}
-  hi! CmpItemKindStruct        guifg=${milk}
-  hi! CmpItemKindEnum          guifg=${milk}
-
-  hi! CmpItemKindEvent         guifg=${light_lavender}
-  hi! CmpItemKindUnit          guifg=${light_lavender}
-  hi! CmpItemKindFile          guifg=${light_lavender}
-  hi! CmpItemKindFolder        guifg=${light_lavender}
-
-  hi! CmpItemKindText          guifg=${powder}
-
-  hi! CmpItemKindSnippet       guifg=${ice}
-  hi! CmpItemKindColor         guifg=${hydrangea}
-]]
