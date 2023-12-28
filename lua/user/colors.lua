@@ -1,19 +1,31 @@
-local colors_gui = vim.g.colors_gui or {}
-
 local colors = {
-  black = colors_gui['1'] or 'black',
-  white = colors_gui['5'] or 'white',
+  bg = '#201C33',
+  bg_dark = '#1E1A30',
+  bg_med = '#3F3650',
+  bg_bright = '#463E57',
 
-  skyblue = colors_gui['7'] or 'skyblue',
-  cyan = colors_gui['8'] or 'cyan',
-  fg = colors_gui['4'] or 'fg',
-  green = colors_gui['14'] or 'green',
-  oceanblue = colors_gui['9'] or 'oceanblue',
-  magenta = colors_gui['15'] or 'magenta',
-  orange = colors_gui['17'] or 'orange',
-  red = colors_gui['12'] or 'red',
-  violet = colors_gui['10'] or 'violet',
-  yellow = colors_gui['13'] or 'yellow',
+  fg = '#FFF1E0',
+
+  black = '#2F2A38',
+  black_med = '#4C435C',
+  black_bright = '#8977A8',
+
+  white = '#EEE6FF',
+  white_bright = '#ffffff',
+
+  skyblue = '#3FC4C4',
+  cyan = '#2BEDC0',
+
+  green = '#7CF89C',
+  oceanblue = '#80BDFF',
+  magenta = '#B98AFF',
+  orange = '#ff9969',
+  red = '#F2637E',
+  red_bright = '#FF87A5',
+  violet = '#7583FF',
+  violet_bright = '#B891FF',
+  violet_med = '#9385F8',
+  yellow = '#FFD080',
 
   butter = '#fffacf',
 
@@ -27,6 +39,7 @@ local colors = {
   lavender = '#A872FB',
   velvet = '#B29EED',
   anise = '#7F7DEE',
+  anise_dark = '#7E7490',
   hydrangea = '#fb72fa',
   blush = '#EBBBF9',
   powder = '#EAC6F5',
@@ -43,7 +56,7 @@ local colors = {
   nectar = '#f0f070',
   cayenne = '#FF7D90',
   yam = '#e86f54',
-  pumpkin = '#ff9969',
+  pumpkin = '#ff9969', -- TODO
   rose = '#b32e29',
 
   grey2 = '#222222',
@@ -62,8 +75,8 @@ local colors = {
   light_lavender = '#EAD6FF',
 }
 
-colors.inactive_bg = colors_gui['0'] or 'NONE'
-colors.active_bg = colors_gui['3'] or 'NONE'
+colors.inactive_bg = colors.bg_bright
+colors.active_bg = colors.black_bright
 colors.bg = colors.active_bg
 
 return colors

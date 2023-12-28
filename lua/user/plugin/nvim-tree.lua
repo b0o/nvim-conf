@@ -1,5 +1,4 @@
 ---- kyazdani42/nvim-tree.lua
-
 -- vim.g.nvim_tree_indent_markers = 1
 -- vim.g.nvim_tree_git_hl = 1
 -- vim.g.nvim_tree_highlight_opened_files = 1
@@ -8,18 +7,6 @@
 -- vim.g.nvim_tree_respect_buf_cwd = 1
 vim.g.nvim_tree_refresh_wait = 500
 -- vim.g.nvim_tree_icons =
-
-local colors_gui = vim.g.colors_gui or {}
-for hi, c in pairs {
-  NvimTreeGitDirty = colors_gui['13'] or 'yellow',
-  NvimTreeGitStaged = colors_gui['14'] or 'lightgreen',
-  NvimTreeGitMerge = colors_gui['16'] or 'magenta',
-  NvimTreeGitRenamed = colors_gui['17'] or 'orange',
-  NvimTreeGitNew = colors_gui['8'] or 'cyan',
-  NvimTreeGitDeleted = colors_gui['12'] or 'lightred',
-} do
-  vim.cmd(('highlight %s guifg=%s'):format(hi, c))
-end
 
 require('nvim-tree').setup {
   actions = {

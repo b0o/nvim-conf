@@ -102,30 +102,6 @@ vim.opt.listchars = {
 
 vim.o.termguicolors = true
 
-if not vim.g.colorscheme then
-  if vim.env.COLORSCHEME then
-    vim.g.colorscheme = vim.env.COLORSCHEME
-  elseif vim.g.colors_name ~= nil then
-    vim.g.colorscheme = vim.g.colors_name
-  else
-    vim.g.colorscheme = 'lavi'
-  end
-end
-
-vim.g.lavi_italic = 1
-vim.g.lavi_italic_comments = 1
-vim.g.lavi_cursor_line_number_background = 0
-
-if vim.fn.exists 'g:colorscheme' then
-  vim.cmd [[
-    try
-      exec 'colorscheme ' . g:colorscheme
-    catch
-      echom 'Error: Unable to set colorscheme ' . g:colorscheme . "\n"
-    endtry
-  ]]
-end
-
 ---- Providers
 vim.g.loaded_perl_provider = 0
 -- vim.g.loaded_python_provider = 0

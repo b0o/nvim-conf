@@ -10,6 +10,10 @@ local opts = {
   ui = {
     border = 'rounded',
   },
+  dev = {
+    path = vim.env.GIT_PROJECTS_DIR .. '/nvim',
+    fallback = false,
+  },
 }
 
 local plugins = {
@@ -24,8 +28,15 @@ local plugins = {
   'nvim-lua/plenary.nvim',
 
   -- Colorschemes
-  -- 'Mofiqul/dracula.nvim',
-  -- 'chriskempson/base16-vim',
+  {
+    'b0o/lavi.nvim',
+    dev = true,
+    lazy = false,
+    dependencies = { 'rktjmp/lush.nvim' },
+    config = function()
+      vim.cmd [[colorscheme lavi]]
+    end,
+  },
 
   -- UI
   {
