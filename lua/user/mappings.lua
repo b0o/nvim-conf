@@ -78,6 +78,9 @@ m.nnoremap([[q:]], [[<Nop>]])
 m.nnoremap([[q/]], [[<Nop>]])
 m.nnoremap([[q?]], [[<Nop>]])
 
+-- Disable <C-n>
+m.nnoremap([[<C-n>]], [[<Nop>]])
+
 m.noremap([[j]], function()
   return vim.v.count > 1 and 'j' or 'gj'
 end, m.silent, m.expr, 'Line down')
@@ -92,6 +95,15 @@ m.noremap([[<C-d>]], [[25j]], 'Page down')
 m.noremap([[<C-u>]], [[25k]], 'Page up')
 m.xnoremap([[<C-d>]], [[25j]], 'Page down')
 m.xnoremap([[<C-u>]], [[25k]], 'Page up')
+
+-- If on a blank line, start insert mode properly indented
+m.nnoremap([[i]], function()
+  if not vim.bo.buftype == 'terminal' and string.match(vim.api.nvim_get_current_line(), '^%s*$') then
+    return '"_S'
+  else
+    return 'i'
+  end
+end, m.silent, m.expr, 'Insert')
 
 m.nnoremap([[<M-Down>]], [[<C-e>]], 'Scroll view down 1')
 m.nnoremap([[<M-Up>]], [[<C-y>]], 'Scroll view up 1')
@@ -367,6 +379,7 @@ local function match_indent(dir)
     local indent = vim.fn.indent(cur[1])
     local new_indent = vim.fn.indent(target_line)
     local text = vim.fn.trim(vim.api.nvim_get_current_line())
+    ---@diagnostic disable-next-line: param-type-mismatch
     local new_text = string.rep(' ', new_indent) .. text
     vim.api.nvim_set_current_line(new_text)
     vim.api.nvim_win_set_cursor(0, { cur[1], cur[2] + (new_indent - indent) })
@@ -382,6 +395,7 @@ m.inoremap([[<M-.>]], match_indent(1), 'Match indent of next line')
 -- - Close floating windows
 m.nnoremap([[<Esc>]], function()
   vim.cmd 'nohlsearch'
+  fn.close_float_wins { '', 'noice', 'notify', 'markdown' }
   vim.cmd "echo ''"
 end, m.silent, 'Clear UI')
 
@@ -393,6 +407,7 @@ local function gf_telescope(cmd)
   if not file or file == '' then
     return
   end
+  ---@diagnostic disable-next-line: param-type-mismatch
   if not vim.loop.fs_stat(file) then
     require('telescope.builtin').find_files { default_text = file }
     return
@@ -758,26 +773,32 @@ M.on_lsp_attach = function(bufnr)
     m.nnoremap({ [[<localleader>A]], [[<localleader>ca]] }, iwrap(code_actions), 'LSP: Code action')
     m.xnoremap({ [[<localleader>A]], [[<localleader>ca]] }, iwrap(code_actions), 'LSP: Code action')
 
-    local function gotoDiag(dir, sev)
-      return function()
-        local _dir = dir
-        local args = {
-          enable_popup = true,
-          severity = vim.diagnostic.severity[sev],
-        }
-        if _dir == 'first' or _dir == 'last' then
-          args.wrap = false
-          if dir == 'first' then
-            args.cursor_position = { 1, 1 }
-            _dir = 'next'
-          else
-            args.cursor_position = { vim.api.nvim_buf_line_count(0) - 1, 1 }
-            _dir = 'prev'
+    local function gotoDiag(dir)
+      return function(sev)
+        return function()
+          local _dir = dir
+          local args = {
+            enable_popup = true,
+            severity = vim.diagnostic.severity[sev],
+          }
+          if _dir == 'first' or _dir == 'last' then
+            args.wrap = false
+            if dir == 'first' then
+              args.cursor_position = { 1, 1 }
+              _dir = 'next'
+            else
+              args.cursor_position = { vim.api.nvim_buf_line_count(0) - 1, 1 }
+              _dir = 'prev'
+            end
           end
+          vim.diagnostic['goto_' .. _dir](args)
         end
-        vim.diagnostic['goto_' .. _dir](args)
       end
     end
+    local prevDiag = gotoDiag 'prev'
+    local nextDiag = gotoDiag 'next'
+    local firstDiag = gotoDiag 'first'
+    local lastDiag = gotoDiag 'last'
 
     m.nname('<localleader>d', 'LSP-Diagnostics')
     m.nnoremap([[<localleader>ds]], iwrap(vim.diagnostic.show), 'LSP: Show diagnostics')
@@ -792,27 +813,27 @@ M.on_lsp_attach = function(bufnr)
       end
     end, 'LSP: Toggle Diagnostic')
 
-    m.nnoremap('[d', gotoDiag 'prev', 'LSP: Goto prev diagnostic')
-    m.nnoremap(']d', gotoDiag 'next', 'LSP: Goto next diagnostic')
-    m.nnoremap('[h', gotoDiag('prev', 'HINT'), 'LSP: Goto prev hint')
-    m.nnoremap(']h', gotoDiag('next', 'HINT'), 'LSP: Goto next hint')
-    m.nnoremap('[i', gotoDiag('prev', 'INFO'), 'LSP: Goto prev info')
-    m.nnoremap(']i', gotoDiag('next', 'INFO'), 'LSP: Goto next info')
-    m.nnoremap('[w', gotoDiag('prev', 'WARN'), 'LSP: Goto prev warning')
-    m.nnoremap(']w', gotoDiag('next', 'WARN'), 'LSP: Goto next warning')
-    m.nnoremap('[e', gotoDiag('prev', 'ERROR'), 'LSP: Goto prev error')
-    m.nnoremap(']e', gotoDiag('next', 'ERROR'), 'LSP: Goto next error')
+    m.nnoremap('[d', prevDiag(), 'LSP: Goto prev diagnostic')
+    m.nnoremap(']d', nextDiag(), 'LSP: Goto next diagnostic')
+    m.nnoremap('[h', prevDiag 'HINT', 'LSP: Goto prev hint')
+    m.nnoremap(']h', nextDiag 'HINT', 'LSP: Goto next hint')
+    m.nnoremap('[i', prevDiag 'INFO', 'LSP: Goto prev info')
+    m.nnoremap(']i', nextDiag 'INFO', 'LSP: Goto next info')
+    m.nnoremap('[w', prevDiag 'WARN', 'LSP: Goto prev warning')
+    m.nnoremap(']w', nextDiag 'WARN', 'LSP: Goto next warning')
+    m.nnoremap('[e', prevDiag 'ERROR', 'LSP: Goto prev error')
+    m.nnoremap(']e', nextDiag 'ERROR', 'LSP: Goto next error')
 
-    m.nnoremap('[D', gotoDiag 'first', 'LSP: Goto first diagnostic')
-    m.nnoremap(']D', gotoDiag 'last', 'LSP: Goto last diagnostic')
-    m.nnoremap('[H', gotoDiag('first', 'HINT'), 'LSP: Goto first hint')
-    m.nnoremap(']H', gotoDiag('last', 'HINT'), 'LSP: Goto last hint')
-    m.nnoremap('[I', gotoDiag('first', 'INFO'), 'LSP: Goto first info')
-    m.nnoremap(']I', gotoDiag('last', 'INFO'), 'LSP: Goto last info')
-    m.nnoremap('[W', gotoDiag('first', 'WARN'), 'LSP: Goto first warning')
-    m.nnoremap(']W', gotoDiag('last', 'WARN'), 'LSP: Goto last warning')
-    m.nnoremap('[E', gotoDiag('first', 'ERROR'), 'LSP: Goto first error')
-    m.nnoremap(']E', gotoDiag('last', 'ERROR'), 'LSP: Goto last error')
+    m.nnoremap('[D', firstDiag(), 'LSP: Goto first diagnostic')
+    m.nnoremap(']D', lastDiag(), 'LSP: Goto last diagnostic')
+    m.nnoremap('[H', firstDiag 'HINT', 'LSP: Goto first hint')
+    m.nnoremap(']H', lastDiag 'HINT', 'LSP: Goto last hint')
+    m.nnoremap('[I', firstDiag 'INFO', 'LSP: Goto first info')
+    m.nnoremap(']I', lastDiag 'INFO', 'LSP: Goto last info')
+    m.nnoremap('[W', firstDiag 'WARN', 'LSP: Goto first warning')
+    m.nnoremap(']W', lastDiag 'WARN', 'LSP: Goto last warning')
+    m.nnoremap('[E', firstDiag 'ERROR', 'LSP: Goto first error')
+    m.nnoremap(']E', lastDiag 'ERROR', 'LSP: Goto last error')
 
     m.nname('<localleader>s', 'LSP-Search')
     m.nnoremap(
@@ -869,7 +890,9 @@ m.group(m.silent, function()
   m.nnoremap({ [[<C-f>f]], [[<C-f><C-f>]] }, iwrap(tc.smart_files), 'Telescope: Files (Smart)')
   m.nnoremap({ [[<C-f>F]] }, iwrap(tc.any_files), 'Telescope: Any Files')
   m.nnoremap({ [[<C-f>w]], [[<C-f><C-w>]] }, iwrap(tc.windows, {}), 'Telescope: Windows')
-  m.nnoremap({ [[<C-f>i]], [[<C-f><C-i>]] }, '<Cmd>Easypick headers<Cr>', m.silent, 'Telescope: Includes (headers)')
+  m.nnoremap({ [[<C-f>i]], [[<C-f><C-i>]] }, '<Cmd>Easypick headers<Cr>', 'Telescope: Includes (headers)')
+  m.nnoremap({ [[<C-f>m]], [[<C-f><C-m>]] }, iwrap(tc.pnpm.workspace_package_files), 'Telescope: Pnpm package files')
+  m.nnoremap([[<C-f>M]], iwrap(tc.pnpm.workspace_packages), 'Telescope: Pnpm package')
 
   m.nnoremap({ [[<C-M-f>]], [[<C-f>r]], [[<C-f><C-r>]] }, iwrap(tc.resume), 'Telescope: Resume last picker')
 
@@ -1005,7 +1028,9 @@ m.nmap([[<Leader>a]], ':Tabularize /', 'Tabularize')
 m.xmap([[<Leader>a]], ':Tabularize /', 'Tabularize')
 
 ---- KabbAmine/vCoolor.vim
-m.nmap([[<leader>co]], '<Cmd>VCoolor<Cr>', m.silent, 'Open VCooler color picker')
+m.nmap([[<leader>cO]], '<Cmd>VCoolor<Cr>', m.silent, 'Open VCooler color picker')
+-- m.nmap([[<leader>co]], '<Cmd>EasyColor<Cr>', m.silent, 'Open EasyColor color picker')
+m.nmap([[<leader>co]], '<Cmd>CccPick<Cr>', m.silent, 'Open CCC color picker')
 
 ------ nvim-neo-tree/neo-tree.nvim & kyazdani42/nvim-tree.lua
 ---- nvim-neo-tree/neo-tree.nvim
@@ -1107,7 +1132,15 @@ local setup_nvimtree = function()
   m.group({ ft = 'NvimTree' }, function()
     local function withSelected(cmd, fmt)
       return function()
-        local file = require('nvim-tree.lib').get_node_at_cursor().absolute_path
+        local node = require('nvim-tree.lib').get_node_at_cursor()
+        if not node then
+          return
+        end
+        if type(cmd) == 'function' then
+          cmd(node)
+          return
+        end
+        local file = node.absolute_path
         vim.cmd(fmt and (cmd):format(file) or ('%s %s'):format(cmd, file))
       end
     end
@@ -1116,6 +1149,22 @@ local setup_nvimtree = function()
     m.nnoremap([[gr]], withSelected 'Git reset --quiet', 'Nvim-Tree: Git reset')
     m.nnoremap([[gb]], withSelected 'tabnew | Git blame', 'Nvim-Tree: Git blame')
     m.nnoremap([[gd]], withSelected 'tabnew | Gdiffsplit', 'Nvim-Tree: Git diff')
+
+    m.nnoremap(
+      [[bd]],
+      withSelected(function(node)
+        local bufnr = vim.fn.bufnr(node.absolute_path)
+        local wins = require('user.apiutil').buf_get_wins(bufnr)
+        if #wins > 0 then
+          local ok = vim.fn.confirm('Delete buffer ' .. node.name .. '?', '&Yes\n&No', 2) == 1
+          if not ok then
+            return
+          end
+        end
+        require('bufdelete').bufdelete(bufnr)
+      end),
+      'Nvim-Tree: Bdelete'
+    )
 
     m.nnoremap([[i]], nvim_tree_open_oil(false), 'Nvim-Tree: Open Oil')
     m.nnoremap([[I]], nvim_tree_open_oil(true), 'Nvim-Tree: Open Oil (enter dir)')
@@ -1391,17 +1440,10 @@ local sibling_swap = fn.require_on_call_rec 'sibling-swap'
 m.nnoremap(xk [[<C-.>]], iwrap(sibling_swap.swap_with_right), 'Sibling-Swap: Swap with right')
 m.nnoremap([[<F34>]], iwrap(sibling_swap.swap_with_left), 'Sibling-Swap: Swap with left')
 
----- jakemason/ouroboros.nvim
-m.group(m.silent, { ft = { 'c', 'cpp' } }, function()
-  m.nnoremap(
-    { [[<leader>O]], [[<leader>oo]] },
-    '<Cmd>Ouroboros<Cr>',
-    m.silent,
-    'Ouroboros: Switch between header and source file'
-  )
-  m.nnoremap([[<leader>os]], '<Cmd>split | Ouroboros<Cr>', m.silent, 'Ouroboros: Open other in split')
-  m.nnoremap([[<leader>ov]], '<Cmd>vsplit | Ouroboros<Cr>', m.silent, 'Ouroboros: Open other in vsplit')
-end)
+---- rgroli/other.nvim
+m.nnoremap({ [[<leader>O]], [[<leader>oo]] }, '<Cmd>Other<Cr>', 'Other: Switch to other file')
+m.nnoremap([[<leader>os]], '<Cmd>OtherSplit<Cr>', 'Other: Open other in split')
+m.nnoremap([[<leader>ov]], '<Cmd>OtherVSplit<Cr>', 'Other: Open other in vsplit')
 
 ---- akinsho/nvim-toggleterm.lua
 local toggleterm_smart_toggle = function()
