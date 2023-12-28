@@ -2,6 +2,7 @@
 local t = require 'telescope'
 local ta = require 'telescope.actions'
 local tb = require 'telescope.builtin'
+local tp = require 'telescope.pickers'
 
 local action_state = require 'telescope.actions.state'
 
@@ -40,7 +41,7 @@ local function multiopen(method)
     local multi_selection = picker:get_multi_selection()
 
     if #multi_selection > 1 then
-      require('telescope.pickers').on_close_prompt(prompt_bufnr)
+      tp.on_close_prompt(prompt_bufnr)
       pcall(vim.api.nvim_set_current_win, picker.original_win_id)
 
       for i, entry in ipairs(multi_selection) do
@@ -105,6 +106,7 @@ end
 
 t.setup {
   defaults = {
+    dynamic_preview_title = true,
     layout_config = {
       scroll_speed = 2,
       preview_cutoff = 50,
@@ -149,12 +151,16 @@ t.setup {
   },
 }
 
+local extensions = vim.list_extend({
+  'pnpm',
+}, require('user.plugins').telescope_exts)
+
 local extensions_loaded = false
 local function load_extensions()
   if extensions_loaded then
     return
   end
-  for _, ext in ipairs(require('user.plugins').telescope_exts) do
+  for _, ext in ipairs(extensions) do
     if not rawget(t.extensions, ext) then
       t.load_extension(ext)
     end
