@@ -2,6 +2,7 @@
 local oil = require 'oil'
 
 oil.setup {
+  default_file_exporer = true,
   view_options = {
     show_hidden = true,
   },
