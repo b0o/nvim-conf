@@ -61,6 +61,13 @@ autocmd('TermOpen', { command = [[setlocal scrolloff=0]] })
 autocmd('BufEnter', { pattern = 'term://*', command = [[call user#fn#termEnter(1)]] })
 autocmd('TermClose', { pattern = 'term://*', command = [[call user#fn#closeBufWins(expand('<abuf>'))]] })
 
+------ Filetypes
+-- vitest snapshots
+autocmd({ 'BufRead', 'BufNewFile' }, {
+  pattern = { '**/__snapshots__/*.ts.snap', '**/__snapshots__/*.js.snap' },
+  command = 'set filetype=jsonc',
+})
+
 ------ Plugins
 
 ---- kyazdani42/nvim-tree.lua
