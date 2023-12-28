@@ -1,3 +1,5 @@
+local M = {}
+
 vim.o.spell = false
 vim.o.spellfile = vim.fn.stdpath 'config' .. '/spellfile.utf-8.add'
 
@@ -50,6 +52,7 @@ vim.o.eadirection = 'hor'
 vim.o.wildchar = 9 -- equivalent to 'set wildchar=<Tab>'
 
 vim.o.modeline = true -- always parse modelines when loading files
+vim.o.exrc = true -- enable exrc files - .nvim.lua, .nvimrc, .exrc
 
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ','
@@ -77,9 +80,11 @@ vim.o.cursorline = true
 
 vim.o.showmode = false
 vim.o.showcmd = true
-vim.o.laststatus = 0
 vim.o.ruler = false
 vim.o.cmdheight = 0
+
+vim.o.laststatus = 3
+vim.opt.statusline = [[ %{toupper(mode())} %= %= %l:%c %p%% ]]
 
 vim.o.showmatch = true
 
@@ -104,29 +109,9 @@ vim.o.termguicolors = true
 
 ---- Providers
 vim.g.loaded_perl_provider = 0
--- vim.g.loaded_python_provider = 0
--- vim.g.loaded_python3_provider = 0
--- vim.g.loaded_node_provider = 0
--- vim.g.loaded_ruby_provider = 0
-
-local function setup_provider(provider, path_components)
-  local path = ''
-  for c in ipairs(path_components) do
-    path = path .. c
-    if not vim.fn.filereadable(path) then
-      return
-    end
-  end
-  if vim.fn.filereadable(path) then
-    vim.g[provider .. '_host_prog'] = path
-  end
-end
-
-setup_provider('python3', { vim.env.HOME, '/.asdf/shims/python3' })
-setup_provider('node', { vim.env.XDG_DATA_HOME, '/yarn/global/node_modules/neovim/bin/cli.js' })
-setup_provider('ruby', { '/usr/bin/ruby' })
 
 ---- Builtin plugins
+-- Disable default matchparen plugin
 vim.g.loaded_matchparen = 1
 
 ---- Filetypes
@@ -135,3 +120,9 @@ vim.g.no_man_maps = 1
 
 -- Automatically equalize window sizes when Neovim is resized
 -- fn.silent(require('user.util.auto-resize').enable)
+
+-- Disable netrw
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
+return M
