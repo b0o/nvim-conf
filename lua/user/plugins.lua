@@ -505,9 +505,9 @@ local plugins = {
     end,
   },
   {
-    -- C/C++ header/source file switching
-    'jakemason/ouroboros.nvim',
-    ft = { 'c', 'cpp' },
+    'rgroli/other.nvim',
+    cmd = { 'Other', 'OtherTabNew', 'OtherSplit', 'OtherVSplit' },
+    conf = 'user.plugin.other',
   },
 
   -- Color
