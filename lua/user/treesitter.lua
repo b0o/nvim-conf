@@ -1,3 +1,5 @@
+-- local ft_to_parser = require('nvim-treesitter.parsers').filetype_to_parsername
+
 require('nvim-treesitter.configs').setup {
   query_linter = {
     enable = true,
@@ -19,7 +21,7 @@ require('nvim-treesitter.configs').setup {
     'gitcommit',
     'git_rebase',
     'gitignore',
-    -- 'glsl',
+    'glsl',
     'go',
     -- 'gomod',
     'graphql',
@@ -42,6 +44,7 @@ require('nvim-treesitter.configs').setup {
     -- 'ocamllex',
     'python',
     -- 'prisma',
+    'query',
     -- 'r',
     -- 'regex',
     -- 'rst',
@@ -51,6 +54,7 @@ require('nvim-treesitter.configs').setup {
     -- 'teal',
     'toml',
     'typescript',
+    'tsx',
     'vim',
     'vimdoc',
     -- 'wgsl',
@@ -60,19 +64,6 @@ require('nvim-treesitter.configs').setup {
   ---- windwp/nvim-ts-autotag
   autotag = {
     enable = true,
-  },
-  context_commentstring = {
-    enable = true,
-    enable_autocmd = false,
-    config = {
-      javascript = {
-        __default = '// %s',
-        jsx_element = '{/* %s */}',
-        jsx_fragment = '{/* %s */}',
-        jsx_attribute = '// %s',
-        comment = '// %s',
-      },
-    },
   },
   highlight = {
     enable = true,
@@ -169,10 +160,15 @@ require('nvim-treesitter.configs').setup {
       show_help = '?',
     },
   },
-  -- matchup = {
-  --   enable = true,
-  -- },
+  matchup = {
+    enable = true,
+  },
 }
+
+-- Additional Filetypes
+
+vim.treesitter.language.register('markdown', { 'mdx' })
+-- ft_to_parser.mdx = 'markdown'
 
 -- romgrk/nvim-treesitter-context
 require('treesitter-context').setup {
