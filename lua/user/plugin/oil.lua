@@ -20,8 +20,11 @@ oil.setup {
   keymaps = {
     ['<M-u>'] = 'actions.parent',
     ['<M-i>'] = 'actions.select',
-    ['<C-v>'] = 'actions.select_vsplit',
-    ['<C-x>'] = 'actions.select_split',
+    ['<Leader><C-v>'] = 'actions.select_vsplit',
+    ['<Leader><C-x>'] = 'actions.select_split',
+    ['<Leader>v'] = 'actions.select_vsplit',
+    ['<Leader>x'] = 'actions.select_split',
+    ['<C-r>'] = 'actions.refresh',
     ['<C-s>'] = {
       callback = function()
         oil.save()
