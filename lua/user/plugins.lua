@@ -517,6 +517,11 @@ local plugins = {
     cmd = { 'VCoolIns', 'VCoolor' },
   },
   {
+    'uga-rosa/ccc.nvim',
+    conf = 'user.plugin.ccc',
+    cmd = { 'CccPick' },
+  },
+  {
     'NvChad/nvim-colorizer.lua',
     event = 'BufRead',
     opts = {
