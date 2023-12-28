@@ -6,16 +6,36 @@ local devicons = require 'nvim-web-devicons'
 
 local colors = require 'user.colors'
 local fn = require 'user.fn'
+local lsp_status = require 'user.statusline.lsp'
 
 local extra_colors = {
   theme_bg = '#222032',
-  fg = 'white',
+  fg = '#FFFFFF',
   fg_nc = '#A89CCF',
   bg = '#55456F',
   bg_nc = 'NONE',
 }
 
 local M = {}
+
+local function status_lsp_client(status)
+  local icon = ''
+  return function(bufnr)
+    local count = lsp_status.status_clients_count(status, bufnr)
+    if count == 0 then
+      return ''
+    end
+    if count == 1 then
+      return { icon, ' ' }
+    end
+    return { count, ' ', icon, ' ' }
+  end
+end
+
+local lsp_clients_running = status_lsp_client 'running'
+local lsp_clients_starting = status_lsp_client 'starting'
+local lsp_clients_exited_ok = status_lsp_client 'exited_ok'
+local lsp_clients_exited_err = status_lsp_client 'exited_err'
 
 --- Given a path, return a shortened version of it.
 --- @param path string an absolute or relative path
@@ -206,6 +226,15 @@ incline.setup {
 
     local extra = {}
 
+    local lsp = props.focused
+        and {
+          { lsp_clients_running(props.buf), guifg = colors.green },
+          { lsp_clients_starting(props.buf), guifg = colors.skyblue },
+          { lsp_clients_exited_ok(props.buf), guifg = colors.grey6 },
+          { lsp_clients_exited_err(props.buf), guifg = colors.red },
+        }
+      or ''
+
     return {
       extra,
       {
@@ -218,9 +247,10 @@ incline.setup {
         },
         { diag_disabled and ' 󱒼 ' or '', guifg = buf_focused and colors.deep_velvet or colors.deep_anise },
         { has_error and '  ' or ' ', guifg = colors.red },
+        lsp,
         { fname, gui = modified and 'bold,italic' or nil },
         { modified and ' * ' or ' ', guifg = extra_colors.fg },
-        git_status,
+        git_status(props),
         guibg = bg,
         guifg = fg,
       },

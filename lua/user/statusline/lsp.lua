@@ -24,15 +24,11 @@ local function getClientData(client)
   }
 end
 
-local function isBufClient(clientData, bufnr)
-  return vim.tbl_contains(clientData.buffers, bufnr)
-end
-
 local function getBufClients(bufnr, clients)
   local attached = {}
-  for _, clientData in pairs(clients) do
-    if isBufClient(clientData, bufnr) then
-      table.insert(attached, clientData)
+  for _, client in pairs(vim.lsp.get_clients { bufnr = bufnr }) do
+    if clients[client.id] then
+      table.insert(attached, clients[client.id])
     end
   end
   return attached
@@ -67,28 +63,36 @@ function M.on_exit(code, signal, id)
   data.signal = signal
   M.clients.exited[id] = data
   M.clients.running[id] = nil
+  vim.notify(
+    'LSP client ' .. data.client.name .. ' (' .. id .. ') exited with code ' .. code .. ' and signal ' .. signal
+  )
+end
+
+function M.status_clients_count(status, bufnr)
+  bufnr = bufnr or vim.api.nvim_get_current_buf()
+  local clients = {}
+  if status == 'exited' or status == 'exited_ok' or status == 'exited_err' then
+    clients = M.getExitedBufClients(bufnr)
+  elseif status == 'running' then
+    clients = M.getRunningBufClients(bufnr)
+  else
+    clients = M.getBufClients(bufnr)
+  end
+  local count = 0
+  for _, c in pairs(clients) do
+    local skip = false
+    skip = skip or status == 'exited_ok' and c.signal ~= 0
+    skip = skip or status == 'exited_err' and c.signal == 0
+    skip = skip or status == 'starting' and c.client.initialized
+    skip = skip or status == 'running' and not c.client.initialized
+    count = skip and count or count + 1
+  end
+  return count
 end
 
 function M.status_clients(status)
   return function()
-    local bufnr = vim.api.nvim_get_current_buf()
-    local clients = {}
-    if status == 'exited' or status == 'exited_ok' or status == 'exited_err' then
-      clients = M.getExitedBufClients(bufnr)
-    elseif status == 'running' then
-      clients = M.getRunningBufClients(bufnr)
-    else
-      clients = M.getBufClients(bufnr)
-    end
-    local count = 0
-    for _, c in pairs(clients) do
-      local skip = false
-      skip = skip or status == 'exited_ok' and c.signal ~= 0
-      skip = skip or status == 'exited_err' and c.signal == 0
-      skip = skip or status == 'starting' and c.client.initialized
-      skip = skip or status == 'running' and not c.client.initialized
-      count = skip and count or count + 1
-    end
+    local count = M.status_clients_count(status)
     return count > 0 and tostring(count) or '', icons.status
   end
 end
