@@ -401,6 +401,13 @@ local plugins = {
       'typescriptreact',
       'javascriptreact',
     },
+    dependencies = {
+      {
+        'marilari88/twoslash-queries.nvim',
+        dev = true,
+        opts = { highlight = 'Type', multi_line = true },
+      },
+    },
   },
   {
     'folke/trouble.nvim',
