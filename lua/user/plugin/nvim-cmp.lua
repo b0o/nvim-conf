@@ -79,7 +79,7 @@ cmp.setup {
     ['<C-j>'] = cmp.mapping.scroll_docs(4),
     ['<C-g>'] = cmp.mapping.abort(),
     ['<CR>'] = cmp.mapping.confirm { select = true },
-    ['<C-e>'] = function(fallback)
+    ['<C-c>'] = function(fallback)
       if cmp.visible() then
         cmp.confirm { select = true }
         cmp.complete()
