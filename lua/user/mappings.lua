@@ -835,6 +835,11 @@ M.on_lsp_attach = function(bufnr)
     m.nnoremap('[E', firstDiag 'ERROR', 'LSP: Goto first error')
     m.nnoremap(']E', lastDiag 'ERROR', 'LSP: Goto last error')
 
+    m.nnoremap([[<leader>dr]], iwrap(vim.diagnostic.reset), 'LSP: Reset diagnostics (global)')
+    m.nnoremap([[<localleader>dr]], function()
+      vim.diagnostic.reset(nil, 0)
+    end, 'LSP: Reset diagnostics (buffer)')
+
     m.nname('<localleader>s', 'LSP-Search')
     m.nnoremap(
       { [[<localleader>so]], [[<leader>so]] },
