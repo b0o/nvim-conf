@@ -60,6 +60,7 @@ M.xk = fn.utf8keys {
   [ [[<M-S-/>]] ] = 0x00d7,
   [ [[<C-M-S-/>]] ] = 0x00d8,
   [ [[<M-Space>]] ] = 0x00d9,
+  [ [[<C-M-S-s>]] ] = 0x00da,
 }
 local xk = M.xk
 
@@ -1564,5 +1565,30 @@ m.nnoremap([[<leader>ll]], '<Cmd>Lazy<cr>', 'Lazy')
 
 ---- folke/noice.nvim
 m.nnoremap([[<leader>L]], '<Cmd>NoiceHistory<cr>', 'Noice: History log')
+
+---- folke/flash.nvim
+vim.keymap.set({ 'n', 'x', 'o' }, '<M-s>', function()
+  require('flash').jump()
+end, { desc = 'Flash' })
+
+vim.keymap.set({ 'n', 'x', 'o' }, '<M-S-s>', function()
+  require('flash').treesitter()
+end, { desc = 'Flash Treesitter' })
+
+vim.keymap.set({ 'n', 'x', 'o' }, xk '<C-M-S-s>', function()
+  require('flash').treesitter_search()
+end, { desc = 'Flash Treesitter Search' })
+
+vim.keymap.set({ 'o' }, 'r', function()
+  require('flash').remote()
+end, { desc = 'Remote Flash' })
+
+vim.keymap.set({ 'o', 'x' }, 'R', function()
+  require('flash').treesitter_search()
+end, { desc = 'Treesitter Search' })
+
+vim.keymap.set({ 'c' }, '<C-s>', function()
+  require('flash').toggle()
+end, { desc = 'Toggle Flash Search' })
 
 return M

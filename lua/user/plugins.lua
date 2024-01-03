@@ -217,16 +217,43 @@ local plugins = {
     end,
   },
   {
-    'jinh0/eyeliner.nvim',
-    config = function()
-      local colors = require 'user.colors'
-      require('eyeliner').setup {
-        highlight_on_key = true,
-      }
-      vim.api.nvim_set_hl(0, 'EyelinerPrimary', { fg = colors.cyan, bold = true, underline = true })
-      vim.api.nvim_set_hl(0, 'EyelinerSecondary', { fg = colors.yellow, bold = true, underline = true })
-    end,
-    keys = { 'f', 'F', 't', 'T' },
+    'folke/flash.nvim',
+    event = 'VeryLazy',
+    opts = {
+      labels = "fjdghksla;eiworuqpcnxmz,vbty'",
+      search = {},
+      jump = {
+        autojump = true,
+      },
+      label = {
+        uppercase = false,
+      },
+      modes = {
+        treesitter = {
+          labels = 'abcdefghijklmnopqrstuvwxyz',
+          label = {
+            uppercase = false,
+            rainbow = {
+              enabled = true,
+              shade = 3,
+            },
+          },
+        },
+        treesitter_search = {
+          labels = 'abcdefghijklmnopqrstuvwxyz',
+          label = {
+            uppercase = false,
+            rainbow = {
+              enabled = true,
+              shade = 3,
+            },
+          },
+        },
+        char = {
+          keys = { 'f', 'F', 't', 'T', [';'] = '<Tab>', [','] = '<S-Tab>' },
+        },
+      },
+    },
   },
   {
     'chaoren/vim-wordmotion',
