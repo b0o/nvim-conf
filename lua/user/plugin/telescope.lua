@@ -198,6 +198,13 @@ _cmds.any_files = function()
   }
 end
 
+_cmds.dir_files = function()
+  tb.find_files {
+    prompt_title = 'Find Files (Dir)',
+    cwd = vim.fn.expand '%:p:h',
+  }
+end
+
 _cmds.tags = function()
   tb.tags { only_current_buffer = true }
 end
