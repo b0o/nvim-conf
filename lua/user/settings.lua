@@ -70,7 +70,7 @@ vim.opt.shortmess:append 'I'
 
 vim.o.title = true
 -- vim.o.titlestring = '%{luaeval("require[[user.tabline]].titlestring()")}'
-vim.o.titlestring = '%F'
+vim.o.titlestring = '%f'
 
 vim.o.showtabline = 2
 vim.o.tabline = "%!luaeval('require[[user.tabline]].tabline()')"
