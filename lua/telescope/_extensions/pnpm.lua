@@ -23,6 +23,7 @@ function M.workspace_packages(opts)
     refresh = opts.refresh,
   }
   if not info then
+    vim.notify('No PNPM workspace detected', vim.log.levels.WARN)
     return
   end
   local max_path_len = 0
@@ -116,7 +117,7 @@ function M.workspace_package_files(opts)
     refresh = opts.refresh,
   }
   if not info then
-    vim.notify('No workspace PNPM workspace detected', vim.log.levels.WARN)
+    vim.notify('No PNPM workspace detected', vim.log.levels.WARN)
     return
   end
   return tb.find_files(vim.tbl_extend('force', opts or {}, {
