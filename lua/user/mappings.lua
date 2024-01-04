@@ -622,7 +622,7 @@ m.group(m.silent, { ft = 'lua' }, function()
   m.xmap([[<leader><F12>]], "<Cmd>Put lua require'user.fn'.luarun()<Cr>", 'Lua: Eval selection (Append)')
 end)
 
-m.group(m.silent, { ft = { 'typescriptreact', 'javascriptreact' } }, function()
+m.group({ ft = { 'typescriptreact', 'javascriptreact' } }, function()
   local tailwind_sort = function()
     fn.transform_visual_selection({ 'rustywind', '--stdin', '--custom-regex', '(.*)' }, function(pre)
       -- if the selection includes quotes at the beginning and end, remove them
@@ -647,6 +647,12 @@ m.group(m.silent, { ft = { 'typescriptreact', 'javascriptreact' } }, function()
     require('nvim-treesitter.textobjects.select').select_textobject('@string', 'textobjects', 'x')
     tailwind_sort()
   end)
+end)
+m.group({
+  ft = { 'typescript', 'javascript', 'typescriptreact', 'javascriptreact' },
+}, function()
+  m.nmap([[<leader>ii]], '<Cmd>TwoslashQueriesInspect<Cr>', 'TwoSlash: Inspect')
+  m.nmap([[<leader>ir]], '<Cmd>TwoslashQueriesRemove<Cr>', 'TwoSlash: Remove')
 end)
 
 m.group(m.silent, { ft = 'man' }, function()
