@@ -43,6 +43,7 @@ local plugins = {
     'Famiu/feline.nvim',
     event = 'VeryLazy',
     conf = 'user.statusline',
+    enabled = false,
   },
   'kyazdani42/nvim-web-devicons',
   {
