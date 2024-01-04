@@ -73,7 +73,7 @@ local function make(fn, opts)
       -- throttle: fn will be called at least once every (rising + falling) milliseconds
       -- rolling: fn will be called only once after the falling edge, new triggers will keep extending the timer
       mode = 'throttle',
-    }, opts),
+    }, opts or {}),
   }, {
     __index = Debounce,
     __call = Debounce.call,
