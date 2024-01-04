@@ -277,6 +277,9 @@ local plugins = {
         ['<M-,>'] = ',', -- Remap , to <M-,> because , conflicts with <localleader>
       }
     end,
+    setup = function()
+      vim.cmd [[VMClear]]
+    end,
     event = 'VeryLazy',
   },
   {
