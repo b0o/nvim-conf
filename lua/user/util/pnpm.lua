@@ -74,6 +74,9 @@ M.get_workspace_info = function(opts)
     M.clear_cache()
   end
   local root_dir = M.get_pnpm_root_path(opts.focused_path)
+  if root_dir == nil then
+    return
+  end
   local paths = M.get_workspace_package_paths(root_dir)
   if paths == nil then
     return
