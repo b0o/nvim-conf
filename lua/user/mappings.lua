@@ -1460,18 +1460,21 @@ m.nnoremap([[<leader>ov]], '<Cmd>OtherVSplit<Cr>', 'Other: Open other in vsplit'
 
 ---- akinsho/nvim-toggleterm.lua
 local toggleterm_smart_toggle = function()
-  local tabwins = vim.api.nvim_tabpage_list_wins(0)
-  local focwin = vim.api.nvim_get_current_win()
-  for _, win in ipairs(tabwins) do
-    local buf = vim.api.nvim_win_get_buf(win)
-    ---@diagnostic disable-next-line: param-type-mismatch
-    if vim.api.nvim_buf_get_option(buf, 'filetype') == 'toggleterm' then
-      if win == focwin then
-        recent_wins.focus_most_recent()
-      else
-        vim.api.nvim_set_current_win(win)
-      end
+  local terms = require('toggleterm.terminal').get_all()
+  if #terms > 0 then
+    local term = terms[1]
+    local cur_win = vim.api.nvim_get_current_win()
+    if term.window == cur_win then
+      recent_wins.focus_most_recent()
       return
+    end
+    local cur_tab = vim.api.nvim_get_current_tabpage()
+    if vim.api.nvim_win_is_valid(term.window) then
+      if vim.api.nvim_win_get_tabpage(term.window) == cur_tab then
+        vim.api.nvim_set_current_win(term.window)
+        return
+      end
+      vim.api.nvim_win_close(term.window, true)
     end
   end
   vim.cmd 'ToggleTerm'
