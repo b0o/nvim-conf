@@ -364,10 +364,10 @@ m.nnoremap([[<M-S-W>]], function()
   wrap_visual_selection()
 end, 'Wrap line')
 
-m.nnoremap([[<M-w>]], function()
-  vim.cmd [[normal! viw]]
-  wrap_visual_selection()
-end, 'Wrap word')
+-- m.nnoremap([[<M-w>]], function()
+--   vim.cmd [[normal! viw]]
+--   wrap_visual_selection()
+-- end, 'Wrap word')
 
 -- match the indentation of the next line
 local function match_indent(dir)
