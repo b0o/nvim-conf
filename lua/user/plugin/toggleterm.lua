@@ -12,16 +12,9 @@ require('toggleterm').setup {
   -- end,
   size = function(term)
     if term.direction == 'horizontal' then
-      return 15
+      return math.max(15, math.min(50, math.floor(vim.o.lines * 0.33)))
     elseif term.direction == 'vertical' then
-      local twentypct = vim.o.columns * 0.2
-      if twentypct < 40 then
-        return 40
-      elseif twentypct > 120 then
-        return 120
-      else
-        return twentypct
-      end
+      return math.max(40, math.min(120, math.floor(vim.o.columns * 0.2)))
     end
   end,
   open_mapping = xk [[<C-S-/>]],
