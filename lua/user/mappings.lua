@@ -1600,6 +1600,14 @@ vim.keymap.set({ 'c' }, '<C-s>', function()
   require('flash').toggle()
 end, { desc = 'Toggle Flash Search' })
 
+---- s1n7ax/nvim-window-picker
+m.nnoremap([[<M-w>]], function()
+  local win = require('window-picker').pick_window()
+  if win and vim.api.nvim_win_is_valid(win) then
+    vim.api.nvim_set_current_win(win)
+  end
+end, 'Window Picker: Pick')
+
 ---- folke/todo-comments.nvim
 local todo_comments = fn.require_on_call_rec 'todo-comments'
 m.nnoremap('[t', iwrap(todo_comments.jump_prev), 'Todo Comments: Previous')
