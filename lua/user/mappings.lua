@@ -895,7 +895,6 @@ m.group(m.silent, function()
   m.nnoremap(xk [[<C-S-f>]], iwrap(tc.builtin), 'Telescope: Builtins')
   m.nnoremap([[<C-f>b]], iwrap(tc.buffers), 'Telescope: Buffers')
   m.nnoremap({ [[<C-f>h]], [[<C-f><C-h>]] }, iwrap(tc.help_tags), 'Telescope: Help tags')
-  m.nnoremap({ [[<C-f>t]], [[<C-f><C-t>]] }, iwrap(tc.tags), 'Telescope: Tags')
   m.nnoremap({ [[<C-f>a]], [[<C-f><C-a>]] }, iwrap(tc.grep_string), 'Telescope: Grep for string')
   m.nnoremap({ [[<C-f>p]], [[<C-f><C-p>]] }, iwrap(tc.live_grep_args), 'Telescope: Live grep')
   m.nnoremap({ [[<C-f>o]], [[<C-f><C-o>]] }, iwrap(tc.oldfiles), 'Telescope: Old files')
@@ -906,6 +905,7 @@ m.group(m.silent, function()
   m.nnoremap({ [[<C-f>i]], [[<C-f><C-i>]] }, '<Cmd>Easypick headers<Cr>', 'Telescope: Includes (headers)')
   m.nnoremap({ [[<C-f>m]], [[<C-f><C-m>]] }, iwrap(tc.pnpm.workspace_package_files), 'Telescope: Pnpm package files')
   m.nnoremap([[<C-f>M]], iwrap(tc.pnpm.workspace_packages), 'Telescope: Pnpm package')
+  m.nnoremap({ [[<C-f>t]], [[<C-f><C-t>]] }, iwrap(tc['todo-comments']), 'Telescope: Todo Comments')
 
   m.nnoremap({ [[<C-M-f>]], [[<C-f>r]], [[<C-f><C-r>]] }, iwrap(tc.resume), 'Telescope: Resume last picker')
 
@@ -1599,5 +1599,10 @@ end, { desc = 'Treesitter Search' })
 vim.keymap.set({ 'c' }, '<C-s>', function()
   require('flash').toggle()
 end, { desc = 'Toggle Flash Search' })
+
+---- folke/todo-comments.nvim
+local todo_comments = fn.require_on_call_rec 'todo-comments'
+m.nnoremap('[t', iwrap(todo_comments.jump_prev), 'Todo Comments: Previous')
+m.nnoremap(']t', iwrap(todo_comments.jump_next), 'Todo Comments: Next')
 
 return M

@@ -332,6 +332,12 @@ local plugins = {
       map_bs = false, -- To keep <Bs> mapping intact
     },
   },
+  {
+    'folke/todo-comments.nvim',
+    event = 'BufRead',
+    config = true,
+    telescope_ext = 'todo-comments',
+  },
 
   -- AI
   {
