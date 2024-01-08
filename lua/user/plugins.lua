@@ -424,7 +424,10 @@ local plugins = {
     config = true,
   },
   {
-    'DNLHC/glance.nvim',
+    -- TODO: https://github.com/DNLHC/glance.nvim/pull/67
+    -- 'DNLHC/glance.nvim',
+    'b0o/glance.nvim',
+    branch = 'jump-opts',
     conf = 'user.plugin.glance',
     cmd = 'Glance',
   },

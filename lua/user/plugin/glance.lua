@@ -30,6 +30,17 @@ glance.setup {
       ['<C-v>'] = actions.jump_vsplit,
       ['<C-x>'] = actions.jump_split,
       ['<C-t>'] = actions.jump_tab,
+      ['<M-w>'] = function()
+        local win = require('window-picker').pick_window()
+        if not win or not vim.api.nvim_win_is_valid(win) then
+          return
+        end
+        actions.jump {
+          cmd = function()
+            vim.api.nvim_set_current_win(win)
+          end,
+        }
+      end,
       ['<CR>'] = actions.jump,
       ['<M-a>'] = actions.enter_win 'preview', -- Focus preview window
       ['q'] = actions.close,
