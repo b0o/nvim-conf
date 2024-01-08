@@ -433,7 +433,7 @@ local plugins = {
   },
   {
     'pmizio/typescript-tools.nvim',
-    -- enabled = false,
+    enabled = true,
     conf = 'user.plugin.typescript-tools',
     ft = {
       'typescript',
