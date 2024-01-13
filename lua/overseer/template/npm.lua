@@ -144,7 +144,7 @@ return {
         do
           v = v or {}
           if type(v) == 'string' then
-            v = { args = { 'run', v } }
+            v = { args = { 'run', k } }
           end
           table.insert(
             ret,
