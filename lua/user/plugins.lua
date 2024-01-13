@@ -175,11 +175,30 @@ local plugins = {
     cmd = { 'Bdelete', 'Bd' },
   },
 
-  -- Terminal
+  -- Terminal/External Commands
   {
     'akinsho/nvim-toggleterm.lua',
     conf = 'user.plugin.toggleterm',
     cmd = 'ToggleTerm',
+  },
+  {
+    'stevearc/overseer.nvim',
+    conf = 'user.plugin.overseer',
+    cmd = {
+      'OverseerOpen',
+      'OverseerClose',
+      'OverseerToggle',
+      'OverseerSaveBundle',
+      'OverseerLoadBundle',
+      'OverseerDeleteBundle',
+      'OverseerRunCmd',
+      'OverseerRun',
+      'OverseerInfo',
+      'OverseerBuild',
+      'OverseerQuickAction',
+      'OverseerTaskAction',
+      'OverseerClearCache',
+    },
   },
 
   -- Telescope
