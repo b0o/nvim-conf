@@ -91,11 +91,6 @@ vim.o.showmatch = true
 vim.o.scrolloff = 5
 vim.o.smoothscroll = true -- scroll by screen line rather than by text line when wrap is set
 
-vim.cmd [[
-  set guicursor=n-v-c:block-Cursor
-  set guicursor+=n-v-c:blinkon0
-]]
-
 vim.opt.list = true
 vim.opt.listchars = {
   eol = '⌐',
