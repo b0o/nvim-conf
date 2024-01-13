@@ -45,6 +45,12 @@ local plugins = {
     conf = 'user.statusline',
     enabled = false,
   },
+  {
+    'nvim-lualine/lualine.nvim',
+    event = 'VeryLazy',
+    conf = 'user.plugin.lualine',
+    enabled = true,
+  },
   'kyazdani42/nvim-web-devicons',
   {
     'folke/which-key.nvim',

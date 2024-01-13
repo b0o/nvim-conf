@@ -84,7 +84,7 @@ vim.o.ruler = false
 vim.o.cmdheight = 0
 
 vim.o.laststatus = 3
-vim.opt.statusline = [[ %{toupper(mode())} %= %= %l:%c %p%% ]]
+vim.opt.statusline = ' '
 
 vim.o.showmatch = true
 
