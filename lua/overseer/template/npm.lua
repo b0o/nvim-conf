@@ -73,17 +73,13 @@ local function get_workspaces(package_mgr, package_json)
       focused_path = Path:new(vim.api.nvim_buf_get_name(0)),
     }
     if info then
-      return vim.tbl_map(
-        function(p)
-          return {
-            path = p.relative_path,
-            priority = p.focused and 0 or nil,
-          }
-        end,
-        vim.tbl_filter(function(p)
-          return not p.root
-        end, info.packages)
-      )
+      return vim.tbl_map(function(p)
+        return {
+          path = p.relative_path,
+          priority = p.focused and 0 or nil,
+          name = p.name,
+        }
+      end, info.packages)
     end
   end
   return vim.tbl_map(function(p)
@@ -131,9 +127,8 @@ return {
     end
 
     -- Load tasks from workspaces
-    for _, workspace_info in ipairs(get_workspaces(bin, data)) do
-      local workspace = workspace_info.path
-      local workspace_path = files.join(vim.fs.dirname(package), workspace)
+    for _, workspace in ipairs(get_workspaces(bin, data)) do
+      local workspace_path = files.join(vim.fs.dirname(package), workspace.path)
       local workspace_package_file = files.join(workspace_path, 'package.json')
       local workspace_data = files.load_json_file(workspace_package_file)
       if workspace_data and workspace_data.scripts then
@@ -147,12 +142,12 @@ return {
           if type(v) == 'string' then
             v = { args = { 'run', k } }
           end
-          local name = string.format('[%s] %s %s', workspace, bin, k)
+          local name = string.format('[%s] %s %s', workspace.name or workspace.path, bin, k)
           table.insert(
             ret,
             overseer.wrap_template(tmpl, {
               name = name,
-              priority = workspace_info.priority,
+              priority = workspace.priority,
             }, {
               name = name,
               args = v.args,
