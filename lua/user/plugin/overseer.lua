@@ -8,6 +8,8 @@ overseer.setup {
   },
   task_list = {
     direction = 'bottom',
+    max_width = { 180, 0.4 },
+    min_width = { 40, 0.1 },
     max_height = { 30, 0.3 },
     min_height = { 15, 0.2 },
     bindings = {
