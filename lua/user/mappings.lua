@@ -246,8 +246,8 @@ m.xnoremap([[<]], [[<gv]], 'De-Indent')
 m.nnoremap([[<M-.>]], [[m'Do<Esc>p`']], 'Break line at cursor')
 m.nnoremap([[<M-,>]], [[m'DO<Esc>p`']], 'Break line at cursor (reverse)')
 
-m.nnoremap([[<M-o>]], 'o<C-u>', m.silent, 'Begin a new line below the cursor and insert text (no autocomment)')
-m.nnoremap([[<M-O>]], 'O<C-u>', m.silent, 'Begin a new line above the cursor and insert text (no autocomment)')
+-- m.nnoremap([[<M-o>]], 'o<C-u>', m.silent, 'Begin a new line below the cursor and insert text (no autocomment)')
+-- m.nnoremap([[<M-O>]], 'O<C-u>', m.silent, 'Begin a new line above the cursor and insert text (no autocomment)')
 
 m.nnoremap([[Y]], [[y$]], 'Yank until end of line')
 
@@ -1614,7 +1614,16 @@ m.nnoremap('[t', iwrap(todo_comments.jump_prev), 'Todo Comments: Previous')
 m.nnoremap(']t', iwrap(todo_comments.jump_next), 'Todo Comments: Next')
 
 ---- stevearc/overseer.nvim
-m.nnoremap([[<leader>tt]], [[<cmd>OverseerToggle<Cr>]], 'Overseer: Toggle')
-m.nnoremap([[<leader>tr]], [[<cmd>OverseerRun<Cr>]], 'Overseer: Run')
+local overseer = fn.require_on_call_rec 'overseer'
+m.nmap([[<M-S-o>]], iwrap(overseer.toggle, { enter = false }), m.silent, 'Overseer: Toggle')
+
+m.nmap(
+  [[<M-o>]],
+  fn.filetype_command('OverseerList', iwrap(recent_wins.focus_most_recent), iwrap(overseer.open)),
+  m.silent,
+  'Trouble: Toggle Focus'
+)
+
+m.nnoremap([[<leader>or]], [[<cmd>OverseerRun<Cr>]], 'Overseer: Run')
 
 return M
