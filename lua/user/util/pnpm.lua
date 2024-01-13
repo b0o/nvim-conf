@@ -45,6 +45,7 @@ M.get_package_info = function(path, opts)
   opts = opts or {}
   opts.root = opts.root and Path:new(opts.root) or nil
   path = Path:new(path)
+  -- TODO: Cache this
   local package_json = (path / 'package.json'):read()
   local package_meta = vim.fn.json_decode(package_json)
   local root = opts.root and path:absolute() == opts.root:absolute()

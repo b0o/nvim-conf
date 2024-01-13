@@ -136,16 +136,25 @@ return {
       local workspace_package_file = files.join(workspace_path, 'package.json')
       local workspace_data = files.load_json_file(workspace_package_file)
       if workspace_data and workspace_data.scripts then
-        for k in pairs(workspace_data.scripts) do
+        for k, v in
+          pairs(vim.tbl_extend('force', {
+            -- base tasks for all workspaces
+            install = { args = { 'install' } },
+          }, workspace_data.scripts))
+        do
+          v = v or {}
+          if type(v) == 'string' then
+            v = { args = { 'run', v } }
+          end
           table.insert(
             ret,
             overseer.wrap_template(tmpl, {
               name = string.format('%s[%s] %s', bin, workspace, k),
               priority = workspace_info.priority,
             }, {
-              args = { 'run', k },
-              bin = bin,
-              cwd = workspace_path,
+              args = v.args,
+              bin = v.bin or bin,
+              cwd = v.cwd or workspace_path,
             })
           )
         end
