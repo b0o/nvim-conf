@@ -6,7 +6,12 @@ local Path = require 'plenary.path'
 
 local M = {}
 
-local cache = { workspaces = {} }
+local cache = {
+  workspaces = {},
+  package_meta = {},
+}
+
+local augroup = vim.api.nvim_create_augroup('pnpm', {})
 
 local function cwd()
   return Path:new(vim.loop.cwd())
@@ -45,9 +50,20 @@ M.get_package_info = function(path, opts)
   opts = opts or {}
   opts.root = opts.root and Path:new(opts.root) or nil
   path = Path:new(path)
-  -- TODO: Cache this
-  local package_json = (path / 'package.json'):read()
-  local package_meta = vim.fn.json_decode(package_json)
+  local package_meta = cache.package_meta[path:absolute()]
+  if not package_meta then
+    local package_json = path / 'package.json'
+    package_meta = vim.fn.json_decode(package_json:read())
+    cache.package_meta[path:absolute()] = package_meta
+    vim.api.nvim_create_autocmd('BufWritePost', {
+      pattern = package_json:absolute(),
+      group = augroup,
+      once = true,
+      callback = function()
+        cache.package_meta[path:absolute()] = nil
+      end,
+    })
+  end
   local root = opts.root and path:absolute() == opts.root:absolute()
   local current = path:absolute() == cwd():absolute()
   local focused = not root
@@ -66,6 +82,7 @@ end
 
 M.clear_cache = function()
   cache.workspaces = {}
+  cache.package_meta = {}
 end
 
 M.get_workspace_info = function(opts)
