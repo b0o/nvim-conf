@@ -97,13 +97,4 @@ function M.status_clients(status)
   end
 end
 
-local register = require('user.statusline.providers').register
-
-register('lsp_clients', M.status_clients())
-register('lsp_clients_running', M.status_clients 'running')
-register('lsp_clients_starting', M.status_clients 'starting')
-register('lsp_clients_exited', M.status_clients 'exited')
-register('lsp_clients_exited_ok', M.status_clients 'exited_ok')
-register('lsp_clients_exited_err', M.status_clients 'exited_err')
-
 return M

@@ -40,12 +40,6 @@ local plugins = {
 
   -- UI
   {
-    'Famiu/feline.nvim',
-    event = 'VeryLazy',
-    conf = 'user.statusline',
-    enabled = false,
-  },
-  {
     'nvim-lualine/lualine.nvim',
     event = 'VeryLazy',
     conf = 'user.plugin.lualine',
