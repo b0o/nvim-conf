@@ -3,8 +3,8 @@
 -- - Use user.util.pnpm to get workspace info
 -- - Give priority to focused workspace package scripts
 -- - Simplify get_candidate_package_files so the nearest package.json from the cwd is used
-local files = require 'overseer.files'
 local overseer = require 'overseer'
+local files = require 'overseer.files'
 local Path = require 'plenary.path'
 local pnpm = require 'user.util.pnpm'
 
@@ -22,18 +22,20 @@ local tmpl = {
     args = { optional = true, type = 'list', delimiter = ' ' },
     cwd = { optional = true },
     bin = { optional = true, type = 'string' },
+    name = { optional = true, type = 'string' },
   },
   builder = function(params)
     return {
       cmd = { params.bin },
       args = params.args,
       cwd = params.cwd,
+      name = params.name,
     }
   end,
 }
 
----@param opts overseer.SearchParams
-local function get_candidate_package_files(opts)
+---@param _opts overseer.SearchParams
+local function get_candidate_package_files(_opts)
   return vim.fs.find('package.json', {
     upward = true,
     type = 'file',
@@ -91,7 +93,6 @@ end
 
 return {
   cache_key = function(opts)
-    -- return get_package_file(opts)
     return opts.dir
   end,
   condition = {
@@ -146,12 +147,14 @@ return {
           if type(v) == 'string' then
             v = { args = { 'run', k } }
           end
+          local name = string.format('[%s] %s %s', workspace, bin, k)
           table.insert(
             ret,
             overseer.wrap_template(tmpl, {
-              name = string.format('%s[%s] %s', bin, workspace, k),
+              name = name,
               priority = workspace_info.priority,
             }, {
+              name = name,
               args = v.args,
               bin = v.bin or bin,
               cwd = v.cwd or workspace_path,
