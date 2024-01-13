@@ -1613,4 +1613,8 @@ local todo_comments = fn.require_on_call_rec 'todo-comments'
 m.nnoremap('[t', iwrap(todo_comments.jump_prev), 'Todo Comments: Previous')
 m.nnoremap(']t', iwrap(todo_comments.jump_next), 'Todo Comments: Next')
 
+---- stevearc/overseer.nvim
+m.nnoremap([[<leader>tt]], [[<cmd>OverseerToggle<Cr>]], 'Overseer: Toggle')
+m.nnoremap([[<leader>tr]], [[<cmd>OverseerRun<Cr>]], 'Overseer: Run')
+
 return M
