@@ -130,6 +130,11 @@ local plugins = {
     telescope_ext = 'aerial',
   },
   {
+    'stevearc/dressing.nvim',
+    opts = {},
+    event = 'VeryLazy',
+  },
+  {
     'MunifTanjim/nui.nvim',
     module = 'nui',
   },
