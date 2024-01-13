@@ -69,7 +69,7 @@ end
 
 M.get_workspace_info = function(opts)
   opts = opts or {}
-  opts.focused_path = opts.focused_path and Path:new(opts.focused_path) or nil
+  opts.focused_path = Path:new(opts.focused_path or vim.loop.cwd())
   if opts.refresh then
     M.clear_cache()
   end
