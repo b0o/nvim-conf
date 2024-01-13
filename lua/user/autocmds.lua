@@ -59,7 +59,6 @@ autocmd('TextYankPost', {
 })
 autocmd('TermOpen', { command = [[setlocal scrolloff=0]] })
 autocmd('BufEnter', { pattern = 'term://*', command = [[call user#fn#termEnter(1)]] })
-autocmd('TermClose', { pattern = 'term://*', command = [[call user#fn#closeBufWins(expand('<abuf>'))]] })
 
 ------ Filetypes
 -- vitest snapshots
