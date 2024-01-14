@@ -19,6 +19,7 @@ local function pnpm_workspace()
   end
   local workspace_info = require('user.util.pnpm').get_workspace_info {
     focused_path = focused_path,
+    only_cached = true,
   }
   if not workspace_info then
     return ''
