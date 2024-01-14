@@ -4,36 +4,12 @@ local b = { bg = lavi.bg_bright.hex, fg = lavi.bg.lighten(80).hex }
 local c = { bg = lavi.bg.hex, fg = lavi.bg.lighten(70).hex }
 
 local lavi_theme = {
-  normal = {
-    a = { bg = lavi.bg_bright.lighten(30).hex, fg = lavi.white_bright.hex, gui = 'bold' },
-    b = b,
-    c = c,
-  },
-  insert = {
-    a = { bg = lavi.violet.hex, fg = lavi.white_bright.hex, gui = 'bold' },
-    b = b,
-    c = c,
-  },
-  visual = {
-    a = { bg = lavi.pumpkin.hex, fg = lavi.white_bright.hex, gui = 'bold' },
-    b = b,
-    c = c,
-  },
-  replace = {
-    a = { bg = lavi.red_bright.hex, fg = lavi.white_bright.hex, gui = 'bold' },
-    b = b,
-    c = c,
-  },
-  command = {
-    a = { bg = lavi.blue.hex, fg = lavi.white_bright.hex, gui = 'bold' },
-    b = b,
-    c = c,
-  },
-  inactive = {
-    a = { bg = lavi.bg.hex, fg = lavi.white_bright.hex, gui = 'bold' },
-    b = b,
-    c = c,
-  },
+  normal = { a = { bg = lavi.bg_bright.lighten(30).hex, fg = lavi.white_bright.hex, gui = 'bold' }, b = b, c = c },
+  insert = { a = { bg = lavi.violet.hex, fg = lavi.white_bright.hex, gui = 'bold' }, b = b, c = c },
+  visual = { a = { bg = lavi.pumpkin.hex, fg = lavi.white_bright.hex, gui = 'bold' }, b = b, c = c },
+  replace = { a = { bg = lavi.red_bright.hex, fg = lavi.white_bright.hex, gui = 'bold' }, b = b, c = c },
+  command = { a = { bg = lavi.blue.hex, fg = lavi.white_bright.hex, gui = 'bold' }, b = b, c = c },
+  inactive = { a = { bg = lavi.bg.hex, fg = lavi.white_bright.hex, gui = 'bold' }, b = b, c = c },
 }
 
 local function pnpm_workspace()
