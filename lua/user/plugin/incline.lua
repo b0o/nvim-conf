@@ -7,6 +7,7 @@ local devicons = require 'nvim-web-devicons'
 local colors = require 'user.colors'
 local fn = require 'user.fn'
 local lsp_status = require 'user.statusline.lsp'
+local pnpm = require 'user.util.pnpm'
 
 local extra_colors = {
   theme_bg = '#222032',
@@ -36,6 +37,10 @@ local lsp_clients_running = status_lsp_client 'running'
 local lsp_clients_starting = status_lsp_client 'starting'
 local lsp_clients_exited_ok = status_lsp_client 'exited_ok'
 local lsp_clients_exited_err = status_lsp_client 'exited_err'
+
+local function relativize_path(path, base)
+  return string.sub(Path:new(path):absolute(), #Path:new(base):absolute() + 2)
+end
 
 --- Given a path, return a shortened version of it.
 --- @param path string an absolute or relative path
@@ -83,7 +88,7 @@ local function shorten_path(path, opts)
   local relative = opts.relative == nil or opts.relative
   local return_table = opts.return_table or false
   if relative then
-    path = vim.fn.fnamemodify(path, ':.')
+    path = relativize_path(path, vim.uv.cwd())
   end
   local components = vim.split(path, Path.path.sep)
   if #components == 1 then
@@ -157,6 +162,9 @@ local function git_status(props)
   if not proj then
     proj = nvim_tree_git.load_project_status(cwd)
   end
+  if not proj or not proj.files then
+    return
+  end
   local file_status = proj.files[bufname]
   if not file_status then
     return
@@ -170,6 +178,40 @@ local function git_status(props)
     table.insert(res, { icon.str, ' ', group = icon.hl[1] })
   end
   return res
+end
+
+---@type Map<string, boolean> @root path -> true|nil
+local scheduled_pnpm_callbacks = {}
+
+local function get_pnpm_workspace(bufname)
+  if bufname == '' then
+    return
+  end
+  local ws = pnpm.get_workspace_info {
+    focused_path = bufname,
+    only_cached = true,
+  }
+  if ws and ws.focused and ws.focused.name then
+    return ws.focused
+  end
+  -- ws == nil indicates that the root dir has not been cached yet
+  -- ws == false indicates that the root dir was not found
+  if ws == false then
+    -- if the root dir was not found, then the focused path is not in a workspace
+    return
+  end
+  -- if the root dir has not been cached yet, then the focused path may be in a workspace
+  -- schedule an async call to populate the cache so that the next render will pick it up
+  local root = pnpm.get_pnpm_root_path(Path:new(bufname))
+  if not root or scheduled_pnpm_callbacks[root:absolute()] then
+    return
+  end
+  scheduled_pnpm_callbacks[root:absolute()] = true
+  pnpm.get_workspace_package_paths(root, {
+    callback = function()
+      pnpm.get_workspace_info()
+    end,
+  })
 end
 
 incline.setup {
@@ -192,18 +234,31 @@ incline.setup {
     ---@diagnostic disable-next-line: redundant-parameter
     local filetype = a.nvim_buf_get_option(props.buf, 'filetype')
 
+    local pnpm_workspace = get_pnpm_workspace(bufname)
+
     local fname, icon, icon_bg
     if bufname == '' then
       fname = '[No name]'
     else
       icon, icon_bg = devicons.get_icon_color(bufname)
-      fname = shorten_path_styled(bufname, {
-        short_len = 1,
-        tail_count = 2,
-        head_max = 4,
-        head_style = { guifg = extra_colors.fg_nc },
-        tail_style = { guifg = extra_colors.fg },
-      })
+      if pnpm_workspace then
+        fname = shorten_path_styled(relativize_path(bufname, pnpm_workspace.path), {
+          relative = false,
+          short_len = 1,
+          tail_count = 2,
+          head_max = 3,
+          head_style = { guifg = extra_colors.fg_nc },
+          tail_style = { guifg = extra_colors.fg },
+        })
+      else
+        fname = shorten_path_styled(bufname, {
+          short_len = 1,
+          tail_count = 2,
+          head_max = 4,
+          head_style = { guifg = extra_colors.fg_nc },
+          tail_style = { guifg = extra_colors.fg },
+        })
+      end
     end
 
     if not icon or icon == '' then
@@ -248,6 +303,7 @@ incline.setup {
         { diag_disabled and ' 󱒼 ' or '', guifg = buf_focused and colors.deep_velvet or colors.deep_anise },
         { has_error and '  ' or ' ', guifg = colors.red },
         lsp,
+        { pnpm_workspace and { pnpm_workspace.name, ' ' } or nil },
         { fname, gui = modified and 'bold,italic' or nil },
         { modified and ' * ' or ' ', guifg = extra_colors.fg },
         git_status(props),
