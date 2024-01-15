@@ -55,21 +55,24 @@ M.get_workspace_package_paths = function(root_dir, opts)
     end
     return
   end
+  ---@type Path[]
+  local res = {}
   local job = Job:new {
     command = 'pnpm',
     args = { 'ls', '--recursive', '--depth', '-1', '--parseable' },
     cwd = root_dir:absolute(),
     on_stdout = function(_, data)
-      if not cache.workspaces[abs_root] then
-        cache.workspaces[abs_root] = {}
+      table.insert(res, Path:new(data))
+    end,
+    on_exit = function(_, code)
+      if code == 0 then
+        cache.workspaces[abs_root] = res
+      else
+        cache.workspaces[abs_root] = nil
+        vim.notify('pnpm ls exited with code ' .. code, vim.log.levels.ERROR)
       end
-      table.insert(cache.workspaces[abs_root], Path:new(data))
     end,
   }
-  -- BUG: There is a race condition here:
-  -- If an async job is started before the previous one has finished,
-  -- the cache will be populated with duplicate entries.
-  -- So far it is not a problem but it should be fixed.
   if cb then
     job:after(function()
       vim.schedule(function()
