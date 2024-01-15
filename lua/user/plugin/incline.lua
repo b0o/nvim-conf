@@ -12,6 +12,7 @@ local pnpm = require 'user.util.pnpm'
 local extra_colors = {
   theme_bg = '#222032',
   fg = '#FFFFFF',
+  fg_dim = '#ded4fd',
   fg_nc = '#A89CCF',
   bg = '#55456F',
   bg_nc = 'NONE',
@@ -303,8 +304,14 @@ incline.setup {
         { diag_disabled and ' 󱒼 ' or '', guifg = buf_focused and colors.deep_velvet or colors.deep_anise },
         { has_error and '  ' or ' ', guifg = colors.red },
         lsp,
-        { pnpm_workspace and { pnpm_workspace.name, ' ' } or nil },
-        { fname, gui = modified and 'bold,italic' or nil },
+        {
+          pnpm_workspace and {
+            pnpm_workspace.name,
+            ' ',
+            guifg = props.focused and extra_colors.fg_dim or extra_colors.fg_nc,
+          } or '',
+        },
+        { fname, guifg = props.focused and fg or extra_colors.fg_dim, gui = modified and 'bold,italic' or nil },
         { modified and ' * ' or ' ', guifg = extra_colors.fg },
         git_status(props),
         guibg = bg,
