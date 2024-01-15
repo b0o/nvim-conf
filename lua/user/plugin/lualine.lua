@@ -30,6 +30,7 @@ local function pnpm_workspace()
   if workspace_info.root then
     return workspace_info.root.name or ''
   end
+  return ''
 end
 
 require('lualine').setup {
