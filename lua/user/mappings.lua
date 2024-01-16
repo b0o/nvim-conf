@@ -895,16 +895,26 @@ m.group(m.silent, function()
   m.nnoremap(xk [[<C-S-f>]], iwrap(tc.builtin), 'Telescope: Builtins')
   m.nnoremap([[<C-f>b]], iwrap(tc.buffers), 'Telescope: Buffers')
   m.nnoremap({ [[<C-f>h]], [[<C-f><C-h>]] }, iwrap(tc.help_tags), 'Telescope: Help tags')
-  m.nnoremap({ [[<C-f>a]], [[<C-f><C-a>]] }, iwrap(tc.grep_string), 'Telescope: Grep for string')
-  m.nnoremap({ [[<C-f>p]], [[<C-f><C-p>]] }, iwrap(tc.live_grep_args), 'Telescope: Live grep')
+
+  m.nnoremap({ [[<C-f>a]], [[<C-f><C-a>]] }, iwrap(tc.live_grep_args), 'Telescope: Live grep')
+  m.nnoremap({ [[<C-f>p]], [[<C-f><C-p>]] }, function()
+    vim.notify 'DEPRECATED: Use <C-f>a instead'
+    tc.live_grep_args()
+  end, 'Telescope: Live grep (DEPRECATED)')
+
   m.nnoremap({ [[<C-f>o]], [[<C-f><C-o>]] }, iwrap(tc.oldfiles), 'Telescope: Old files')
   m.nnoremap({ [[<C-f>f]], [[<C-f><C-f>]] }, iwrap(tc.smart_files), 'Telescope: Files (Smart)')
   m.nnoremap({ [[<C-f>F]] }, iwrap(tc.any_files), 'Telescope: Any Files')
   m.nnoremap({ [[<C-f>d]], [[<C-f><C-d>]] }, iwrap(tc.dir_files), 'Telescope: Files (Dir)')
   m.nnoremap({ [[<C-f>w]], [[<C-f><C-w>]] }, iwrap(tc.windows, {}), 'Telescope: Windows')
   m.nnoremap({ [[<C-f>i]], [[<C-f><C-i>]] }, '<Cmd>Easypick headers<Cr>', 'Telescope: Includes (headers)')
+
   m.nnoremap({ [[<C-f>m]], [[<C-f><C-m>]] }, iwrap(tc.pnpm.workspace_package_files), 'Telescope: Pnpm package files')
+  m.nnoremap({ [[<C-f>nf]], [[<C-f>nn]] }, iwrap(tc.pnpm.workspace_package_files), 'Telescope: Pnpm package files')
   m.nnoremap([[<C-f>M]], iwrap(tc.pnpm.workspace_packages), 'Telescope: Pnpm package')
+  m.nnoremap([[<C-f>np]], iwrap(tc.pnpm.workspace_packages), 'Telescope: Pnpm package')
+  m.nnoremap({ [[<C-f>na]] }, iwrap(tc.pnpm.workspace_package_grep), 'Telescope: Pnpm package files grep')
+
   m.nnoremap({ [[<C-f>t]], [[<C-f><C-t>]] }, iwrap(tc['todo-comments']), 'Telescope: Todo Comments')
 
   m.nnoremap({ [[<C-M-f>]], [[<C-f>r]], [[<C-f><C-r>]] }, iwrap(tc.resume), 'Telescope: Resume last picker')
