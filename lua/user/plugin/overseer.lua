@@ -15,6 +15,8 @@ overseer.setup {
     bindings = {
       ['<C-s>'] = false,
       ['<C-x>'] = 'OpenSplit',
+      ['<C-r>'] = '<CMD>OverseerQuickAction restart<CR>',
+      ['<C-d>'] = '<CMD>OverseerQuickAction dispose<CR>',
     },
   },
 }
