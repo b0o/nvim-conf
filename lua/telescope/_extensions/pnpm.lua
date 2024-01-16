@@ -16,6 +16,12 @@ local padRight = function(s, len)
   return s .. string.rep(' ', len - #s)
 end
 
+---@class WorkspacePackageOpts
+---@field focused_path? string|Path @the path to use as the focused package
+---@field refresh? boolean @whether to refresh the pnpm workspace cache
+---@field grep? boolean @whether to use grep instead of find
+
+---@param opts WorkspacePackageOpts
 function M.workspace_packages(opts)
   opts = opts or {}
   local info = require('user.util.pnpm').get_workspace_info {
@@ -84,19 +90,30 @@ function M.workspace_packages(opts)
         local entry = action_state.get_selected_entry().value
         ta.close(prompt_bufnr)
         vim.schedule(function()
-          M.workspace_package_files {
+          M.workspace_package_files(vim.tbl_extend('force', opts or {}, {
             focused_path = entry.path,
-          }
+          }))
         end)
       end)
       -- reload pnpm workspace info
       map({ 'i', 'n' }, '<C-r>', function()
         ta.close(prompt_bufnr)
         vim.schedule(function()
-          M.workspace_packages {
+          M.workspace_packages(vim.tbl_extend('force', opts or {}, {
             focused_path = info.focused.path,
             refresh = true,
-          }
+          }))
+        end)
+      end)
+      -- grep in package
+      map({ 'i', 'n' }, '<M-a>', function()
+        local entry = action_state.get_selected_entry().value
+        ta.close(prompt_bufnr)
+        vim.schedule(function()
+          M.workspace_package_files(vim.tbl_extend('force', opts or {}, {
+            focused_path = entry.path,
+            grep = true,
+          }))
         end)
       end)
       -- cd to package
@@ -110,6 +127,7 @@ function M.workspace_packages(opts)
   }):find()
 end
 
+---@param opts WorkspacePackageOpts
 function M.workspace_package_files(opts)
   opts = opts or {}
   local info = require('user.util.pnpm').get_workspace_info {
@@ -120,27 +138,39 @@ function M.workspace_package_files(opts)
     vim.notify('No PNPM workspace detected', vim.log.levels.WARN)
     return
   end
-  return tb.find_files(vim.tbl_extend('force', opts or {}, {
-    prompt_title = 'Pnpm Workspace Package ' .. (info.focused.name or ('/' .. info.focused.relative_path)),
+  local picker = opts.grep and tb.live_grep or tb.find_files
+  local title = 'Pnpm WS Package' .. (opts.grep and ' Grep' or ' Files')
+  return picker(vim.tbl_extend('force', opts or {}, {
+    prompt_title = title .. ' ' .. (info.focused.name or ('/' .. info.focused.relative_path)),
     cwd = info.focused.path:absolute(),
     attach_mappings = function(_, map)
       -- select a different package
       map({ 'i', 'n' }, '<C-o>', function(prompt_bufnr)
         ta.close(prompt_bufnr)
         vim.schedule(function()
-          M.workspace_packages {
+          M.workspace_packages(vim.tbl_extend('force', opts or {}, {
             focused_path = info.focused.path,
-          }
+          }))
         end)
       end)
       -- reload pnpm workspace info
       map({ 'i', 'n' }, '<C-r>', function(prompt_bufnr)
         ta.close(prompt_bufnr)
         vim.schedule(function()
-          M.workspace_package_files {
+          M.workspace_package_files(vim.tbl_extend('force', opts or {}, {
             focused_path = info.focused.path,
             refresh = true,
-          }
+          }))
+        end)
+      end)
+      -- toggle grep
+      map({ 'i', 'n' }, '<M-a>', function(prompt_bufnr)
+        ta.close(prompt_bufnr)
+        vim.schedule(function()
+          M.workspace_package_files(vim.tbl_extend('force', opts or {}, {
+            focused_path = info.focused.path,
+            grep = not opts.grep,
+          }))
         end)
       end)
       return true
@@ -148,9 +178,17 @@ function M.workspace_package_files(opts)
   }))
 end
 
+---@param opts WorkspacePackageOpts
+function M.workspace_package_grep(opts)
+  opts = opts or {}
+  opts.grep = true
+  return M.workspace_package_files(opts)
+end
+
 return t.register_extension {
   exports = {
     workspace_packages = M.workspace_packages,
     workspace_package_files = M.workspace_package_files,
+    workspace_package_grep = M.workspace_package_grep,
   },
 }
