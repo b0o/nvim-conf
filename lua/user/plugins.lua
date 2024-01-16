@@ -43,7 +43,6 @@ local plugins = {
     'nvim-lualine/lualine.nvim',
     event = 'VeryLazy',
     conf = 'user.plugin.lualine',
-    enabled = true,
   },
   'kyazdani42/nvim-web-devicons',
   {
@@ -367,7 +366,7 @@ local plugins = {
   {
     'zbirenbaum/copilot.lua',
     conf = 'user.plugin.copilot',
-    event = 'InsertEnter',
+    event = 'VeryLazy',
   },
   {
     'dpayne/CodeGPT.nvim',
@@ -530,7 +529,7 @@ local plugins = {
   {
     'hrsh7th/nvim-cmp',
     conf = 'user.plugin.nvim-cmp',
-    event = { 'InsertEnter', 'CmdlineEnter' },
+    event = { 'VeryLazy' },
     module = 'cmp',
     dependencies = {
       'hrsh7th/cmp-buffer',
