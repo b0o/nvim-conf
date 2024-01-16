@@ -25,7 +25,11 @@ local function pnpm_workspace()
     return ''
   end
   if workspace_info.focused then
-    return workspace_info.focused.name or workspace_info.focused.relative_path or ''
+    local display = workspace_info.focused.name or workspace_info.focused.relative_path
+    if display then
+      return '󰏗 ' .. display
+    end
+    return ''
   end
   if workspace_info.root then
     return workspace_info.root.name or ''
