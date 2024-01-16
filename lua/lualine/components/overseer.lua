@@ -22,9 +22,9 @@ function M:init(options)
     self.options.colored = true
   end
   self.symbols = {
-    ['FAILURE'] = '󰅚 ',
-    ['CANCELED'] = ' ',
-    ['SUCCESS'] = '󰄴 ',
+    ['FAILURE'] = '󰅚',
+    ['CANCELED'] = '',
+    ['SUCCESS'] = '󰄴',
     ['RUNNING'] = '󰑮',
   }
 end
@@ -56,9 +56,9 @@ function M:update_status()
     if self.symbols[status] and status_tasks then
       if self.options.colored then
         local hl_start = self:format_hl(self.highlight_groups[status])
-        table.insert(pieces, string.format('%s%s%s', hl_start, self.symbols[status], #status_tasks))
+        table.insert(pieces, string.format(' %s%s %s', hl_start, self.symbols[status], #status_tasks))
       else
-        table.insert(pieces, string.format('%s %s', self.symbols[status], #status_tasks))
+        table.insert(pieces, string.format(' %s %s', self.symbols[status], #status_tasks))
       end
     end
   end
