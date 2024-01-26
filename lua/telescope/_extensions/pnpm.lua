@@ -21,11 +21,31 @@ end
 ---@field refresh? boolean @whether to refresh the pnpm workspace cache
 ---@field grep? boolean @whether to use grep instead of find
 
+local function get_focused_path(opts)
+  if opts.focused_path then
+    return Path:new(opts.focused_path)
+  end
+  local bufnr = vim.api.nvim_get_current_buf()
+  local bufname = vim.api.nvim_buf_get_name(bufnr)
+  if bufname ~= '' then
+    return Path:new(bufname)
+  end
+  local last_focused_win = require('user.util.recent-wins').get_most_recent_smart()
+  if last_focused_win then
+    local last_focused_buf = vim.api.nvim_win_get_buf(last_focused_win)
+    local last_focused_bufname = vim.api.nvim_buf_get_name(last_focused_buf)
+    return Path:new(last_focused_bufname)
+  end
+  local cwd = vim.uv.cwd()
+  assert(cwd ~= nil and cwd ~= '', 'Could not determine focused path')
+  return Path:new(cwd)
+end
+
 ---@param opts WorkspacePackageOpts
 function M.workspace_packages(opts)
   opts = opts or {}
   local info = require('user.util.pnpm').get_workspace_info {
-    focused_path = Path:new(opts.focused_path or vim.api.nvim_buf_get_name(0)),
+    focused_path = get_focused_path(opts),
     refresh = opts.refresh,
   }
   if not info then
@@ -131,7 +151,7 @@ end
 function M.workspace_package_files(opts)
   opts = opts or {}
   local info = require('user.util.pnpm').get_workspace_info {
-    focused_path = Path:new(opts.focused_path or vim.api.nvim_buf_get_name(0)),
+    focused_path = get_focused_path(opts),
     refresh = opts.refresh,
   }
   if not info then
