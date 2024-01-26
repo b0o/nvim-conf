@@ -12,7 +12,7 @@ local opts = {
   },
   dev = {
     path = vim.env.GIT_PROJECTS_DIR .. '/nvim',
-    fallback = false,
+    fallback = true,
   },
 }
 
@@ -73,8 +73,8 @@ local plugins = {
     conf = 'user.plugin.ibl',
   },
   {
-    name = 'incline.nvim',
-    dir = vim.env.HOME .. '/proj/incline.nvim/worktree/main',
+    'b0o/incline.nvim',
+    dev = true,
     conf = 'user.plugin.incline',
     event = 'VeryLazy',
   },
