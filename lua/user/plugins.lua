@@ -399,6 +399,7 @@ local plugins = {
       'Wansmer/treesj',
       'windwp/nvim-ts-autotag',
     },
+    lazy = false,
   },
   {
     'nvim-treesitter/playground',
