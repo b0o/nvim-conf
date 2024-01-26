@@ -148,6 +148,7 @@ local function get_package_meta(path, opts)
     once = true,
     callback = function()
       cache.package_meta[abs_path] = nil
+      get_package_meta(path) -- replace with cached version
     end,
   })
   return package_meta
