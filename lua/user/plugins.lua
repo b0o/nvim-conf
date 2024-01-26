@@ -327,10 +327,6 @@ local plugins = {
     cmd = { 'AddTabularPattern', 'AddTabularPipeline', 'Tabularize', 'GTabularize' },
   },
   {
-    'tpope/vim-abolish',
-    cmd = { 'Subvert', 'Abolish' },
-  },
-  {
     'ThePrimeagen/refactoring.nvim',
     conf = 'user.plugin.refactoring',
   },
