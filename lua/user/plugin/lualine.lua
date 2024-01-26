@@ -76,16 +76,4 @@ require('lualine').setup {
     lualine_y = { 'overseer' },
     lualine_z = { 'location' },
   },
-  extensions = {
-    'aerial',
-    'lazy',
-    'man',
-    'neo-tree',
-    'nvim-tree',
-    'oil',
-    'overseer',
-    'quickfix',
-    'toggleterm',
-    'trouble',
-  },
 }
