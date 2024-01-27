@@ -701,7 +701,7 @@ M.on_first_lsp_attach = function()
   local function trouble_get_win()
     for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
       local bufnr = vim.api.nvim_win_get_buf(winid)
-      local ft = vim.api.nvim_buf_get_option(bufnr, 'filetype')
+      local ft = vim.bo[bufnr].filetype
       if ft == 'Trouble' then
         return winid
       end
@@ -939,6 +939,7 @@ local git_cli = fn.require_on_call_rec 'neogit.lib.git.cli'
 
 local neogit_action = function(popup, action, args)
   return function()
+    ---@diagnostic disable-next-line: missing-parameter
     require('plenary.async').run(function()
       require('neogit.popups.' .. popup .. '.actions')[action] {
         state = { env = {} },
@@ -954,6 +955,7 @@ local async_action = function(cmd, ...)
   local arg0 = ...
   local args = { select(2, ...) }
   return function()
+    ---@diagnostic disable-next-line: missing-parameter
     require('plenary.async').run(function()
       if type(arg0) == 'function' then
         cmd(arg0(unpack(args)))
@@ -1212,7 +1214,7 @@ local toggle_tree = function()
   if vim.g.use_neotree then
     if user_neotree.is_visible() then
       open_nvimtree = true
-      if vim.api.nvim_buf_get_option(0, 'filetype') == 'neo-tree' then
+      if vim.bo.filetype == 'neo-tree' then
         tree_foc = true
       end
       vim.cmd [[Neotree close]]
@@ -1220,7 +1222,7 @@ local toggle_tree = function()
   else
     if package.loaded['nvim-tree'] and require('nvim-tree.view').is_visible() then
       open_neotree = true
-      if vim.api.nvim_buf_get_option(0, 'filetype') == 'NvimTree' then
+      if vim.bo.filetype == 'NvimTree' then
         tree_foc = true
       end
       require('nvim-tree.view').close()
@@ -1552,8 +1554,7 @@ m.nnoremap([[<M-n>]], function()
     vim.cmd 'wincmd p'
   else
     for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-      ---@diagnostic disable-next-line: redundant-parameter
-      if vim.api.nvim_buf_get_option(vim.api.nvim_win_get_buf(win), 'filetype') == 'neotest-summary' then
+      if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == 'neotest-summary' then
         vim.api.nvim_set_current_win(win)
         return
       end
@@ -1584,6 +1585,10 @@ m.nnoremap([[<leader>ll]], '<Cmd>Lazy<cr>', 'Lazy')
 
 ---- folke/noice.nvim
 m.nnoremap([[<leader>L]], '<Cmd>NoiceHistory<cr>', 'Noice: History log')
+
+---- b0o/scratch.nvim
+local scratch = fn.require_on_call_rec 'user.util.scratch'
+m.nnoremap([[<C-m>]], iwrap(scratch.toggle), 'Scratch: Toggle')
 
 ---- folke/flash.nvim
 vim.keymap.set({ 'n', 'x', 'o' }, '<M-s>', function()
