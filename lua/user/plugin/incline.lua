@@ -5,7 +5,7 @@ local Path = require 'plenary.path'
 local devicons = require 'nvim-web-devicons'
 
 local colors = require 'user.colors'
-local fn = require 'user.fn'
+local helpers = require 'incline.helpers'
 local lsp_status = require 'user.statusline.lsp'
 local pnpm = require 'user.util.pnpm'
 
@@ -257,7 +257,10 @@ incline.setup {
 
     icon = icon or ''
     icon_bg = props.focused and (icon_bg or extra_colors.fg) or extra_colors.fg_nc
-    local icon_fg = fn.contrast_color(icon_bg)
+    local icon_fg = helpers.contrast_color(icon_bg, {
+      dark = colors.bg_dark,
+      light = colors.fg,
+    })
 
     local extra = {}
 
