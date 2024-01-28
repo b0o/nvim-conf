@@ -205,14 +205,12 @@ incline.setup {
 
     local buf_focused = props.buf == a.nvim_get_current_buf()
 
-    ---@diagnostic disable-next-line: redundant-parameter
-    local modified = a.nvim_buf_get_option(props.buf, 'modified')
+    local modified = vim.bo[props.buf].modified
 
     local fg = props.focused and extra_colors.fg or extra_colors.fg_nc
     local bg = buf_focused and extra_colors.bg or extra_colors.bg_nc
 
-    ---@diagnostic disable-next-line: redundant-parameter
-    local filetype = a.nvim_buf_get_option(props.buf, 'filetype')
+    local filetype = vim.bo[props.buf].filetype
 
     local pnpm_workspace = get_pnpm_workspace(bufname)
 
