@@ -156,10 +156,10 @@ local function git_status(props)
     return
   end
   local res = {}
-  if #buf_cache.staged_diffs > 0 then
+  if buf_cache.staged_diffs and #buf_cache.staged_diffs > 0 then
     table.insert(res, { '+ ', group = 'GitSignsAdd' })
   end
-  if #buf_cache.hunks > 0 then
+  if buf_cache.hunks and #buf_cache.hunks > 0 then
     table.insert(res, { 'ϟ ', group = 'GitSignsChange' })
   end
   return res
