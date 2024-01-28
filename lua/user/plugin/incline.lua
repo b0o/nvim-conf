@@ -147,36 +147,20 @@ local function shorten_path_styled(path, opts)
 end
 
 local function git_status(props)
-  if not package.loaded['nvim-tree'] then
+  if not package.loaded['gitsigns'] then
     return
   end
-  local bufname = a.nvim_buf_get_name(props.buf)
-  if bufname == '' then
-    return
-  end
-  local nvim_tree_git = require 'nvim-tree.git'
-  if not nvim_tree_git then
-    return
-  end
-  local cwd = vim.fn.getcwd()
-  local proj = nvim_tree_git.get_project(cwd)
-  if not proj then
-    proj = nvim_tree_git.load_project_status(cwd)
-  end
-  if not proj or not proj.files then
-    return
-  end
-  local file_status = proj.files[bufname]
-  if not file_status then
-    return
-  end
-  local icons = require('nvim-tree.renderer.components.git').git_icons[file_status]
-  if not icons then
+  local gitsigns_cache = require('gitsigns.cache').cache
+  local buf_cache = gitsigns_cache[props.buf]
+  if not buf_cache then
     return
   end
   local res = {}
-  for _, icon in ipairs(icons) do
-    table.insert(res, { icon.str, ' ', group = icon.hl[1] })
+  if #buf_cache.staged_diffs > 0 then
+    table.insert(res, { '+ ', group = 'GitSignsAdd' })
+  end
+  if #buf_cache.hunks > 0 then
+    table.insert(res, { 'ϟ ', group = 'GitSignsChange' })
   end
   return res
 end
