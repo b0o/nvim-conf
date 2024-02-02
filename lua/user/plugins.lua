@@ -471,7 +471,12 @@ local plugins = {
   },
   {
     'folke/trouble.nvim',
-    conf = 'user.plugin.trouble',
+    opts = {
+      auto_open = false,
+      auto_close = false,
+      auto_preview = false,
+      use_diagnostic_signs = true,
+    },
     cmd = { 'Trouble', 'TroubleClose', 'TroubleRefresh', 'TroubleToggle' },
   },
 
