@@ -52,8 +52,6 @@ require('lualine').setup {
     globalstatus = true,
     refresh = {
       statusline = 1000,
-      tabline = 1000,
-      winbar = 1000,
     },
   },
   sections = {
@@ -72,7 +70,11 @@ require('lualine').setup {
     lualine_c = {
       { 'filename', path = 1, symbols = { modified = '*' } },
     },
-    lualine_x = { 'filetype', 'progress' },
+    lualine_x = {
+      '%S', -- showcmd, requires showcmdloc=statusline
+      'filetype',
+      'progress',
+    },
     lualine_y = { 'overseer' },
     lualine_z = { 'location' },
   },

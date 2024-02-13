@@ -80,6 +80,7 @@ vim.o.cursorline = true
 
 vim.o.showmode = false
 vim.o.showcmd = true
+vim.o.showcmdloc = 'statusline'
 vim.o.ruler = false
 vim.o.cmdheight = 0
 
