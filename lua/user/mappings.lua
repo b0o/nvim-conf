@@ -42,6 +42,7 @@ M.xk = fn.utf8keys {
   [ [[<C-\>]] ] = 0x00f0,
   [ [[<C-S-\>]] ] = 0x00f1,
   [ [[<M-S-\>]] ] = 0x00f2,
+  [ [[<C-M-S-\>]] ] = 0x00ff,
   [ [[<C-`>]] ] = 0x00f3,
   [ [[<C-S-w>]] ] = 0x00f4,
   [ [[<C-S-f>]] ] = 0x00f5,
@@ -396,7 +397,7 @@ m.inoremap([[<M-.>]], match_indent(1), 'Match indent of next line')
 -- - Close floating windows
 m.nnoremap([[<Esc>]], function()
   vim.cmd 'nohlsearch'
-  fn.close_float_wins { '', 'noice', 'notify', 'markdown' }
+  fn.close_float_wins { '', 'noice', 'notify', 'markdown', 'aerial' }
   vim.cmd "echo ''"
 end, m.silent, 'Clear UI')
 
@@ -1334,6 +1335,18 @@ m.nmap(
   fn.filetype_command('aerial', iwrap(recent_wins.focus_most_recent), iwrap(aerial_open, true)),
   m.silent,
   'Aerial: Toggle Focus'
+)
+
+m.nmap(
+  xk [[<C-M-S-\>]],
+  fn.filetype_command('aerial', function()
+    vim.cmd.AerialClose()
+  end, function()
+    vim.cmd.AerialOpen 'float'
+    -- NOTE: Workaround for https://github.com/stevearc/aerial.nvim/issues/331
+    vim.cmd.doautocmd 'BufWinEnter'
+  end),
+  'Aerial: Open Float'
 )
 
 m.group(m.silent, { ft = 'aerial' }, function()

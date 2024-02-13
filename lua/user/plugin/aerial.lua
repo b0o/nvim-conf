@@ -1,8 +1,4 @@
 ---- stevearc/aerial.nvim
-local fn = require 'user.fn'
-
-local update_delay = 500
-
 require('aerial').setup {
   backends = { 'lsp', 'treesitter', 'man', 'markdown' },
   attach_mode = 'global',
@@ -29,17 +25,12 @@ require('aerial').setup {
   lsp = {
     update_when_errors = true,
     diagnostics_trigger_update = true,
-    update_delay = update_delay,
+    update_delay = 500,
   },
   treesitter = {
-    update_delay = update_delay,
+    update_delay = 500,
   },
   markdown = {
-    update_delay = update_delay,
+    update_delay = 500,
   },
 }
-
-fn.tmpl_hi [[
-  hi AerialLine    guibg=${lavender}
-  hi AerialLineNC  guibg=${deep_anise}
-]]
