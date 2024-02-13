@@ -492,7 +492,7 @@ local function cursor_lock(lock)
     local augid = vim.api.nvim_create_augroup('user_cursor_lock_' .. win, { clear = true })
     if not lock or vim.w.cursor_lock == lock then
       vim.w.cursor_lock = nil
-      fn.notify 'Cursor lock disabled'
+      vim.notify 'Cursor lock disabled'
       return
     end
     local cb = function()
@@ -508,7 +508,7 @@ local function cursor_lock(lock)
       callback = cb,
     })
     cb()
-    fn.notify 'Cursor lock enabled'
+    vim.notify 'Cursor lock enabled'
   end
 end
 
