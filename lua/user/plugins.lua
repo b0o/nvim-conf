@@ -482,7 +482,7 @@ local plugins = {
       {
         'marilari88/twoslash-queries.nvim',
         dev = true,
-        opts = { highlight = 'Type', multi_line = true },
+        opts = { multi_line = true },
       },
     },
   },
