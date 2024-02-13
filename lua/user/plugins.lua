@@ -401,10 +401,6 @@ local plugins = {
     },
     lazy = false,
   },
-  {
-    'nvim-treesitter/playground',
-    cmd = 'TSPlaygroundToggle',
-  },
 
   -- LSP
   {
