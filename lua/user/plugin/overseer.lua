@@ -10,7 +10,7 @@ overseer.setup {
     direction = 'bottom',
     max_width = { 180, 0.4 },
     min_width = { 40, 0.1 },
-    max_height = { 30, 0.3 },
+    max_height = { 40, 0.5 },
     min_height = { 15, 0.2 },
     bindings = {
       ['<C-s>'] = false,
