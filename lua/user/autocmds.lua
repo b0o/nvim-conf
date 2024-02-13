@@ -7,8 +7,22 @@ local autocmd = function(event, opts)
 end
 
 -- Set local highlight overrides on non-current windows
-autocmd({ 'WinNew', 'WinLeave' }, { command = [[setlocal winhl=CursorLine:CursorLineNC,CursorLineNr:CursorLineNrNC]] })
-autocmd('WinEnter', { command = [[setlocal winhl=]] })
+autocmd({ 'WinNew', 'WinLeave' }, {
+  callback = function(event)
+    if vim.bo[event.buf].filetype == 'NvimTree' then
+      return
+    end
+    vim.cmd [[setlocal winhl=CursorLine:CursorLineNC,CursorLineNr:CursorLineNrNC]]
+  end,
+})
+autocmd('WinEnter', {
+  callback = function(event)
+    if vim.bo[event.buf].filetype == 'NvimTree' then
+      return
+    end
+    vim.cmd [[setlocal winhl=]]
+  end,
+})
 
 local recent_wins = fn.require_on_call_rec 'user.util.recent-wins'
 local rwins_cursormoved_autocmd, rwins_modechanged_autocmd

@@ -1193,7 +1193,7 @@ local setup_nvimtree = function()
     )
 
     m.nnoremap([[i]], nvim_tree_open_oil(false), 'Nvim-Tree: Open Oil')
-    m.nnoremap([[I]], nvim_tree_open_oil(true), 'Nvim-Tree: Open Oil (enter dir)')
+    m.nnoremap([[<M-i>]], nvim_tree_open_oil(true), 'Nvim-Tree: Open Oil (enter dir)')
   end)
 end
 
