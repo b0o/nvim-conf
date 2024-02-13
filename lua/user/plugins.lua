@@ -360,7 +360,22 @@ local plugins = {
   {
     'folke/todo-comments.nvim',
     event = 'BufRead',
-    config = true,
+    opts = {
+      keywords = {
+        TEST = { icon = ' ', color = 'test', alt = { 'TESTING', 'PASSED', 'FAILED' } },
+        WARN = { icon = ' ', color = 'warning', alt = { 'WARNING' } },
+        XXX = { icon = ' ', color = 'error' },
+      },
+      highlight = {
+        pattern = { [[.*<(KEYWORDS)\s*(\(.+\))?\s*:]] },
+        -- TODO: use 'wide' when https://github.com/folke/todo-comments.nvim/issues/10 is fixed
+        keyword = 'fg',
+        after = 'fg',
+      },
+      search = {
+        pattern = [[\b(KEYWORDS)(\(.*\))?:]], -- ripgrep regex
+      },
+    },
     telescope_ext = 'todo-comments',
   },
 
