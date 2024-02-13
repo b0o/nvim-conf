@@ -358,14 +358,6 @@ local plugins = {
     },
   },
   {
-    'windwp/nvim-autopairs',
-    event = 'InsertEnter',
-    opts = {
-      fast_wrap = {},
-      map_bs = false, -- To keep <Bs> mapping intact
-    },
-  },
-  {
     'folke/todo-comments.nvim',
     event = 'BufRead',
     config = true,
