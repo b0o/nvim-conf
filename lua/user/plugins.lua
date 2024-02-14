@@ -626,6 +626,16 @@ local plugins = {
     },
   },
 
+  -- Misc
+  {
+    '2kabhishek/nerdy.nvim',
+    dependencies = {
+      'stevearc/dressing.nvim',
+      'nvim-telescope/telescope.nvim',
+    },
+    cmd = 'Nerdy',
+  },
+
   --- Vim Plugin Development
   { 'bfredl/nvim-luadev', ft = 'lua' },
 }
