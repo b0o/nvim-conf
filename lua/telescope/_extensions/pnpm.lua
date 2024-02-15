@@ -12,7 +12,7 @@ local action_state = require 'telescope.actions.state'
 
 local M = {}
 
-local padRight = function(s, len)
+local right_pad = function(s, len)
   return s .. string.rep(' ', len - #s)
 end
 
@@ -76,7 +76,7 @@ function M.workspace_packages(opts)
           display = table.concat({
             kind_icon,
             status_icon,
-            '/' .. padRight(entry.relative_path, max_path_len),
+            '/' .. right_pad(entry.relative_path, max_path_len),
             entry.name or vim.fs.basename(entry.relative_path),
           }, ' '),
           ordinal = (entry.name or '') .. ' ' .. entry.relative_path,
