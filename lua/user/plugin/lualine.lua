@@ -49,7 +49,6 @@ require('lualine').setup {
     },
     ignore_focus = {},
     always_divide_middle = true,
-    globalstatus = true,
     refresh = {
       statusline = 1000,
     },
@@ -79,3 +78,24 @@ require('lualine').setup {
     lualine_z = { 'location' },
   },
 }
+
+local Debounce = require 'user.util.debounce'
+local lualine_nvim_opts = require 'lualine.utils.nvim_opts'
+local base_set = lualine_nvim_opts.set
+
+local tpipeline_update = Debounce(function()
+  vim.cmd 'silent! call tpipeline#update()'
+end, {
+  threshold = 20,
+})
+
+lualine_nvim_opts.set = function(name, val, scope)
+  if vim.env.TMUX ~= nil and name == 'statusline' then
+    if scope and scope.window == vim.api.nvim_get_current_win() then
+      vim.g.tpipeline_statusline = val
+      tpipeline_update()
+    end
+    return
+  end
+  return base_set(name, val, scope)
+end
