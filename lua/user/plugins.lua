@@ -55,7 +55,19 @@ local plugins = {
       vim.cmd.hi { 'link', 'StatusLine', 'WinSeparator' }
       vim.g.tpipeline_statusline = ''
       vim.o.laststatus = 0
+      vim.defer_fn(function()
+        vim.o.laststatus = 0
+      end, 0)
       vim.o.fillchars = 'stl:─,stlnc:─'
+      vim.api.nvim_create_autocmd('OptionSet', {
+        pattern = 'laststatus',
+        callback = function()
+          if vim.o.laststatus ~= 0 then
+            vim.notify 'Auto-setting laststatus to 0'
+            vim.o.laststatus = 0
+          end
+        end,
+      })
     end,
     cond = function()
       return vim.env.TMUX ~= nil
