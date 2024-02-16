@@ -16,6 +16,7 @@ end
 
 -- local fives = hw { guifg = colors.bg }
 local inactive = hw { guifg = colors.inactive_bg }
+local invis = hw { guifg = '#27223f' }
 
 local get_num = function(lnum, relnum, virtnum, statusline_winid)
   local num = lnum
@@ -23,8 +24,7 @@ local get_num = function(lnum, relnum, virtnum, statusline_winid)
     return ''
   end
 
-  ---@diagnostic disable-next-line: redundant-parameter
-  if not vim.api.nvim_win_get_option(statusline_winid, 'number') then
+  if not vim.wo[statusline_winid].number then
     return ''
   end
 
@@ -38,8 +38,7 @@ local get_num = function(lnum, relnum, virtnum, statusline_winid)
   local mode = vim.api.nvim_get_mode().mode:lower()
   if relnum ~= 0 then
     if mode:find 'n' or mode:find 'v' then
-      ---@diagnostic disable-next-line: redundant-parameter
-      if vim.api.nvim_win_get_option(statusline_winid, 'relativenumber') then
+      if vim.wo[statusline_winid].relativenumber then
         num = relnum
       end
       -- num = relnum % 5 == 0 and fives(num) or inactive(num)
@@ -53,7 +52,7 @@ local get_num = function(lnum, relnum, virtnum, statusline_winid)
 end
 
 M.render = function()
-  return [[%s%=]] .. get_num(vim.v.lnum, vim.v.relnum, vim.v.virtnum, vim.g.statusline_winid) .. [[%= ]]
+  return [[%s]] .. invis '%=' .. get_num(vim.v.lnum, vim.v.relnum, vim.v.virtnum, vim.g.statusline_winid) .. invis '%= '
 end
 
 return M
