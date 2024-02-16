@@ -16,7 +16,6 @@ end
 
 -- local fives = hw { guifg = colors.bg }
 local inactive = hw { guifg = colors.inactive_bg }
-local invis = hw { guifg = '#27223f' }
 
 local get_num = function(lnum, relnum, virtnum, statusline_winid)
   local num = lnum
@@ -52,7 +51,7 @@ local get_num = function(lnum, relnum, virtnum, statusline_winid)
 end
 
 M.render = function()
-  return [[%s]] .. invis '%=' .. get_num(vim.v.lnum, vim.v.relnum, vim.v.virtnum, vim.g.statusline_winid) .. invis '%= '
+  return '%s%=' .. get_num(vim.v.lnum, vim.v.relnum, vim.v.virtnum, vim.g.statusline_winid) .. '%= '
 end
 
 return M
