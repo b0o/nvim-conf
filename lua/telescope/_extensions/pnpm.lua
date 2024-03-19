@@ -31,7 +31,7 @@ local function get_focused_path(opts)
     return Path:new(bufname)
   end
   local last_focused_win = require('user.util.recent-wins').get_most_recent_smart()
-  if last_focused_win then
+  if last_focused_win and vim.api.nvim_win_is_valid(last_focused_win) then
     local last_focused_buf = vim.api.nvim_win_get_buf(last_focused_win)
     local last_focused_bufname = vim.api.nvim_buf_get_name(last_focused_buf)
     return Path:new(last_focused_bufname)
