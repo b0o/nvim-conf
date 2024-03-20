@@ -27,6 +27,16 @@ local select_item_smart = function(dir, opts)
   end
 end
 
+local set_hl = function(r, g, b)
+  local color = string.format('%02x%02x%02x', r, g, b)
+  local group = 'CmpColor' .. color
+  local opts = { bg = '#' .. color }
+  if vim.fn.hlID(group) < 1 then
+    vim.api.nvim_set_hl(0, group, opts)
+  end
+  return group
+end
+
 cmp.setup {
   snippet = {
     expand = function(args)
@@ -66,6 +76,14 @@ cmp.setup {
       local sym = lspkind.symbolic(vim_item.kind)
       if sym == '' then
         sym = '∅'
+      end
+      local doc = entry.completion_item.documentation
+      if vim_item.kind == 'Color' and type(doc) == 'string' then
+        local ok, _, r, g, b = doc:find 'rgba?%((%d+), (%d+), (%d+)'
+        if ok then
+          vim_item.kind_hl_group = set_hl(r, g, b)
+          sym = ' '
+        end
       end
       vim_item.menu = (vim_item.menu or '') .. '->' .. (vim_item.kind or '')
       vim_item.kind = ' ' .. sym .. ' '
