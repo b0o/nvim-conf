@@ -1078,6 +1078,44 @@ local function gitsigns_visual_op(op)
   end
 end
 
+local function neogit_status_buf_item()
+  local status = require('neogit.buffers.status').instance()
+  if not status then
+    return
+  end
+  local sel = status.buffer.ui:get_item_under_cursor()
+  if not sel or not sel.absolute_path then
+    return
+  end
+  return sel
+end
+
+m.group(m.silent, { ft = 'NeogitStatus' }, function()
+  m.nnoremap([[<M-w>]], function()
+    local item = neogit_status_buf_item()
+    if not item then
+      return
+    end
+    local win = require('window-picker').pick_window()
+    if win and vim.api.nvim_win_is_valid(win) then
+      vim.api.nvim_win_set_buf(win, vim.fn.bufadd(item.absolute_path))
+      vim.api.nvim_set_current_win(win)
+    end
+  end)
+  m.nnoremap([[<Cr>]], function()
+    local item = neogit_status_buf_item()
+    if not item then
+      return
+    end
+    local prev_win = recent_wins.get_most_recent()
+    if not vim.api.nvim_win_is_valid(prev_win or -1) then
+      vim.cmd('vsplit ' .. item.name)
+    else
+      vim.api.nvim_win_set_buf(prev_win, vim.fn.bufadd(item.absolute_path))
+    end
+  end)
+end)
+
 -- lewis6991/gitsigns.nvim
 M.on_gistsigns_attach = function(bufnr)
   m.group({ buffer = bufnr, silent = true }, function()

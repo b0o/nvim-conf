@@ -158,7 +158,7 @@ neogit.setup {
     },
     -- Setting any of these to `false` will disable the mapping.
     status = {
-      -- ['q'] = 'Close',
+      ['q'] = 'Close',
       -- ['I'] = 'InitRepo',
       -- ['1'] = 'Depth1',
       -- ['2'] = 'Depth2',
@@ -175,7 +175,8 @@ neogit.setup {
       -- ['$'] = 'CommandHistory',
       -- ['#'] = 'Console',
       -- ['<c-r>'] = 'RefreshBuffer',
-      -- ['<enter>'] = 'VSplitOpen',
+      ['<cr>'] = false,
+      ['<C-Cr>'] = 'GoToFile',
       -- ['<c-v>'] = 'VSplitOpen',
       -- ['<c-x>'] = 'SplitOpen',
       -- ['<c-t>'] = 'TabOpen',
