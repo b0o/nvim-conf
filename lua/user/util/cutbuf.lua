@@ -46,4 +46,19 @@ M.paste = function(win)
   end
 end
 
+M.swap = function(win)
+  win = fn.resolve_winnr(win or 0)
+  local buf = vim.api.nvim_win_get_buf(win)
+  local target_win = require('window-picker').pick_window()
+  if not target_win or not vim.api.nvim_win_is_valid(target_win) or target_win == win then
+    vim.notify 'cutbuf: no target window'
+    return
+  end
+  local target_buf = vim.api.nvim_win_get_buf(target_win)
+  vim.api.nvim_win_set_buf(win, target_buf)
+  vim.api.nvim_win_set_buf(target_win, buf)
+  vim.api.nvim_set_current_win(target_win)
+  vim.notify('cutbuf: swap buffers ' .. buf .. ' and ' .. target_buf)
+end
+
 return M

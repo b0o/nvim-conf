@@ -2,20 +2,28 @@
 local cmp = require 'cmp'
 local feedkeys = require 'cmp.utils.feedkeys'
 local keymap = require 'cmp.utils.keymap'
-local luasnip = require 'luasnip'
-local lspkind = require 'lspkind'
-local xk = require('user.mappings').xk
+
+local luasnip = require('user.util.lazy').require_on_call_rec 'luasnip'
+local xk = require('user.keys').xk
 
 local wincfg = vim.tbl_extend('force', cmp.config.window.bordered(), {
   winhighlight = 'Normal:CmpNormal,FloatBorder:CmpBorder,CursorLine:CmpSel,Search:None',
 })
 
+local function wrap(fn, ...)
+  local args = { ... }
+  return function()
+    return fn(unpack(args))
+  end
+end
+
 -- Select item next/prev, taking into account whether the cmp window is
 -- top-down or bottoom-up so that the movement is always in the same direction.
 local select_item_smart = function(dir, opts)
   return function(fallback)
+    opts = opts or { behavior = cmp.SelectBehavior.Select }
+    fallback = opts.fallback or fallback
     if cmp.visible() then
-      opts = opts or { behavior = cmp.SelectBehavior.Select }
       if cmp.core.view.custom_entries_view:is_direction_top_down() then
         ({ next = cmp.select_next_item, prev = cmp.select_prev_item })[dir](opts)
       else
@@ -71,9 +79,11 @@ cmp.setup {
         buffer = ' Buf',
         path = 'Path',
         git = ' Git',
-        tmux = 'Tmux',
+        -- tmux = 'Tmux',
+        obsidian = ' Obsidian',
+        obsidian_new = 'Obsidian New',
       })[entry.source.name] or entry.source.name
-      local sym = lspkind.symbolic(vim_item.kind)
+      local sym = require('lspkind').symbolic(vim_item.kind)
       if sym == '' then
         sym = '∅'
       end
@@ -173,27 +183,49 @@ cmp.setup {
       cmp.select_next_item()
     end,
   },
-  sources = cmp.config.sources({
-    { name = 'nvim_lsp' },
+  sources = cmp.config.sources {
+    { name = 'nvim_lsp', priority = 100 },
     { name = 'luasnip' },
     { name = 'otter' },
-  }, {
     { name = 'nvim_lua' },
-  }, {
-    { name = 'tmux', keyword_length = 5 },
+    { name = 'path' },
+    -- { name = 'tmux' },
     { name = 'treesitter' },
-    { name = 'buffer', keyword_length = 5 },
-  }),
+    { name = 'buffer' },
+  },
+  enabled = function()
+    return vim.bo.buftype ~= 'prompt' or require('cmp_dap').is_dap_buffer()
+  end,
 }
+
+require('cmp').setup.filetype({ 'dap-repl', 'dapui_watches', 'dapui_hover' }, {
+  sources = {
+    { name = 'dap' },
+  },
+})
 
 cmp.setup.cmdline('/', {
   mapping = cmp.mapping.preset.cmdline {
-    ['<C-n>'] = { c = select_item_smart('next', {}) },
-    ['<C-p>'] = { c = select_item_smart('prev', {}) },
+    ['<C-n>'] = { c = select_item_smart('next', { fallback = wrap(feedkeys.call, keymap.t '<Down>', 'n') }) },
+    ['<C-p>'] = { c = select_item_smart('prev', { fallback = wrap(feedkeys.call, keymap.t '<Up>', 'n') }) },
+    [xk '<C-S-n>'] = {
+      c = function()
+        cmp.close()
+        feedkeys.call(keymap.t '<Down>', 'n')
+        cmp.complete()
+      end,
+    },
+    [xk '<C-S-p>'] = {
+      c = function()
+        cmp.close()
+        feedkeys.call(keymap.t '<Up>', 'n')
+        cmp.complete()
+      end,
+    },
   },
   sources = {
     { name = 'buffer' },
-    { name = 'tmux' },
+    -- { name = 'tmux' },
     { name = 'nvim_lsp' },
     { name = 'treesitter' },
   },
@@ -227,8 +259,8 @@ cmp.setup.cmdline(':', {
   mapping = cmp.mapping.preset.cmdline {
     ['<Tab>'] = { c = handle_tab_complete(cmp.select_next_item) },
     ['<S-Tab>'] = { c = handle_tab_complete(cmp.select_prev_item) },
-    ['<C-n>'] = { c = select_item_smart('next', {}) },
-    ['<C-p>'] = { c = select_item_smart('prev', {}) },
+    ['<C-n>'] = { c = select_item_smart('next', { fallback = wrap(feedkeys.call, keymap.t '<Down>', 'n') }) },
+    ['<C-p>'] = { c = select_item_smart('prev', { fallback = wrap(feedkeys.call, keymap.t '<Up>', 'n') }) },
     ['<C-e>'] = { c = cmp.mapping.close() },
     [xk '<C-S-n>'] = {
       c = function()
@@ -254,21 +286,21 @@ cmp.setup.cmdline(':', {
       end,
     },
   },
-  sources = cmp.config.sources({
-    { name = 'path' },
-  }, {
+  sources = cmp.config.sources {
+    -- { name = 'path' },
+    -- }, {
     { name = 'cmdline' },
-  }),
+  },
 })
 
 -- Set configuration for specific filetype.
 ---@diagnostic disable-next-line: undefined-field
 cmp.setup.filetype({ 'gitcommit', 'NeogitCommitMessage' }, {
-  sources = cmp.config.sources({
+  sources = cmp.config.sources {
     { name = 'git' },
-  }, {
+    -- }, {
     { name = 'buffer' },
-  }),
+  },
 })
 
 require('cmp_git').setup {

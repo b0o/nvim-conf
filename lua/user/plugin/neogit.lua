@@ -41,15 +41,16 @@ neogit.setup {
   -- Change the default way of opening neogit
   -- kind = 'tab',
   -- The time after which an output console is shown for slow running commands
-  -- console_timeout = 2000,
+  console_timeout = math.huge,
   -- Automatically show console if a command takes more than console_timeout milliseconds
   auto_show_console = false, -- disable annoying console window when commiting with fugitive
   -- status = {
   --   recent_commit_count = 10,
   -- },
-  -- commit_editor = {
-  --   kind = 'floating',
-  -- },
+  commit_editor = {
+    kind = 'floating',
+    show_staged_diff = false,
+  },
   -- commit_select_view = {
   --   kind = 'floating',
   -- },

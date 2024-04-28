@@ -1,4 +1,7 @@
--- local ft_to_parser = require('nvim-treesitter.parsers').filetype_to_parsername
+local ok, dap_repl_hl = pcall(require, 'nvim-dap-repl-highlights')
+if ok then
+  dap_repl_hl.setup() -- must be setup before nvim-treesitter
+end
 
 require('nvim-treesitter.configs').setup {
   query_linter = {
@@ -17,6 +20,7 @@ require('nvim-treesitter.configs').setup {
     'dockerfile',
     -- 'dot',
     -- 'fennel',
+    'dap_repl',
     'diff',
     'gitcommit',
     'git_rebase',
@@ -59,15 +63,17 @@ require('nvim-treesitter.configs').setup {
     'vimdoc',
     -- 'wgsl',
     'yaml',
-    -- 'zig',
-  },
-  ---- windwp/nvim-ts-autotag
-  autotag = {
-    enable = true,
+    'zig',
   },
   highlight = {
     enable = true,
-    -- disable = { 'help' },
+    disable = function(_lang, buf)
+      local max_filesize = 100 * 1024 -- 100 KB
+      local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+      if ok and stats and stats.size > max_filesize then
+        return true
+      end
+    end,
   },
   incremental_selection = {
     enable = true,
@@ -142,7 +148,8 @@ require('nvim-treesitter.configs').setup {
       },
     },
   },
-  matchup = {
+  ---- windwp/nvim-ts-autotag
+  autotag = {
     enable = true,
   },
 }
@@ -152,44 +159,44 @@ require('nvim-treesitter.configs').setup {
 vim.treesitter.language.register('markdown', { 'mdx' })
 -- ft_to_parser.mdx = 'markdown'
 
--- romgrk/nvim-treesitter-context
-require('treesitter-context').setup {
-  enable = true,
-  throttle = true,
-  max_lines = 4,
-  multiline_threshold = 4,
-  -- zindex =
-  patterns = {
-    -- default = {
-    --   'class',
-    --   'function',
-    --   'method',
-    -- },
-    -- ocaml = {
-    --   'module_definition',
-    --   'type_definition',
-    --   'let_binding',
-    --   'match_expression',
-    --   'body',
-    -- },
-  },
-}
-
----- JoosepAlviste/nvim-ts-context-commentstring
-vim.g.skip_ts_context_commentstring_module = true
-require('ts_context_commentstring').setup {
-  enable = true,
-  enable_autocmd = false,
-  languages = {
-    javascript = {
-      __default = '// %s',
-      jsx_element = '{/* %s */}',
-      jsx_fragment = '{/* %s */}',
-      jsx_attribute = '// %s',
-      comment = '// %s',
-    },
-  },
-}
+-- -- romgrk/nvim-treesitter-context
+-- require('treesitter-context').setup {
+--   enable = true,
+--   throttle = true,
+--   max_lines = 4,
+--   multiline_threshold = 4,
+--   -- zindex =
+--   patterns = {
+--     -- default = {
+--     --   'class',
+--     --   'function',
+--     --   'method',
+--     -- },
+--     -- ocaml = {
+--     --   'module_definition',
+--     --   'type_definition',
+--     --   'let_binding',
+--     --   'match_expression',
+--     --   'body',
+--     -- },
+--   },
+-- }
+--
+-- ---- JoosepAlviste/nvim-ts-context-commentstring
+-- vim.g.skip_ts_context_commentstring_module = true
+-- require('ts_context_commentstring').setup {
+--   enable = true,
+--   enable_autocmd = false,
+--   languages = {
+--     javascript = {
+--       __default = '// %s',
+--       jsx_element = '{/* %s */}',
+--       jsx_fragment = '{/* %s */}',
+--       jsx_attribute = '// %s',
+--       comment = '// %s',
+--     },
+--   },
+-- }
 
 ---- Wansmer/sibling-swap.nvim
 require('sibling-swap').setup {

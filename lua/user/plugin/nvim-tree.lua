@@ -1,11 +1,26 @@
 ---- kyazdani42/nvim-tree.lua
+local api = require 'nvim-tree.api'
+local preview = require 'nvim-tree-preview'
+
+require('lsp-file-operations').setup()
 
 local on_attach = function(bufnr)
-  local api = require 'nvim-tree.api'
-
   local function opts(desc)
     return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
   end
+
+  vim.keymap.set('n', '<Tab>', function()
+    local ok, node = pcall(api.tree.get_node_under_cursor)
+    if ok and node then
+      if node.type == 'directory' then
+        api.node.open.edit()
+      else
+        preview.node(node, { toggle_focus = true })
+      end
+    end
+  end, opts 'Preview')
+  vim.keymap.set('n', 'P', preview.watch, opts 'Preview (Watch)')
+  vim.keymap.set('n', '<Esc>', preview.unwatch, opts 'Close Preview/Unwatch')
 
   -- Personal mappings are in lua/user/mappings.lua
   -- BEGIN_DEFAULT_ON_ATTACH
@@ -18,7 +33,7 @@ local on_attach = function(bufnr)
   vim.keymap.set('n', '<C-x>', api.node.open.horizontal, opts 'Open: Horizontal Split')
   vim.keymap.set('n', '<BS>', api.node.navigate.parent_close, opts 'Close Directory')
   vim.keymap.set('n', '<CR>', api.node.open.edit, opts 'Open')
-  vim.keymap.set('n', '<Tab>', api.node.open.preview, opts 'Open Preview')
+  -- vim.keymap.set('n', '<Tab>', api.node.open.preview, opts 'Open Preview')
   vim.keymap.set('n', '>', api.node.navigate.sibling.next, opts 'Next Sibling')
   vim.keymap.set('n', '<', api.node.navigate.sibling.prev, opts 'Previous Sibling')
   vim.keymap.set('n', '.', api.node.run.cmd, opts 'Run Command')
@@ -51,7 +66,7 @@ local on_attach = function(bufnr)
   vim.keymap.set('n', 'o', api.node.open.edit, opts 'Open')
   vim.keymap.set('n', 'O', api.node.open.no_window_picker, opts 'Open: No Window Picker')
   vim.keymap.set('n', 'p', api.fs.paste, opts 'Paste')
-  vim.keymap.set('n', 'P', api.node.navigate.parent, opts 'Parent Directory')
+  -- vim.keymap.set('n', 'P', api.node.navigate.parent, opts 'Parent Directory')
   vim.keymap.set('n', 'q', api.tree.close, opts 'Close')
   vim.keymap.set('n', 'r', api.fs.rename, opts 'Rename')
   vim.keymap.set('n', 'R', api.tree.reload, opts 'Refresh')
@@ -73,7 +88,18 @@ require('nvim-tree').setup {
     open_file = {
       window_picker = {
         enable = true,
-        picker = require('window-picker').pick_window,
+        picker = function()
+          return require('window-picker').pick_window {
+            filter_rules = {
+              file_path_contains = { 'nvim-tree-preview://' },
+            },
+          }
+        end,
+      },
+    },
+    file_popup = {
+      open_win_config = {
+        border = 'rounded',
       },
     },
   },
@@ -92,7 +118,14 @@ require('nvim-tree').setup {
     cmd = 'xdg-open',
   },
   filters = {
-    custom = { '.git', 'node_modules', '.cache', '.vscode' },
+    custom = {
+      '.git',
+      'node_modules',
+      '.cache',
+      '.vscode',
+      '.turbo',
+      '.bruno',
+    },
     exclude = { '[.]env', '[.]env[.].*' },
   },
   renderer = {

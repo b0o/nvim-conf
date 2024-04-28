@@ -6,50 +6,93 @@ local M = {
 }
 
 ---- Lua
-local lua_conf = {
-  host = '127.0.0.1',
-  port = 57801,
-  log = false,
+-- local lua_conf = {
+--   host = '127.0.0.1',
+--   port = 57801,
+--   log = false,
+-- }
+-- dap.configurations.lua = {
+--   {
+--     type = 'nlua',
+--     request = 'attach',
+--     name = 'Attach to running Neovim instance',
+--     host = lua_conf.host,
+--     port = lua_conf.port,
+--   },
+-- }
+-- dap.adapters.nlua = function(callback, config)
+--   callback { type = 'server', host = config.host, port = config.port }
+-- end
+-- M.nlua_launch = function()
+--   require('osv').launch(lua_conf)
+-- end
+-- M.launchers.nlua = function()
+--   --   require('osv').launch(lua_conf)
+--   local terminal = (os.getenv 'TERMINAL') or 'alacritty'
+--   local cmd = {
+--     terminal,
+--     '-e',
+--     'nvim',
+--     '--cmd',
+--     'set noswapfile',
+--     '-c',
+--     'lua require"user.dap".nlua_launch()',
+--     '+' .. vim.fn.getcurpos()[2],
+--     vim.fn.expand '%:p',
+--   }
+--   M.job = vim.fn.jobstart(cmd)
+--   vim.wait(500, function()
+--     vim.fn.system(('nc -z %s %d'):format(lua_conf.host, lua_conf.port))
+--     return vim.v.shell_error == 0
+--   end)
+--   vim.cmd 'sleep 500m'
+-- end
+-- M.closers.nlua = function()
+--   require('osv').stop()
+-- end
+
+dap.adapters['local-lua'] = {
+  type = 'executable',
+  command = 'local-lua-dbg',
+  enrich_config = function(config, on_config)
+    if not config['extensionPath'] then
+      local c = vim.deepcopy(config)
+      c.extensionPath = '/usr/lib/node_modules/local-lua-debugger-vscode'
+      on_config(c)
+    else
+      on_config(config)
+    end
+  end,
 }
 dap.configurations.lua = {
   {
-    type = 'nlua',
-    request = 'attach',
-    name = 'Attach to running Neovim instance',
-    host = lua_conf.host,
-    port = lua_conf.port,
+    name = 'Current file (local-lua-dbg, lua)',
+    type = 'local-lua',
+    repl_lang = 'lua',
+    request = 'launch',
+    cwd = '${workspaceFolder}',
+    program = {
+      lua = 'luajit',
+      file = '${file}',
+    },
+    args = {},
+  },
+  {
+    name = 'Current file (local-lua-dbg, neovim lua interpreter with nlua)',
+    type = 'local-lua',
+    repl_lang = 'lua',
+    request = 'launch',
+    cwd = '${workspaceFolder}',
+    program = {
+      lua = 'nlua',
+      file = '${file}',
+    },
+    args = {},
   },
 }
-dap.adapters.nlua = function(callback, config)
-  callback { type = 'server', host = config.host, port = config.port }
-end
-M.nlua_launch = function()
-  require('osv').launch(lua_conf)
-end
-M.launchers.nlua = function()
-  --   require('osv').launch(lua_conf)
-  local terminal = (os.getenv 'TERMINAL') or 'alacritty'
-  local cmd = {
-    terminal,
-    '-e',
-    'nvim',
-    '--cmd',
-    'set noswapfile',
-    '-c',
-    'lua require"user.dap".nlua_launch()',
-    '+' .. vim.fn.getcurpos()[2],
-    vim.fn.expand '%:p',
-  }
-  M.job = vim.fn.jobstart(cmd)
-  vim.wait(500, function()
-    vim.fn.system(('nc -z %s %d'):format(lua_conf.host, lua_conf.port))
-    return vim.v.shell_error == 0
-  end)
-  vim.cmd 'sleep 500m'
-end
-M.closers.nlua = function()
-  require('osv').stop()
-end
+
+-- Python
+require('dap-python').setup()
 
 -- Chrome
 local js_chrome_conf = {
@@ -113,32 +156,11 @@ M.launchers.chrome = function()
   M.job = vim.fn.jobstart(cmd)
 end
 
-local is_attached = false
-
-dap.listeners.before['event_initialized']['user'] = function()
-  if not is_attached then
-    require('user.mappings').on_dap_attach()
-    is_attached = true
-  end
-end
-
-dap.listeners.after['event_exited']['user'] = function()
-  if is_attached then
-    require('user.mappings').on_dap_detach()
-    is_attached = false
-  end
-end
-
-dap.listeners.after['event_terminated']['user'] = function()
-  if is_attached then
-    require('user.mappings').on_dap_detach()
-    is_attached = false
-  end
-end
+require('nvim-dap-virtual-text').setup { virt_text_pos = 'eol', clear_on_continue = true }
 
 function M.launch(ft)
   if not dap.configurations[ft] then
-    print('No DAP configurations found for ' .. ft)
+    vim.notify('No DAP configurations found for ' .. ft, vim.log.levels.ERROR)
     return
   end
   for _, config in ipairs(dap.configurations[ft]) do
@@ -151,7 +173,7 @@ end
 
 function M.close(ft)
   if not dap.configurations[ft] then
-    print('No DAP configurations found for ' .. ft)
+    vim.notify('No DAP configurations found for ' .. ft, vim.log.levels.ERROR)
     return
   end
   for _, config in ipairs(dap.configurations[ft]) do

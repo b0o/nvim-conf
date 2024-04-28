@@ -40,8 +40,6 @@ vim.o.signcolumn = 'auto:1-2'
 
 vim.o.clipboard = 'unnamedplus' -- Enable yanking between vim sessions and system
 
-vim.o.switchbuf = 'usetab,newtab'
-
 vim.o.sessionoptions = 'globals,blank,buffers,curdir,folds,help,tabpages,winsize'
 
 vim.o.splitright = true -- default vertical splits to open on right

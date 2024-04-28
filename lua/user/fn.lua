@@ -361,13 +361,13 @@ M.session_save = function()
     vim.cmd 'NvimTreeClose'
   end
 
-  require('treesitter-context').disable()
+  -- require('treesitter-context').disable()
 
   vim.g.SessionMeta = vim.inspect(meta)
   require('session_manager').save_current_session()
   vim.g.SessionMeta = nil
 
-  require('treesitter-context').enable()
+  -- require('treesitter-context').enable()
 
   if meta.nvimTreeOpen then
     vim.cmd 'NvimTreeOpen'
@@ -381,18 +381,23 @@ end
 M.session_load = function()
   local cb = M.new_callback(function()
     vim.schedule(function()
-      local meta = loadstring('return ' .. (vim.g.SessionMeta or '{}'))()
-      vim.g.SessionMeta = nil
-      require('user.tabline').restore_tabpage_titles()
-      if meta.nvimTreeOpen then
-        vim.cmd 'NvimTreeOpen'
+      local ok, res = pcall(function()
+        local meta = loadstring('return ' .. (vim.g.SessionMeta or '{}'))()
+        vim.g.SessionMeta = nil
+        require('user.tabline').restore_tabpage_titles()
+        if meta.nvimTreeOpen then
+          vim.cmd 'NvimTreeOpen'
+        end
+        if meta.nvimTreeFocused then
+          vim.cmd 'NvimTreeFocus'
+        elseif meta.focused and vim.api.nvim_win_is_valid(meta.focused) then
+          vim.api.nvim_set_current_win(meta.focused)
+        end
+        -- require('treesitter-context').enable()
+      end)
+      if not ok then
+        notify('session_load failed: ' .. res)
       end
-      if meta.nvimTreeFocused then
-        vim.cmd 'NvimTreeFocus'
-      elseif meta.focused and vim.api.nvim_win_is_valid(meta.focused) then
-        vim.api.nvim_set_current_win(meta.focused)
-      end
-      require('treesitter-context').enable()
     end)
   end)
 
@@ -400,7 +405,7 @@ M.session_load = function()
     autocmd! SessionLoadPost * ++once lua require('user.fn').callback(%s)
   ]]):format(cb))
 
-  require('treesitter-context').disable()
+  -- require('treesitter-context').disable()
   require('session_manager').load_current_dir_session(false)
 end
 

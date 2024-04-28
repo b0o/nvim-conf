@@ -7,7 +7,7 @@ local tp = require 'telescope.pickers'
 local action_state = require 'telescope.actions.state'
 
 local fn = require 'user.fn'
-local m = require 'user.mappings'
+local xk = require('user.keys').xk
 local Debounce = require 'user.util.debounce'
 
 local M = {}
@@ -25,13 +25,13 @@ end
 -- Based on https://github.com/nvim-telescope/telescope.nvim/issues/1048#issuecomment-1225975038
 local function multiopen(method)
   return function(prompt_bufnr)
-    local edit_file_cmd_map = {
+    local edit_file_cmds = {
       vertical = 'vsplit',
       horizontal = 'split',
       tab = 'tabedit',
       default = 'edit',
     }
-    local edit_buf_cmd_map = {
+    local edit_buf_cmds = {
       vertical = 'vert sbuffer',
       horizontal = 'sbuffer',
       tab = 'tab sbuffer',
@@ -72,13 +72,13 @@ local function multiopen(method)
         local entry_bufnr = entry.bufnr
 
         if entry_bufnr then
-          if not vim.api.nvim_buf_get_option(entry_bufnr, 'buflisted') then
-            vim.api.nvim_buf_set_option(entry_bufnr, 'buflisted', true)
+          if not vim.bo[entry_bufnr].buflisted then
+            vim.bo[entry_bufnr].buflisted = true
           end
-          local command = i == 1 and 'buffer' or edit_buf_cmd_map[method]
+          local command = i == 1 and 'buffer' or edit_buf_cmds[method]
           pcall(vim.cmd, string.format('%s %s', command, vim.api.nvim_buf_get_name(entry_bufnr)))
         else
-          local command = i == 1 and 'edit' or edit_file_cmd_map[method]
+          local command = i == 1 and 'edit' or edit_file_cmds[method]
           if vim.api.nvim_buf_get_name(0) ~= filename or command ~= 'edit' then
             filename = require('plenary.path'):new(vim.fn.fnameescape(filename)):normalize(vim.loop.cwd())
             pcall(vim.cmd, string.format('%s %s', command, filename))
@@ -104,6 +104,33 @@ local function stopinsert(callback)
   end
 end
 
+local function pick_window(prompt_bufnr)
+  local picker = action_state.get_current_picker(prompt_bufnr)
+  local multi_selection = picker:get_multi_selection()
+  if #multi_selection == 0 then
+    multi_selection = { picker:get_selection() }
+  end
+  tp.on_close_prompt(prompt_bufnr)
+  for _, entry in ipairs(multi_selection) do
+    local name = entry.bufnr and vim.api.nvim_buf_get_name(entry.bufnr) or entry.path or ''
+    local win = require('window-picker').pick_window {
+      show_prompt = true,
+      prompt_message = 'Pick window for entry: ' .. name,
+      filter_rules = { include_current_window = true },
+    }
+    if win and vim.api.nvim_win_is_valid(win) then
+      if entry.bufnr then
+        vim.api.nvim_win_set_buf(win, entry.bufnr)
+      elseif entry.path then
+        vim.api.nvim_set_current_win(win)
+        vim.cmd('edit ' .. entry.path)
+      else
+        vim.notify('Unsupported entry type', vim.log.levels.ERROR)
+      end
+    end
+  end
+end
+
 t.setup {
   defaults = {
     dynamic_preview_title = true,
@@ -114,26 +141,30 @@ t.setup {
     },
     mappings = {
       i = {
+        ['<C-f>'] = false,
+        ['<C-d>'] = false,
         ['<C-x>'] = stopinsert(multiopen 'horizontal'),
         ['<C-v>'] = stopinsert(multiopen 'vertical'),
         ['<C-t>'] = stopinsert(multiopen 'tab'),
         ['<Cr>'] = stopinsert(multiopen 'default'),
-        [m.xk['<C-.>']] = ta.toggle_selection,
-        [m.xk['<C-S-f>']] = ta.close,
+        ['<M-w>'] = stopinsert(pick_window),
+        [xk['<C-.>']] = ta.toggle_selection,
+        [xk['<C-S-f>']] = ta.close,
         ['<C-s>'] = select_or_show_builtins,
         ['<M-n>'] = ta.cycle_history_next,
         ['<M-p>'] = ta.cycle_history_prev,
         ['<C-j>'] = ta.preview_scrolling_down,
         ['<C-k>'] = ta.preview_scrolling_up,
-        ['<C-d>'] = false,
+        ['<C-q>'] = ta.smart_send_to_qflist,
+        [xk['<C-S-q>']] = ta.smart_add_to_qflist,
       },
       n = {
         ['<C-x>'] = multiopen 'horizontal',
         ['<C-v>'] = multiopen 'vertical',
         ['<C-t>'] = multiopen 'tab',
         ['<Cr>'] = multiopen 'default',
-        [m.xk['<C-.>']] = ta.toggle_selection,
-        [m.xk['<C-S-f>']] = ta.close,
+        [xk['<C-.>']] = ta.toggle_selection,
+        [xk['<C-S-f>']] = ta.close,
         ['<C-s>'] = dbounced_show_builtins:ref(),
         ['<M-n>'] = ta.cycle_history_next,
         ['<M-p>'] = ta.cycle_history_prev,
@@ -141,6 +172,8 @@ t.setup {
         ['<C-p>'] = ta.move_selection_previous,
         ['<C-j>'] = ta.preview_scrolling_down,
         ['<C-k>'] = ta.preview_scrolling_up,
+        ['<C-q>'] = ta.smart_send_to_qflist,
+        [xk['<C-S-q>']] = ta.smart_add_to_qflist,
       },
     },
   },

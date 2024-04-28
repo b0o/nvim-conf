@@ -2,6 +2,8 @@ local M = {
   telescope_exts = {},
 }
 
+local private = require 'user.private'
+
 -- lazy.nvim options
 local opts = {
   defaults = {
@@ -22,6 +24,7 @@ local plugins = {
     'b0o/mapx.nvim',
     conf = 'user.mappings',
     event = 'VeryLazy',
+    dev = true,
   },
 
   -- Meta
@@ -34,7 +37,26 @@ local plugins = {
     lazy = false,
     dependencies = { 'rktjmp/lush.nvim' },
     config = function()
-      vim.cmd [[colorscheme lavi]]
+      if (vim.env.COLORSCHEME or 'lavi') == 'lavi' then
+        vim.cmd [[colorscheme lavi]]
+      end
+    end,
+  },
+  {
+    'folke/tokyonight.nvim',
+    lazy = false,
+    config = function()
+      require('tokyonight').setup {
+        on_highlights = function(hl, c)
+          hl.CmpSel = {
+            bg = c.bg_visual,
+          }
+        end,
+      }
+      vim.cmd [[colorscheme tokyonight]]
+    end,
+    cond = function()
+      return vim.env.COLORSCHEME == 'tokyonight'
     end,
   },
 
@@ -72,34 +94,54 @@ local plugins = {
     cond = function()
       return vim.env.TMUX ~= nil
     end,
-  },
-  'kyazdani42/nvim-web-devicons',
-  {
-    'folke/which-key.nvim',
-    event = 'VeryLazy',
-    opts = {
-      plugins = {
-        spelling = {
-          enabled = true,
-          suggestions = 30,
-        },
-      },
-      triggers_blacklist = {
-        i = { 'j', 'k', "'" },
-        v = { 'j', 'k', "'" },
-        n = { "'" },
-      },
-      window = {
-        border = 'rounded',
-        padding = { 0, 0, 0, 0 },
-      },
-      show_help = false,
+    dependencies = {
+      'nvim-lualine/lualine.nvim',
     },
   },
+  'kyazdani42/nvim-web-devicons',
+  -- {
+  --   'folke/which-key.nvim',
+  --   -- enabled = false,
+  --   config = function()
+  --     -- Fix compatibility with multiple-cursors.nvim:
+  --     local presets = require 'which-key.plugins.presets'
+  --     presets.operators['v'] = nil
+  --
+  --     require('which-key').setup {
+  --       plugins = {
+  --         spelling = {
+  --           enabled = true,
+  --           suggestions = 30,
+  --         },
+  --       },
+  --       triggers_blacklist = {
+  --         i = { 'j', 'k', "'" },
+  --         v = { 'j', 'k', "'" },
+  --         n = { "'" },
+  --       },
+  --       window = {
+  --         border = 'rounded',
+  --         padding = { 0, 0, 0, 0 },
+  --       },
+  --       show_help = false,
+  --     }
+  --   end,
+  --   event = 'VeryLazy',
+  -- },
   {
     'lukas-reineke/indent-blankline.nvim',
     event = 'VeryLazy',
-    conf = 'user.plugin.ibl',
+    main = 'ibl',
+    enabled = true,
+    opts = {
+      indent = {
+        char = '│',
+      },
+      scope = {
+        show_start = false,
+        enabled = false,
+      },
+    },
   },
   {
     'b0o/incline.nvim',
@@ -116,6 +158,13 @@ local plugins = {
     conf = 'user.plugin.nvim-tree',
     module = 'nvim-tree',
     cmd = { 'NvimTreeOpen', 'NvimTreeFocus' },
+    dependencies = {
+      {
+        'b0o/nvim-tree-preview.lua',
+        dev = true,
+      },
+      'antosha417/nvim-lsp-file-operations',
+    },
   },
   {
     'nvim-neo-tree/neo-tree.nvim',
@@ -125,6 +174,9 @@ local plugins = {
     init = function()
       vim.g.neo_tree_remove_legacy_commands = 1
     end,
+    dependencies = {
+      'antosha417/nvim-lsp-file-operations',
+    },
   },
   {
     'stevearc/oil.nvim',
@@ -134,7 +186,9 @@ local plugins = {
     -- via https://github.com/folke/lazy.nvim/issues/533
     init = function()
       if vim.fn.argc() == 1 then
-        local stat = vim.loop.fs_stat(vim.fn.argv(0))
+        local argv0 = vim.fn.argv(0)
+        ---@cast argv0 string
+        local stat = vim.loop.fs_stat(argv0)
         if stat and stat.type == 'directory' then
           require('lazy').load { plugins = { 'oil.nvim' } }
         end
@@ -177,8 +231,18 @@ local plugins = {
     event = 'VeryLazy',
   },
   {
-    'MunifTanjim/nui.nvim',
-    module = 'nui',
+    'rcarriga/nvim-notify',
+    event = 'VeryLazy',
+    config = function()
+      local notify = require 'notify'
+      notify.setup {
+        top_down = false,
+        on_open = function(win)
+          vim.api.nvim_win_set_config(win, { zindex = 200 })
+        end,
+      }
+      vim.notify = notify
+    end,
   },
   {
     'folke/noice.nvim',
@@ -186,15 +250,6 @@ local plugins = {
     conf = 'user.plugin.noice',
     dependencies = {
       'MunifTanjim/nui.nvim',
-      {
-        'rcarriga/nvim-notify',
-        opts = {
-          top_down = false,
-          on_open = function(win)
-            vim.api.nvim_win_set_config(win, { zindex = 200 })
-          end,
-        },
-      },
     },
   },
 
@@ -206,7 +261,7 @@ local plugins = {
   },
   {
     'mrjones2014/smart-splits.nvim',
-    lazy = false,
+    event = 'VeryLazy',
   },
   {
     'famiu/bufdelete.nvim',
@@ -276,77 +331,25 @@ local plugins = {
     },
   },
   {
-    'andymass/vim-matchup',
-    event = 'VeryLazy',
-    config = function()
-      vim.g.matchup_motion_enabled = false
-      vim.g.matchup_matchparen_offscreen = {}
-    end,
-  },
-  {
-    'folke/flash.nvim',
-    event = 'VeryLazy',
-    opts = {
-      labels = "fjdghksla;eiworuqpcnxmz,vbty'",
-      search = {},
-      jump = {
-        autojump = true,
-      },
-      label = {
-        uppercase = false,
-      },
-      modes = {
-        treesitter = {
-          labels = 'abcdefghijklmnopqrstuvwxyz',
-          label = {
-            uppercase = false,
-            rainbow = {
-              enabled = true,
-              shade = 3,
-            },
-          },
-        },
-        treesitter_search = {
-          labels = 'abcdefghijklmnopqrstuvwxyz',
-          label = {
-            uppercase = false,
-            rainbow = {
-              enabled = true,
-              shade = 3,
-            },
-          },
-        },
-        char = {
-          keys = { 'f', 'F', 't', 'T', [';'] = '<Tab>', [','] = '<S-Tab>' },
-        },
-      },
+    'brenton-leighton/multiple-cursors.nvim',
+    opts = {},
+    cmd = {
+      'MultipleCursorsAddDown',
+      'MultipleCursorsAddUp',
+      'MultipleCursorsMouseAddDelete',
+      'MultipleCursorsAddMatches',
+      'MultipleCursorsAddMatchesV',
+      'MultipleCursorsAddJumpNextMatch',
+      'MultipleCursorsJumpNextMatch',
     },
-  },
-  {
-    'chaoren/vim-wordmotion',
-    event = 'VeryLazy',
-  },
-  {
-    'kana/vim-textobj-user',
-    event = 'VeryLazy',
-    dependencies = {
-      'kana/vim-textobj-fold',
-      'kana/vim-textobj-indent',
-      'kana/vim-textobj-line',
-      'sgur/vim-textobj-parameter',
+    keys = {
+      { '<C-Down>', '<Cmd>MultipleCursorsAddDown<CR>', mode = { 'n', 'i' } },
+      { '<C-Up>', '<Cmd>MultipleCursorsAddUp<CR>', mode = { 'n', 'i' } },
+      { '<C-LeftMouse>', '<Cmd>MultipleCursorsMouseAddDelete<CR>', mode = { 'n', 'i' } },
+      { '<C-n>', '<Cmd>MultipleCursorsAddJumpNextMatch<CR>', mode = { 'n', 'x' } },
+      { [[\\A]], '<Cmd>MultipleCursorsAddMatches<CR>', mode = { 'n', 'x' } },
+      { '<C-q>', '<Cmd>MultipleCursorsJumpNextMatch<CR>' },
     },
-  },
-  {
-    'mg979/vim-visual-multi',
-    init = function()
-      vim.g.VM_custom_motions = {
-        ['<M-,>'] = ',', -- Remap , to <M-,> because , conflicts with <localleader>
-      }
-    end,
-    setup = function()
-      vim.cmd [[VMClear]]
-    end,
-    event = 'VeryLazy',
   },
   {
     'numToStr/Comment.nvim',
@@ -364,14 +367,7 @@ local plugins = {
   {
     'monaqa/dial.nvim',
     conf = 'user.plugin.dial',
-  },
-  {
-    'godlygeek/tabular',
-    cmd = { 'AddTabularPattern', 'AddTabularPipeline', 'Tabularize', 'GTabularize' },
-  },
-  {
-    'ThePrimeagen/refactoring.nvim',
-    conf = 'user.plugin.refactoring',
+    keys = { '<Plug>(dial-increment)', '<Plug>(dial-decrement)' },
   },
   {
     'matze/vim-move',
@@ -388,7 +384,7 @@ local plugins = {
   },
   {
     'folke/todo-comments.nvim',
-    event = 'BufRead',
+    event = 'VeryLazy',
     opts = {
       keywords = {
         TEST = { icon = ' ', color = 'test', alt = { 'TESTING', 'PASSED', 'FAILED' } },
@@ -414,14 +410,6 @@ local plugins = {
     conf = 'user.plugin.copilot',
     event = 'VeryLazy',
   },
-  {
-    'dpayne/CodeGPT.nvim',
-    config = function()
-      local private = require 'user.private'
-      vim.g['codegpt_openai_api_key'] = private.openai_api_key
-    end,
-    cmd = 'Chat',
-  },
 
   -- Backup, Undo
   {
@@ -440,24 +428,25 @@ local plugins = {
   {
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
-    conf = 'user.treesitter',
-    dependencies = {
-      'nvim-treesitter/nvim-treesitter-textobjects',
-      'nvim-treesitter/nvim-treesitter-context',
-      'JoosepAlviste/nvim-ts-context-commentstring',
-      'Wansmer/sibling-swap.nvim',
-      'Wansmer/treesj',
-      'windwp/nvim-ts-autotag',
-    },
     lazy = false,
   },
+  {
+    'nvim-treesitter/nvim-treesitter-textobjects',
+    --HACK: Load TS config here to speed up startup without lazy-loading TS itself
+    conf = 'user.treesitter',
+    event = 'VeryLazy',
+  },
+  'JoosepAlviste/nvim-ts-context-commentstring',
+  'Wansmer/sibling-swap.nvim',
+  'Wansmer/treesj',
+  'windwp/nvim-ts-autotag',
 
   -- LSP
   {
     'neovim/nvim-lspconfig',
     conf = 'user.lsp',
     cmd = { 'LspInfo', 'LspStart', 'LspStop', 'LspRestart', 'LspLog' },
-    event = 'BufReadPost',
+    event = 'VeryLazy',
   },
   {
     'stevearc/conform.nvim',
@@ -481,7 +470,6 @@ local plugins = {
     dependencies = { 'neovim/nvim-lspconfig' },
     conf = 'user.plugin.otter',
   },
-  'nvimtools/none-ls.nvim',
   'b0o/schemastore.nvim',
   'aznhe21/actions-preview.nvim',
   {
@@ -491,15 +479,12 @@ local plugins = {
   },
   {
     -- TODO: https://github.com/DNLHC/glance.nvim/pull/67
-    -- 'DNLHC/glance.nvim',
-    'b0o/glance.nvim',
-    branch = 'jump-opts',
+    'DNLHC/glance.nvim',
     conf = 'user.plugin.glance',
     cmd = 'Glance',
   },
   {
     'pmizio/typescript-tools.nvim',
-    enabled = true,
     conf = 'user.plugin.typescript-tools',
     ft = {
       'typescript',
@@ -507,22 +492,21 @@ local plugins = {
       'typescriptreact',
       'javascriptreact',
     },
-    dependencies = {
-      {
-        'marilari88/twoslash-queries.nvim',
-        dev = true,
-        opts = { multi_line = true },
-      },
+  },
+  {
+    'marilari88/twoslash-queries.nvim',
+    dev = true,
+    opts = { multi_line = true },
+    ft = {
+      'typescript',
+      'javascript',
+      'typescriptreact',
+      'javascriptreact',
     },
   },
   {
     'folke/trouble.nvim',
-    opts = {
-      auto_open = false,
-      auto_close = false,
-      auto_preview = false,
-      use_diagnostic_signs = true,
-    },
+    branch = 'dev',
     cmd = { 'Trouble', 'TroubleClose', 'TroubleRefresh', 'TroubleToggle' },
   },
 
@@ -531,22 +515,21 @@ local plugins = {
     'nvim-neotest/neotest',
     conf = 'user.plugin.neotest',
     cmd = { 'Neotest' },
-    dependencies = {
-      'marilari88/neotest-vitest',
-    },
   },
+  'marilari88/neotest-vitest',
 
   -- Git
   {
     'lewis6991/gitsigns.nvim',
     conf = 'user.plugin.gitsigns',
-    event = { 'BufRead', 'BufNewFile' },
     cmd = { 'Gitsigns' },
+    event = 'VeryLazy',
   },
   {
     'NeogitOrg/neogit',
     cmd = 'Neogit',
     conf = 'user.plugin.neogit',
+    branch = 'nightly',
   },
   {
     'mattn/gist-vim',
@@ -577,31 +560,53 @@ local plugins = {
   {
     'hrsh7th/nvim-cmp',
     conf = 'user.plugin.nvim-cmp',
-    event = { 'VeryLazy' },
     module = 'cmp',
+    event = 'VeryLazy',
     dependencies = {
+      'hrsh7th/cmp-cmdline',
       'hrsh7th/cmp-buffer',
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
       'hrsh7th/cmp-nvim-lua',
+      'rcarriga/cmp-dap',
       'ray-x/cmp-treesitter',
-      'andersevenrud/cmp-tmux',
       'petertriho/cmp-git',
-      'hrsh7th/cmp-cmdline',
-      { 'dcampos/cmp-emmet-vim', dependencies = 'mattn/emmet-vim' },
-      -- Snippets
+      {
+        'dcampos/cmp-emmet-vim',
+        dependencies = 'mattn/emmet-vim',
+      },
       {
         'L3MON4D3/LuaSnip',
-        -- install jsregexp (optional)
         run = 'make install_jsregexp',
         conf = 'user.plugin.luasnip',
         dependencies = {
-          'rafamadriz/friendly-snippets',
           'saadparwaiz1/cmp_luasnip',
         },
       },
     },
   },
+
+  -- Debugging
+  {
+    'mfussenegger/nvim-dap',
+    conf = 'user.dap',
+    cmd = {
+      'DapContinue',
+      'DapLoadLaunchJSON',
+      'DapRestartFrame',
+      'DapSetLogLevel',
+      'DapShowLog',
+      'DapStepInto',
+      'DapStepOut',
+      'DapStepOver',
+      'DapTerminate',
+      'DapToggleBreakpoint',
+      'DapToggleRepl',
+    },
+  },
+  'LiadOz/nvim-dap-repl-highlights',
+  'mfussenegger/nvim-dap-python',
+  'theHamsta/nvim-dap-virtual-text',
 
   -- Sessions
   {
@@ -614,7 +619,6 @@ local plugins = {
     'aouelete/sway-vim-syntax',
     ft = 'sway',
   },
-  -- 'HerringtonDarkholme/yats.vim', -- typescript syntax highlighting
   {
     'fatih/vim-go',
     ft = 'go',
@@ -626,6 +630,29 @@ local plugins = {
     'rgroli/other.nvim',
     cmd = { 'Other', 'OtherTabNew', 'OtherSplit', 'OtherVSplit' },
     conf = 'user.plugin.other',
+  },
+  { 'MunifTanjim/nui.nvim', dev = false },
+  {
+    'b0o/blender.nvim',
+    dev = true,
+    config = function()
+      require('blender').setup {
+        notify = {
+          verbosity = 'TRACE',
+        },
+      }
+    end,
+    cmd = {
+      'BlenderLaunch',
+      'BlenderManage',
+      'BlenderTest',
+    },
+    dependencies = {
+      'MunifTanjim/nui.nvim',
+      { 'grapp-dev/nui-components.nvim', dev = false },
+      'mfussenegger/nvim-dap',
+      'LiadOz/nvim-dap-repl-highlights',
+    },
   },
 
   -- Color
@@ -641,7 +668,6 @@ local plugins = {
   },
   {
     'NvChad/nvim-colorizer.lua',
-    event = 'BufRead',
     opts = {
       user_default_options = {
         RGB = true,
@@ -652,6 +678,39 @@ local plugins = {
         tailwind = true,
         mode = 'virtualtext',
       },
+    },
+    cmd = { 'Colorize' },
+  },
+
+  -- Notes
+  {
+    'epwalsh/obsidian.nvim',
+    version = '*',
+    event = {
+      ('BufReadPre %s/**.md'):format(private.obsidian_vault.path),
+      ('BufNewFile %s/**.md'):format(private.obsidian_vault.path),
+    },
+    conf = 'user.plugin.obsidian',
+    cmd = {
+      'ObsidianOpen',
+      'ObsidianNew',
+      'ObsidianQuickSwitch',
+      'ObsidianFollowLink',
+      'ObsidianBacklinks',
+      'ObsidianTags',
+      'ObsidianToday',
+      'ObsidianYesterday',
+      'ObsidianTomorrow',
+      'ObsidianDailies',
+      'ObsidianTemplate',
+      'ObsidianSearch',
+      'ObsidianLink',
+      'ObsidianLinkNew',
+      'ObsidianLinks',
+      'ObsidianExtractNote',
+      'ObsidianWorkspace',
+      'ObsidianPasteImg',
+      'ObsidianRename',
     },
   },
 
@@ -664,9 +723,6 @@ local plugins = {
     },
     cmd = 'Nerdy',
   },
-
-  --- Vim Plugin Development
-  { 'bfredl/nvim-luadev', ft = 'lua' },
 }
 
 local function preprocess_plugin_specs(specs)

@@ -9,14 +9,27 @@ local helpers = require 'incline.helpers'
 local lsp_status = require 'user.statusline.lsp'
 local pnpm = require 'user.util.pnpm'
 
-local extra_colors = {
-  theme_bg = '#222032',
-  fg = '#FFFFFF',
-  fg_dim = '#ded4fd',
-  fg_nc = '#A89CCF',
-  bg = '#55456F',
-  bg_nc = 'NONE',
-}
+local extra_colors = {}
+if vim.g.colors_name == 'lavi' then
+  local lavi = require 'lavi.palette'
+  extra_colors = {
+    theme_bg = lavi.bg_dark.hex,
+    fg = lavi.white.hex,
+    fg_dim = lavi.fg_dim.hex,
+    fg_nc = lavi.fg_nc.hex,
+    bg = lavi.bg_med.hex,
+    bg_nc = lavi.bg_dark.hex,
+  }
+else
+  extra_colors = {
+    theme_bg = '#222032',
+    fg = '#FFFFFF',
+    fg_dim = '#ded4fd',
+    fg_nc = '#A89CCF',
+    bg = '#55456F',
+    bg_nc = 'NONE',
+  }
+end
 
 local M = {}
 
@@ -40,7 +53,12 @@ local lsp_clients_exited_ok = status_lsp_client 'exited_ok'
 local lsp_clients_exited_err = status_lsp_client 'exited_err'
 
 local function relativize_path(path, base)
-  return string.sub(Path:new(path):absolute(), #Path:new(base):absolute() + 2)
+  local abs_base = Path:new(base):absolute()
+  local abs_path = Path:new(path):absolute()
+  if string.sub(abs_path, 1, #abs_base) ~= abs_base then
+    return path
+  end
+  return string.sub(abs_path, #abs_base + 2)
 end
 
 --- Given a path, return a shortened version of it.
@@ -103,8 +121,12 @@ local function shorten_path(path, opts)
   if head_max > 0 and #head > head_max then
     head = { unpack(head, #head - head_max + 1) }
   end
+  local head_short = #head > 0 and Path.new(unpack(head)):shorten(short_len, {}) or nil
+  if head_short == '/' then
+    head_short = ''
+  end
   local result = {
-    #head > 0 and Path.new(unpack(head)):shorten(short_len, {}) or nil,
+    head_short,
     table.concat(tail, Path.path.sep),
   }
   if return_table then
@@ -157,10 +179,10 @@ local function git_status(props)
   end
   local res = {}
   if buf_cache.staged_diffs and #buf_cache.staged_diffs > 0 then
-    table.insert(res, { '+ ', group = 'GitSignsAdd' })
+    table.insert(res, { ' + ', group = 'GitSignsAdd' })
   end
   if buf_cache.hunks and #buf_cache.hunks > 0 then
-    table.insert(res, { 'ϟ ', group = 'GitSignsChange' })
+    table.insert(res, { ' ϟ ', group = 'GitSignsChange' })
   end
   return res
 end
@@ -199,111 +221,206 @@ local function get_pnpm_workspace(bufname)
   })
 end
 
+local state = {
+  focused_workspace = nil,
+}
+
+local wrap_status = function(bg, buf_focused, props, icon, status)
+  return {
+    {
+      {
+        '',
+        guifg = props.focused and icon.bg or bg,
+        guibg = props.focused and extra_colors.theme_bg or extra_colors.bg_nc,
+      },
+      {
+        icon.icon,
+        ' ',
+        guifg = buf_focused and icon.fg or colors.deep_velvet,
+        guibg = props.focused and icon.bg or bg,
+      },
+      status,
+      {
+        '',
+        guifg = bg,
+        guibg = props.focused and extra_colors.theme_bg or extra_colors.bg_nc,
+      },
+    },
+  }
+end
+
+local dap_status = function()
+  local dap = require 'dap'
+  local session = dap.session()
+  if not session then
+    return 'Inactive'
+  end
+  return dap.status()
+end
+
+local get_icon = function(props)
+  local bufname = a.nvim_buf_get_name(props.buf)
+  local buf_focused = props.buf == a.nvim_get_current_buf()
+  local ft = vim.bo[props.buf].filetype
+  local icon, accent_color
+  if bufname ~= '' then
+    icon, accent_color = devicons.get_icon_color(bufname)
+  end
+  if not icon or icon == '' then
+    local icon_name
+    if ft ~= '' then
+      icon_name = devicons.get_icon_name_by_filetype(ft)
+    end
+    if icon_name and icon_name ~= '' then
+      icon, accent_color = require('nvim-web-devicons').get_icon_color(icon_name)
+    end
+  end
+  icon = icon or ''
+  accent_color = accent_color or extra_colors.fg
+  if not props.focused and buf_focused then
+    return {
+      icon = icon,
+      fg = accent_color,
+    }
+  end
+  local contrast_color = helpers.contrast_color(accent_color, {
+    dark = colors.bg_dark,
+    light = colors.fg,
+  })
+  return {
+    icon = icon,
+    fg = contrast_color,
+    bg = props.focused and accent_color or extra_colors.bg_nc,
+  }
+end
+
+local get_file_info = function(props)
+  local bufname = a.nvim_buf_get_name(props.buf)
+  if bufname == '' then
+    return { fname = '[No Name]' }
+  end
+  local pnpm_workspace = get_pnpm_workspace(bufname)
+  if pnpm_workspace then
+    if props.focused then
+      state.focused_workspace = pnpm_workspace.name
+    end
+    local fname = shorten_path_styled(relativize_path(bufname, pnpm_workspace.path), {
+      relative = false,
+      short_len = 1,
+      tail_count = 2,
+      head_max = 3,
+      head_style = { guifg = extra_colors.fg_nc },
+      tail_style = { guifg = extra_colors.fg },
+    })
+    return {
+      fname = fname,
+      pnpm_workspace = pnpm_workspace,
+    }
+  end
+  local fname = shorten_path_styled(bufname, {
+    short_len = 1,
+    tail_count = 2,
+    head_max = 4,
+    head_style = { guifg = extra_colors.fg_nc },
+    tail_style = { guifg = extra_colors.fg },
+  })
+  return { fname = fname }
+end
+
+local get_lsp = function(props)
+  if not props.focused then
+    return ''
+  end
+  return {
+    { lsp_clients_running(props.buf), guifg = colors.green },
+    { lsp_clients_starting(props.buf), guifg = colors.skyblue },
+    { lsp_clients_exited_ok(props.buf), guifg = colors.grey6 },
+    { lsp_clients_exited_err(props.buf), guifg = colors.red },
+  }
+end
+
+local get_pnpm_info = function(file_info)
+  return {
+    file_info.pnpm_workspace
+        and {
+          file_info.pnpm_workspace.name,
+          ' ',
+          guifg = file_info.pnpm_workspace.name == state.focused_workspace and extra_colors.fg_dim
+            or extra_colors.fg_nc,
+        }
+      or '',
+  }
+end
+
 incline.setup {
   render = function(props)
-    local bufname = a.nvim_buf_get_name(props.buf)
+    local ft = vim.bo[props.buf].filetype
 
     local buf_focused = props.buf == a.nvim_get_current_buf()
-
     local modified = vim.bo[props.buf].modified
 
     local fg = props.focused and extra_colors.fg or extra_colors.fg_nc
     local bg = buf_focused and extra_colors.bg or extra_colors.bg_nc
 
-    local filetype = vim.bo[props.buf].filetype
-
-    local pnpm_workspace = get_pnpm_workspace(bufname)
-
-    local fname, icon, icon_bg
-    if bufname == '' then
-      fname = '[No name]'
-    else
-      icon, icon_bg = devicons.get_icon_color(bufname)
-      if pnpm_workspace then
-        fname = shorten_path_styled(relativize_path(bufname, pnpm_workspace.path), {
-          relative = false,
-          short_len = 1,
-          tail_count = 2,
-          head_max = 3,
-          head_style = { guifg = extra_colors.fg_nc },
-          tail_style = { guifg = extra_colors.fg },
-        })
-      else
-        fname = shorten_path_styled(bufname, {
-          short_len = 1,
-          tail_count = 2,
-          head_max = 4,
-          head_style = { guifg = extra_colors.fg_nc },
-          tail_style = { guifg = extra_colors.fg },
-        })
-      end
+    if ft == 'dap-repl' then
+      local icon = {
+        bg = 'red',
+        fg = 'white',
+        icon = '',
+      }
+      return {
+        wrap_status(bg, buf_focused, props, icon, {
+          ' ',
+          dap_status(),
+          guibg = bg,
+          guifg = fg,
+        }),
+      }
     end
 
-    if not icon or icon == '' then
-      local icon_name
-      if filetype ~= '' then
-        icon_name = devicons.get_icon_name_by_filetype(filetype)
-      end
-      if icon_name and icon_name ~= '' then
-        icon, icon_bg = require('nvim-web-devicons').get_icon_color(icon_name)
-      end
-    end
+    local file_info = get_file_info(props)
 
     local diag_disabled = vim.diagnostic.is_disabled(props.buf)
+
     local has_error = not diag_disabled
-      and #vim.diagnostic.get(props.buf, { severity = vim.diagnostic.severity.ERROR }) > 0
+      and #vim.diagnostic.get(props.buf, {
+        severity = vim.diagnostic.severity.ERROR,
+      }) > 0
 
-    icon = icon or ''
-    icon_bg = props.focused and (icon_bg or extra_colors.fg) or extra_colors.fg_nc
-    local icon_fg = helpers.contrast_color(icon_bg, {
-      dark = colors.bg_dark,
-      light = colors.fg,
-    })
+    local lsp = get_lsp(props)
+    local icon = get_icon(props)
 
-    local extra = {}
-
-    local lsp = props.focused
-        and {
-          { lsp_clients_running(props.buf), guifg = colors.green },
-          { lsp_clients_starting(props.buf), guifg = colors.skyblue },
-          { lsp_clients_exited_ok(props.buf), guifg = colors.grey6 },
-          { lsp_clients_exited_err(props.buf), guifg = colors.red },
-        }
-      or ''
-
-    return {
-      extra,
+    local status = {
+      { diag_disabled and ' 󱒼 ' or '', guifg = buf_focused and colors.deep_velvet or colors.deep_anise },
+      { has_error and '  ' or ' ', guifg = colors.red },
+      lsp,
+      get_pnpm_info(file_info),
       {
-        {
-          ' ',
-          icon,
-          ' ',
-          guifg = buf_focused and icon_fg or colors.deep_velvet,
-          guibg = props.focused and icon_bg or (buf_focused and icon_bg or nil),
-        },
-        { diag_disabled and ' 󱒼 ' or '', guifg = buf_focused and colors.deep_velvet or colors.deep_anise },
-        { has_error and '  ' or ' ', guifg = colors.red },
-        lsp,
-        {
-          pnpm_workspace and {
-            pnpm_workspace.name,
-            ' ',
-            guifg = props.focused and extra_colors.fg_dim or extra_colors.fg_nc,
-          } or '',
-        },
-        { fname, guifg = props.focused and fg or extra_colors.fg_dim, gui = modified and 'bold,italic' or nil },
-        { modified and ' * ' or ' ', guifg = extra_colors.fg },
-        git_status(props),
-        guibg = bg,
-        guifg = fg,
+        file_info.fname,
+        guifg = props.focused and fg or extra_colors.fg_dim,
+        gui = modified and 'bold,italic' or nil,
       },
+      { modified and ' *' or '', guifg = extra_colors.fg },
+      git_status(props),
+      guibg = bg,
+      guifg = fg,
     }
+
+    return wrap_status(bg, buf_focused, props, icon, status)
   end,
+
+  debounce_threshold = { rising = 20, falling = 150 },
   window = {
     margin = { horizontal = 0, vertical = 0 },
+    placement = { horizontal = 'right', vertical = 'top' },
+    overlap = {
+      tabline = false,
+      winbar = true,
+      borders = true,
+      statusline = true,
+    },
     padding = 0,
     zindex = 49,
-    placement = { horizontal = 'right', vertical = 'top' },
     winhighlight = {
       active = { Normal = 'Normal' },
       inactive = { Normal = 'Normal' },
@@ -311,6 +428,12 @@ incline.setup {
   },
   hide = {
     cursorline = 'focused_win',
+  },
+  ignore = {
+    unlisted_buffers = false,
+    buftypes = function(bufnr, buftype)
+      return not (buftype == '' or vim.bo[bufnr].filetype == 'dap-repl')
+    end,
   },
 }
 

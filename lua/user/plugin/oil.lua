@@ -52,3 +52,14 @@ oil.setup {
     },
   },
 }
+
+-- Close the window when oil is closed
+-- Also has the effect of quitting vim when the Oil buffer is the last one
+vim.api.nvim_create_autocmd('BufUnload', {
+  pattern = 'oil://*',
+  callback = function()
+    if vim.api.nvim_buf_get_name(0) == '' then
+      vim.cmd 'confirm q'
+    end
+  end,
+})

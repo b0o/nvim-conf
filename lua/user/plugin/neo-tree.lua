@@ -1,4 +1,5 @@
 ---- nvim-neo-tree/neo-tree.nvim
+require('lsp-file-operations').setup()
 require('neo-tree').setup {
   close_if_last_window = true,
   popup_border_style = 'rounded',
@@ -61,6 +62,7 @@ require('neo-tree').setup {
       --['C'] = 'close_node',
       --['<Bs>'] = 'navigate_up',
       --['.'] = 'set_root',
+      ['P'] = { 'toggle_preview', config = { use_float = true, use_image_nvim = false } },
       ['<C-h>'] = 'toggle_hidden',
       ['R'] = 'refresh',
       ['/'] = 'fuzzy_finder',
@@ -147,17 +149,3 @@ require('neo-tree').setup {
     },
   },
 }
-
-local colors_gui = vim.g.colors_gui or {}
-local colors = require 'user.colors'
-for hi, c in pairs {
-  NeoTreeModified = colors.hydrangea,
-
-  NeoTreeGitAdded = colors_gui['14'] or 'lightgreen',
-  NeoTreeGitConflict = colors_gui['16'] or 'magenta',
-  NeoTreeGitDeleted = colors_gui['12'] or 'lightred',
-  NeoTreeGitModified = colors_gui['13'] or 'yellow',
-  NeoTreeGitUntracked = colors_gui['8'] or 'cyan',
-} do
-  vim.cmd(('highlight %s guifg=%s'):format(hi, c))
-end

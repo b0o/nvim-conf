@@ -1,6 +1,6 @@
 ---- stevearc/aerial.nvim
 require('aerial').setup {
-  backends = { 'lsp', 'treesitter', 'man', 'markdown' },
+  backends = { 'treesitter', 'lsp', 'markdown', 'man' },
   attach_mode = 'global',
   disable_max_lines = 5000,
   filter_kind = {
@@ -24,7 +24,7 @@ require('aerial').setup {
   update_events = 'TextChanged,InsertLeave',
   lsp = {
     update_when_errors = true,
-    diagnostics_trigger_update = true,
+    -- diagnostics_trigger_update = false,
     update_delay = 500,
   },
   treesitter = {
@@ -32,5 +32,8 @@ require('aerial').setup {
   },
   markdown = {
     update_delay = 500,
+  },
+  keymaps = {
+    ['?'] = false,
   },
 }

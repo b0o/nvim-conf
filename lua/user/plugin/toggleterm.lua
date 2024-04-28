@@ -1,5 +1,5 @@
 ---- akinsho/nvim-toggleterm.lua
-local xk = require('user.mappings').xk
+local xk = require('user.keys').xk
 
 require('toggleterm').setup {
   size = function(term)

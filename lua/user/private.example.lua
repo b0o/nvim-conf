@@ -4,5 +4,9 @@
 local M = {}
 
 M.openai_api_key = 'sk-xxxxxxxxxxxxxxxxxxxx'
+M.obsidian_vault = {
+  name = 'name',
+  path = '/path/to/obsidian/vault',
+}
 
 return M

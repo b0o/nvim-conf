@@ -211,17 +211,25 @@ end
 local function tabline()
   local tabpages = vim.api.nvim_list_tabpages()
   local current_tabpage = vim.api.nvim_get_current_tabpage()
-  local s = ' '
+
+  local s = ''
+  s = s .. hw 'TabLineBg'
+  s = s .. '%='
+  s = s .. hw 'TabLineCap' .. ''
+  s = s .. hw 'TabLine' .. '  '
   for i, t in ipairs(tabpages) do
     local hl = 'TabLine'
-    if t == current_tabpage then
+    local cur = t == current_tabpage
+    if cur then
       hl = 'TabLineSel'
     end
     s = s .. hw(hl)
     s = s .. '%' .. t .. 'T'
-    s = s .. hw(hl, 'Sep') .. ''
-    s = s .. hw(hl, 'Nr') .. ' '
-    s = s .. (apiutil.tabpage_is_modified(t) and '' or '')
+    -- s = s .. hw(hl, 'Sep') .. ''
+    s = s .. hw(hl, 'Nr')
+    if apiutil.tabpage_is_modified(t) then
+      s = s .. ' '
+    end
     s = s .. ' ' .. i
     s = s .. hw(hl) .. ' '
     local title = M.tabpage_get_title(t)
@@ -233,10 +241,12 @@ local function tabline()
       s = s .. M.titlestring(t, t == current_tabpage)
     end
     s = s .. ' '
-    s = s .. hw(hl, 'Sep') .. ''
+    -- s = s .. hw(hl, 'Sep') .. ''
     s = s .. hw 'TabLineFill' .. ' '
   end
-  s = s .. '%#TabLineFill#%T'
+  s = s .. '%#TabLineFill#%T '
+  s = s .. hw 'TabLineCap' .. ''
+  s = s .. '%='
   return s
 end
 
@@ -251,7 +261,9 @@ end
 fn.tmpl_cmd(
   [[
     hi TabLineFill               ctermbg=0                           guibg=${base_bg}
+    hi TabLineCap                ctermbg=0                           guibg=NONE guifg=${base_bg}
 
+    hi TabLineBg                 ctermbg=0 guifg=NONE                guibg=NONE
     hi TabLine                   ctermbg=0 guifg=${tab_fg}           guibg=${tab_bg}
     hi TabLineSel      ctermfg=6 ctermbg=8 guifg=${tab_sel_fg}       guibg=${tab_sel_bg}
 
@@ -268,14 +280,14 @@ fn.tmpl_cmd(
     hi TabLineSelTitle ctermfg=6 ctermbg=8 guifg=${tab_sel_title_fg} guibg=${tab_sel_bg} cterm=bold   gui=bold
   ]],
   {
-    base_bg = colors.deep_anise,
-    tab_bg = colors.deep_velvet,
-    tab_fg = colors.white,
-    tab_nr_fg = colors.white,
+    base_bg = '#30284b',
+    tab_bg = '#30284b',
+    tab_fg = '#9887c3',
+    tab_nr_fg = '#7b7098',
     tab_title_fg = colors.white,
-    tab_sel_bg = colors.deep_licorice,
-    tab_sel_fg = colors.powder,
-    tab_sel_nr_fg = colors.hydrangea,
+    tab_sel_bg = '#30284b',
+    tab_sel_fg = colors.dust,
+    tab_sel_nr_fg = '#bbabc0',
     tab_sel_title_fg = colors.white,
   }
 )

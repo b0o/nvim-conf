@@ -131,7 +131,8 @@ return {
       local workspace_path = files.join(vim.fs.dirname(package), workspace.path)
       local workspace_package_file = files.join(workspace_path, 'package.json')
       local workspace_data = files.load_json_file(workspace_package_file)
-      if workspace_data and workspace_data.scripts then
+      if workspace_data then
+        workspace_data.scripts = workspace_data.scripts or {}
         for k, v in
           pairs(vim.tbl_extend('force', {
             -- base tasks for all workspaces

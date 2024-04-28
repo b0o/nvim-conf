@@ -41,7 +41,14 @@ command { 'Format', lsp.format }
 
 command { 'DiffOrig', 'vert new | set buftype=nofile | read ++edit # | 0d_ | diffthis | wincmd p | diffthis' }
 
-command { '-nargs=*', [[-complete=help H lua require'user.fn'.help(<q-args>)]] }
+command {
+  '-nargs=*',
+  [[-complete=help H lua require'user.fn'.help(<q-args>)]],
+}
+command {
+  '-nargs=*',
+  [[-complete=help HH enew | set buftype=help | help <args>]],
+}
 command {
   '-nargs=*',
   '-bar',

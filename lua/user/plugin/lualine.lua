@@ -37,10 +37,15 @@ local function pnpm_workspace()
   return ''
 end
 
+local theme = ({
+  lavi = lavi_theme,
+  tokyonight = 'tokyonight',
+})[vim.env.COLORSCHEME] or lavi_theme
+
 require('lualine').setup {
   options = {
     icons_enabled = true,
-    theme = lavi_theme,
+    theme = theme,
     component_separators = { left = '', right = '' },
     section_separators = { left = ' ', right = ' ' },
     disabled_filetypes = {
@@ -68,6 +73,7 @@ require('lualine').setup {
     },
     lualine_c = {
       { 'filename', path = 1, symbols = { modified = '*' } },
+      'aerial',
     },
     lualine_x = {
       '%S', -- showcmd, requires showcmdloc=statusline

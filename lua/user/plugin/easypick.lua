@@ -1,7 +1,7 @@
 local easypick = require 'easypick'
 local actions = require 'telescope.actions'
 local action_state = require 'telescope.actions.state'
-local xk = require('user.mappings').xk
+local xk = require('user.keys').xk
 
 local find_first_include = function(bufnr)
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)

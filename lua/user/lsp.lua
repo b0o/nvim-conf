@@ -16,8 +16,21 @@ local M = {
 
 local lsp_servers = {
   {
+    'astro',
+  },
+  {
+    'mdx_analyzer',
+    filetypes = { 'mdx' },
+    init_options = {
+      typescript = {
+        -- tsdk = vim.env.HOME .. '/.local/share/pnpm/global/5/node_modules/typescript/lib',
+        tsdk = require('user.private').mdx_tsdk,
+      },
+    },
+  },
+  {
     'bashls',
-    cmd_env = { SHELLCHECK_PATH = '' },
+    -- cmd_env = { SHELLCHECK_PATH = '' },
   },
   {
     'clangd',
@@ -127,13 +140,11 @@ local lsp_servers = {
     formatting = false,
   },
   {
-    -- python
-    'ruff_lsp',
+    'ruff',
     hover = false,
   },
   'rust_analyzer',
   'rnix',
-  -- 'sqls',
   {
     'lua_ls',
     settings = {
@@ -196,6 +207,9 @@ local lsp_servers = {
     },
   },
   {
+    'taplo',
+  },
+  {
     'tsserver',
     enabled = false,
     formatting = false,
@@ -225,6 +239,17 @@ local lsp_servers = {
   'zls',
 }
 
+local attach_grimoire = function()
+  vim.lsp.start {
+    name = 'grimoire-ls',
+    cmd = { vim.env.GIT_PROJECTS_DIR .. '/grimoire-ls/.venv/bin/python', '-m', 'grimoire_ls.run' },
+    capabilities = vim.lsp.protocol.make_client_capabilities(),
+    root_dir = vim.fn.getcwd(),
+  }
+end
+
+vim.api.nvim_create_user_command('GrimoireLs', attach_grimoire, { desc = 'Attach Grimoire LSP' })
+
 local lsp_handlers = {
   ['textDocument/publishDiagnostics'] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
     virtual_text = {
@@ -245,7 +270,7 @@ local lsp_handlers = {
       vim.cmd(split_cmd)
       vim.lsp.util.jump_to_location(loc, ctx.client.offset_encoding)
     end
-    if vim.tbl_islist(result) then
+    if vim.islist(result) then
       jumpto(result[1])
       if #result > 1 then
         vim.fn.setqflist(vim.lsp.util.locations_to_items(result, ctx.client.offset_encoding))
@@ -259,7 +284,7 @@ local lsp_handlers = {
 }
 
 local function on_attach(client, bufnr)
-  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+  vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
   user_lsp_status.on_attach(client, bufnr)
 
   -- Enable inlay hints if the client supports it.
@@ -272,14 +297,14 @@ local function on_attach(client, bufnr)
     if M.inlay_hints_enabled[bufnr] == nil then
       M.inlay_hints_enabled[bufnr] = M.inlay_hints_enabled_global
     end
-    vim.lsp.inlay_hint.enable(bufnr, M.inlay_hints_enabled[bufnr])
+    vim.lsp.inlay_hint.enable(M.inlay_hints_enabled[bufnr], { bufnr = bufnr })
 
     vim.api.nvim_create_autocmd('InsertEnter', {
       group = inlay_hints_group,
       buffer = bufnr,
       callback = function()
         if M.inlay_hints_enabled[bufnr] then
-          vim.lsp.inlay_hint.enable(bufnr, false)
+          vim.lsp.inlay_hint.enable(false, { bufnr = bufnr })
         end
       end,
     })
@@ -288,7 +313,7 @@ local function on_attach(client, bufnr)
       buffer = bufnr,
       callback = function()
         if M.inlay_hints_enabled[bufnr] then
-          vim.lsp.inlay_hint.enable(bufnr, true)
+          vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
         end
       end,
     })
@@ -305,9 +330,6 @@ local function on_first_attach()
       border = 'rounded',
     },
   }
-  require('null-ls').setup(vim.tbl_extend('force', require 'user.plugin.null-ls', {
-    on_attach = on_attach,
-  }))
 end
 
 local function on_attach_wrapper(...)
@@ -332,7 +354,7 @@ function M.peek_definition()
     if result == nil or vim.tbl_isempty(result) then
       return
     end
-    vim.lsp.util.preview_location(result[1])
+    vim.lsp.util.preview_location(result[1], {})
   end)
 end
 
@@ -352,7 +374,7 @@ function M.set_inlay_hints(bufnr, status)
     status = not M.inlay_hints_enabled[bufnr]
   end
   M.inlay_hints_enabled[bufnr] = status
-  vim.lsp.inlay_hint.enable(bufnr, status)
+  vim.lsp.inlay_hint.enable(status, { bufnr = bufnr })
 end
 
 local function lsp_init()

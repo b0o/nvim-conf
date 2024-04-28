@@ -6,6 +6,15 @@ overseer.setup {
     preserve_output = true,
     use_terminal = true,
   },
+  component_aliases = {
+    default = {
+      { 'display_duration', detail_level = 2 },
+      'on_output_summarize',
+      'on_exit_set_status',
+      'on_complete_notify',
+      -- "on_complete_dispose", -- disabled to keep tasks until manually disposed
+    },
+  },
   task_list = {
     direction = 'bottom',
     max_width = { 180, 0.4 },
