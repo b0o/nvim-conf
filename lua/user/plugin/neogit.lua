@@ -176,6 +176,7 @@ neogit.setup {
       -- ['#'] = 'Console',
       -- ['<c-r>'] = 'RefreshBuffer',
       ['<cr>'] = false,
+      -- This binding is necessary to prevent a config error when disabling the <cr> mapping, seems to be a bug in neogit
       ['<C-Cr>'] = 'GoToFile',
       -- ['<c-v>'] = 'VSplitOpen',
       -- ['<c-x>'] = 'SplitOpen',
