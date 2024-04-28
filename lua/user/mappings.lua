@@ -1021,14 +1021,6 @@ local function open_neogit(opts)
     replace = true,
   }, opts or {})
   return function()
-    local bufnr = vim.fn.bufnr 'NeogitStatus'
-    if bufnr ~= -1 then
-      local winid = vim.fn.win_findbuf(bufnr)[1]
-      if winid and winid ~= -1 then
-        vim.api.nvim_set_current_win(winid)
-        return
-      end
-    end
     local neogit = require 'neogit'
     if
       opts.replace
@@ -1046,6 +1038,7 @@ local function open_neogit(opts)
 end
 
 m.nnoremap([[<leader>gs]], open_neogit { kind = 'vsplit' }, m.silent, 'Neogit')
+m.nnoremap([[<leader>gg]], open_neogit { kind = 'replace' }, m.silent, 'Neogit (replace)')
 m.nnoremap([[<leader>G]], open_neogit { kind = 'tab', replace = false }, m.silent, 'Neogit (tab)')
 
 m.nname('<leader>g', 'Git')
