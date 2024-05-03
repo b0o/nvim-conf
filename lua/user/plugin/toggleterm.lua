@@ -1,6 +1,9 @@
 ---- akinsho/nvim-toggleterm.lua
 local xk = require('user.keys').xk
 
+---@diagnostic disable-next-line: undefined-field
+vim.env.NVIM_LISTEN_ADDRESS_TOGGLETERM = vim.v.servername or nil
+
 require('toggleterm').setup {
   size = function(term)
     if term.direction == 'horizontal' then
