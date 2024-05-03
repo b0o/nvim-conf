@@ -1572,6 +1572,17 @@ m.nnoremap([[<leader>os]], '<Cmd>OtherSplit<Cr>', 'Other: Open other in split')
 m.nnoremap([[<leader>ov]], '<Cmd>OtherVSplit<Cr>', 'Other: Open other in vsplit')
 
 ---- akinsho/nvim-toggleterm.lua
+local function toggleterm_open(direction)
+  return function()
+    local cmd = 'ToggleTerm'
+    if direction then
+      cmd = cmd .. ' direction=' .. direction
+    end
+    require('user.util.recent-wins').update()
+    vim.cmd(cmd)
+  end
+end
+
 local toggleterm_smart_toggle = function()
   local terms = require('toggleterm.terminal').get_all()
   if #terms > 0 then
@@ -1590,13 +1601,14 @@ local toggleterm_smart_toggle = function()
       vim.api.nvim_win_close(term.window, true)
     end
   end
-  vim.cmd 'ToggleTerm'
+  toggleterm_open()()
 end
-m.nnoremap(xk [[<C-M-S-/>]], '<Cmd>ToggleTerm direction=float<Cr>', m.silent, 'ToggleTerm: Toggle (float)')
+
+m.nnoremap(xk [[<C-M-S-/>]], toggleterm_open 'float', m.silent, 'ToggleTerm: Toggle (float)')
 m.tnoremap(xk [[<C-M-S-/>]], [[<C-\><C-n>:ToggleTerm direction=float<Cr>]], m.silent, 'ToggleTerm: Toggle (float)')
-m.nnoremap(xk [[<M-S-/>]], '<Cmd>ToggleTerm direction=vertical<Cr>', m.silent, 'ToggleTerm: Toggle (vertical)')
+m.nnoremap(xk [[<M-S-/>]], toggleterm_open 'vertical', m.silent, 'ToggleTerm: Toggle (vertical)')
 m.tnoremap(xk [[<M-S-/>]], [[<C-\><C-n>:ToggleTerm direction=vertical<Cr>]], m.silent, 'ToggleTerm: Toggle (vertical)')
-m.nnoremap(xk [[<C-M-/>]], '<Cmd>ToggleTerm direction=horizontal<Cr>', m.silent, 'ToggleTerm: Toggle (horizontal)')
+m.nnoremap(xk [[<C-M-/>]], toggleterm_open 'horizontal', m.silent, 'ToggleTerm: Toggle (horizontal)')
 m.tnoremap(
   xk [[<C-M-/>]],
   [[<C-\><C-n>:ToggleTerm direction=horizontal<Cr>]],
