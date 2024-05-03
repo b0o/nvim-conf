@@ -13,6 +13,7 @@ require('toggleterm').setup {
   on_open = function()
     vim.cmd 'startinsert!'
   end,
+  direction = 'float',
   persist_size = false,
   shade_terminals = false,
   float_opts = {
