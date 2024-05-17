@@ -21,7 +21,7 @@ local iwrap = function(func, ...)
 end
 
 local m = require('mapx').setup {
-  whichkey = true,
+  whichkey = false,
   enableCountArg = false,
   debug = vim.g.mapxDebug or false,
 }
