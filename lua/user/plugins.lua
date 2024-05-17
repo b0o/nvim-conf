@@ -643,6 +643,7 @@ local plugins = {
       }
     end,
     cmd = {
+      'Blender',
       'BlenderLaunch',
       'BlenderManage',
       'BlenderTest',
