@@ -96,14 +96,18 @@ command { '-count=-1', '-register', 'YankMessages', 'lua require("user.fn").yank
 command {
   '-bang',
   'Only',
-  function(o)
-    local curwin = vim.api.nvim_get_current_win()
-    vim.tbl_map(function(w)
-      if w ~= curwin then
-        vim.api.nvim_win_close(w, o.bang == '!')
-      end
-    end, fn.tabpage_list_normal_wins())
-  end,
+  {
+    function(o)
+      local curwin = vim.api.nvim_get_current_win()
+      vim.tbl_map(function(w)
+        if w ~= curwin then
+          vim.api.nvim_win_close(w, o.bang == '!')
+        end
+      end, fn.tabpage_list_normal_wins())
+    end,
+    'bang',
+  },
+}
 }
 
 ---- Magic file commands
