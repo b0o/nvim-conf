@@ -108,6 +108,26 @@ command {
     'bang',
   },
 }
+
+command {
+  '-bang',
+  'Bclean',
+  {
+    function(o)
+      vim
+        .iter(vim.api.nvim_list_bufs())
+        :filter(function(buf)
+          local bo = vim.bo[buf]
+          local bang = o.bang == '!'
+          return bo.buftype == '' and bo.buflisted and (bang or not bo.modified) and #vim.fn.win_findbuf(buf) == 0
+        end)
+        :each(function(buf)
+          vim.notify('Deleting buffer ' .. buf)
+          vim.cmd('confirm bdelete ' .. buf)
+        end)
+    end,
+    'bang',
+  },
 }
 
 ---- Magic file commands
