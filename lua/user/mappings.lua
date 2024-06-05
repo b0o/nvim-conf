@@ -27,7 +27,6 @@ local m = require('mapx').setup {
 }
 
 local recent_wins = fn.require_on_call_rec 'user.util.recent-wins'
--- local auto_resize = require 'user.util.auto-resize'
 
 local xk = require('user.keys').xk
 
@@ -173,6 +172,10 @@ m.nnoremap([[<localleader>c]], iwrap(cutbuf.copy), m.silent, 'cutbuf: copy')
 m.nnoremap([[<localleader>p]], iwrap(cutbuf.paste), m.silent, 'cutbuf: paste')
 m.nnoremap([[<localleader>X]], iwrap(cutbuf.swap), m.silent, 'cutbuf: swap')
 
+---- Window Management
+local auto_resize = require 'user.util.auto-resize'
+m.nnoremap([[<leader>sa]], auto_resize.enable, 'Enable auto-resize')
+m.nnoremap([[<leader>sA]], auto_resize.disable, 'Disable auto-resize')
 
 ---- Editing
 
@@ -186,8 +189,8 @@ m.xnoremap([[<]], [[<gv]], 'De-Indent')
 m.nnoremap([[<M-.>]], [[m'Do<Esc>p`']], 'Break line at cursor')
 m.nnoremap([[<M-,>]], [[m'DO<Esc>p`']], 'Break line at cursor (reverse)')
 
--- m.nnoremap([[<M-o>]], 'o<C-u>', m.silent, 'Begin a new line below the cursor and insert text (no autocomment)')
--- m.nnoremap([[<M-O>]], 'O<C-u>', m.silent, 'Begin a new line above the cursor and insert text (no autocomment)')
+m.nnoremap([[go]], 'o<C-u>', m.silent, 'Begin a new line below the cursor and insert text (no autocomment)')
+m.nnoremap([[gO]], 'O<C-u>', m.silent, 'Begin a new line above the cursor and insert text (no autocomment)')
 
 m.nnoremap([[Y]], [[y$]], 'Yank until end of line')
 
@@ -260,6 +263,9 @@ m.nnoremap([[<Esc>]], function()
   vim.cmd 'nohlsearch'
   if package.loaded['nvim-tree'] then
     require('nvim-tree.actions.node.file-popup').close_popup()
+  end
+  if package.loaded['cmp'] then
+    require('cmp').close()
   end
   if package.loaded['noice'] then
     vim.cmd 'NoiceDismiss'
@@ -492,8 +498,8 @@ m.noremap([[<M-8>]], tabnm(8), m.silent, 'Goto tab 8')
 m.noremap([[<M-9>]], tabnm(9), m.silent, 'Goto tab 9')
 m.noremap([[<M-0>]], tabnm(10), m.silent, 'Goto tab 10')
 
-m.noremap([[<M-">]], '<Cmd>+tabm<Cr>', m.silent, 'Move tab right')
-m.noremap([[<M-:>]], '<Cmd>-tabm<Cr>', m.silent, 'Move tab left')
+m.noremap([[<M-">]], ':+tabm<Cr>', m.silent, 'Move tab right')
+m.noremap([[<M-:>]], ':-tabm<Cr>', m.silent, 'Move tab left')
 
 m.noremap([[<F13>]], '<Cmd>tabnew<Cr>', m.silent, 'Open new tab')
 
@@ -501,10 +507,6 @@ m.tnoremap([[<M-h>]], [[<C-\><C-n><C-w>h]]) -- Goto tab left
 m.tnoremap([[<M-j>]], [[<C-\><C-n><C-w>j]]) -- Goto tab down
 m.tnoremap([[<M-k>]], [[<C-\><C-n><C-w>k]]) -- Goto tab up
 m.tnoremap([[<M-l>]], [[<C-\><C-n><C-w>l]]) -- Goto tab right
-
-m.nnoremap([[<leader>sa]], '<Cmd>wincmd =<Cr>', m.silent, 'Auto-resize')
--- m.nnoremap ([[<leader>sa]], auto_resize.enable,  "Enable auto-resize")
--- m.nnoremap ([[<leader>sA]], auto_resize.disable, "Disable auto-resize")
 
 m.nnoremap([[<leader>sf]], iwrap(fn.toggle_winfix, 'height'), 'Toggle fixed window height')
 m.nnoremap([[<leader>sF]], iwrap(fn.toggle_winfix, 'width'), 'Toggle fixed window width')
@@ -523,12 +525,6 @@ m.nnoremap([[<leader>vv]], '<Cmd>vsplit<Cr>', m.silent, 'Split (vert, cur)')
 m.nnoremap([[<leader>vt]], '<Cmd>vsplit<Cr>', m.silent, 'Split (vert, cur)')
 
 m.xnoremap([[<leader>I]], [[<Esc>:call user#fn#interleave()<Cr>]], m.silent, 'Interleave two contiguous blocks')
-
--- Tabline
-local tabline = require 'user.tabline'
-m.nmap({ '<C-t><C-l>', '<C-t>l' }, tabline.tabpage_toggle_titlestyle, 'Tabpage: Toggle title style')
-m.nmap({ '<C-t><C-t>', '<C-t>t' }, tabline.do_rename_tab, 'Tabpage: Set title')
-m.nmap({ '<C-t><C-h>', '<C-t>h' }, tabline.toggle_hide, 'Tabline: Toggle hide')
 
 -- PasteRestore
 -- paste register without overwriting with the original selection
@@ -753,13 +749,9 @@ M.on_lsp_attach = function(bufnr)
     m.nnoremap([[<localleader>ds]], iwrap(vim.diagnostic.show), 'LSP: Show diagnostics')
     m.nnoremap({ [[<localleader>dt]], [[<localleader>T]] }, iwrap(trouble.toggle), 'LSP: Toggle Trouble')
     m.nnoremap([[<localleader>dd]], function()
-      if vim.diagnostic.is_disabled(0) then
-        vim.diagnostic.enable(0)
-        vim.notify 'Diagnostics enabled'
-      else
-        vim.diagnostic.disable(0)
-        vim.notify 'Diagnostics disabled'
-      end
+      local enabled = vim.diagnostic.is_enabled { bufnr = 0 }
+      vim.diagnostic.enable(not enabled, { bufnr = 0 })
+      vim.notify('Diagnostics ' .. (enabled and 'disabled' or 'enabled'))
     end, 'LSP: Toggle Diagnostic')
 
     m.nnoremap('[d', prevDiag(), 'LSP: Goto prev diagnostic')
@@ -796,13 +788,15 @@ M.on_lsp_attach = function(bufnr)
       'LSP: Telescope symbol search'
     )
 
-    local user_otter = fn.require_on_call_rec 'user.plugin.otter'
+    -- local user_otter = fn.require_on_call_rec 'user.plugin.otter'
 
     m.nname('<localleader>h', 'LSP-Hover')
     m.nnoremap([[<localleader>hs]], iwrap(vim.lsp.buf.signature_help), 'LSP: Signature help')
     m.nnoremap([[<M-S-i>]], iwrap(user_lsp.peek_definition), 'LSP: Peek definition')
-    m.noremap([[<M-i>]], iwrap(user_otter.lsp_action, 'hover'), 'LSP: Hover')
-    m.inoremap([[<M-i>]], iwrap(user_otter.lsp_action, 'hover'), 'LSP: Hover')
+    m.nnoremap([[<M-i>]], iwrap(vim.lsp.buf.hover), 'LSP: Hover')
+    m.inoremap([[<M-i>]], iwrap(vim.lsp.buf.hover), 'LSP: Hover')
+    -- m.noremap([[<M-i>]], iwrap(user_otter.lsp_action, 'hover'), 'LSP: Hover')
+    -- m.inoremap([[<M-i>]], iwrap(user_otter.lsp_action, 'hover'), 'LSP: Hover')
   end)
 end
 
@@ -813,10 +807,6 @@ m.nnoremap([[<leader>I]], iwrap(incline.toggle), 'Incline: Toggle')
 
 ---- folke/which-key.nvim
 m.nnoremap([[<leader><leader>]], '<Cmd>WhichKey<Cr>', m.silent, 'WhichKey: Show all')
-
----- AndrewRadev/splitjoin.vim
--- m.nnoremap([[gJ]], '<Cmd>SplitjoinJoin<Cr>', "Splitjoin: Join")
--- m.nnoremap([[gS]], '<Cmd>SplitjoinSplit<Cr>', "Splitjoin: Split")
 
 ---- Wansmer/treesj
 local treesj = fn.require_on_call_rec 'treesj'
@@ -1037,6 +1027,58 @@ M.on_gistsigns_attach = function(bufnr)
     m.xnoremap([[ih]], '<Cmd><C-U>Gitsigns select_hunk<Cr>', '[TextObj] Gitsigns: Inner hunk')
   end)
 end
+
+-- lukas-reineke/indent-blankline.nvim
+---@param mode 'start-outer' | 'start-inner' | 'end-outer' | 'end-inner'
+local function goto_scope(mode)
+  return function()
+    local forward = mode == 'end-outer' or mode == 'end-inner'
+    local bufnr = vim.api.nvim_get_current_buf()
+    local config = require('ibl.config').get_config(bufnr)
+    local start_line = vim.api.nvim_win_get_cursor(0)[1]
+    local num_lines = vim.api.nvim_buf_line_count(bufnr)
+    local current_line = start_line
+    local dest_line
+    while true do
+      local scope = require('ibl.scope').get(bufnr, config)
+      if not scope then
+        return
+      end
+      if mode == 'start-outer' then
+        dest_line = scope:start() + 1
+      elseif mode == 'start-inner' then
+        dest_line = scope:start() + 2
+      elseif mode == 'end-outer' then
+        dest_line = scope:end_() + 1
+      elseif mode == 'end-inner' then
+        dest_line = scope:end_()
+      end
+      if (forward and dest_line > start_line) or (not forward and dest_line < start_line) then
+        break
+      end
+      if mode == 'start-outer' or mode == 'start-inner' then
+        current_line = current_line - 1
+        if current_line <= 0 then
+          vim.notify('No scope start found', vim.log.levels.WARN)
+          return
+        end
+      else
+        current_line = current_line + 1
+        if current_line > num_lines then
+          vim.notify('No scope end found', vim.log.levels.WARN)
+          return
+        end
+      end
+      vim.api.nvim_win_set_cursor(0, { current_line, 0 })
+    end
+    vim.api.nvim_win_set_cursor(0, { dest_line, 0 })
+  end
+end
+
+m.nnoremap('[s', goto_scope 'start-inner', 'IBL: Scope start (inner)')
+m.nnoremap('[S', goto_scope 'start-outer', 'IBL: Scope start (outer)')
+m.nnoremap(']s', goto_scope 'end-inner', 'IBL: Scope end (inner)')
+m.nnoremap(']S', goto_scope 'end-outer', 'IBL: Scope end (outer)')
 
 -- mbbill/undotree
 m.nnoremap([[<leader>ut]], '<Cmd>UndotreeToggle<Cr>', m.silent, 'Undotree: Toggle')
@@ -1428,26 +1470,6 @@ m.nmap([[<M-j>]], iwrap(smart_splits.move_cursor_down), 'Goto window/pane down')
 m.nmap([[<M-k>]], iwrap(smart_splits.move_cursor_up), 'Goto window/pane up')
 m.nmap([[<M-l>]], iwrap(smart_splits.move_cursor_right), 'Goto window/pane right')
 
----- zbirenbaum/copilot.lua
-local copilot_suggestion = fn.require_on_exported_call 'copilot.suggestion'
-local copilot_panel = fn.require_on_exported_call 'copilot.panel'
-local copilot_accept_or_insert = function(action, fallback)
-  return function()
-    if copilot_suggestion.is_visible() then
-      copilot_suggestion[action]()
-    elseif fallback then
-      vim.api.nvim_put(vim.split(fallback, '\n'), 'c', false, true)
-    end
-  end
-end
-
-m.inoremap({ xk [[<C-\>]], [[]] }, copilot_accept_or_insert('accept', '\n'), m.silent, 'Copilot: Accept')
-m.inoremap([[<M-\>]], copilot_accept_or_insert 'accept_word', m.silent, 'Copilot: Accept Word')
-m.inoremap(xk [[<M-S-\>]], copilot_accept_or_insert('accept_line', '\n'), m.silent, 'Copilot: Accept Line')
-m.inoremap([[<M-[>]], iwrap(copilot_suggestion.prev), m.silent, 'Copilot: Previous Suggestion')
-m.inoremap([[<M-]>]], iwrap(copilot_suggestion.next), m.silent, 'Copilot: Next Suggestion')
-m.inoremap(xk [[<C-S-\>]], iwrap(copilot_panel.open), m.silent, 'Copilot: Open panel')
-
 ---- monaqa/dial.nvim
 m.nmap([[<C-a>]], '<Plug>(dial-increment)', 'Dial: Increment')
 m.nmap([[<C-x>]], '<Plug>(dial-decrement)', 'Dial: Decrement')
@@ -1596,35 +1618,6 @@ m.nnoremap([[<leader>ll]], '<Cmd>Lazy<cr>', 'Lazy')
 ---- folke/noice.nvim
 m.nnoremap([[<leader>L]], '<Cmd>NoiceHistory<cr>', 'Noice: History log')
 
----- b0o/scratch.nvim
--- local scratch = fn.require_on_call_rec 'user.util.scratch'
--- m.nnoremap([[<C-m>]], iwrap(scratch.toggle), 'Scratch: Toggle')
-
----- folke/flash.nvim
--- vim.keymap.set({ 'n', 'x', 'o' }, '<M-s>', function()
---   require('flash').jump()
--- end, { desc = 'Flash' })
---
--- vim.keymap.set({ 'n', 'x', 'o' }, '<M-S-s>', function()
---   require('flash').treesitter()
--- end, { desc = 'Flash Treesitter' })
---
--- vim.keymap.set({ 'n', 'x', 'o' }, xk '<C-M-S-s>', function()
---   require('flash').treesitter_search()
--- end, { desc = 'Flash Treesitter Search' })
---
--- vim.keymap.set({ 'o' }, 'r', function()
---   require('flash').remote()
--- end, { desc = 'Remote Flash' })
---
--- vim.keymap.set({ 'o', 'x' }, 'R', function()
---   require('flash').treesitter_search()
--- end, { desc = 'Treesitter Search' })
---
--- vim.keymap.set({ 'c' }, '<C-s>', function()
---   require('flash').toggle()
--- end, { desc = 'Toggle Flash Search' })
-
 ---- s1n7ax/nvim-window-picker
 m.nnoremap([[<M-w>]], function()
   local win = require('window-picker').pick_window()
@@ -1666,5 +1659,34 @@ M.obsidian_on_attach = function()
     vim.defer_fn(require('cmp').complete, 0)
   end, ':Obsidian')
 end
+
+---- akinsho/git-conflict.nvim
+m.nnoremap([[<leader>cc]], function()
+  local actions = {
+    GitConflictCurrent = 'ours',
+    GitConflictCurrentLabel = 'ours',
+    GitConflictAncestor = 'base',
+    GitConflictAncestorLabel = 'base',
+    GitConflictIncoming = 'theirs',
+    GitConflictIncomingLabel = 'theirs',
+  }
+  local choose = function(which)
+    vim.notify('Choosing ' .. which, vim.log.levels.INFO)
+    require('git-conflict').choose(which)
+  end
+  local line = vim.api.nvim_get_current_line()
+  if line == '=======' then
+    choose 'both'
+    return
+  end
+  local mark = vim.iter(vim.inspect_pos().extmarks):find(function(e)
+    return e.ns == 'git-conflict' and actions[e.opts.hl_group]
+  end)
+  if not mark then
+    vim.notify('No conflict under cursor', vim.log.levels.WARN)
+    return
+  end
+  choose(actions[mark.opts.hl_group])
+end, 'Git Conflict: Choose hunk under cursor')
 
 return M
