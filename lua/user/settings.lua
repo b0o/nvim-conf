@@ -24,11 +24,11 @@ vim.o.smartcase = true
 
 vim.o.ignorecase = true -- ignore case when searching
 vim.o.smartcase = true -- don't ignore case if user types an uppercase letter
-vim.o.hlsearch = true -- keep matches highlighted after searching
-vim.o.incsearch = true -- show matches while typing
 vim.o.magic = true -- change set of special search characters
 
-vim.o.inccommand = 'nosplit' -- when typing a :s/foo/bar/g command, show live preview
+vim.o.hlsearch = true -- keep matches highlighted after searching
+vim.o.incsearch = true -- show matches while typing
+vim.opt.inccommand = 'split'
 
 vim.o.timeoutlen = 1000
 vim.o.matchtime = 2 -- show matching parens/brackets for 200ms
