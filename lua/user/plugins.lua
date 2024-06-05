@@ -572,14 +572,6 @@ local plugins = {
       'rcarriga/cmp-dap',
       'ray-x/cmp-treesitter',
       'petertriho/cmp-git',
-      {
-        'L3MON4D3/LuaSnip',
-        run = 'make install_jsregexp',
-        conf = 'user.plugin.luasnip',
-        dependencies = {
-          'saadparwaiz1/cmp_luasnip',
-        },
-      },
     },
   },
 

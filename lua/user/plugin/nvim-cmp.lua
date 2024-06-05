@@ -3,7 +3,6 @@ local cmp = require 'cmp'
 local feedkeys = require 'cmp.utils.feedkeys'
 local keymap = require 'cmp.utils.keymap'
 
-local luasnip = require('user.util.lazy').require_on_call_rec 'luasnip'
 local xk = require('user.keys').xk
 
 local wincfg = vim.tbl_extend('force', cmp.config.window.bordered(), {
@@ -48,7 +47,7 @@ end
 cmp.setup {
   snippet = {
     expand = function(args)
-      luasnip.lsp_expand(args.body)
+      vim.snippet.expand(args.body)
     end,
   },
   completion = {
@@ -74,12 +73,10 @@ cmp.setup {
         nvim_lsp = ' LSP',
         otter = ' Ott',
         treesitter = '  TS',
-        luasnip = 'Snip',
         nvim_lua = ' Lua',
         buffer = ' Buf',
         path = 'Path',
         git = ' Git',
-        -- tmux = 'Tmux',
         obsidian = ' Obsidian',
         obsidian_new = 'Obsidian New',
       })[entry.source.name] or entry.source.name
@@ -122,74 +119,12 @@ cmp.setup {
         cmp.complete()
       end
     end,
-    [xk [[<C-.>]]] = {
-      i = function()
-        if cmp.visible() then
-          local selected = cmp.core.view:get_selected_entry() or cmp.core.view:get_first_entry()
-          if selected and selected:get_kind() == require('cmp.types').lsp.CompletionItemKind.Snippet then
-            cmp.confirm { select = true }
-            return
-          end
-        end
-        if luasnip.expand_or_locally_jumpable() then
-          luasnip.expand_or_jump()
-        else
-          luasnip.jump(1)
-        end
-      end,
-      s = function()
-        luasnip.jump(1)
-      end,
-    },
-    [xk [[<C-S-.>]]] = {
-      i = function()
-        if cmp.visible() then
-          cmp.close()
-        end
-        luasnip.jump(-1)
-      end,
-      s = function()
-        luasnip.jump(-1)
-      end,
-    },
-    [xk [[<C-M-.>]]] = {
-      i = function()
-        luasnip.jump(1)
-      end,
-      s = function()
-        luasnip.jump(1)
-      end,
-    },
-    [xk [[<C-M-S-.>]]] = {
-      i = function()
-        luasnip.jump(-1)
-      end,
-      s = function()
-        luasnip.jump(-1)
-      end,
-    },
-    ['<C-l>'] = function()
-      if cmp.visible() then
-        cmp.confirm { select = true }
-        return
-      end
-      cmp.complete {
-        config = {
-          sources = {
-            { name = 'emmet_vim' },
-          },
-        },
-      }
-      cmp.select_next_item()
-    end,
   },
   sources = cmp.config.sources {
     { name = 'nvim_lsp', priority = 100 },
-    { name = 'luasnip' },
     { name = 'otter' },
     { name = 'nvim_lua' },
     { name = 'path' },
-    -- { name = 'tmux' },
     { name = 'treesitter' },
     { name = 'buffer' },
   },
@@ -225,7 +160,6 @@ cmp.setup.cmdline('/', {
   },
   sources = {
     { name = 'buffer' },
-    -- { name = 'tmux' },
     { name = 'nvim_lsp' },
     { name = 'treesitter' },
   },
@@ -235,7 +169,6 @@ local function handle_tab_complete(direction)
   return function()
     if vim.api.nvim_get_mode().mode == 'c' and cmp.get_selected_entry() == nil then
       local text = vim.fn.getcmdline()
-      ---@diagnostic disable-next-line: param-type-mismatch
       local expanded = vim.fn.expandcmd(text)
       if expanded ~= text then
         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-U>', true, true, true) .. expanded, 'n', false)
@@ -287,8 +220,6 @@ cmp.setup.cmdline(':', {
     },
   },
   sources = cmp.config.sources {
-    -- { name = 'path' },
-    -- }, {
     { name = 'cmdline' },
   },
 })
@@ -298,7 +229,6 @@ cmp.setup.cmdline(':', {
 cmp.setup.filetype({ 'gitcommit', 'NeogitCommitMessage' }, {
   sources = cmp.config.sources {
     { name = 'git' },
-    -- }, {
     { name = 'buffer' },
   },
 })
@@ -362,63 +292,49 @@ require('cmp_git').setup {
     {
       debug_name = 'git_commits',
       trigger_character = ':',
-      -- selene: allow(unused_variable)
-      ---@diagnostic disable-next-line: unused-local
-      action = function(sources, trigger_char, callback, params, git_info)
+      action = function(sources, trigger_char, callback, params, _)
         return sources.git:get_commits(callback, params, trigger_char)
       end,
     },
     {
       debug_name = 'github_issues',
       trigger_character = '#',
-      -- selene: allow(unused_variable)
-      ---@diagnostic disable-next-line: unused-local
-      action = function(sources, trigger_char, callback, params, git_info)
+      action = function(sources, trigger_char, callback, _, git_info)
         return sources.github:get_issues(callback, git_info, trigger_char)
       end,
     },
     {
       debug_name = 'github_pulls',
       trigger_character = '!',
-      -- selene: allow(unused_variable)
-      ---@diagnostic disable-next-line: unused-local
-      action = function(sources, trigger_char, callback, params, git_info)
+      action = function(sources, trigger_char, callback, _, git_info)
         return sources.github:get_pull_requests(callback, git_info, trigger_char)
       end,
     },
     {
       debug_name = 'github_mentions',
       trigger_character = '@',
-      -- selene: allow(unused_variable)
-      ---@diagnostic disable-next-line: unused-local
-      action = function(sources, trigger_char, callback, params, git_info)
+      action = function(sources, trigger_char, callback, _, git_info)
         return sources.github:get_mentions(callback, git_info, trigger_char)
       end,
     },
     {
       debug_name = 'gitlab_issues',
       trigger_character = '#',
-      -- selene: allow(unused_variable)
-      ---@diagnostic disable-next-line: unused-local
-      action = function(sources, trigger_char, callback, params, git_info)
+      action = function(sources, trigger_char, callback, _, git_info)
         return sources.gitlab:get_issues(callback, git_info, trigger_char)
       end,
     },
     {
       debug_name = 'gitlab_mentions',
       trigger_character = '@',
-      -- selene: allow(unused_variable)
-      ---@diagnostic disable-next-line: unused-local
-      action = function(sources, trigger_char, callback, params, git_info)
+      action = function(sources, trigger_char, callback, _, git_info)
         return sources.gitlab:get_mentions(callback, git_info, trigger_char)
       end,
     },
     {
       debug_name = 'gitlab_mrs',
       trigger_character = '!',
-      -- selene: allow(unused_variable)
-      ---@diagnostic disable-next-line: unused-local
-      action = function(sources, trigger_char, callback, params, git_info)
+      action = function(sources, trigger_char, callback, _, git_info)
         return sources.gitlab:get_merge_requests(callback, git_info, trigger_char)
       end,
     },
