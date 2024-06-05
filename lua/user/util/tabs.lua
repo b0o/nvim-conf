@@ -30,7 +30,7 @@ end
 function M.get_most_recent_win(tabpage)
   local win = vim.api.nvim_tabpage_get_win(tabpage)
   if
-    M.is_ignored(win)
+    M.is_ignored_win(win)
     and M.state.prev_win[tabpage] ~= nil
     and vim.api.nvim_win_is_valid(M.state.prev_win[tabpage])
   then
