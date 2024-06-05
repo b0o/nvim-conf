@@ -335,7 +335,6 @@ end
 
 local function on_attach_wrapper(...)
   if not M.on_attach_called then
-    -- selene: allow(mismatched_arg_count)
     ---@diagnostic disable-next-line: redundant-parameter
     on_first_attach(...)
     M.on_attach_called = true

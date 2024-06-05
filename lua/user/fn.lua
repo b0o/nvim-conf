@@ -50,7 +50,6 @@ M.inspect = function(...)
 end
 
 -- Make inspect global for convenience
--- selene: allow(global_usage)
 _G.inspect = M.inspect
 
 -- Execute the visual selection or cursor line as a sequence of lua expressions
