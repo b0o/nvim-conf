@@ -1,3 +1,4 @@
+local tabline = require 'user.tabline'
 local lavi = require 'lavi.palette'
 
 local b = { bg = lavi.bg_bright.hex, fg = lavi.bg.lighten(80).hex }
@@ -42,6 +43,10 @@ local theme = ({
   tokyonight = 'tokyonight',
 })[vim.env.COLORSCHEME] or lavi_theme
 
+if type(theme) == 'string' then
+  theme = require('lualine.themes.' .. theme)
+end
+
 require('lualine').setup {
   options = {
     icons_enabled = true,
@@ -59,12 +64,14 @@ require('lualine').setup {
     },
   },
   sections = {
-    lualine_a = { {
-      'mode',
-      fmt = function(str)
-        return str:sub(1, 1)
-      end,
-    } },
+    lualine_a = {
+      {
+        'mode',
+        fmt = function(str)
+          return str:sub(1, 1)
+        end,
+      },
+    },
     lualine_b = {
       'branch',
       pnpm_workspace,
@@ -72,10 +79,49 @@ require('lualine').setup {
       'diagnostics',
     },
     lualine_c = {
-      { 'filename', path = 1, symbols = { modified = '*' } },
       'aerial',
     },
     lualine_x = {
+      {
+        'tabs',
+        tab_max_length = 40,
+        max_length = vim.o.columns / 4,
+        mode = 1,
+        show_modified_status = false,
+        tabs_color = {
+          active = theme.normal.a,
+          inactive = theme.inactive.c,
+        },
+        section_separators = {
+          left = '',
+          right = '',
+        },
+        padding = 1,
+        fmt = function(_, context)
+          local tabpage = context.tabId
+          local _, buf, _ = tabline.get_current(tabpage)
+          local mod = vim
+            .iter(vim.api.nvim_tabpage_list_wins(tabpage))
+            :map(function(winnr)
+              return vim.api.nvim_win_get_buf(winnr)
+            end)
+            :any(function(bufnr)
+              return vim.bo[bufnr].modified
+            end)
+          local name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ':t')
+          return vim
+            .iter({
+              context.tabnr,
+              ' ',
+              name,
+              mod and ' *',
+            })
+            :filter(function(v)
+              return v and v ~= ''
+            end)
+            :join ''
+        end,
+      },
       '%S', -- showcmd, requires showcmdloc=statusline
       'filetype',
       'progress',
