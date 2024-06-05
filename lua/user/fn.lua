@@ -289,7 +289,6 @@ M.session_load = function()
       local ok, res = pcall(function()
         local meta = loadstring('return ' .. (vim.g.SessionMeta or '{}'))()
         vim.g.SessionMeta = nil
-        require('user.tabline').restore_tabpage_titles()
         if meta.nvimTreeOpen then
           vim.cmd 'NvimTreeOpen'
         end
