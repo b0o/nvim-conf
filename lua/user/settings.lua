@@ -1,5 +1,3 @@
-local M = {}
-
 vim.o.spell = false
 vim.o.spellfile = vim.fn.stdpath 'config' .. '/spellfile.utf-8.add'
 
@@ -34,7 +32,6 @@ vim.o.timeoutlen = 1000
 vim.o.matchtime = 2 -- show matching parens/brackets for 200ms
 
 vim.o.updatetime = 500
--- vim.g.cursorhold_updatetime = 150 -- antoinemadec/FixCursorHold.nvim
 
 vim.o.signcolumn = 'auto:1-2'
 
@@ -55,19 +52,11 @@ vim.o.exrc = true -- enable exrc files - .nvim.lua, .nvimrc, .exrc
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ','
 
--- SEE: https://github.com/luukvbaal/stabilize.nvim
--- SEE: https://github.com/neovim/neovim/pull/19243
-vim.o.splitkeep = 'screen'
+vim.o.splitkeep = 'screen' -- keep the text on the same screen line when splitting
 
--- vim.o.foldmethod = 'expr'
--- vim.o.foldlevelstart = 99
--- vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
-
--- Disable intro message
-vim.opt.shortmess:append 'I'
+vim.opt.shortmess:append 'I' -- Disable intro message
 
 vim.o.title = true
--- vim.o.titlestring = '%{luaeval("require[[user.tabline]].titlestring()")}'
 vim.o.titlestring = '%f'
 
 vim.o.showtabline = 0
@@ -114,5 +103,3 @@ vim.g.no_man_maps = 1
 -- Disable netrw
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
-
-return M
