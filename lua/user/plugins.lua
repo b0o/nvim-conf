@@ -99,47 +99,19 @@ local plugins = {
     },
   },
   'kyazdani42/nvim-web-devicons',
-  -- {
-  --   'folke/which-key.nvim',
-  --   -- enabled = false,
-  --   config = function()
-  --     -- Fix compatibility with multiple-cursors.nvim:
-  --     local presets = require 'which-key.plugins.presets'
-  --     presets.operators['v'] = nil
-  --
-  --     require('which-key').setup {
-  --       plugins = {
-  --         spelling = {
-  --           enabled = true,
-  --           suggestions = 30,
-  --         },
-  --       },
-  --       triggers_blacklist = {
-  --         i = { 'j', 'k', "'" },
-  --         v = { 'j', 'k', "'" },
-  --         n = { "'" },
-  --       },
-  --       window = {
-  --         border = 'rounded',
-  --         padding = { 0, 0, 0, 0 },
-  --       },
-  --       show_help = false,
-  --     }
-  --   end,
-  --   event = 'VeryLazy',
-  -- },
   {
     'lukas-reineke/indent-blankline.nvim',
     event = 'VeryLazy',
     main = 'ibl',
     enabled = true,
     opts = {
+      debounce = 500,
       indent = {
         char = '│',
       },
       scope = {
-        show_start = false,
-        enabled = false,
+        show_start = true,
+        enabled = true,
       },
     },
   },
@@ -156,7 +128,6 @@ local plugins = {
   {
     'kyazdani42/nvim-tree.lua',
     conf = 'user.plugin.nvim-tree',
-    module = 'nvim-tree',
     cmd = { 'NvimTreeOpen', 'NvimTreeFocus' },
     dependencies = {
       {
@@ -468,6 +439,7 @@ local plugins = {
   },
   {
     'jmbuhr/otter.nvim',
+    enabled = false,
     dependencies = { 'neovim/nvim-lspconfig' },
     conf = 'user.plugin.otter',
   },
@@ -485,7 +457,11 @@ local plugins = {
     cmd = 'Glance',
   },
   {
-    'pmizio/typescript-tools.nvim',
+    -- 'pmizio/typescript-tools.nvim',
+    -- TODO: Revert once https://github.com/pmizio/typescript-tools.nvim/pull/267 is merged
+    'notomo/typescript-tools.nvim',
+    branch = 'fix-deprecated',
+    enabled = true,
     conf = 'user.plugin.typescript-tools',
     ft = {
       'typescript',
@@ -507,7 +483,6 @@ local plugins = {
   },
   {
     'folke/trouble.nvim',
-    branch = 'dev',
     cmd = { 'Trouble', 'TroubleClose', 'TroubleRefresh', 'TroubleToggle' },
   },
 
@@ -530,7 +505,6 @@ local plugins = {
     'NeogitOrg/neogit',
     cmd = 'Neogit',
     conf = 'user.plugin.neogit',
-    branch = 'nightly',
   },
   {
     'mattn/gist-vim',
@@ -548,6 +522,27 @@ local plugins = {
       'DiffviewOpen',
       'DiffviewRefresh',
       'DiffviewToggleFiles',
+    },
+  },
+  {
+    'akinsho/git-conflict.nvim',
+    opts = {
+      default_commands = true,
+      disable_diagnostics = true,
+      list_opener = 'botright copen',
+      default_mappings = {
+        next = ']C',
+        prev = '[C',
+      },
+    },
+    event = 'VeryLazy',
+  },
+  {
+    'moyiz/git-dev.nvim',
+    cmd = { 'GitDevOpen', 'GitDevCleanAll' },
+    opts = {
+      ephemeral = false,
+      read_only = false,
     },
   },
 
