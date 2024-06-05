@@ -8,6 +8,10 @@
       {
         "language": ["typescript", "typescriptreact", "javascript", "javascriptreact"],
         "path": "./javascript/vitest.json"
+      },
+      {
+        "language": ["typescript", "typescriptreact"],
+        "path": "./typescript.json"
       }
     ]
   }
