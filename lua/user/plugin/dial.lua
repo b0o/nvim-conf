@@ -7,10 +7,17 @@ require('dial.config').augends:register_group {
     augend.constant.new {
       elements = { 'false', 'true' },
       cyclic = false,
+      preserve_case = true,
     },
     augend.constant.new {
-      elements = { 'False', 'True' },
+      elements = { 'no', 'yes' },
       cyclic = false,
+      preserve_case = true,
+    },
+    augend.constant.new {
+      elements = { 'off', 'on' },
+      cyclic = false,
+      preserve_case = true,
     },
     augend.constant.alias.alpha,
     augend.constant.alias.Alpha,
