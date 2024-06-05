@@ -208,8 +208,8 @@ _cmds.smart_files = function()
     prompt_title = 'Find Files (Smart)',
     hidden = true,
     file_ignore_patterns = {
-      '^.git/',
-      '^node_modules/',
+      '%.git/',
+      'node_modules/',
       '%.jpg$',
       '%.png$',
       '%.gif$',
