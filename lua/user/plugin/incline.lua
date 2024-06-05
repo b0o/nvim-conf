@@ -20,6 +20,16 @@ if vim.g.colors_name == 'lavi' then
     bg = lavi.bg_med.hex,
     bg_nc = lavi.bg_dark.hex,
   }
+elseif vim.g.colors_name == 'tokyonight' then
+  local tokyonight = require 'tokyonight.colors'
+  extra_colors = {
+    theme_bg = tokyonight.default.bg_dark,
+    fg = tokyonight.default.fg,
+    fg_dim = tokyonight.default.fg_dark,
+    fg_nc = tokyonight.default.fg_gutter,
+    bg = tokyonight.default.bg,
+    bg_nc = tokyonight.default.bg_dark,
+  }
 else
   extra_colors = {
     theme_bg = '#222032',
@@ -380,7 +390,7 @@ incline.setup {
 
     local file_info = get_file_info(props)
 
-    local diag_disabled = vim.diagnostic.is_disabled(props.buf)
+    local diag_disabled = not vim.diagnostic.is_enabled { bufnr = props.buf }
 
     local has_error = not diag_disabled
       and #vim.diagnostic.get(props.buf, {
