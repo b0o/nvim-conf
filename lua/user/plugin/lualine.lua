@@ -1,4 +1,3 @@
-local tabline = require 'user.tabline'
 local lavi = require 'lavi.palette'
 
 local b = { bg = lavi.bg_bright.hex, fg = lavi.bg.lighten(80).hex }
@@ -99,7 +98,7 @@ require('lualine').setup {
         padding = 1,
         fmt = function(_, context)
           local tabpage = context.tabId
-          local _, buf, _ = tabline.get_current(tabpage)
+          local buf = require('user.util.tabs').get_most_recent_buf(tabpage)
           local mod = vim
             .iter(vim.api.nvim_tabpage_list_wins(tabpage))
             :map(function(winnr)
