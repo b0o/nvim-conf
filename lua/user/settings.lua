@@ -112,7 +112,7 @@ vim.g.loaded_matchparen = 1
 vim.g.no_man_maps = 1
 
 -- Automatically equalize window sizes when Neovim is resized
--- fn.silent(require('user.util.auto-resize').enable)
+require('user.fn').silent(require('user.util.auto-resize').enable)
 
 -- Disable netrw
 vim.g.loaded_netrw = 1
