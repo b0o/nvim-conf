@@ -407,8 +407,9 @@ local plugins = {
   -- AI
   {
     'zbirenbaum/copilot.lua',
-    conf = 'user.plugin.copilot',
-    event = 'VeryLazy',
+  },
+  {
+    'supermaven-inc/supermaven-nvim',
   },
 
   -- Backup, Undo

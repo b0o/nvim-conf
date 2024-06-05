@@ -24,5 +24,9 @@ vim.api.nvim_create_autocmd('User', {
   pattern = 'VeryLazy',
   callback = function()
     require 'user.autocmds'
+    require('user.ai').setup {
+      default_copilot = vim.g.ActiveCopilot or 'supermaven',
+      autostart = true,
+    }
   end,
 })
