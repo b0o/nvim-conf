@@ -173,35 +173,6 @@ m.nnoremap([[<localleader>c]], iwrap(cutbuf.copy), m.silent, 'cutbuf: copy')
 m.nnoremap([[<localleader>p]], iwrap(cutbuf.paste), m.silent, 'cutbuf: paste')
 m.nnoremap([[<localleader>X]], iwrap(cutbuf.swap), m.silent, 'cutbuf: swap')
 
----- Zoomer
-local zoomer = fn.require_on_call_rec 'user.util.zoomer'
-zoomer.setup {
-  -- on_open = function(props)
-  --   local state = {
-  --     incline_ignore_wintypes = require 'incline.config'.ignore.wintypes,
-  --     incline_ignore_floating_wins = require 'incline.config'.ignore.floating_wins,
-  --   }
-  --   require 'incline'.setup {
-  --     ignore = {
-  --       wintypes = function(winid)
-  --         return winid == props.floatwin
-  --       end,
-  --       floating_wins = false,
-  --     }
-  --   }
-  --   return state
-  -- end,
-  -- on_close = function(props)
-  --   require 'incline'.setup {
-  --     ignore = {
-  --       wintypes = props.prev_state.incline_ignore_wintypes,
-  --       floating_wins = props.prev_state.incline_ignore_floating_wins,
-  --     }
-  --   }
-  -- end,
-  -- zindex = 40,
-}
-m.nnoremap([[<localleader>z]], iwrap(zoomer.toggle), 'zoom current window')
 
 ---- Editing
 
