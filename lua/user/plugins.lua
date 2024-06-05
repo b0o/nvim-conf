@@ -573,10 +573,6 @@ local plugins = {
       'ray-x/cmp-treesitter',
       'petertriho/cmp-git',
       {
-        'dcampos/cmp-emmet-vim',
-        dependencies = 'mattn/emmet-vim',
-      },
-      {
         'L3MON4D3/LuaSnip',
         run = 'make install_jsregexp',
         conf = 'user.plugin.luasnip',

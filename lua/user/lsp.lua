@@ -56,6 +56,7 @@ local lsp_servers = {
     formatting = false,
   },
   'dotls',
+  'emmet_language_server',
   {
     'eslint',
     root_dir = root_pattern(

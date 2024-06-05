@@ -53,101 +53,6 @@ end
 -- selene: allow(global_usage)
 _G.inspect = M.inspect
 
--- Get the visual selection as a list-like table of lines
-M.get_visual_selection = function(mode)
-  if mode == nil then
-    local mode_info = vim.api.nvim_get_mode()
-    mode = mode_info.mode
-  end
-
-  local cursor = vim.api.nvim_win_get_cursor(0)
-  local cline, ccol = cursor[1], cursor[2]
-  local vline, vcol = vim.fn.line 'v', vim.fn.col 'v'
-
-  local sline, scol
-  local eline, ecol
-  if cline == vline then
-    if ccol <= vcol then
-      sline, scol = cline, ccol
-      eline, ecol = vline, vcol
-      scol = scol + 1
-    else
-      sline, scol = vline, vcol
-      eline, ecol = cline, ccol
-      ecol = ecol + 1
-    end
-  elseif cline < vline then
-    sline, scol = cline, ccol
-    eline, ecol = vline, vcol
-    scol = scol + 1
-  else
-    sline, scol = vline, vcol
-    eline, ecol = cline, ccol
-    ecol = ecol + 1
-  end
-
-  if mode == 'V' or mode == 'CTRL-V' or mode == '\22' then
-    scol = 1
-    ecol = nil
-  end
-
-  local result = {
-    start = { line = sline, col = scol },
-    finish = { line = eline, col = ecol },
-    mode = mode,
-    lines = {},
-  }
-
-  local lines = vim.api.nvim_buf_get_lines(0, sline - 1, eline, 0)
-
-  if #lines > 0 then
-    local start_text, end_text
-    if #lines == 1 then
-      start_text = string.sub(lines[1], scol, ecol)
-    else
-      start_text = string.sub(lines[1], scol)
-      end_text = string.sub(lines[#lines], 1, ecol)
-    end
-
-    local selection = { start_text }
-    if #lines > 2 then
-      vim.list_extend(selection, vim.list_slice(lines, 2, #lines - 1))
-    end
-    table.insert(selection, end_text)
-    result.lines = selection
-  end
-
-  return result
-end
-
--- Get the visual selection as a list-like table of lines
-M.get_visual_selection_list = function(mode)
-  local selection = M.get_visual_selection(mode)
-  local lines = selection.lines
-  if #lines == 0 then
-    return
-  end
-
-  local scol = selection.start.col
-  local ecol = selection.finish.col
-
-  local start_text, end_text
-  if #lines == 1 then
-    start_text = string.sub(lines[1], scol, ecol)
-  else
-    start_text = string.sub(lines[1], scol)
-    end_text = string.sub(lines[#lines], 1, ecol)
-  end
-
-  local result = { start_text }
-  if #lines > 2 then
-    vim.list_extend(result, vim.list_slice(lines, 2, #lines - 1))
-  end
-  table.insert(result, end_text)
-
-  return result
-end
-
 -- Execute the visual selection or cursor line as a sequence of lua expressions
 M.luarun = function(file)
   local mode_info = vim.api.nvim_get_mode()
@@ -163,7 +68,7 @@ M.luarun = function(file)
     if mode == 'n' then
       text = vim.api.nvim_get_current_line()
     elseif mode == 'v' or mode == 'V' or mode == 'CTRL-V' or mode == '\22' then
-      local selection = M.get_visual_selection_list(mode)
+      local selection = require('user.util.visual').get_visual_selection_list(mode)
       text = table.concat(selection, '\n')
     else
       return
@@ -720,31 +625,6 @@ M.contrast_color = function(bg_hex)
   end
 end
 
-M.replace_visual_selection = function(str)
-  local selection = M.get_visual_selection()
-  if selection == nil or vim.tbl_isempty(selection) then
-    return
-  end
-  if selection.mode == 'V' then
-    vim.api.nvim_buf_set_lines(
-      0,
-      selection.start.line - 1,
-      selection.finish.line,
-      false,
-      type(str) == 'table' and str or { str }
-    )
-    return
-  end
-  vim.api.nvim_buf_set_text(
-    0,
-    selection.start.line - 1,
-    selection.start.col - 1,
-    selection.finish.line - 1,
-    selection.finish.col,
-    type(str) == 'table' and str or { str }
-  )
-end
-
 -- Function to transform string
 -- preFn can return a second value, `ctx`, which will be passed to postFn as the second argument
 -- M.transform_string = function(str, cmd, preFn, postFn, meta)
@@ -775,34 +655,13 @@ M.transform_string = function(opts)
   return postFn(cmd_output, ctx, meta)
 end
 
-M.transform_visual_selection = function(cmd, preFn, postFn)
-  -- Get visual selection, transform it, and replace it
-  local selection = M.get_visual_selection()
-  if selection == nil or vim.tbl_isempty(selection) then
-    return
-  end
-  local final_output = M.transform_string {
-    str = table.concat(selection.lines, '\n'),
-    cmd = cmd,
-    preFn = preFn,
-    postFn = postFn,
-    meta = { selection = selection },
-  }
-  M.replace_visual_selection(final_output)
-end
-
 --- @param bufnr number | nil
 --- @return { char: string, size: number }
 M.get_indent_info = function(bufnr)
   bufnr = bufnr or 0
-
-  ---@diagnostic disable-next-line: redundant-parameter
-  local expandtab = vim.api.nvim_buf_get_option(bufnr, 'expandtab')
-  ---@diagnostic disable-next-line: redundant-parameter
-  local tabstop = vim.api.nvim_buf_get_option(bufnr, 'tabstop')
-  ---@diagnostic disable-next-line: redundant-parameter
-  local shiftwidth = vim.api.nvim_buf_get_option(bufnr, 'shiftwidth')
-
+  local expandtab = vim.bo[bufnr].expandtab
+  local tabstop = vim.bo[bufnr].tabstop
+  local shiftwidth = vim.bo[bufnr].shiftwidth
   if expandtab then
     return { char = ' ', size = shiftwidth }
   else
