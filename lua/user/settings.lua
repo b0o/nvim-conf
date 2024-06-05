@@ -70,8 +70,7 @@ vim.o.title = true
 -- vim.o.titlestring = '%{luaeval("require[[user.tabline]].titlestring()")}'
 vim.o.titlestring = '%f'
 
-vim.o.showtabline = 1
-vim.o.tabline = "%!luaeval('require[[user.tabline]].tabline()')"
+vim.o.showtabline = 0
 vim.o.statuscolumn = "%!luaeval('require[[user.statuscolumn]].render()')"
 
 vim.o.cursorline = true
