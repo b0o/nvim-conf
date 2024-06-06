@@ -28,7 +28,8 @@ vim.o.hlsearch = true -- keep matches highlighted after searching
 vim.o.incsearch = true -- show matches while typing
 vim.opt.inccommand = 'split'
 
-vim.o.timeoutlen = 1000
+vim.o.timeout = true
+vim.o.timeoutlen = 350
 vim.o.matchtime = 2 -- show matching parens/brackets for 200ms
 
 vim.o.updatetime = 500

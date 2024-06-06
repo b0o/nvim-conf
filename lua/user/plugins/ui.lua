@@ -86,6 +86,14 @@ return {
     },
   },
   {
+    'folke/which-key.nvim',
+    event = 'VeryLazy',
+    config = function()
+      require('which-key.plugins.presets').operators['v'] = nil
+      require('which-key').setup {}
+    end,
+  },
+  {
     's1n7ax/nvim-window-picker',
     keys = {
       {
