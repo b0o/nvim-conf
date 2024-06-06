@@ -106,11 +106,24 @@ end
 
 function M.peek_definition()
   local params = vim.lsp.util.make_position_params()
-  return vim.lsp.buf_request(0, 'textDocument/definition', params, function(_, result)
-    if result == nil or vim.tbl_isempty(result) then
+  return vim.lsp.buf_request(0, 'textDocument/definition', params, function(_, results)
+    if not results or vim.tbl_isempty(results) then
       return
     end
-    vim.lsp.util.preview_location(result[1], { border = 'rounded' })
+    ---@type lsp.Location|lsp.LocationLink|nil
+    local location = results[1]
+    if not location then
+      return
+    end
+    local range = location.range or location.targetRange
+    if range then
+      local lines = location.range['end'].line - location.range['start'].line + 1
+      if lines < 20 then
+        range['end'].line = range['start'].line + 20
+        range['end'].character = 0
+      end
+    end
+    vim.lsp.util.preview_location(location, { border = 'rounded' })
   end)
 end
 
