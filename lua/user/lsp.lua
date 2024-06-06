@@ -354,7 +354,7 @@ function M.peek_definition()
     if result == nil or vim.tbl_isempty(result) then
       return
     end
-    vim.lsp.util.preview_location(result[1], {})
+    vim.lsp.util.preview_location(result[1], { border = 'rounded' })
   end)
 end
 
