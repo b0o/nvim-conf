@@ -122,4 +122,26 @@ M.require_on_call_rec = function(require_path)
   end)
 end
 
+M.require = M.require_on_call_rec
+
+local very_lazy_fired = false
+
+M.very_lazy = function(cb)
+  if very_lazy_fired then
+    vim.schedule(cb)
+    return
+  end
+  vim.api.nvim_create_autocmd('User', {
+    pattern = 'VeryLazy',
+    once = true,
+    callback = function()
+      cb()
+    end,
+  })
+end
+
+M.very_lazy(function()
+  very_lazy_fired = true
+end)
+
 return M

@@ -82,7 +82,7 @@ end
 
 --- Returns a function that calls func with the given arguments
 --- If the returned function is called with arguments, they are passed after the given arguments
----@param func fun(...) The function to wrap
+---@param func Callable The function to wrap
 ---@param ... any The arguments to pass to func
 M.wrap = function(func, ...)
   local args = { ... }

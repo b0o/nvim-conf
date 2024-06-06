@@ -1,37 +1,47 @@
-local fn = require 'user.fn'
 local Debounce = require 'user.util.debounce'
+local win_is_floating = require('user.util.api').win_is_floating
 
-local augid = vim.api.nvim_create_augroup('user', { clear = true })
-local autocmd = function(event, opts)
-  return vim.api.nvim_create_autocmd(event, vim.tbl_extend('force', { group = augid }, opts))
-end
+local group = vim.api.nvim_create_augroup('user', { clear = true })
+local autocmd = vim.api.nvim_create_autocmd
 
 -- Set local highlight overrides on non-current windows
 autocmd({ 'WinNew', 'WinLeave' }, {
+  group = group,
   callback = function(event)
-    if vim.bo[event.buf].filetype == 'NvimTree' then
+    if win_is_floating(0) then
+      return
+    end
+    local ft = vim.bo[event.buf].filetype
+    if ft == 'NvimTree' then
       return
     end
     vim.cmd [[setlocal winhl=CursorLine:CursorLineNC,CursorLineNr:CursorLineNrNC]]
   end,
 })
 autocmd('WinEnter', {
+  group = group,
   callback = function(event)
-    if vim.bo[event.buf].filetype == 'NvimTree' then
+    if win_is_floating(0) then
+      return
+    end
+    local ft = vim.bo[event.buf].filetype
+    if ft == 'NvimTree' then
       return
     end
     vim.cmd [[setlocal winhl=]]
+    vim.b.user_winhl = true
   end,
 })
 
-local recent_wins = fn.require_on_call_rec 'user.util.recent-wins'
 local rwins_cursormoved_autocmd, rwins_modechanged_autocmd
 local update_recent_wins = Debounce(function()
   pcall(vim.api.nvim_del_autocmd, rwins_cursormoved_autocmd)
   pcall(vim.api.nvim_del_autocmd, rwins_modechanged_autocmd)
-  recent_wins.update()
+  require('user.util.recent-wins').update()
 end, { threshold = 500, mode = 'rolling' })
+
 autocmd('WinLeave', {
+  group = group,
   callback = function()
     update_recent_wins()
     pcall(vim.api.nvim_del_autocmd, rwins_cursormoved_autocmd)
@@ -56,27 +66,38 @@ autocmd('WinLeave', {
 })
 
 autocmd('FocusGained', {
+  group = group,
   callback = function()
     vim.g.nvim_focused = true
   end,
 })
 autocmd('FocusLost', {
+  group = group,
   callback = function()
     vim.g.nvim_focused = false
   end,
 })
 
 autocmd('TextYankPost', {
+  group = group,
   callback = function()
     vim.highlight.on_yank()
   end,
 })
-autocmd('TermOpen', { command = [[setlocal scrolloff=0]] })
-autocmd('BufEnter', { pattern = 'term://*', command = [[call user#fn#termEnter(1)]] })
+autocmd('TermOpen', {
+  group = group,
+  command = [[setlocal scrolloff=0]],
+})
+autocmd('BufEnter', {
+  group = group,
+  pattern = 'term://*',
+  command = [[call user#fn#termEnter(1)]],
+})
 
 ------ Filetypes
 -- vitest snapshots
 autocmd({ 'BufRead', 'BufNewFile' }, {
+  group = group,
   pattern = { '**/__snapshots__/*.ts.snap', '**/__snapshots__/*.js.snap' },
   command = 'set filetype=jsonc',
 })
@@ -85,6 +106,7 @@ autocmd({ 'BufRead', 'BufNewFile' }, {
 
 ---- kyazdani42/nvim-tree.lua
 autocmd('BufEnter', {
+  group = group,
   nested = true,
   callback = function()
     if

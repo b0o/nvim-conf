@@ -1,4 +1,6 @@
 ---- user.fn: General utility functions
+local apiutil = require 'user.util.api'
+
 local M = {
   callbacks = {},
   quiet = false,
@@ -405,17 +407,6 @@ M.tmpl_hi = function(tmpl, colors)
   return M.tmpl_cmd(tmpl, colors)
 end
 
-------- lazy
--- TODO: remove this from user.fn, callers should load user.util.lazy directly
-local lazy = require 'user.util.lazy'
-
-M.lazy_table = lazy.table
-M.on_call_rec = lazy.on_call_rec
-M.require_on_index = lazy.require_on_index
-M.require_on_module_call = lazy.require_on_module_call
-M.require_on_exported_call = lazy.require_on_exported_call
-M.require_on_call_rec = lazy.require_on_call_rec
-
 ---- memoization
 
 -- memotable gets an index from target and caches the result, returning the
@@ -488,8 +479,6 @@ M.get_path_separator = function()
   end
   return '/'
 end
-
-local apiutil = M.require_on_call_rec 'user.apiutil'
 
 M.resolve_bufnr = apiutil.resolve_bufnr
 M.resolve_winnr = apiutil.resolve_winnr

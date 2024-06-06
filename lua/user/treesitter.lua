@@ -1,8 +1,13 @@
+local xk = require('user.keys').xk
+local maputil = require 'user.util.map'
+local map = maputil.map
+
 local ok, dap_repl_hl = pcall(require, 'nvim-dap-repl-highlights')
 if ok then
   dap_repl_hl.setup() -- must be setup before nvim-treesitter
 end
 
+---@diagnostic disable-next-line: missing-fields
 require('nvim-treesitter.configs').setup {
   query_linter = {
     enable = true,
@@ -47,9 +52,11 @@ require('nvim-treesitter.configs').setup {
   },
   highlight = {
     enable = true,
-    disable = function(_lang, buf)
+    disable = function(_, buf)
       local max_filesize = 100 * 1024 -- 100 KB
-      local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+      local stats
+      ---@diagnostic disable-next-line: undefined-field
+      ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
       if ok and stats and stats.size > max_filesize then
         return true
       end
@@ -139,29 +146,6 @@ require('nvim-treesitter.configs').setup {
 vim.treesitter.language.register('markdown', { 'mdx' })
 -- ft_to_parser.mdx = 'markdown'
 
--- -- romgrk/nvim-treesitter-context
--- require('treesitter-context').setup {
---   enable = true,
---   throttle = true,
---   max_lines = 4,
---   multiline_threshold = 4,
---   -- zindex =
---   patterns = {
---     -- default = {
---     --   'class',
---     --   'function',
---     --   'method',
---     -- },
---     -- ocaml = {
---     --   'module_definition',
---     --   'type_definition',
---     --   'let_binding',
---     --   'match_expression',
---     --   'body',
---     -- },
---   },
--- }
---
 -- ---- JoosepAlviste/nvim-ts-context-commentstring
 -- vim.g.skip_ts_context_commentstring_module = true
 -- require('ts_context_commentstring').setup {
@@ -179,13 +163,21 @@ vim.treesitter.language.register('markdown', { 'mdx' })
 -- }
 
 ---- Wansmer/sibling-swap.nvim
-require('sibling-swap').setup {
+local sibling_swap = require 'sibling-swap'
+
+---@diagnostic disable-next-line: missing-fields
+sibling_swap.setup {
   use_default_keymaps = false,
   allow_interline_swaps = true,
 }
 
+map('n', xk '<C-.>', sibling_swap.swap_with_right, 'Sibling-Swap: Swap with right')
+map('n', '<F34>', sibling_swap.swap_with_left, 'Sibling-Swap: Swap with left')
+
 ---- Wansmer/treesj
-require('treesj').setup {
+local treesj = require 'treesj'
+
+treesj.setup {
   -- Use default keymaps
   -- (<space>m - toggle, <space>j - join, <space>s - split)
   use_default_keymaps = false,
@@ -211,3 +203,7 @@ require('treesj').setup {
   -- Use `dot` for repeat action
   dot_repeat = true,
 }
+
+map('n', 'gJ', treesj.toggle, 'Treesj: Toggle')
+map('n', 'gsj', treesj.join, 'Treesj: Join')
+map('n', 'gss', treesj.split, 'Treesj: Split')
