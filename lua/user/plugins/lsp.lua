@@ -298,7 +298,7 @@ local on_attach = function(_, bufnr)
   bufmap('n', '<localleader>R', function()
     require 'inc_rename' -- Force lazy.nvim to load inc_rename
     return ':IncRename ' .. vim.fn.expand '<cword>'
-  end, 'LSP: Rename')
+  end, { silent = false, expr = true, desc = 'LSP: Rename' })
 
   local code_actions = lazy_require('actions-preview').code_actions
   bufmap('nx', { '<localleader>A', '<localleader>ca' }, code_actions, 'LSP: Code action')
