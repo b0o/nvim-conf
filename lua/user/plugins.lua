@@ -19,14 +19,6 @@ local opts = {
 }
 
 local plugins = {
-  -- Config
-  {
-    'b0o/mapx.nvim',
-    conf = 'user.mappings',
-    event = 'VeryLazy',
-    dev = true,
-  },
-
   -- Meta
   'nvim-lua/plenary.nvim',
 

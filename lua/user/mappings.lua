@@ -1,110 +1,72 @@
 local M = {}
 
 local fn = require 'user.fn'
-
--- bind a function to some arguments and return a new function that
--- can be called later.
--- Useful for setting up callbacks without anonymous functions.
-local wrap = function(func, ...)
-  local bound = { ... }
-  return function(...)
-    return func(unpack(vim.list_extend(vim.list_extend({}, bound), { ... })))
-  end
-end
-
--- Like wrap(), but arguments passed to the func are ignored.
-local iwrap = function(func, ...)
-  local bound = { ... }
-  return function()
-    return func(unpack(bound))
-  end
-end
-
-local m = require('mapx').setup {
-  whichkey = false,
-  enableCountArg = false,
-  debug = vim.g.mapxDebug or false,
-}
-
+local xk = require('user.keys').xk
 local recent_wins = fn.require_on_call_rec 'user.util.recent-wins'
 
-local xk = require('user.keys').xk
+local maputil = require 'user.util.map'
+local map = maputil.map
+local ft = maputil.ft
+local wrap = maputil.wrap
 
 -- Disable C-z suspend
-m.map([[<C-z>]], [[<Nop>]])
-m.mapbang([[<C-z>]], [[<Nop>]])
-
--- Disable C-c warning
--- map     ([[<C-c>]], [[<Nop>]])
+map('nvo', '<C-z>', '<Nop>')
+map('nvo', '<C-\\>', '<Nop>')
 
 -- Disable Ex mode
-m.nnoremap([[Q]], [[<Nop>]])
-m.nnoremap([[gQ]], [[<Nop>]])
+map('n', 'Q', '<Nop>')
+map('n', 'gQ', '<Nop>')
 
 -- Disable command-line window
-m.nnoremap([[q:]], [[<Nop>]])
-m.nnoremap([[q/]], [[<Nop>]])
-m.nnoremap([[q?]], [[<Nop>]])
+map('n', 'q:', '<Nop>')
+map('n', 'q/', '<Nop>')
+map('n', 'q?', '<Nop>')
 
--- Disable <C-n>
--- m.nnoremap([[<C-n>]], [[<Nop>]])
-
-m.noremap([[j]], function()
+map('n', 'j', function()
   return vim.v.count > 1 and 'j' or 'gj'
-end, m.silent, m.expr, 'Line down')
-m.noremap([[k]], function()
+end, { expr = true, desc = 'Line down' })
+
+map('n', 'k', function()
   return vim.v.count > 0 and 'k' or 'gk'
-end, m.silent, m.expr, 'Like up')
-m.noremap([[J]], [[5j]], 'Jump down')
-m.noremap([[K]], [[5k]], 'Jump up')
-m.xnoremap([[J]], [[5j]], 'Jump down')
-m.xnoremap([[K]], [[5k]], 'Jump up')
-m.noremap([[<C-d>]], [[25j]], 'Page down')
-m.noremap([[<C-u>]], [[25k]], 'Page up')
-m.xnoremap([[<C-d>]], [[25j]], 'Page down')
-m.xnoremap([[<C-u>]], [[25k]], 'Page up')
+end, { expr = true, desc = 'Line up' })
+
+map('nx', 'J', '5j', 'Jump down')
+map('nx', 'K', '5k', 'Jump up')
+map('nx', '<C-d>', '25j', 'Page down')
+map('nx', '<C-u>', '25k', 'Page up')
 
 -- If on a blank line, start insert mode properly indented
-m.nnoremap([[i]], function()
+map('n', 'i', function()
   if not vim.bo.buftype == 'terminal' and string.match(vim.api.nvim_get_current_line(), '^%s*$') then
     return '"_S'
   else
     return 'i'
   end
-end, m.silent, m.expr, 'Insert')
+end, { expr = true, desc = 'Insert' })
 
-m.nnoremap([[<M-Down>]], [[<C-e>]], 'Scroll view down 1')
-m.nnoremap([[<M-Up>]], [[<C-y>]], 'Scroll view up 1')
-m.nnoremap([[<M-S-Down>]], [[5<C-e>]], 'Scroll view down 5')
-m.nnoremap([[<M-S-Up>]], [[5<C-y>]], 'Scroll view up 5')
-m.xnoremap([[<M-Down>]], [[<C-e>]], 'Scroll view down 1')
-m.xnoremap([[<M-Up>]], [[<C-y>]], 'Scroll view up 1')
-m.xnoremap([[<M-S-Down>]], [[5<C-e>]], 'Scroll view down 5')
-m.xnoremap([[<M-S-Up>]], [[5<C-y>]], 'Scroll view up 5')
-m.inoremap([[<M-Down>]], [[<C-o><C-e>]], 'Scroll view down 1')
-m.inoremap([[<M-Up>]], [[<C-o><C-y>]], 'Scroll view up 1')
-m.inoremap([[<M-S-Down>]], [[<C-o>5<C-e>]], 'Scroll view down 5')
-m.inoremap([[<M-S-Up>]], [[<C-o>5<C-y>]], 'Scroll view up 5')
+map('nx', '<M-Down>', '<C-e>', 'Scroll view down 1')
+map('nx', '<M-Up>', '<C-y>', 'Scroll view up 1')
+map('nx', '<M-S-Down>', '5<C-e>', 'Scroll view down 5')
+map('nx', '<M-S-Up>', '5<C-y>', 'Scroll view up 5')
 
--- since the vim-wordmotion plugin overrides the normal `w` wordwise movement,
--- make `W` behave as vanilla `w`
-m.nnoremap([[W]], [[w]], 'Move full word forward')
+map('i', '<M-Down>', '<C-o><C-e>', 'Scroll view down 1')
+map('i', '<M-Up>', '<C-o><C-y>', 'Scroll view up 1')
+map('i', '<M-S-Down>', '<C-o>5<C-e>', 'Scroll view down 5')
+map('i', '<M-S-Up>', '<C-o>5<C-y>', 'Scroll view up 5')
 
-m.nnoremap([[<M-b>]], [[ge]], 'Move to the end of the previous word')
+map('n', '<M-b>', 'ge', 'Move to the end of the previous word')
 
-m.nnoremap({ [[Q]], [[<F29>]] }, '<Cmd>CloseWin<Cr>', m.silent, 'Close window')
-m.nnoremap([[ZQ]], '<Cmd>confirm qall<Cr>', m.silent, 'Quit all')
-m.nnoremap(xk [[<C-S-w>]], '<Cmd>tabclose<Cr>', m.silent, 'Close tab (except last one)')
-m.nnoremap([[<leader>H]], '<Cmd>hide<Cr>', m.silent, 'Hide buffer')
-
-m.noremap([[<C-s>]], '<Cmd>w<Cr>', m.silent, 'Write buffer')
+map('n', { 'Q', '<F29>' }, '<Cmd>CloseWin<Cr>', 'Close window')
+map('n', 'ZQ', '<Cmd>confirm qall<Cr>', 'Quit all')
+map('n', xk '<C-S-w>', '<Cmd>tabclose<Cr>', 'Close tab (except last one)')
+map('n', '<leader>H', '<Cmd>hide<Cr>', 'Hide buffer')
+map('n', '<C-s>', '<Cmd>w<Cr>', 'Write buffer')
 
 -- quickly enter command mode with substitution commands prefilled
--- TODO: need to force redraw
-m.nnoremap([[<leader>/]], [[:%s/]], 'Substitute')
-m.nnoremap([[<leader>?]], [[:%S/]], 'Substitute (rev)')
-m.xnoremap([[<leader>/]], [[:s/]], 'Substitute')
-m.xnoremap([[<leader>?]], [[:S/]], 'Substitute (rev)')
+map('n', '<leader>/', ':%s/', { silent = false, desc = 'Substitute' })
+map('n', '<leader>?', ':%S/', { silent = false, desc = 'Substitute (rev)' })
+map('x', '<leader>/', ':s/', { silent = false, desc = 'Substitute' })
+map('x', '<leader>?', ':S/', { silent = false, desc = 'Substitute (rev)' })
 
 -- Buffer-local option toggles
 local function map_toggle_locals(keys, opts, vals)
@@ -139,7 +101,7 @@ local function map_toggle_locals(keys, opts, vals)
     end, opts)
   end
 
-  m.nnoremap(lhs, rhs, m.silent, 'Toggle ' .. table.concat(opts, ', '))
+  map('n', lhs, rhs, 'Toggle ' .. table.concat(opts, ', '))
 end
 
 map_toggle_locals({ 'A', 'ar' }, { 'autoread' })
@@ -167,69 +129,63 @@ map_toggle_locals({ 'W', 'ww' }, { 'wrap' })
 
 ---- Cut/Copy Buffers
 local cutbuf = fn.require_on_call_rec 'user.util.cutbuf'
-m.nnoremap([[<localleader>x]], iwrap(cutbuf.cut), m.silent, 'cutbuf: cut')
-m.nnoremap([[<localleader>c]], iwrap(cutbuf.copy), m.silent, 'cutbuf: copy')
-m.nnoremap([[<localleader>p]], iwrap(cutbuf.paste), m.silent, 'cutbuf: paste')
-m.nnoremap([[<localleader>X]], iwrap(cutbuf.swap), m.silent, 'cutbuf: swap')
+map('n', '<localleader>x', cutbuf.cut, 'cutbuf: cut')
+map('n', '<localleader>c', cutbuf.copy, 'cutbuf: copy')
+map('n', '<localleader>p', cutbuf.paste, 'cutbuf: paste')
+map('n', '<localleader>X', cutbuf.swap, 'cutbuf: swap')
 
 ---- Window Management
 local auto_resize = require 'user.util.auto-resize'
-m.nnoremap([[<leader>sa]], auto_resize.enable, 'Enable auto-resize')
-m.nnoremap([[<leader>sA]], auto_resize.disable, 'Disable auto-resize')
+map('n', '<leader>sa', auto_resize.enable, 'Enable auto-resize')
+map('n', '<leader>sA', auto_resize.disable, 'Disable auto-resize')
 
 ---- Editing
+map('n', 'gi', [[:exec "normal i".nr2char(getchar())."\e"<Cr>]], 'Insert a single character')
+map('n', 'ga', [[:exec "normal a".nr2char(getchar())."\e"<Cr>]], 'Insert a single character (append)')
 
--- https://vim.fandom.com/wiki/Insert_a_single_character
-m.nnoremap([[gi]], [[:exec "normal i".nr2char(getchar())."\e"<Cr>]], m.silent, 'Insert a single character')
-m.nnoremap([[ga]], [[:exec "normal a".nr2char(getchar())."\e"<Cr>]], m.silent, 'Insert a single character')
+map('x', '>', '>gv', 'Indent')
+map('x', '<', '<gv', 'De-Indent')
 
-m.xnoremap([[>]], [[>gv]], 'Indent')
-m.xnoremap([[<]], [[<gv]], 'De-Indent')
+map('n', '<M-.>', "m'Do<Esc>p`", 'Break line at cursor')
+map('n', '<M-,>', "m'DO<Esc>p`", 'Break line at cursor (reverse)')
 
-m.nnoremap([[<M-.>]], [[m'Do<Esc>p`']], 'Break line at cursor')
-m.nnoremap([[<M-,>]], [[m'DO<Esc>p`']], 'Break line at cursor (reverse)')
+map('n', 'go', 'o<C-u>', 'Insert on new line without autocomment')
+map('n', 'gO', 'O<C-u>', 'Insert on new line above without autocomment')
 
-m.nnoremap([[go]], 'o<C-u>', m.silent, 'Begin a new line below the cursor and insert text (no autocomment)')
-m.nnoremap([[gO]], 'O<C-u>', m.silent, 'Begin a new line above the cursor and insert text (no autocomment)')
+map('n', 'Y', 'y$', 'Yank until end of line')
 
-m.nnoremap([[Y]], [[y$]], 'Yank until end of line')
+map('x', '<leader>y', '"+y', 'Yank to system clipboard')
+map('n', '<leader>y', '"+yg_', "Yank 'til EOL to system clipboard")
+map('n', '<leader>yy', '"+yy', 'Yank line to system clipboard')
+map('n', '<C-y>', [[pumvisible() ? "\<C-y>" : '"+yy']], { expr = true, desc = 'Yank line to system clipboard' })
+map('x', '<C-y>', [[pumvisible() ? "\<C-y>" : '"+y']], { expr = true, desc = 'Yank line to system clipboard' })
 
-m.xnoremap([[<leader>y]], [["+y]], 'Yank to system clipboard')
-m.nnoremap([[<leader>Y]], [["+yg_]], "Yank 'til EOL to system clipboard")
-m.nnoremap([[<leader>yy]], [["+yy]], 'Yank line to system clipboard')
-m.nnoremap([[<C-y>]], [[pumvisible() ? "\<C-y>" : '"+yy']], m.expr)
-m.xnoremap([[<C-y>]], [[pumvisible() ? "\<C-y>" : '"+y']], m.expr)
+map('n', '<leader>yp', '<Cmd>let @+ = expand("%:p")<Cr>:echom "Copied " . @+<Cr>', 'Yank file path')
+map('n', '<leader>y:', [[<Cmd>let @+=@:<Cr>:echom "Copied '" . @+ . "'"<Cr>]], 'Yank last command')
 
-m.nnoremap([[<leader>yp]], '<Cmd>let @+ = expand("%:p")<Cr>:echom "Copied " . @+<Cr>', m.silent, 'Yank file path')
-m.nnoremap([[<leader>y:]], [[<Cmd>let @+=@:<Cr>:echom "Copied '" . @+ . "'"<Cr>]], m.silent, 'Yank last command')
+map('nx', '<C-p>', '"+p', 'Paste from system clipboard')
 
-m.xnoremap([[<C-p>]], [["+p]], 'Paste from system clipboard')
-m.nnoremap([[<C-p>]], [["+p]], 'Paste from system clipboard')
+map('n', '<M-p>', 'a <Esc>p', 'Insert a space and then paste after cursor')
+map('n', '<M-P>', 'i <Esc>P', 'Insert a space and then paste before cursor')
 
-m.nnoremap([[<M-p>]], [[a <Esc>p]], 'Insert a space and then paste after cursor')
-m.nnoremap([[<M-P>]], [[i <Esc>P]], 'Insert a space and then paste before cursor')
+map('n', '<C-M-j>', '"dY"dp', 'Duplicate line downwards')
+map('n', '<C-M-k>', '"dY"dP', 'Duplicate line upwards')
 
-m.nnoremap([[<C-M-j>]], [["dY"dp]], 'Duplicate line downwards')
-m.nnoremap([[<C-M-k>]], [["dY"dP]], 'Duplicate line upwards')
-
-m.xnoremap([[<C-M-j>]], [["dy`<"dPjgv]], 'Duplicate selection downwards')
-m.xnoremap([[<C-M-k>]], [["dy`>"dpgv]], 'Duplicate selection upwards')
+map('x', '<C-M-j>', '"dy`<"dPjgv', 'Duplicate selection downwards')
+map('x', '<C-M-k>', '"dy`>"dpgv', 'Duplicate selection upwards')
 
 local wrap_visual_selection = fn.require_on_call_rec('user.util.wrap').wrap_visual_selection
 
-m.xnoremap([[<M-w>]], iwrap(wrap_visual_selection), 'Wrap selection')
-
-m.nnoremap([[<M-S-W>]], function()
+map('x', '<M-w>', wrap_visual_selection, 'Wrap selection')
+map('n', '<M-S-W>', function()
   vim.cmd [[normal! V]]
   wrap_visual_selection()
 end, 'Wrap line')
 
 ---- Treesitter
 local node_motion = fn.require_on_call_rec('user.util.treesitter').node_motion
-
-m.xnoremap('n', iwrap(node_motion), 'Smart select node')
-m.onoremap('n', iwrap(node_motion), 'Smart select node')
-m.nnoremap([[<C-M-w>]], function()
+map('xo', 'n', node_motion, 'Smart select node')
+map('n', '<C-M-w>', function()
   node_motion()
   wrap_visual_selection()
 end, 'Wrap word')
@@ -252,14 +208,14 @@ local function match_indent(dir)
   end
 end
 
-m.inoremap([[<M-,>]], match_indent(-1), 'Match indent of prev line')
-m.inoremap([[<M-.>]], match_indent(1), 'Match indent of next line')
+map('i', '<M-,>', match_indent(-1), 'Match indent of prev line')
+map('i', '<M-.>', match_indent(1), 'Match indent of next line')
 
 -- Clear UI state:
 -- - Clear search highlight
 -- - Clear command-line
 -- - Close floating windows
-m.nnoremap([[<Esc>]], function()
+map('n', [[<Esc>]], function()
   vim.cmd 'nohlsearch'
   if package.loaded['nvim-tree'] then
     require('nvim-tree.actions.node.file-popup').close_popup()
@@ -278,7 +234,7 @@ m.nnoremap([[<Esc>]], function()
     'dap-float',
   }
   vim.cmd "echo ''"
-end, m.silent, 'Clear UI')
+end, 'Clear UI')
 
 -- Like 'gf', but if the file doesn't exist, open Telescope with the filename
 -- as the default text
@@ -296,74 +252,57 @@ local function gf_telescope(cmd)
   vim.cmd((cmd or 'edit') .. ' ' .. file)
 end
 
-m.noremap([[gf]], iwrap(gf_telescope), 'Go to file under cursor')
-m.noremap([[gF]], iwrap(gf_telescope, 'tabe'), 'Go to file under cursor (new tab)')
+map('n', 'gf', gf_telescope, 'Go to file under cursor')
+map('n', 'gF', gf_telescope, 'Go to file under cursor (new tab)')
 
 -- emacs-style motion & editing in insert mode
-m.inoremap([[<C-a>]], [[<Home>]], 'Goto beginning of line')
-m.inoremap([[<C-e>]], [[<End>]], 'Goto end of line')
-m.inoremap([[<C-b>]], [[<Left>]], 'Goto char backward')
-m.inoremap([[<C-f>]], [[<Right>]], 'Goto char forward')
-m.inoremap([[<M-b>]], [[<S-Left>]], 'Goto word backward')
-m.inoremap([[<M-f>]], [[<S-Right>]], 'Goto word forward')
-m.inoremap([[<C-d>]], [[<Delete>]], 'Kill char forward')
-m.inoremap([[<M-d>]], [[<C-o>de]], 'Kill word forward')
-m.inoremap([[<M-Backspace>]], [[<C-o>dB]], 'Kill word backward')
-m.inoremap([[<C-k>]], [[<C-o>D]], 'Kill to end of line')
+map('i', '<C-a>', '<Home>', 'Goto beginning of line')
+map('i', '<C-e>', '<End>', 'Goto end of line')
+map('i', '<C-b>', '<Left>', 'Goto char backward')
+map('i', '<C-f>', '<Right>', 'Goto char forward')
+map('i', '<M-b>', '<S-Left>', 'Goto word backward')
+map('i', '<M-f>', '<S-Right>', 'Goto word forward')
+map('i', '<C-d>', '<Delete>', 'Kill char forward')
+map('i', '<M-d>', '<C-o>de', 'Kill word forward')
+map('i', '<M-Backspace>', '<C-o>dB', 'Kill word backward')
+map('i', '<C-k>', '<C-o>D', 'Kill to end of line')
 
-m.inoremap([[<M-h>]], [[<Left>]])
-m.inoremap([[<M-j>]], [[<Down>]])
-m.inoremap([[<M-k>]], [[<Up>]])
-m.inoremap([[<M-l>]], [[<Right>]])
+map('i', '<M-h>', '<Left>', 'Move left')
+map('i', '<M-j>', '<Down>', 'Move down')
+map('i', '<M-k>', '<Up>', 'Move up')
+map('i', '<M-l>', '<Right>', 'Move right')
 
-m.inoremap([[<M-a>]], [[<C-o>_]])
-
--- local km = fn.require_on_call_rec 'user.util.km'
--- m.inoremap('<Bs>', iwrap(km.insert_backspace_fix), m.silent, 'Enhanced Backspace')
--- m.inoremap('<C-Bs>', '<Bs>', m.silent, 'Normal Backspace')
+map('i', '<M-a>', '<C-o>_', 'Move to start of line')
 
 -- unicode stuff
-m.inoremap(xk [[<C-'>]], [[<C-k>]], 'Insert digraph')
-m.nnoremap([[gxa]], [[ga]], 'Show char code in decimal, hexadecimal and octal')
+map('i', xk "<C-'>", '<C-k>', 'Insert digraph')
+map('n', 'gxa', 'ga', 'Show char code in decimal, hexadecimal and octal')
 
--- nano-like kill buffer
--- TODO
-vim.cmd [[
-  let @k=''
-  let @l=''
-]]
-m.nnoremap([[<F30>]], [["ldd:let @k=@k.@l | let @l=@k<Cr>]], m.silent)
-m.nnoremap([[<F24>]], '<Cmd>if @l != "" | let @k=@l | end<Cr>"KgP:let @l=@k<Cr>:let @k=""<Cr>', m.silent)
-
-m.inoremap(xk [[<C-`>]], [[<C-o>~<Left>]], 'Toggle case')
+map('i', xk '<C-`>', '<C-o>~<Left>', 'Toggle case')
 
 -- emacs-style motion & editing in command mode
-m.cnoremap([[<C-a>]], [[<Home>]]) -- Goto beginning of line
-m.cnoremap([[<C-b>]], [[<Left>]]) -- Goto char backward
-m.cnoremap([[<C-d>]], [[<Delete>]]) -- Kill char forward
-m.cnoremap([[<C-f>]], [[<Right>]]) -- Goto char forward
-m.cnoremap([[<C-g>]], [[<C-c>]]) -- Cancel
-m.cnoremap([[<C-k>]], [[<C-\>e(" ".getcmdline())[:getcmdpos()-1][1:]<Cr>]]) -- Kill to end of line
-m.cnoremap([[<M-f>]], [[<C-\>euser#fn#cmdlineMoveWord( 1, 0)<Cr>]]) -- Goto word forward
-m.cnoremap([[<M-b>]], [[<C-\>euser#fn#cmdlineMoveWord(-1, 0)<Cr>]]) -- Goto word backward
-m.cnoremap([[<M-d>]], [[<C-\>euser#fn#cmdlineMoveWord( 1, 1)<Cr>]]) -- Kill word forward
-m.cnoremap([[<M-Backspace>]], [[<C-\>euser#fn#cmdlineMoveWord(-1, 1)<Cr>]]) -- Kill word backward
+map('c', '<C-a>', '<Home>', 'Goto beginning of line')
+map('c', '<C-b>', '<Left>', 'Goto char backward')
+map('c', '<C-d>', '<Delete>', 'Kill char forward')
+map('c', '<C-f>', '<Right>', 'Goto char forward')
+map('c', '<C-g>', '<C-c>', 'Cancel')
+map('c', '<C-k>', [[<C-\>e(" ".getcmdline())[:getcmdpos()-1][1:]<Cr>]], 'Kill to end of line')
+map('c', '<M-f>', [[<C-\>euser#fn#cmdlineMoveWord( 1, 0)<Cr>]], 'Goto word forward')
+map('c', '<M-b>', [[<C-\>euser#fn#cmdlineMoveWord(-1, 0)<Cr>]], 'Goto word backward')
+map('c', '<M-d>', [[<C-\>euser#fn#cmdlineMoveWord( 1, 1)<Cr>]], 'Kill word forward')
+map('c', '<M-Backspace>', [[<C-\>euser#fn#cmdlineMoveWord(-1, 1)<Cr>]], 'Kill word backward')
 
-m.cnoremap([[<M-k>]], [[<C-k>]]) -- Insert digraph
+map('c', '<M-k>', '<C-k>', 'Insert digraph')
 
--- Make c-n and c-p behave like up/down arrows, i.e. take into account the
--- beginning of the text entered in the command line when jumping, but only if
--- the pop-up menu (completion menu) is not visible
 -- See: https://github.com/mhinz/vim-galore#saner-command-line-history
-m.cnoremap([[<c-p>]], [[pumvisible() ? "\<C-p>" : "\<Up>"]], m.expr, 'History prev')
-m.cnoremap([[<c-n>]], [[pumvisible() ? "\<C-n>" : "\<Down>"]], m.expr, 'History next')
-m.cmap([[<M-/>]], [[pumvisible() ? "\<C-y>" : "\<M-/>"]], m.expr, 'Accept completion suggestion')
-m.cmap(
-  xk [[<C-/>]],
-  [[pumvisible() ? "\<C-y>\<Tab>" : nr2char(0x001f)]],
-  m.expr,
-  'Accept completion suggestion and continue completion'
-)
+map('c', '<C-p>', [[pumvisible() ? "\<C-p>" : "\<Up>"]], { expr = true, desc = 'History prev' })
+map('c', '<C-n>', [[pumvisible() ? "\<C-n>" : "\<Down>"]], { expr = true, desc = 'History next' })
+map('c', '<M-/>', [[pumvisible() ? "\<C-y>" : "\<M-/>"]], { expr = true, desc = 'Accept completion suggestion' })
+
+map('c', xk '<C-/>', [[pumvisible() ? "\<C-y>\<Tab>" : nr2char(0x001f)]], {
+  expr = true,
+  desc = 'Accept completion suggestion & continue',
+})
 
 local function cursor_lock(lock)
   return function()
@@ -391,16 +330,16 @@ local function cursor_lock(lock)
   end
 end
 
-m.nnoremap([[<leader>zt]], cursor_lock 't', m.silent, 'Toggle cursor lock (top)')
-m.nnoremap([[<leader>zz]], cursor_lock 'z', m.silent, 'Toggle cursor lock (middle)')
-m.nnoremap([[<leader>zb]], cursor_lock 'b', m.silent, 'Toggle cursor lock (bottom)')
+map('n', '<leader>zt', cursor_lock 't', 'Toggle cursor lock (top)')
+map('n', '<leader>zz', cursor_lock 'z', 'Toggle cursor lock (middle)')
+map('n', '<leader>zb', cursor_lock 'b', 'Toggle cursor lock (bottom)')
 
 ---- Jumplist
-m.nnoremap(xk [[<C-S-o>]], iwrap(fn.jumplist_jump_buf, -1), m.silent, 'Jumplist: Go to last buffer')
-m.nnoremap(xk [[<C-S-i>]], iwrap(fn.jumplist_jump_buf, 1), m.silent, 'Jumplist: Go to next buffer')
+map('n', xk '<C-S-o>', wrap(fn.jumplist_jump_buf, -1), 'Jumplist: Go to last buffer')
+map('n', xk '<C-S-i>', wrap(fn.jumplist_jump_buf, 1), 'Jumplist: Go to next buffer')
 
 ---- Quickfix
-m.nnoremap([[<M-S-q>]], function()
+map('n', '<M-S-q>', function()
   local winid = vim.fn.getqflist({ winid = 1 }).winid
   if winid and winid ~= 0 then
     vim.api.nvim_win_close(winid, true)
@@ -408,20 +347,20 @@ m.nnoremap([[<M-S-q>]], function()
     vim.cmd 'botright copen'
     vim.cmd.wincmd 'p'
   end
-end, m.silent, 'Quickfix: Toggle')
+end, 'Quickfix: Toggle')
 
-m.nnoremap(
+map(
+  'n',
   [[<M-q>]],
-  fn.filetype_command('qf', iwrap(recent_wins.focus_most_recent), iwrap(vim.cmd, 'botright copen')),
-  m.silent,
+  fn.filetype_command('qf', recent_wins.focus_most_recent, wrap(vim.cmd, 'botright copen')),
   'Quickfix: Toggle Focus'
 )
 
-m.nnoremap(']q', [[<Cmd>cnext<Cr>]], 'Quickfix: Next')
-m.nnoremap('[q', [[<Cmd>cprev<Cr>]], 'Quickfix: Prev')
+map('n', ']q', '<Cmd>cnext<Cr>', 'Quickfix: Next')
+map('n', '[q', '<Cmd>cprev<Cr>', 'Quickfix: Prev')
 
-m.group(m.silent, { ft = 'qf' }, function()
-  m.nnoremap([[dd]], function()
+ft('qf', function(bufmap)
+  bufmap('n', 'dd', function()
     local line = vim.fn.line '.'
     vim.fn.setqflist(
       vim.fn.filter(vim.fn.getqflist(), function(idx)
@@ -430,9 +369,9 @@ m.group(m.silent, { ft = 'qf' }, function()
       'r'
     )
     vim.fn.setpos('.', { 0, line, 1, 0 })
-  end, m.silent, 'Quickfix: Delete item under cursor')
+  end, 'Quickfix: Delete item under cursor')
 
-  m.vmap([[d]], function()
+  bufmap('v', 'd', function()
     vim.schedule(function()
       local start = vim.fn.line "'<"
       local finish = vim.fn.line "'>"
@@ -445,11 +384,11 @@ m.group(m.silent, { ft = 'qf' }, function()
       vim.fn.setpos('.', { 0, start, 1, 0 })
     end)
     vim.cmd [[call feedkeys("\<Esc>", 'n')]]
-  end, m.silent, 'Quickfix: Delete selected items')
+  end, 'Quickfix: Delete selected items')
 
-  m.nnoremap([[<Tab>]], [[<Cr><Cmd>copen<Cr>]], 'Quickfix: Jump to item under cursor')
+  bufmap('n', '<Tab>', '<Cr><Cmd>copen<Cr>', 'Quickfix: Jump to item under cursor')
 
-  m.nnoremap([[<M-w>]], function()
+  bufmap('n', '<M-w>', function()
     local sel = vim.fn.getqflist({ id = 0, idx = vim.fn.line '.', items = 0 }).items[1]
     if not sel then
       return
@@ -460,7 +399,7 @@ m.group(m.silent, { ft = 'qf' }, function()
       vim.api.nvim_set_current_win(win)
       vim.api.nvim_win_set_cursor(win, { sel.lnum, sel.col })
     end
-  end, m.silent, 'Quickfix: Jump to item under cursor (pick window)')
+  end, 'Quickfix: Jump to item under cursor (pick window)')
 end)
 
 ---- Tabs
@@ -478,81 +417,80 @@ local function tabnm(n)
   end
 end
 
-m.noremap([[<M-'>]], '<Cmd>tabn<Cr>', m.silent, 'Tabs: Goto next')
-m.noremap([[<M-;>]], '<Cmd>tabp<Cr>', m.silent, 'Tabs: Goto prev')
-m.tnoremap([[<M-'>]], [[<C-\><C-n>:tabn<Cr>]], m.silent) -- Tabs: goto next
-m.tnoremap([[<M-;>]], [[<C-\><C-n>:tabp<Cr>]], m.silent) -- Tabs: goto prev
-m.noremap([[<M-S-a>]], [[:execute "wincmd g\<Tab>"<Cr>]], m.silent, 'Tabs: Goto last accessed')
+map('n', "<M-'>", '<Cmd>tabn<Cr>', 'Tabs: Goto next')
+map('n', '<M-;>', '<Cmd>tabp<Cr>', 'Tabs: Goto prev')
+map('t', "<M-'>", '<C-\\><C-n>:tabn<Cr>', 'Tabs: Goto next')
+map('t', '<M-;>', '<C-\\><C-n>:tabp<Cr>', 'Tabs: Goto prev')
+map('n', '<M-S-a>', ':execute "wincmd g\\<Tab>"<Cr>', 'Tabs: Goto last accessed')
 
-m.noremap([[<M-a>]], iwrap(recent_wins.focus_most_recent), m.silent, 'Panes: Goto previously focused')
-m.noremap([[<M-x>]], iwrap(recent_wins.flip_recents), m.silent, 'Panes: Flip the last normal wins')
+map('n', '<M-a>', recent_wins.focus_most_recent, 'Panes: Goto previously focused')
+map('n', '<M-x>', recent_wins.flip_recents, 'Panes: Flip the last normal wins')
 
-m.noremap([[<M-1>]], tabnm(1), m.silent, 'Goto tab 1')
-m.noremap([[<M-2>]], tabnm(2), m.silent, 'Goto tab 2')
-m.noremap([[<M-3>]], tabnm(3), m.silent, 'Goto tab 3')
-m.noremap([[<M-4>]], tabnm(4), m.silent, 'Goto tab 4')
-m.noremap([[<M-5>]], tabnm(5), m.silent, 'Goto tab 5')
-m.noremap([[<M-6>]], tabnm(6), m.silent, 'Goto tab 6')
-m.noremap([[<M-7>]], tabnm(7), m.silent, 'Goto tab 7')
-m.noremap([[<M-8>]], tabnm(8), m.silent, 'Goto tab 8')
-m.noremap([[<M-9>]], tabnm(9), m.silent, 'Goto tab 9')
-m.noremap([[<M-0>]], tabnm(10), m.silent, 'Goto tab 10')
+map('n', '<M-1>', tabnm(1), 'Goto tab 1')
+map('n', '<M-2>', tabnm(2), 'Goto tab 2')
+map('n', '<M-3>', tabnm(3), 'Goto tab 3')
+map('n', '<M-4>', tabnm(4), 'Goto tab 4')
+map('n', '<M-5>', tabnm(5), 'Goto tab 5')
+map('n', '<M-6>', tabnm(6), 'Goto tab 6')
+map('n', '<M-7>', tabnm(7), 'Goto tab 7')
+map('n', '<M-8>', tabnm(8), 'Goto tab 8')
+map('n', '<M-9>', tabnm(9), 'Goto tab 9')
+map('n', '<M-0>', tabnm(10), 'Goto tab 10')
 
-m.noremap([[<M-">]], ':+tabm<Cr>', m.silent, 'Move tab right')
-m.noremap([[<M-:>]], ':-tabm<Cr>', m.silent, 'Move tab left')
+map('n', '<M-">', ':+tabm<Cr>', 'Move tab right')
+map('n', '<M-:>', ':-tabm<Cr>', 'Move tab left')
 
-m.noremap([[<F13>]], '<Cmd>tabnew<Cr>', m.silent, 'Open new tab')
+map('n', '<F13>', '<Cmd>tabnew<Cr>', 'Open new tab')
 
-m.tnoremap([[<M-h>]], [[<C-\><C-n><C-w>h]]) -- Goto tab left
-m.tnoremap([[<M-j>]], [[<C-\><C-n><C-w>j]]) -- Goto tab down
-m.tnoremap([[<M-k>]], [[<C-\><C-n><C-w>k]]) -- Goto tab up
-m.tnoremap([[<M-l>]], [[<C-\><C-n><C-w>l]]) -- Goto tab right
+map('t', '<M-h>', '<C-\\><C-n><C-w>h', 'Goto tab left')
+map('t', '<M-j>', '<C-\\><C-n><C-w>j', 'Goto tab down')
+map('t', '<M-k>', '<C-\\><C-n><C-w>k', 'Goto tab up')
+map('t', '<M-l>', '<C-\\><C-n><C-w>l', 'Goto tab right')
 
-m.nnoremap([[<leader>sf]], iwrap(fn.toggle_winfix, 'height'), 'Toggle fixed window height')
-m.nnoremap([[<leader>sF]], iwrap(fn.toggle_winfix, 'width'), 'Toggle fixed window width')
+map('n', '<leader>sf', wrap(fn.toggle_winfix, 'height'), 'Toggle fixed window height')
+map('n', '<leader>sF', wrap(fn.toggle_winfix, 'width'), 'Toggle fixed window width')
 
-m.nnoremap([[<leader>s<M-f>]], iwrap(fn.set_winfix, true, 'height', 'width'), 'Enable fixed window height/width')
-m.nnoremap([[<leader>s<C-f>]], iwrap(fn.set_winfix, false, 'height', 'width'), 'Disable fixed window height/width')
+map('n', '<leader>s<M-f>', wrap(fn.set_winfix, true, 'height', 'width'), 'Enable fixed window height/width')
+map('n', '<leader>s<C-f>', wrap(fn.set_winfix, false, 'height', 'width'), 'Disable fixed window height/width')
 
 -- see also the VSplit plugin mappings below
-m.nnoremap([[<leader>S]], '<Cmd>new<Cr>', m.silent, 'Split (horiz, new)')
-m.nnoremap([[<leader>sn]], '<Cmd>new<Cr>', m.silent, 'Split (horiz, new)')
-m.nnoremap([[<leader>V]], '<Cmd>vnew<Cr>', m.silent, 'Split (vert, new)')
-m.nnoremap([[<leader>vn]], '<Cmd>vnew<Cr>', m.silent, 'Split (vert, new)')
-m.nnoremap([[<leader>ss]], '<Cmd>split<Cr>', m.silent, 'Split (horiz, cur)')
-m.nnoremap([[<leader>st]], '<Cmd>split<Cr>', m.silent, 'Split (horiz, cur)')
-m.nnoremap([[<leader>vv]], '<Cmd>vsplit<Cr>', m.silent, 'Split (vert, cur)')
-m.nnoremap([[<leader>vt]], '<Cmd>vsplit<Cr>', m.silent, 'Split (vert, cur)')
+map('n', '<leader>S', '<Cmd>new<Cr>', 'Split (horiz, new)')
+map('n', '<leader>sn', '<Cmd>new<Cr>', 'Split (horiz, new)')
+map('n', '<leader>V', '<Cmd>vnew<Cr>', 'Split (vert, new)')
+map('n', '<leader>vn', '<Cmd>vnew<Cr>', 'Split (vert, new)')
+map('n', '<leader>ss', '<Cmd>split<Cr>', 'Split (horiz, cur)')
+map('n', '<leader>st', '<Cmd>split<Cr>', 'Split (horiz, cur)')
+map('n', '<leader>vv', '<Cmd>vsplit<Cr>', 'Split (vert, cur)')
+map('n', '<leader>vt', '<Cmd>vsplit<Cr>', 'Split (vert, cur)')
 
-m.xnoremap([[<leader>I]], [[<Esc>:call user#fn#interleave()<Cr>]], m.silent, 'Interleave two contiguous blocks')
+-- TODO: Convert to Lua
+map('x', '<leader>I', '<Esc>:call user#fn#interleave()<Cr>', 'Interleave two contiguous blocks')
 
 -- PasteRestore
--- paste register without overwriting with the original selection
--- use P for original behavior
-m.xnoremap([[p]], [[user#fn#pasteRestore()]], m.silent, m.expr)
+-- paste register without overwriting with the original selectin, use P for original behavior
+-- TODO: Convert to Lua
+map('x', 'p', 'user#fn#pasteRestore()', { expr = true, desc = 'PasteRestore' })
 
-m.tnoremap(xk [[<C-S-n>]], [[<C-\><C-n>]]) -- Enter Normal mode
-m.tnoremap([[<C-n>]], [[<C-n>]])
-m.tnoremap([[<C-p>]], [[<C-p>]])
-m.tnoremap([[<M-n>]], [[<M-n>]])
-m.tnoremap([[<M-p>]], [[<M-p>]])
+map('t', xk [[<C-S-n>]], '<C-\\><C-n>', 'Switch to normal mode')
+map('t', '<C-n>', '<C-n>', 'Send Ctrl-n')
+map('t', '<C-p>', '<C-p>', 'Send Ctrl-p')
+map('t', '<M-n>', '<M-n>', 'Send Alt-n')
+map('t', '<M-p>', '<M-p>', 'Send Alt-p')
 
-m.nnoremap([[<Leader>ml]], '<Cmd>call AppendModeline()<Cr>', m.silent, 'Append modeline with current settings')
+-- TODO: Convert to Lua
+map('n', '<Leader>ml', '<Cmd>call AppendModeline()<Cr>', 'Append modeline with current settings')
 
 ---- Syntax
-m.nnoremap([[<leader>hi]], '<Cmd>Inspect<Cr>', m.silent, 'Inspect syntax under cursor')
+map('n', '<leader>hi', '<Cmd>Inspect<Cr>', 'Inspect syntax under cursor')
 
 ------ Filetypes
-m.group(m.silent, { ft = 'lua' }, function()
-  m.nmap([[<leader><Enter>]], fn.luarun, 'Lua: Eval line')
-  m.nmap([[<localleader><Enter>]], iwrap(fn.luarun, true), 'Lua: Eval file')
-  m.xmap([[<leader><Enter>]], fn.luarun, 'Lua: Eval selection')
-
-  m.nmap([[<leader><F12>]], "<Cmd>Put lua require'user.fn'.luarun()<Cr>", 'Lua: Eval line (Append)')
-  m.xmap([[<leader><F12>]], "<Cmd>Put lua require'user.fn'.luarun()<Cr>", 'Lua: Eval selection (Append)')
+ft('lua', function(bufmap)
+  bufmap('nx', '<leader><Enter>', fn.luarun, 'Lua: Eval')
+  bufmap('n', '<localleader><Enter>', wrap(fn.luarun, true), 'Lua: Eval file')
+  bufmap('nx', '<leader><F12>', "<Cmd>Put lua require'user.fn'.luarun()<Cr>", 'Lua: Eval (Append result to buffer)')
 end)
 
-m.group({ ft = { 'typescriptreact', 'javascriptreact' } }, function()
+ft({ 'typescriptreact', 'javascriptreact' }, function(bufmap)
   local tailwind_sort = function()
     require('user.util.visual').transform_visual_selection(
       { 'rustywind', '--stdin', '--custom-regex', '(.*)' },
@@ -574,59 +512,50 @@ m.group({ ft = { 'typescriptreact', 'javascriptreact' } }, function()
       end
     )
   end
-  m.xmap([[<leader>ft]], function()
-    tailwind_sort()
-  end)
-  m.nmap([[<leader>ft]], function()
+  bufmap('x', '<leader>ft', tailwind_sort, 'Tailwind: Sort selection')
+  bufmap('n', '<leader>ft', function()
     require('nvim-treesitter.textobjects.select').select_textobject('@string', 'textobjects', 'x')
     tailwind_sort()
-  end)
-end)
-m.group({
-  ft = { 'typescript', 'javascript', 'typescriptreact', 'javascriptreact' },
-}, function()
-  m.nmap([[<leader>ii]], '<Cmd>TwoslashQueriesInspect<Cr>', 'TwoSlash: Inspect')
-  m.nmap([[<leader>ir]], '<Cmd>TwoslashQueriesRemove<Cr>', 'TwoSlash: Remove')
+  end, 'Tailwind: Sort string under cursor')
 end)
 
-m.group(m.silent, { ft = 'man' }, function()
-  -- open manpage tag (e.g. isatty(3)) in current buffer
-  m.nnoremap([[<C-]>]], function()
+ft({ 'typescript', 'javascript', 'typescriptreact', 'javascriptreact' }, function(bufmap)
+  bufmap('n', '<leader>ii', '<Cmd>TwoslashQueriesInspect<Cr>', 'TwoSlash: Inspect')
+  bufmap('n', '<leader>ir', '<Cmd>TwoslashQueriesRemove<Cr>', 'TwoSlash: Remove')
+end)
+
+ft('man', function(bufmap)
+  bufmap('n', '<C-]>', function()
     fn.man('', vim.fn.expand '<cword>')
   end, 'Man: Open tag in current buffer')
-  m.nnoremap([[<M-]>]], function()
+
+  bufmap('n', '<M-]>', function()
     fn.man('tab', vim.fn.expand '<cword>')
   end, 'Man: Open tag in new tab')
-  m.nnoremap([[}]], function()
+
+  bufmap('n', '}', function()
     fn.man('split', vim.fn.expand '<cword>')
   end, 'Man: Open tag in new split')
 
-  -- TODO
-  -- go back to previous manpage
-  -- nnoremap ([[<C-t>]],   [[:call man#pop_page))
-  -- nnoremap ([[<C-o>]],   '<Cmd>call man#pop_page()<Cr>')
-  -- nnoremap ([[<M-o>]],   [[<C-o>]])
-
   -- navigate to next/prev section
-  m.nnoremap('[[', [[:<C-u>call user#fn#manSectionMove('b', 'n', v:count1)<Cr>]], m.silent, 'Man: Goto prev section')
-  m.nnoremap(']]', [[:<C-u>call user#fn#manSectionMove('' , 'n', v:count1)<Cr>]], m.silent, 'Man: Goto next section')
-  m.xnoremap('[[', [[:<C-u>call user#fn#manSectionMove('b', 'v', v:count1)<Cr>]], m.silent, 'Man: Goto prev section')
-  m.xnoremap(']]', [[:<C-u>call user#fn#manSectionMove('' , 'v', v:count1)<Cr>]], m.silent, 'Man: Goto next section')
+  bufmap('n', '[[', ":<C-u>call user#fn#manSectionMove('b', 'n', v:count1)<Cr>", 'Man: Goto prev section')
+  bufmap('n', ']]', ":<C-u>call user#fn#manSectionMove('' , 'n', v:count1)<Cr>", 'Man: Goto next section')
+  bufmap('x', '[[', ":<C-u>call user#fn#manSectionMove('b', 'v', v:count1)<Cr>", 'Man: Goto prev section')
+  bufmap('x', ']]', ":<C-u>call user#fn#manSectionMove('' , 'v', v:count1)<Cr>", 'Man: Goto next section')
 
   -- navigate to next/prev manpage tag
-  m.nnoremap([[<Tab>]], [[:call search('\(\w\+(\w\+)\)', 's')<Cr>]], m.silent, 'Man: Goto next tag')
-  m.nnoremap([[<S-Tab>]], [[:call search('\(\w\+(\w\+)\)', 'sb')<Cr>]], m.silent, 'Man: Goto prev tag')
+  bufmap('n', '<Tab>', [[:call search('\(\w\+(\w\+)\)', 's')<Cr>]], 'Man: Goto next tag')
+  bufmap('n', '<S-Tab>', [[:call search('\(\w\+(\w\+)\)', 'sb')<Cr>]], 'Man: Goto prev tag')
 
   -- search from beginning of line (useful for finding command args like -h)
-  m.nnoremap([[g/]], [[/^\s*\zs]], { silent = false }, 'Man: Start BOL search')
+  bufmap('n', 'g/', [[/^\s*\zs]], 'Man: Start BOL search')
 end)
 
 ------ LSP
-m.nname('<leader>l', 'LSP')
-m.nnoremap([[<leader>lif]], '<Cmd>LspInfo<Cr>', m.silent, 'LSP: Show LSP information')
-m.nnoremap([[<leader>lr]], '<Cmd>LspRestart<Cr>', m.silent, 'LSP: Restart LSP')
-m.nnoremap([[<leader>ls]], '<Cmd>LspStart<Cr>', m.silent, 'LSP: Start LSP')
-m.nnoremap([[<leader>lS]], '<Cmd>LspStop<Cr>', m.silent, 'LSP: Stop LSP')
+map('n', '<leader>lif', '<Cmd>LspInfo<Cr>', 'LSP: Show LSP information')
+map('n', '<leader>lr', '<Cmd>LspRestart<Cr>', 'LSP: Restart LSP')
+map('n', '<leader>ls', '<Cmd>LspStart<Cr>', 'LSP: Start LSP')
+map('n', '<leader>lS', '<Cmd>LspStop<Cr>', 'LSP: Stop LSP')
 
 local lsp_attached_bufs
 M.on_first_lsp_attach = function()
@@ -642,7 +571,7 @@ M.on_first_lsp_attach = function()
     end
   end
 
-  m.nmap([[<M-S-t>]], function()
+  map('n', '<M-S-t>', function()
     local winid = trouble_get_win()
     if winid then
       trouble.close { mode = 'diagnostics' }
@@ -650,26 +579,29 @@ M.on_first_lsp_attach = function()
       trouble.open { mode = 'diagnostics' }
       recent_wins.focus_most_recent()
     end
-  end, m.silent, 'Trouble: Toggle')
-  m.nmap(
-    [[<M-t>]],
+  end, 'Trouble: Toggle')
+
+  map(
+    'n',
+    '<M-t>',
     fn.filetype_command(
       'trouble',
-      iwrap(recent_wins.focus_most_recent),
-      iwrap(trouble.open, { mode = 'diagnostics', focus = true })
+      recent_wins.focus_most_recent,
+      wrap(trouble.open, { mode = 'diagnostics', focus = true })
     ),
-    m.silent,
     'Trouble: Toggle Focus'
   )
 
   local user_lsp = fn.require_on_call_rec 'user.lsp'
-  m.nname('<leader>li', 'LSP-InlayHints')
-  m.nnoremap([[<leader>lii]], iwrap(user_lsp.set_inlay_hints_global), 'LSP: Toggle inlay hints')
-  m.nnoremap([[<leader>lie]], iwrap(user_lsp.set_inlay_hints_global, true), 'LSP: Enable inlay hints')
-  m.nnoremap([[<leader>lid]], iwrap(user_lsp.set_inlay_hints_global, false), 'LSP: Disable inlay hints')
+  map('n', '<leader>lii', user_lsp.set_inlay_hints_global, 'LSP: Toggle inlay hints')
+  map('n', '<leader>lie', wrap(user_lsp.set_inlay_hints_global, true), 'LSP: Enable inlay hints')
+  map('n', '<leader>lid', wrap(user_lsp.set_inlay_hints_global, false), 'LSP: Disable inlay hints')
 end
 
 M.on_lsp_attach = function(bufnr)
+  if not vim.api.nvim_buf_is_valid(bufnr) then
+    return
+  end
   if not lsp_attached_bufs then
     lsp_attached_bufs = {}
     M.on_first_lsp_attach()
@@ -680,192 +612,157 @@ M.on_lsp_attach = function(bufnr)
 
   local user_lsp = fn.require_on_call_rec 'user.lsp'
   local trouble = fn.require_on_call_rec 'trouble'
+  local bufmap = maputil.buf(bufnr)
 
-  m.group({ buffer = bufnr, silent = true }, function()
-    if not vim.api.nvim_buf_is_valid(bufnr) then
-      return
-    end
+  bufmap('n', '<localleader>ii', wrap(user_lsp.set_inlay_hints, 0), 'LSP: Toggle inlay hints for buffer')
+  bufmap('n', '<localleader>ie', wrap(user_lsp.set_inlay_hints, 0, true), 'LSP: Enable inlay hints for buffer')
+  bufmap('n', '<localleader>id', wrap(user_lsp.set_inlay_hints, 0, false), 'LSP: Disable inlay hints for buffer')
 
-    m.nname('<localleader>i', 'LSP-InlayHints')
-    m.nnoremap([[<localleader>ii]], iwrap(user_lsp.set_inlay_hints, 0), 'LSP: Toggle inlay hints for buffer')
-    m.nnoremap([[<localleader>ie]], iwrap(user_lsp.set_inlay_hints, 0, true), 'LSP: Enable inlay hints for buffer')
-    m.nnoremap([[<localleader>id]], iwrap(user_lsp.set_inlay_hints, 0, false), 'LSP: Disable inlay hints for buffer')
+  bufmap('n', '<localleader>gD', vim.lsp.buf.declaration, 'LSP: Goto declaration')
+  bufmap('n', { '<localleader>gd', 'gd' }, '<Cmd>Glance definitions<Cr>', 'LSP: Glance definitions')
+  bufmap('n', '<localleader>gi', '<Cmd>Glance implementations<Cr>', 'LSP: Glance implementation')
+  bufmap('n', '<localleader>gt', '<Cmd>Glance type_definitions<Cr>', 'LSP: Glance type definitions')
+  bufmap('n', '<localleader>gr', '<Cmd>Glance references<Cr>', 'LSP: Glance references')
 
-    m.nname('<localleader>g', 'LSP-Glance')
-    m.nnoremap([[<localleader>gD]], iwrap(vim.lsp.buf.declaration), 'LSP: Goto declaration')
-    m.nnoremap({ [[<localleader>gd]], [[gd]] }, [[<Cmd>Glance definitions<Cr>]], 'LSP: Glance definitions')
-    m.nnoremap([[<localleader>gi]], [[<Cmd>Glance implementations<Cr>]], 'LSP: Glance implementation')
-    m.nnoremap([[<localleader>gt]], [[<Cmd>Glance type_definitions<Cr>]], 'LSP: Glance type definitions')
-    m.nnoremap([[<localleader>gr]], [[<Cmd>Glance references<Cr>]], 'LSP: Glance references')
+  bufmap('n', '<localleader>wa', vim.lsp.buf.add_workspace_folder, 'LSP: Add workspace folder')
+  bufmap('n', '<localleader>wr', vim.lsp.buf.remove_workspace_folder, 'LSP: Rm workspace folder')
 
-    m.nname('<localleader>w', 'LSP-Workspace')
-    m.nnoremap([[<localleader>wa]], iwrap(vim.lsp.buf.add_workspace_folder), 'LSP: Add workspace folder')
-    m.nnoremap([[<localleader>wr]], iwrap(vim.lsp.buf.remove_workspace_folder), 'LSP: Rm workspace folder')
+  bufmap('n', '<localleader>wl', function()
+    fn.inspect(vim.lsp.buf.list_workspace_folders())
+  end, 'LSP: List workspace folders')
 
-    m.nnoremap([[<localleader>wl]], function()
-      fn.inspect(vim.lsp.buf.list_workspace_folders())
-    end, 'LSP: List workspace folders')
+  bufmap('n', '<localleader>R', function()
+    require 'inc_rename' -- Force lazy.nvim to load inc_rename
+    return ':IncRename ' .. vim.fn.expand '<cword>'
+  end, 'LSP: Rename')
 
-    m.nnoremap([[<localleader>R]], function()
-      require 'inc_rename'
-      return ':IncRename ' .. vim.fn.expand '<cword>'
-    end, m.expr, 'LSP: Rename')
+  local code_actions = fn.require_on_call_rec('actions-preview').code_actions
+  bufmap('nx', { '<localleader>A', '<localleader>ca' }, code_actions, 'LSP: Code action')
 
-    -- m.nnoremap({ [[<localleader>A]], [[<localleader>ca]] }, ithunk(vim.lsp.buf.code_action), "LSP: Code action")
-    -- m.xnoremap({ [[<localleader>A]], [[<localleader>ca]] }, ithunk(vim.lsp.buf.range_code_action),
-    --   "LSP: Code action (range)")
-    local code_actions = fn.require_on_call_rec('actions-preview').code_actions
-    m.nnoremap({ [[<localleader>A]], [[<localleader>ca]] }, iwrap(code_actions), 'LSP: Code action')
-    m.xnoremap({ [[<localleader>A]], [[<localleader>ca]] }, iwrap(code_actions), 'LSP: Code action')
-
-    local function gotoDiag(dir)
-      return function(sev)
-        return function()
-          local _dir = dir
-          local args = {
-            enable_popup = true,
-            severity = vim.diagnostic.severity[sev],
-          }
-          if _dir == 'first' or _dir == 'last' then
-            args.wrap = false
-            if dir == 'first' then
-              args.cursor_position = { 1, 1 }
-              _dir = 'next'
-            else
-              args.cursor_position = { vim.api.nvim_buf_line_count(0) - 1, 1 }
-              _dir = 'prev'
-            end
+  local function gotoDiag(dir)
+    return function(sev)
+      return function()
+        local _dir = dir
+        local args = {
+          enable_popup = true,
+          severity = vim.diagnostic.severity[sev],
+        }
+        if _dir == 'first' or _dir == 'last' then
+          args.wrap = false
+          if dir == 'first' then
+            args.cursor_position = { 1, 1 }
+            _dir = 'next'
+          else
+            args.cursor_position = { vim.api.nvim_buf_line_count(0) - 1, 1 }
+            _dir = 'prev'
           end
-          vim.diagnostic['goto_' .. _dir](args)
         end
+        vim.diagnostic['goto_' .. _dir](args)
       end
     end
-    local prevDiag = gotoDiag 'prev'
-    local nextDiag = gotoDiag 'next'
-    local firstDiag = gotoDiag 'first'
-    local lastDiag = gotoDiag 'last'
+  end
+  local prevDiag = gotoDiag 'prev'
+  local nextDiag = gotoDiag 'next'
+  local firstDiag = gotoDiag 'first'
+  local lastDiag = gotoDiag 'last'
 
-    m.nname('<localleader>d', 'LSP-Diagnostics')
-    m.nnoremap([[<localleader>ds]], iwrap(vim.diagnostic.show), 'LSP: Show diagnostics')
-    m.nnoremap({ [[<localleader>dt]], [[<localleader>T]] }, iwrap(trouble.toggle), 'LSP: Toggle Trouble')
-    m.nnoremap([[<localleader>dd]], function()
-      local enabled = vim.diagnostic.is_enabled { bufnr = 0 }
-      vim.diagnostic.enable(not enabled, { bufnr = 0 })
-      vim.notify('Diagnostics ' .. (enabled and 'disabled' or 'enabled'))
-    end, 'LSP: Toggle Diagnostic')
+  bufmap('n', '<localleader>ds', vim.diagnostic.show, 'LSP: Show diagnostics')
+  bufmap('n', { '<localleader>dt', '<localleader>T' }, trouble.toggle, 'LSP: Toggle Trouble')
 
-    m.nnoremap('[d', prevDiag(), 'LSP: Goto prev diagnostic')
-    m.nnoremap(']d', nextDiag(), 'LSP: Goto next diagnostic')
-    m.nnoremap('[h', prevDiag 'HINT', 'LSP: Goto prev hint')
-    m.nnoremap(']h', nextDiag 'HINT', 'LSP: Goto next hint')
-    m.nnoremap('[i', prevDiag 'INFO', 'LSP: Goto prev info')
-    m.nnoremap(']i', nextDiag 'INFO', 'LSP: Goto next info')
-    m.nnoremap('[w', prevDiag 'WARN', 'LSP: Goto prev warning')
-    m.nnoremap(']w', nextDiag 'WARN', 'LSP: Goto next warning')
-    m.nnoremap('[e', prevDiag 'ERROR', 'LSP: Goto prev error')
-    m.nnoremap(']e', nextDiag 'ERROR', 'LSP: Goto next error')
+  bufmap('n', '<localleader>dd', function()
+    local enabled = vim.diagnostic.is_enabled { bufnr = 0 }
+    vim.diagnostic.enable(not enabled, { bufnr = 0 })
+    vim.notify('Diagnostics ' .. (enabled and 'disabled' or 'enabled'))
+  end, 'LSP: Toggle Diagnostic')
 
-    m.nnoremap('[D', firstDiag(), 'LSP: Goto first diagnostic')
-    m.nnoremap(']D', lastDiag(), 'LSP: Goto last diagnostic')
-    m.nnoremap('[H', firstDiag 'HINT', 'LSP: Goto first hint')
-    m.nnoremap(']H', lastDiag 'HINT', 'LSP: Goto last hint')
-    m.nnoremap('[I', firstDiag 'INFO', 'LSP: Goto first info')
-    m.nnoremap(']I', lastDiag 'INFO', 'LSP: Goto last info')
-    m.nnoremap('[W', firstDiag 'WARN', 'LSP: Goto first warning')
-    m.nnoremap(']W', lastDiag 'WARN', 'LSP: Goto last warning')
-    m.nnoremap('[E', firstDiag 'ERROR', 'LSP: Goto first error')
-    m.nnoremap(']E', lastDiag 'ERROR', 'LSP: Goto last error')
+  bufmap('n', '[d', prevDiag(), 'LSP: Goto prev diagnostic')
+  bufmap('n', ']d', nextDiag(), 'LSP: Goto next diagnostic')
+  bufmap('n', '[h', prevDiag 'HINT', 'LSP: Goto prev hint')
+  bufmap('n', ']h', nextDiag 'HINT', 'LSP: Goto next hint')
+  bufmap('n', '[i', prevDiag 'INFO', 'LSP: Goto prev info')
+  bufmap('n', ']i', nextDiag 'INFO', 'LSP: Goto next info')
+  bufmap('n', '[w', prevDiag 'WARN', 'LSP: Goto prev warning')
+  bufmap('n', ']w', nextDiag 'WARN', 'LSP: Goto next warning')
+  bufmap('n', '[e', prevDiag 'ERROR', 'LSP: Goto prev error')
+  bufmap('n', ']e', nextDiag 'ERROR', 'LSP: Goto next error')
 
-    -- m.nnoremap([[<leader>dr]], iwrap(vim.diagnostic.reset), 'LSP: Reset diagnostics (global)')
-    m.nnoremap([[<localleader>dr]], function()
-      vim.diagnostic.reset(nil, 0)
-    end, 'LSP: Reset diagnostics (buffer)')
+  bufmap('n', '[D', firstDiag(), 'LSP: Goto first diagnostic')
+  bufmap('n', ']D', lastDiag(), 'LSP: Goto last diagnostic')
+  bufmap('n', '[H', firstDiag 'HINT', 'LSP: Goto first hint')
+  bufmap('n', ']H', lastDiag 'HINT', 'LSP: Goto last hint')
+  bufmap('n', '[I', firstDiag 'INFO', 'LSP: Goto first info')
+  bufmap('n', ']I', lastDiag 'INFO', 'LSP: Goto last info')
+  bufmap('n', '[W', firstDiag 'WARN', 'LSP: Goto first warning')
+  bufmap('n', ']W', lastDiag 'WARN', 'LSP: Goto last warning')
+  bufmap('n', '[E', firstDiag 'ERROR', 'LSP: Goto first error')
+  bufmap('n', ']E', lastDiag 'ERROR', 'LSP: Goto last error')
 
-    m.nname('<localleader>s', 'LSP-Search')
-    m.nnoremap(
-      { [[<localleader>so]], [[<leader>so]] },
-      iwrap(fn.require_on_call_rec('user.plugin.telescope').cmds.lsp_document_symbols),
-      'LSP: Telescope symbol search'
-    )
+  bufmap('n', '<localleader>dr', function()
+    vim.diagnostic.reset(nil, 0)
+  end, 'LSP: Reset diagnostics (buffer)')
 
-    -- local user_otter = fn.require_on_call_rec 'user.plugin.otter'
+  bufmap(
+    'n',
+    { [[<localleader>so]], [[<leader>so]] },
+    fn.require_on_call_rec('user.plugin.telescope').cmds.lsp_document_symbols,
+    'LSP: Telescope symbol search'
+  )
 
-    m.nname('<localleader>h', 'LSP-Hover')
-    m.nnoremap([[<localleader>hs]], iwrap(vim.lsp.buf.signature_help), 'LSP: Signature help')
-    m.nnoremap([[<M-S-i>]], iwrap(user_lsp.peek_definition), 'LSP: Peek definition')
-    m.nnoremap([[<M-i>]], iwrap(vim.lsp.buf.hover), 'LSP: Hover')
-    m.inoremap([[<M-i>]], iwrap(vim.lsp.buf.hover), 'LSP: Hover')
-    -- m.noremap([[<M-i>]], iwrap(user_otter.lsp_action, 'hover'), 'LSP: Hover')
-    -- m.inoremap([[<M-i>]], iwrap(user_otter.lsp_action, 'hover'), 'LSP: Hover')
-  end)
+  bufmap('n', '<localleader>hs', vim.lsp.buf.signature_help, 'LSP: Signature help')
+  bufmap('n', '<M-S-i>', user_lsp.peek_definition, 'LSP: Peek definition')
+  bufmap('ni', '<M-i>', vim.lsp.buf.hover, 'LSP: Hover')
 end
 
 ------ Plugins
 ---- b0o/incline.nvim
-local incline = fn.require_on_call_rec 'incline'
-m.nnoremap([[<leader>I]], iwrap(incline.toggle), 'Incline: Toggle')
-
----- folke/which-key.nvim
-m.nnoremap([[<leader><leader>]], '<Cmd>WhichKey<Cr>', m.silent, 'WhichKey: Show all')
+map('n', '<leader>I', fn.require_on_call_rec('incline').toggle, 'Incline: Toggle')
 
 ---- Wansmer/treesj
 local treesj = fn.require_on_call_rec 'treesj'
-m.nnoremap([[gJ]], iwrap(treesj.toggle), 'Treesj: Toggle')
-m.nnoremap([[gsj]], iwrap(treesj.join), 'Treesj: Join')
-m.nnoremap({ [[gS]], [[gss]] }, iwrap(treesj.split), 'Treesj: Split')
+map('n', 'gJ', treesj.toggle, 'Treesj: Toggle')
+map('n', 'gsj', treesj.join, 'Treesj: Join')
+map('n', 'gss', treesj.split, 'Treesj: Split')
 
 ---- numToStr/Comment.nvim
 local comment = fn.require_on_call_rec 'Comment.api'
-m.nnoremap([[<M-/>]], iwrap(comment.toggle.linewise), m.silent)
-m.xnoremap([[<M-/>]], function()
+map('n', '<M-/>', comment.toggle.linewise, 'Comment: Toggle')
+map('x', '<M-/>', function()
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<ESC>', true, false, true), 'nx', false)
   comment.toggle.linewise(vim.fn.visualmode())
-end, m.silent)
+end, 'Comment: Toggle')
 
 ---- nvim-telescope/telescope.nvim
-m.group(m.silent, function()
-  local tu = fn.require_on_call_rec 'user.plugin.telescope'
-  local tc = tu.cmds
+local tu = fn.require_on_call_rec 'user.plugin.telescope'
+local tc = tu.cmds
 
-  m.nname([[<C-f>]], 'Telescope')
-  m.nnoremap(xk [[<C-S-f>]], iwrap(tc.builtin), 'Telescope: Builtins')
-  m.nnoremap([[<C-f>b]], iwrap(tc.buffers), 'Telescope: Buffers')
-  m.nnoremap({ [[<C-f>h]], [[<C-f><C-h>]] }, iwrap(tc.help_tags), 'Telescope: Help tags')
+map('n', xk '<C-S-f>', tc.builtin, 'Telescope: Builtins')
+map('n', '<C-f>b', tc.buffers, 'Telescope: Buffers')
+map('n', { '<C-f>h', '<C-f><C-h>' }, tc.help_tags, 'Telescope: Help tags')
 
-  m.nnoremap({ [[<C-f>a]], [[<C-f><C-a>]] }, iwrap(tc.live_grep_args), 'Telescope: Live grep')
-  m.nnoremap({ [[<C-f>p]], [[<C-f><C-p>]] }, function()
-    vim.notify 'DEPRECATED: Use <C-f>a instead'
-    tc.live_grep_args()
-  end, 'Telescope: Live grep (DEPRECATED)')
+map('n', { '<C-f>a', '<C-f><C-a>' }, tc.live_grep_args, 'Telescope: Live grep')
 
-  m.nnoremap({ [[<C-f>o]], [[<C-f><C-o>]] }, iwrap(tc.oldfiles), 'Telescope: Old files')
-  m.nnoremap({ [[<C-f>f]], [[<C-f><C-f>]] }, iwrap(tc.smart_files), 'Telescope: Files (Smart)')
-  m.nnoremap({ [[<C-f>F]] }, iwrap(tc.any_files), 'Telescope: Any Files')
-  m.nnoremap({ [[<C-f>d]], [[<C-f><C-d>]] }, iwrap(tc.dir_files), 'Telescope: Files (Dir)')
-  m.nnoremap({ [[<C-f>w]], [[<C-f><C-w>]] }, iwrap(tc.windows, {}), 'Telescope: Windows')
-  m.nnoremap({ [[<C-f>i]], [[<C-f><C-i>]] }, '<Cmd>Easypick headers<Cr>', 'Telescope: Includes (headers)')
+map('n', '<C-f>F', tc.any_files, 'Telescope: Any Files')
+map('n', { '<C-f>o', '<C-f><C-o>' }, tc.oldfiles, 'Telescope: Old files')
+map('n', { '<C-f>f', '<C-f><C-f>' }, tc.smart_files, 'Telescope: Files (Smart)')
+map('n', { '<C-f>d', '<C-f><C-d>' }, tc.dir_files, 'Telescope: Files (Dir)')
+map('n', { '<C-f>w', '<C-f><C-w>' }, wrap(tc.windows, {}), 'Telescope: Windows')
+map('n', { '<C-f>i', '<C-f><C-i>' }, '<Cmd>Easypick headers<Cr>', 'Telescope: Includes (headers)')
 
-  m.nnoremap({ [[<C-f>m]], [[<C-f><C-m>]] }, iwrap(tc.pnpm.workspace_package_files), 'Telescope: Pnpm package files')
-  m.nnoremap({ [[<C-f>nf]], [[<C-f>nn]] }, iwrap(tc.pnpm.workspace_package_files), 'Telescope: Pnpm package files')
-  m.nnoremap([[<C-f>M]], iwrap(tc.pnpm.workspace_packages), 'Telescope: Pnpm package')
-  m.nnoremap([[<C-f>np]], iwrap(tc.pnpm.workspace_packages), 'Telescope: Pnpm package')
-  m.nnoremap({ [[<C-f>na]] }, iwrap(tc.pnpm.workspace_package_grep), 'Telescope: Pnpm package files grep')
+map('n', { '<C-f>m', '<C-f><C-m>' }, tc.pnpm.workspace_package_files, 'Telescope: Pnpm package files')
+map('n', { '<C-f>nf', '<C-f>nn' }, tc.pnpm.workspace_package_files, 'Telescope: Pnpm package files')
+map('n', { '<C-f>M', '<C-f>np' }, tc.pnpm.workspace_packages, 'Telescope: Pnpm package')
+map('n', { '<C-f>na' }, tc.pnpm.workspace_package_grep, 'Telescope: Pnpm package files grep')
 
-  m.nnoremap({ [[<C-f>t]], [[<C-f><C-t>]] }, iwrap(tc['todo-comments']), 'Telescope: Todo Comments')
+map('n', { '<C-f>t', '<C-f><C-t>' }, tc['todo-comments'], 'Telescope: Todo Comments')
 
-  m.nnoremap({ [[<C-M-f>]], [[<C-f>r]], [[<C-f><C-r>]] }, iwrap(tc.resume), 'Telescope: Resume last picker')
+map('n', { '<C-f>r', '<C-f><C-r>' }, tc.resume, 'Telescope: Resume last picker')
 
-  m.nname([[<C-f>g]], 'Telescope-Git')
-  m.nnoremap([[<C-f>gf]], iwrap(tc.git_files), 'Telescope-Git: Files')
+map('n', '<C-f>gf', tc.git_files, 'Telescope-Git: Files')
 
-  m.nname([[<M-f>]], 'Telescope-Buffer')
-  m.nnoremap({ [[<M-f>b]], [[<M-f><M-b>]] }, iwrap(tc.current_buffer_fuzzy_find), 'Telescope-Buffer: Fuzzy find')
-  m.nnoremap({ [[<M-f>t]], [[<M-f><M-t>]] }, iwrap(tc.tags), 'Telescope-Buffer: Tags')
-  -- m.nnoremap({ [[<M-f>u]], [[<M-f><M-u>]] }, ithunk(tc.urlview), "Telescope-Buffer: URLs")
+map('n', '<M-f>b', tc.current_buffer_fuzzy_find, 'Telescope-Buffer: Fuzzy find')
+map('n', '<M-f>t', tc.tags, 'Telescope-Buffer: Tags')
 
-  m.nname([[<M-f>]], 'Telescope-Workspace')
-  m.nnoremap([[<C-f>A]], iwrap(tc.aerial), 'Telescope-Workspace: Aerial')
-end)
+map('n', '<C-f>A', tc.aerial, 'Telescope-Workspace: Aerial')
 
 ---- NeogitOrg/neogit
 -- TODO: Use official API if/when merged:
@@ -924,20 +821,20 @@ local function open_neogit(opts)
   end
 end
 
-m.nnoremap([[<leader>gs]], open_neogit { kind = 'vsplit' }, m.silent, 'Neogit')
-m.nnoremap([[<leader>gg]], open_neogit { kind = 'replace' }, m.silent, 'Neogit (replace)')
-m.nnoremap([[<leader>G]], open_neogit { kind = 'tab', replace = false }, m.silent, 'Neogit (tab)')
+map('n', '<leader>gs', open_neogit { kind = 'vsplit' }, 'Neogit')
+map('n', '<leader>gg', open_neogit { kind = 'replace' }, 'Neogit (replace)')
+map('n', '<leader>G', open_neogit { kind = 'tab', replace = false }, 'Neogit (tab)')
 
-m.nname('<leader>g', 'Git')
-m.nname('<leader>ga', 'Git-Add')
-m.nnoremap(
+map(
+  'n',
   { [[<leader>gA]], [[<leader>gaa]] },
   async_action(function()
     git_cli.add.args('--all').call()
   end),
   'Git: Add all'
 )
-m.nnoremap(
+map(
+  'n',
   [[<leader>gaf]],
   async_action(git.index.add, function()
     return { vim.fn.expand '%:p' }
@@ -945,40 +842,31 @@ m.nnoremap(
   'Git: Add file'
 )
 
-m.nname('<leader>gc', 'Git-Commit')
-m.nnoremap([[<leader>gC]], '<Cmd>Neogit commit<Cr>', m.silent, 'Neogit: Commit popup')
-m.nnoremap([[<leader>gcc]], neogit_action('commit', 'commit', { '--verbose' }), 'Git: Commit')
-m.nnoremap([[<leader>gca]], neogit_action('commit', 'commit', { '--verbose', '--all' }), 'Git: Commit (all)')
-m.nnoremap([[<leader>gcA]], neogit_action('commit', 'commit', { '--verbose', '--amend' }), 'Git: Commit (amend)')
+map('n', '<leader>gC', '<Cmd>Neogit commit<Cr>', 'Neogit: Commit popup')
+map('n', '<leader>gcc', neogit_action('commit', 'commit', { '--verbose' }), 'Git: Commit')
+map('n', '<leader>gca', neogit_action('commit', 'commit', { '--verbose', '--all' }), 'Git: Commit (all)')
+map('n', '<leader>gcA', neogit_action('commit', 'commit', { '--verbose', '--amend' }), 'Git: Commit (amend)')
 
-m.nnoremap([[<leader>gl]], '<Cmd>Neogit log<Cr>', m.silent, 'Git: Log')
+map('n', '<leader>gl', '<Cmd>Neogit log<Cr>', 'Neogit: Log')
 
-m.nname('<leader>gp', 'Git-Push-Pull')
-m.nnoremap([[<leader>gp]], '<Cmd>Neogit push<Cr>', m.silent, 'Neogit: Push popup')
-m.nnoremap([[<leader>gP]], '<Cmd>Neogit pull<Cr>', m.silent, 'Neogit: Pull popup')
+map('n', '<leader>gp', '<Cmd>Neogit push<Cr>', 'Neogit: Push popup')
+map('n', '<leader>gP', '<Cmd>Neogit pull<Cr>', 'Neogit: Pull popup')
 
-m.nnoremap([[<leader>gR]], async_action(git_cli.reset.call), 'Git: Reset')
+map('n', '<leader>gR', async_action(git_cli.reset.call), 'Git: Reset')
 
-local function gitsigns_visual_op(op)
-  return function()
-    return require('gitsigns')[op] { vim.fn.line '.', vim.fn.line 'v' }
+ft('NeogitStatus', function(bufmap)
+  local function neogit_status_buf_item()
+    local status = require('neogit.buffers.status').instance()
+    if not status then
+      return
+    end
+    local sel = status.buffer.ui:get_item_under_cursor()
+    if not sel or not sel.absolute_path then
+      return
+    end
+    return sel
   end
-end
-
-local function neogit_status_buf_item()
-  local status = require('neogit.buffers.status').instance()
-  if not status then
-    return
-  end
-  local sel = status.buffer.ui:get_item_under_cursor()
-  if not sel or not sel.absolute_path then
-    return
-  end
-  return sel
-end
-
-m.group(m.silent, { ft = 'NeogitStatus' }, function()
-  m.nnoremap([[<M-w>]], function()
+  bufmap('n', '<M-w>', function()
     local item = neogit_status_buf_item()
     if not item then
       return
@@ -989,7 +877,7 @@ m.group(m.silent, { ft = 'NeogitStatus' }, function()
       vim.api.nvim_set_current_win(win)
     end
   end)
-  m.nnoremap([[<Cr>]], function()
+  bufmap('n', '<Cr>', function()
     local item = neogit_status_buf_item()
     if not item then
       return
@@ -1005,27 +893,30 @@ end)
 
 -- lewis6991/gitsigns.nvim
 M.on_gistsigns_attach = function(bufnr)
-  m.group({ buffer = bufnr, silent = true }, function()
-    local gs = require 'gitsigns'
-    m.nnoremap([[<leader>hs]], iwrap(gs.stage_hunk), 'Gitsigns: Stage hunk')
-    m.nnoremap([[<leader>hr]], iwrap(gs.reset_hunk), 'Gitsigns: Reset hunk')
-    m.nnoremap([[<leader>hu]], iwrap(gs.undo_stage_hunk), 'Gitsigns: Undo stage hunk')
-    m.xnoremap([[<leader>hs]], gitsigns_visual_op 'stage_hunk', 'Gitsigns: Stage selected hunk(s)')
-    m.xnoremap([[<leader>hr]], gitsigns_visual_op 'reset_hunk', 'Gitsigns: Reset selected hunk(s)')
-    m.xnoremap([[<leader>hu]], gitsigns_visual_op 'undo_stage_hunk', 'Gitsigns: Undo stage hunk')
-    m.nnoremap([[<leader>hS]], iwrap(gs.stage_buffer), 'Gitsigns: Stage buffer')
-    m.nnoremap([[<leader>hR]], iwrap(gs.reset_buffer), 'Gitsigns: Reset buffer')
-    m.nnoremap([[<leader>hp]], iwrap(gs.preview_hunk), 'Gitsigns: Preview hunk')
-    m.nnoremap([[<leader>hb]], iwrap(gs.blame_line, { full = true }), 'Gitsigns: Blame hunk')
-    m.nnoremap([[<leader>htb]], iwrap(gs.toggle_current_line_blame), 'Gitsigns: Toggle current line blame')
-    m.nnoremap([[<leader>hd]], iwrap(gs.diffthis), 'Gitsigns: Diff this')
-    m.nnoremap([[<leader>hD]], iwrap(gs.diffthis, '~'), 'Gitsigns: Diff this against last commit')
-    m.nnoremap([[<leader>htd]], iwrap(gs.toggle_deleted), 'Gitsigns: Toggle deleted')
-    m.nnoremap(']c', iwrap(gs.next_hunk), 'Gitsigns: Next hunk')
-    m.nnoremap('[c', iwrap(gs.prev_hunk), 'Gitsigns: Prev hunk')
-    m.onoremap([[ih]], '<Cmd><C-U>Gitsigns select_hunk<Cr>', '[TextObj] Gitsigns: Inner hunk')
-    m.xnoremap([[ih]], '<Cmd><C-U>Gitsigns select_hunk<Cr>', '[TextObj] Gitsigns: Inner hunk')
-  end)
+  local function gitsigns_visual_op(op)
+    return function()
+      return require('gitsigns')[op] { vim.fn.line '.', vim.fn.line 'v' }
+    end
+  end
+  local bufmap = maputil.buf(bufnr)
+  local gs = require 'gitsigns'
+  bufmap('n', '<leader>hs', gs.stage_hunk, 'Gitsigns: Stage hunk')
+  bufmap('n', '<leader>hr', gs.reset_hunk, 'Gitsigns: Reset hunk')
+  bufmap('n', '<leader>hu', gs.undo_stage_hunk, 'Gitsigns: Undo stage hunk')
+  bufmap('x', '<leader>hs', gitsigns_visual_op 'stage_hunk', 'Gitsigns: Stage selected hunk(s)')
+  bufmap('x', '<leader>hr', gitsigns_visual_op 'reset_hunk', 'Gitsigns: Reset selected hunk(s)')
+  bufmap('x', '<leader>hu', gitsigns_visual_op 'undo_stage_hunk', 'Gitsigns: Undo stage hunk')
+  bufmap('n', '<leader>hS', gs.stage_buffer, 'Gitsigns: Stage buffer')
+  bufmap('n', '<leader>hR', gs.reset_buffer, 'Gitsigns: Reset buffer')
+  bufmap('n', '<leader>hp', gs.preview_hunk, 'Gitsigns: Preview hunk')
+  bufmap('n', '<leader>hb', wrap(gs.blame_line, { full = true }), 'Gitsigns: Blame hunk')
+  bufmap('n', '<leader>htb', gs.toggle_current_line_blame, 'Gitsigns: Toggle current line blame')
+  bufmap('n', '<leader>hd', gs.diffthis, 'Gitsigns: Diff this')
+  bufmap('n', '<leader>htd', gs.toggle_deleted, 'Gitsigns: Toggle deleted')
+  bufmap('n', '<leader>hD', wrap(gs.diffthis, '~'), 'Gitsigns: Diff this against last commit')
+  bufmap('n', ']c', gs.next_hunk, 'Gitsigns: Next hunk')
+  bufmap('n', '[c', gs.prev_hunk, 'Gitsigns: Prev hunk')
+  bufmap('xo', 'ih', '<Cmd><C-U>Gitsigns select_hunk<Cr>', '[TextObj] Gitsigns: Inner hunk')
 end
 
 -- lukas-reineke/indent-blankline.nvim
@@ -1075,22 +966,20 @@ local function goto_scope(mode)
   end
 end
 
-m.nnoremap('[s', goto_scope 'start-inner', 'IBL: Scope start (inner)')
-m.nnoremap('[S', goto_scope 'start-outer', 'IBL: Scope start (outer)')
-m.nnoremap(']s', goto_scope 'end-inner', 'IBL: Scope end (inner)')
-m.nnoremap(']S', goto_scope 'end-outer', 'IBL: Scope end (outer)')
+map('n', '[s', goto_scope 'start-inner', 'IBL: Scope start (inner)')
+map('n', '[S', goto_scope 'start-outer', 'IBL: Scope start (outer)')
+map('n', ']s', goto_scope 'end-inner', 'IBL: Scope end (inner)')
+map('n', ']S', goto_scope 'end-outer', 'IBL: Scope end (outer)')
 
 -- mbbill/undotree
-m.nnoremap([[<leader>ut]], '<Cmd>UndotreeToggle<Cr>', m.silent, 'Undotree: Toggle')
+map('n', '<leader>ut', '<Cmd>UndotreeToggle<Cr>', 'Undotree: Toggle')
 
 -- godlygeek/tabular
-m.nmap([[<Leader>a]], ':Tabularize /', 'Tabularize')
-m.xmap([[<Leader>a]], ':Tabularize /', 'Tabularize')
+map('nx', '<Leader>a', ':Tabularize /', 'Tabularize')
 
 ---- KabbAmine/vCoolor.vim
-m.nmap([[<leader>cO]], '<Cmd>VCoolor<Cr>', m.silent, 'Open VCooler color picker')
--- m.nmap([[<leader>co]], '<Cmd>EasyColor<Cr>', m.silent, 'Open EasyColor color picker')
-m.nmap([[<leader>co]], '<Cmd>CccPick<Cr>', m.silent, 'Open CCC color picker')
+map('n', '<leader>cO', '<Cmd>VCoolor<Cr>', 'Open VCooler color picker')
+map('n', '<leader>co', '<Cmd>CccPick<Cr>', 'Open CCC color picker')
 
 ------ nvim-neo-tree/neo-tree.nvim & kyazdani42/nvim-tree.lua
 ---- nvim-neo-tree/neo-tree.nvim
@@ -1105,18 +994,18 @@ user_neotree.is_visible = function()
   return vim.api.nvim_win_is_valid(winid), winid
 end
 local setup_neotree = function()
-  m.nmap(xk [[<C-S-\>]], function()
-    vim.cmd [[Neotree show toggle]]
-    -- vim.schedule(auto_resize.trigger)
-  end, m.silent, 'NeoTree: Toggle')
+  map('n', xk '<C-S-\\>', function()
+    vim.cmd 'Neotree show toggle'
+    vim.schedule(auto_resize.trigger)
+  end, 'NeoTree: Toggle')
 
-  m.nmap(
-    xk [[<C-\>]],
-    fn.filetype_command('neo-tree', iwrap(recent_wins.focus_most_recent), function()
-      vim.cmd [[Neotree focus]]
-      -- vim.schedule(auto_resize.trigger)
+  map(
+    'n',
+    xk '<C-\\>',
+    fn.filetype_command('neo-tree', recent_wins.focus_most_recent, function()
+      vim.cmd 'Neotree focus'
+      vim.schedule(auto_resize.trigger)
     end),
-    m.silent,
     'Nvim-Tree: Toggle Focus'
   )
 end
@@ -1173,23 +1062,23 @@ local function nvim_tree_open_oil(enter)
 end
 
 local setup_nvimtree = function()
-  m.nmap(xk [[<C-S-\>]], function()
+  map('n', xk '<C-S-\\>', function()
     if require('nvim-tree.view').is_visible() then
       require('nvim-tree.view').close()
     else
       require('nvim-tree.lib').open()
       recent_wins.focus_most_recent()
     end
-  end, m.silent, 'Nvim-Tree: Toggle')
+  end, 'Nvim-Tree: Toggle')
 
-  m.nmap(
-    xk [[<C-\>]],
-    fn.filetype_command('NvimTree', iwrap(recent_wins.focus_most_recent), wrap(vim.cmd, [[NvimTreeFocus]])),
-    m.silent,
+  map(
+    'n',
+    xk '<C-\\>',
+    fn.filetype_command('NvimTree', recent_wins.focus_most_recent, wrap(vim.cmd, [[NvimTreeFocus]])),
     'Nvim-Tree: Toggle Focus'
   )
 
-  m.group({ ft = 'NvimTree' }, function()
+  ft('NvimTree', function(bufmap)
     local function withSelected(cmd, fmt)
       return function()
         local node = require('nvim-tree.lib').get_node_at_cursor()
@@ -1205,13 +1094,14 @@ local setup_nvimtree = function()
       end
     end
 
-    m.nnoremap([[ga]], withSelected 'Git add', 'Nvim-Tree: Git add')
-    m.nnoremap([[gr]], withSelected 'Git reset --quiet', 'Nvim-Tree: Git reset')
-    m.nnoremap([[gb]], withSelected 'tabnew | Git blame', 'Nvim-Tree: Git blame')
-    m.nnoremap([[gd]], withSelected 'tabnew | Gdiffsplit', 'Nvim-Tree: Git diff')
+    bufmap('n', 'ga', withSelected 'Git add', 'Nvim-Tree: Git add')
+    bufmap('n', 'gr', withSelected 'Git reset --quiet', 'Nvim-Tree: Git reset')
+    bufmap('n', 'gb', withSelected 'tabnew | Git blame', 'Nvim-Tree: Git blame')
+    bufmap('n', 'gd', withSelected 'tabnew | Gdiffsplit', 'Nvim-Tree: Git diff')
 
-    m.nnoremap(
-      [[bd]],
+    bufmap(
+      'n',
+      'bd',
       withSelected(function(node)
         local bufnr = vim.fn.bufnr(node.absolute_path)
         local wins = require('user.apiutil').buf_get_wins(bufnr)
@@ -1226,16 +1116,16 @@ local setup_nvimtree = function()
       'Nvim-Tree: Bdelete'
     )
 
-    m.nnoremap([[i]], nvim_tree_open_oil(false), 'Nvim-Tree: Open Oil')
-    m.nnoremap([[<M-i>]], nvim_tree_open_oil(true), 'Nvim-Tree: Open Oil (enter dir)')
+    bufmap('n', 'i', nvim_tree_open_oil(false), 'Nvim-Tree: Open Oil')
+    bufmap('n', '<M-i>', nvim_tree_open_oil(true), 'Nvim-Tree: Open Oil (enter dir)')
   end)
 end
 
 local setup_tree = function(use_neotree)
   if use_neotree ~= nil then
-    vim.g.use_neotree = use_neotree
+    vim.g.UseNeotree = use_neotree
   end
-  if vim.g.use_neotree then
+  if vim.g.UseNeotree then
     setup_neotree()
   else
     setup_nvimtree()
@@ -1246,13 +1136,13 @@ local toggle_tree = function()
   local tree_foc = false
   local open_nvimtree = false
   local open_neotree = false
-  if vim.g.use_neotree then
+  if vim.g.UseNeotree then
     if user_neotree.is_visible() then
       open_nvimtree = true
       if vim.bo.filetype == 'neo-tree' then
         tree_foc = true
       end
-      vim.cmd [[Neotree close]]
+      vim.cmd 'Neotree close'
     end
   else
     if package.loaded['nvim-tree'] and require('nvim-tree.view').is_visible() then
@@ -1264,8 +1154,8 @@ local toggle_tree = function()
     end
   end
 
-  vim.g.use_neotree = not vim.g.use_neotree
-  vim.notify('Using ' .. (vim.g.use_neotree and 'NeoTree' or 'NvimTree'))
+  vim.g.UseNeotree = not vim.g.UseNeotree
+  vim.notify('Using ' .. (vim.g.UseNeotree and 'NeoTree' or 'NvimTree'))
   setup_tree()
 
   if open_nvimtree then
@@ -1282,7 +1172,7 @@ local toggle_tree = function()
   end
 end
 
-m.nmap(xk [[<C-S-t>]], toggle_tree, m.silent, 'Toggle selected file tree plugin')
+map('n', xk '<C-S-t>', toggle_tree, 'Toggle selected file tree plugin')
 
 setup_tree(false)
 
@@ -1349,11 +1239,10 @@ local function aerial_open(focus)
   if neo_width then
     vim.api.nvim_win_set_width(neo_win, neo_width)
   end
-
-  -- auto_resize.trigger()
+  auto_resize.trigger()
 end
 
-m.nmap(xk [[<M-S-\>]], function()
+map('n', xk '<M-S-\\>', function()
   if package.loaded.aerial and aerial_get_win() then
     local foc = require('aerial.util').is_aerial_buffer()
     aerial.close()
@@ -1363,17 +1252,18 @@ m.nmap(xk [[<M-S-\>]], function()
   else
     aerial_open()
   end
-end, m.silent, 'Aerial: Toggle')
+end, 'Aerial: Toggle')
 
-m.nmap(
-  [[<M-\>]],
-  fn.filetype_command('aerial', iwrap(recent_wins.focus_most_recent), iwrap(aerial_open, true)),
-  m.silent,
+map(
+  'n',
+  '<M-\\>',
+  fn.filetype_command('aerial', recent_wins.focus_most_recent, wrap(aerial_open, true)),
   'Aerial: Toggle Focus'
 )
 
-m.nmap(
-  xk [[<C-M-S-\>]],
+map(
+  'n',
+  xk '<C-M-S-\\>',
   fn.filetype_command('aerial', function()
     vim.cmd.AerialClose()
   end, function()
@@ -1383,7 +1273,7 @@ m.nmap(
   'Aerial: Open Float'
 )
 
-m.group(m.silent, { ft = 'aerial' }, function()
+ft('aerial', function(bufmap)
   local function aerial_select(opts)
     local winid = recent_wins.get_most_recent_smart()
     if not vim.api.nvim_win_is_valid(winid or -1) then
@@ -1395,21 +1285,21 @@ m.group(m.silent, { ft = 'aerial' }, function()
   end
 
   local function aerial_view(cmd)
-    vim.schedule(iwrap(aerial_select, { jump = false }))
+    vim.schedule(wrap(aerial_select, { jump = false }))
     return cmd or '\\<Nop>'
   end
 
-  m.nnoremap([[<Cr>]], iwrap(aerial_select), 'Aerial: Select item')
-  m.nnoremap([[<Tab>]], iwrap(aerial_view), m.expr, 'Aerial: Bring item into view')
-  m.nnoremap([[J]], iwrap(aerial_view, 'j'), m.expr, 'Aerial: Bring next item into view')
-  m.nnoremap([[K]], iwrap(aerial_view, 'k'), m.expr, 'Aerial: Bring previous item into view')
+  bufmap('n', '<Cr>', aerial_select, 'Aerial: Select item')
+  bufmap('n', '<Tab>', aerial_view, 'Aerial: Bring item into view')
+  bufmap('n', 'J', wrap(aerial_view, 'j'), 'Aerial: Bring next item into view')
+  bufmap('n', 'K', wrap(aerial_view, 'k'), 'Aerial: Bring previous item into view')
 end)
 
 ---- mfussenegger/nvim-dap
 local dap = fn.require_on_call_rec 'dap'
 local dap_widgets = fn.require_on_call_rec 'dap.ui.widgets'
 
-m.nnoremap([[<leader>D]], function()
+map('n', '<leader>D', function()
   if dap.session() then
     require('user.dap').close(vim.bo.filetype)
   else
@@ -1417,78 +1307,85 @@ m.nnoremap([[<leader>D]], function()
   end
 end, 'DAP: Toggle session')
 
-m.nmap(
-  [[<M-d>]],
-  fn.filetype_command('dap-repl', iwrap(recent_wins.focus_most_recent), function()
+map(
+  'n',
+  '<M-d>',
+  fn.filetype_command('dap-repl', recent_wins.focus_most_recent, function()
     dap.repl.open()
     vim.api.nvim_set_current_win(vim.fn.win_findbuf(vim.fn.bufnr 'dap-repl')[1] or 0)
   end),
-  m.silent,
   'DAP: Repl: Toggle Focus'
 )
 
-m.nmap([[<M-S-d>]], iwrap(dap.repl.toggle), 'DAP: Repl: Toggle')
+map('n', '<M-S-d>', dap.repl.toggle, 'DAP: Repl: Toggle')
 
-m.nname([[<leader>d]], 'DAP')
-m.nnoremap([[<leader>dc]], iwrap(dap.continue), 'DAP: Continue')
-m.nnoremap([[<leader>dr]], iwrap(dap.restart), 'DAP: Restart')
-m.nnoremap([[<leader>dt]], iwrap(dap.terminate), 'DAP: Terminate')
+map('n', '<leader>dc', dap.continue, 'DAP: Continue')
+map('n', '<leader>dr', dap.restart, 'DAP: Restart')
+map('n', '<leader>dt', dap.terminate, 'DAP: Terminate')
 
-m.nnoremap([[<leader>db]], iwrap(dap.toggle_breakpoint), 'DAP: Toggle breakpoint')
-m.nnoremap([[<leader>de]], iwrap(dap.set_exception_breakpoints, { 'all' }), 'DAP: Break on exception')
-m.nnoremap([[<leader>dB]], function()
+map('n', '<leader>db', dap.toggle_breakpoint, 'DAP: Toggle breakpoint')
+map('n', '<leader>de', wrap(dap.set_exception_breakpoints, { 'all' }), 'DAP: Break on exception')
+map('n', '<leader>dB', function()
   dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
 end, 'DAP: Set breakpoint condition')
 
-m.nnoremap([[<leader>di]], iwrap(dap_widgets.hover), 'DAP: Hover variables')
+map('n', '<leader>di', dap_widgets.hover, 'DAP: Hover variables')
 
-m.nnoremap([[<leader>dK]], iwrap(dap.up), 'DAP: Up')
-m.nnoremap([[<leader>dJ]], iwrap(dap.down), 'DAP: Down')
+map('n', '<leader>dK', dap.up, 'DAP: Up')
+map('n', '<leader>dJ', dap.down, 'DAP: Down')
 
-m.nnoremap([[<leader>di]], iwrap(dap_widgets.hover), 'DAP: Hover')
-m.nnoremap([[<leader>d?]], iwrap(dap_widgets.centered_float, dap_widgets.scopes), 'DAP: Scopes')
+map('n', '<leader>di', dap_widgets.hover, 'DAP: Hover')
+map('n', '<leader>d?', wrap(dap_widgets.centered_float, dap_widgets.scopes), 'DAP: Scopes')
 
-m.nnoremap({ [[<leader>dk>]] }, iwrap(dap.step_out), 'DAP: Step out')
-m.nnoremap({ [[<leader>dl>]] }, iwrap(dap.step_into), 'DAP: Step into')
-m.nnoremap({ [[<leader>dj>]] }, iwrap(dap.step_over), 'DAP: Step over')
-m.nnoremap({ [[<leader>dh>]] }, iwrap(dap.continue), 'DAP: Continue')
+map('n', '<leader>dk>', dap.step_out, 'DAP: Step out')
+map('n', '<leader>dl>', dap.step_into, 'DAP: Step into')
+map('n', '<leader>dj>', dap.step_over, 'DAP: Step over')
+map('n', '<leader>dh>', dap.continue, 'DAP: Continue')
 
 ---- sindrets/winshift.nvim
-m.nnoremap([[<Leader>M]], [[<Cmd>WinShift<Cr>]], 'WinShift: Start')
-m.nnoremap([[<Leader>mm]], [[<Cmd>WinShift<Cr>]], 'WinShift: Start')
-m.nnoremap([[<Leader>ws]], [[<Cmd>WinShift swap<Cr>]], 'WinShift: Swap')
+map('n', '<Leader>M', '<Cmd>WinShift<Cr>', 'WinShift: Start')
+map('n', '<Leader>mm', '<Cmd>WinShift<Cr>', 'WinShift: Start')
+map('n', '<Leader>ws', '<Cmd>WinShift swap<Cr>', 'WinShift: Swap')
 
 ---- mrjones2014/smart-splits.nvim
 local smart_splits = fn.require_on_call_rec 'smart-splits'
-m.noremap([[<M-[>]], iwrap(smart_splits.resize_left), 'Resize-Win: Left')
-m.noremap([[<M-]>]], iwrap(smart_splits.resize_right), 'Resize-Win: Right')
-m.noremap([[<M-{>]], iwrap(smart_splits.resize_up), 'Resize-Win: Up')
-m.noremap([[<M-}>]], iwrap(smart_splits.resize_down), 'Resize-Win: Down')
+map('n', '<M-[>', smart_splits.resize_left, 'Resize-Win: Left')
+map('n', '<M-]>', smart_splits.resize_right, 'Resize-Win: Right')
+map('n', '<M-{>', smart_splits.resize_up, 'Resize-Win: Up')
+map('n', '<M-}>', smart_splits.resize_down, 'Resize-Win: Down')
 
-m.nmap([[<M-h>]], iwrap(smart_splits.move_cursor_left), 'Goto window/pane left')
-m.nmap([[<M-j>]], iwrap(smart_splits.move_cursor_down), 'Goto window/pane down')
-m.nmap([[<M-k>]], iwrap(smart_splits.move_cursor_up), 'Goto window/pane up')
-m.nmap([[<M-l>]], iwrap(smart_splits.move_cursor_right), 'Goto window/pane right')
+map('n', '<M-h>', smart_splits.move_cursor_left, 'Goto window/pane left')
+map('n', '<M-j>', smart_splits.move_cursor_down, 'Goto window/pane down')
+map('n', '<M-k>', smart_splits.move_cursor_up, 'Goto window/pane up')
+map('n', '<M-l>', smart_splits.move_cursor_right, 'Goto window/pane right')
 
 ---- monaqa/dial.nvim
-m.nmap([[<C-a>]], '<Plug>(dial-increment)', 'Dial: Increment')
-m.nmap([[<C-x>]], '<Plug>(dial-decrement)', 'Dial: Decrement')
-m.nmap([[g<C-a>]], 'g<Plug>(dial-increment)', 'Dial: Increment')
-m.nmap([[g<C-x>]], 'g<Plug>(dial-decrement)', 'Dial: Decrement')
-m.vmap([[<C-a>]], '<Plug>(dial-increment)', 'Dial: Increment')
-m.vmap([[<C-x>]], '<Plug>(dial-decrement)', 'Dial: Decrement')
-m.vmap([[g<C-a>]], 'g<Plug>(dial-increment)', 'Dial: Increment')
-m.vmap([[g<C-x>]], 'g<Plug>(dial-decrement)', 'Dial: Decrement')
+local function dial(dir, mode)
+  return function()
+    require('dial.map').manipulate(dir, mode)
+    if mode == 'visual' or mode == 'gvisual' then
+      vim.cmd 'normal! gv'
+    end
+  end
+end
+map('n', '<C-a>', dial('increment', 'normal'), 'Dial: Increment')
+map('n', '<C-x>', dial('decrement', 'normal'), 'Dial: Decrement')
+map('n', 'g<C-a>', dial('increment', 'gnormal'), 'Dial: Increment')
+map('n', 'g<C-x>', dial('decrement', 'gnormal'), 'Dial: Decrement')
+map('v', '<C-a>', dial('increment', 'visual'), 'Dial: Increment')
+map('v', '<C-x>', dial('decrement', 'visual'), 'Dial: Decrement')
+map('v', 'g<C-a>', dial('increment', 'gvisual'), 'Dial: Increment')
+map('v', 'g<C-x>', dial('decrement', 'gvisual'), 'Dial: Decrement')
 
 ---- Wansmer/sibling-swap.nvim
 local sibling_swap = fn.require_on_call_rec 'sibling-swap'
-m.nnoremap(xk [[<C-.>]], iwrap(sibling_swap.swap_with_right), 'Sibling-Swap: Swap with right')
-m.nnoremap([[<F34>]], iwrap(sibling_swap.swap_with_left), 'Sibling-Swap: Swap with left')
+map('n', xk '<C-.>', sibling_swap.swap_with_right, 'Sibling-Swap: Swap with right')
+map('n', '<F34>', sibling_swap.swap_with_left, 'Sibling-Swap: Swap with left')
 
 ---- rgroli/other.nvim
-m.nnoremap({ [[<leader>O]], [[<leader>oo]] }, '<Cmd>Other<Cr>', 'Other: Switch to other file')
-m.nnoremap([[<leader>os]], '<Cmd>OtherSplit<Cr>', 'Other: Open other in split')
-m.nnoremap([[<leader>ov]], '<Cmd>OtherVSplit<Cr>', 'Other: Open other in vsplit')
+map('n', { '<leader>O', '<leader>oo' }, '<Cmd>Other<Cr>', 'Other: Switch to other file')
+map('n', '<leader>os', '<Cmd>OtherSplit<Cr>', 'Other: Open other in split')
+map('n', '<leader>ov', '<Cmd>OtherVSplit<Cr>', 'Other: Open other in vsplit')
 
 ---- akinsho/nvim-toggleterm.lua
 local function toggleterm_open(direction)
@@ -1523,64 +1420,27 @@ local toggleterm_smart_toggle = function()
   toggleterm_open()()
 end
 
-m.nnoremap(xk [[<C-M-S-/>]], toggleterm_open 'float', m.silent, 'ToggleTerm: Toggle (float)')
-m.tnoremap(xk [[<C-M-S-/>]], [[<C-\><C-n>:ToggleTerm direction=float<Cr>]], m.silent, 'ToggleTerm: Toggle (float)')
-m.nnoremap(xk [[<M-S-/>]], toggleterm_open 'vertical', m.silent, 'ToggleTerm: Toggle (vertical)')
-m.tnoremap(xk [[<M-S-/>]], [[<C-\><C-n>:ToggleTerm direction=vertical<Cr>]], m.silent, 'ToggleTerm: Toggle (vertical)')
-m.nnoremap(xk [[<C-M-/>]], toggleterm_open 'horizontal', m.silent, 'ToggleTerm: Toggle (horizontal)')
-m.tnoremap(
-  xk [[<C-M-/>]],
-  [[<C-\><C-n>:ToggleTerm direction=horizontal<Cr>]],
-  m.silent,
-  'ToggleTerm: Toggle (horizontal)'
-)
-m.nnoremap(xk [[<C-/>]], toggleterm_smart_toggle, m.silent, 'ToggleTerm: Smart Toggle')
-m.tnoremap(xk [[<C-/>]], toggleterm_smart_toggle, m.silent, 'ToggleTerm: Smart Toggle')
-
----- dpayne/CodeGPT.nvim
-m.nnoremap(xk [[<M-c>]], [[:Chat ]], 'CodeGPT: Chat')
-m.vnoremap(xk [[<M-c>]], [[:'<,'>Chat]], 'CodeGPT: Chat')
-
----- romgrk/nvim-treesitter-context
--- m.nnoremap([[<leader>tsc]], [[<cmd>TSContextToggle<Cr>]], 'Treesitter Context: Toggle')
-
----- ThePrimeagen/refactoring.nvim
-local refactoring = fn.require_on_call_rec 'refactoring'
-m.nname('<localleader>r', 'Refactoring')
-m.vname('<localleader>r', 'Refactoring')
-m.vnoremap([[<localleader>re]], iwrap(refactoring.refactor, 'Extract Function'), 'Refactoring: Extract Function')
-m.vnoremap(
-  [[<localleader>rf]],
-  iwrap(refactoring.refactor, 'Extract Function To File'),
-  'Refactoring: Extract Function To File'
-)
-m.vnoremap([[<localleader>rv]], iwrap(refactoring.refactor, 'Extract Variable'), 'Refactoring: Extract Variable')
-m.vnoremap([[<localleader>ri]], iwrap(refactoring.refactor, 'Inline Variable'), 'Refactoring: Inline Variable')
-m.nname('<localleader>rb', 'Refactoring: Extract Block')
-m.nnoremap(
-  { [[<localleader>rB]], [[<localleader>rbb]] },
-  iwrap(refactoring.refactor, 'Extract Block'),
-  'Refactoring: Extract Block'
-)
-m.nnoremap(
-  [[<localleader>rbf]],
-  iwrap(refactoring.refactor, 'Extract Block To File'),
-  'Refactoring: Extract Block To File'
-)
-m.nnoremap([[<localleader>ri]], iwrap(refactoring.refactor, 'Inline Variable'), 'Refactoring: Inline Variable')
-m.vnoremap([[<localleader>rr]], iwrap(refactoring.select_refactor), 'Refactoring: Select Refactor')
+map('n', xk '<C-M-S-/>', toggleterm_open 'float', 'ToggleTerm: Toggle (float)')
+map('t', xk '<C-M-S-/>', [[<C-\><C-n>:ToggleTerm direction=float<Cr>]], 'ToggleTerm: Toggle (float)')
+map('n', xk '<M-S-/>', toggleterm_open 'vertical', 'ToggleTerm: Toggle (vertical)')
+map('t', xk '<M-S-/>', [[<C-\><C-n>:ToggleTerm direction=vertical<Cr>]], 'ToggleTerm: Toggle (vertical)')
+map('n', xk '<C-M-/>', toggleterm_open 'horizontal', 'ToggleTerm: Toggle (horizontal)')
+map('t', xk '<C-M-/>', [[<C-\><C-n>:ToggleTerm direction=horizontal<Cr>]], 'ToggleTerm: Toggle (horizontal)')
+map('n', xk '<C-/>', toggleterm_smart_toggle, 'ToggleTerm: Smart Toggle')
+map('t', xk '<C-/>', toggleterm_smart_toggle, 'ToggleTerm: Smart Toggle')
 
 ---- nvim-neotest/neotest
 local neotest = fn.require_on_call_rec 'neotest'
 local neotest_summary = fn.require_on_call_rec 'neotest.consumers.summary'
-m.nname('<leader>n', 'Neoest')
-m.nnoremap([[<leader>nn]], iwrap(neotest.run.run), 'Neotest: Run Nearest Test')
-m.nnoremap({ [[<leader>N]], [[<leader>nf]] }, function()
+map('n', '<leader>nn', neotest.run.run, 'Neotest: Run Nearest Test')
+map('n', { '<leader>N', '<leader>nf' }, function()
   neotest.run.run(vim.fn.expand '%')
 end, 'Neotest: Run File')
-m.nnoremap('[n', iwrap(neotest.jump.prev, { status = 'failed' }), 'Neotest: Jump Prev Failed')
-m.nnoremap(']n', iwrap(neotest.jump.next, { status = 'failed' }), 'Neotest: Jump Next Failed')
-m.nnoremap([[<M-n>]], function()
+
+map('n', '[n', wrap(neotest.jump.prev, { status = 'failed' }), 'Neotest: Jump Prev Failed')
+map('n', ']n', wrap(neotest.jump.next, { status = 'failed' }), 'Neotest: Jump Next Failed')
+
+map('n', '<M-n>', function()
   neotest_summary.open()
   if vim.bo.filetype == 'neotest-summary' then
     vim.cmd 'wincmd p'
@@ -1593,33 +1453,26 @@ m.nnoremap([[<M-n>]], function()
     end
   end
 end, 'Neotest: Open or Focus Summary')
-m.nnoremap([[<M-S-n>]], iwrap(neotest.summary.toggle), 'Neotest: Toggle Summary')
 
----- mg979/vim-visual-multi
--- m.xmap([[<leader>v]], [[<Plug>(VM-Visual-Cursors)]], 'Visual Multi: Start Visual Multi')
+map('n', '<M-S-n>', neotest.summary.toggle, 'Neotest: Toggle Summary')
 
 ---- stevearc/conform.nvim
 local conform = fn.require_on_call_rec 'conform'
 local user_conform = fn.require_on_call_rec 'user.plugin.conform'
-m.nnoremap([[<localleader>F]], iwrap(conform.format, { lsp_fallback = true }), 'LSP: Format')
-m.xnoremap([[<localleader>F]], iwrap(conform.format, { lsp_fallback = true }), 'LSP: Format (range)')
+map('nx', '<localleader>F', wrap(conform.format, { lsp_fallback = true }), 'LSP: Format')
 
-m.nnoremap(
-  { [[<localleader>S]], [[<localleader>ss]] },
-  iwrap(user_conform.toggle_format_on_save),
-  'Conform: Toggle format on save'
-)
-m.nnoremap([[<localleader>se]], iwrap(user_conform.set_format_on_save, true), 'Conform: Enable format on save')
-m.nnoremap([[<localleader>sd]], iwrap(user_conform.set_format_on_save, false), 'Conform: Disable format on save')
+map('n', { '<localleader>S', '<localleader>ss' }, user_conform.toggle_format_on_save, 'Conform: Toggle format on save')
+map('n', '<localleader>se', wrap(user_conform.set_format_on_save, true), 'Conform: Enable format on save')
+map('n', '<localleader>sd', wrap(user_conform.set_format_on_save, false), 'Conform: Disable format on save')
 
 ---- folke/lazy.nvim
-m.nnoremap([[<leader>ll]], '<Cmd>Lazy<cr>', 'Lazy')
+map('n', '<leader>ll', '<Cmd>Lazy<cr>', 'Lazy')
 
 ---- folke/noice.nvim
-m.nnoremap([[<leader>L]], '<Cmd>NoiceHistory<cr>', 'Noice: History log')
+map('n', '<leader>L', '<Cmd>NoiceHistory<cr>', 'Noice: History log')
 
 ---- s1n7ax/nvim-window-picker
-m.nnoremap([[<M-w>]], function()
+map('n', '<M-w>', function()
   local win = require('window-picker').pick_window()
   if win and vim.api.nvim_win_is_valid(win) then
     vim.api.nvim_set_current_win(win)
@@ -1628,40 +1481,44 @@ end, 'Window Picker: Pick')
 
 ---- folke/todo-comments.nvim
 local todo_comments = fn.require_on_call_rec 'todo-comments'
-m.nnoremap('[t', iwrap(todo_comments.jump_prev), 'Todo Comments: Previous')
-m.nnoremap(']t', iwrap(todo_comments.jump_next), 'Todo Comments: Next')
+map('n', '[t', todo_comments.jump_prev, 'Todo Comments: Previous')
+map('n', ']t', todo_comments.jump_next, 'Todo Comments: Next')
 
 ---- stevearc/overseer.nvim
 local overseer = fn.require_on_call_rec 'overseer'
-m.nmap([[<M-S-o>]], iwrap(overseer.toggle, { enter = false }), m.silent, 'Overseer: Toggle')
+map('n', '<M-S-o>', wrap(overseer.toggle, { enter = false }), 'Overseer: Toggle')
 
-m.nmap(
-  [[<M-o>]],
-  fn.filetype_command('OverseerList', iwrap(recent_wins.focus_most_recent), iwrap(overseer.open)),
-  m.silent,
+map(
+  'n',
+  '<M-o>',
+  fn.filetype_command('OverseerList', recent_wins.focus_most_recent, overseer.open),
   'Overseer: Toggle Focus'
 )
 
-m.nnoremap([[<leader>or]], [[<cmd>OverseerRun<Cr>]], 'Overseer: Run')
+map('n', '<leader>or', '<cmd>OverseerRun<Cr>', 'Overseer: Run')
 
 ---- epwalsh/obsidian.nvim
 M.obsidian_on_attach = function()
-  m.nnoremap({ [[<C-f><C-f>]], [[<C-f>o]], [[<C-f><C-o>]] }, '<Cmd>ObsidianQuickSwitch<Cr>', 'Obsidian: Quick Switch')
-  m.nnoremap('<C-]>', function()
-    if require('obsidian').util.cursor_on_markdown_link() then
-      return '<cmd>ObsidianFollowLink<CR>'
-    else
-      return '<C-]>'
-    end
-  end, { noremap = false, expr = true, ft = 'markdown' }, 'Obsidian: Follow Link')
-  m.nnoremap('<C-p>', function()
+  map('n', { '<C-f><C-f>', '<C-f>o', '<C-f><C-o>' }, '<Cmd>ObsidianQuickSwitch<Cr>', 'Obsidian: Quick Switch')
+
+  map('n', '<C-p>', function()
     vim.api.nvim_feedkeys(':Obsidian', 't', false)
     vim.defer_fn(require('cmp').complete, 0)
   end, ':Obsidian')
+
+  ft('markdown', function(bufmap)
+    bufmap('n', '<C-]>', function()
+      if require('obsidian').util.cursor_on_markdown_link() then
+        return '<Cmd>ObsidianFollowLink<CR>'
+      else
+        return '<C-]>'
+      end
+    end, { expr = true, desc = 'Obsidian: Follow Link' })
+  end)
 end
 
 ---- akinsho/git-conflict.nvim
-m.nnoremap([[<leader>cc]], function()
+map('n', '<leader>cc', function()
   local actions = {
     GitConflictCurrent = 'ours',
     GitConflictCurrentLabel = 'ours',
