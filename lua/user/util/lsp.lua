@@ -114,7 +114,7 @@ function M.peek_definition()
     end
     local range = location.range or location.targetRange
     if range then
-      local lines = location.range['end'].line - location.range['start'].line + 1
+      local lines = range['end'].line - range['start'].line + 1
       if lines < 20 then
         range['end'].line = range['start'].line + 20
         range['end'].character = 0
