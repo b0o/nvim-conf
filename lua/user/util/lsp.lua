@@ -107,11 +107,8 @@ end
 function M.peek_definition()
   local params = vim.lsp.util.make_position_params()
   return vim.lsp.buf_request(0, 'textDocument/definition', params, function(_, results)
-    if not results or vim.tbl_isempty(results) then
-      return
-    end
     ---@type lsp.Location|lsp.LocationLink|nil
-    local location = results[1]
+    local location = results and results[1]
     if not location then
       return
     end
