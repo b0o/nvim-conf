@@ -1,10 +1,6 @@
 ---@type LazySpec[]
 return {
   {
-    'chrisbra/Recover.vim',
-    lazy = false,
-  },
-  {
     'mbbill/undotree',
     cmd = { 'UndotreeToggle', 'UndotreeHide', 'UndotreeShow', 'UndotreeFocus' },
     keys = {
