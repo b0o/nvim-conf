@@ -151,19 +151,19 @@ M.setup = function(config)
     return
   end
 
-  M.on_attach = function(...)
+  M.on_attach = function(client, bufnr)
     if not M.on_attach_called then
       if config.on_first_attach then
-        config.on_first_attach(...)
+        config.on_first_attach(client, bufnr)
       end
       ---@diagnostic disable-next-line: redundant-parameter
-      on_first_attach(...)
+      on_first_attach(client, bufnr)
       M.on_attach_called = true
     end
     if config.on_attach then
-      config.on_attach(...)
+      config.on_attach(client, bufnr)
     end
-    return on_attach(...)
+    return on_attach(client, bufnr)
   end
 
   vim.lsp.set_log_level(vim.lsp.log_levels.WARN)
@@ -196,28 +196,28 @@ M.setup = function(config)
       ---@diagnostic disable-next-line: cast-local-type
       name = lsp[1]
       if lsp.formatting ~= nil then
-        opts.on_attach = function(client, ...)
+        opts.on_attach = function(client, bufnr)
           client.server_capabilities.documentFormattingProvider = lsp.formatting
           client.server_capabilities.documentRangeFormattingProvider = lsp.formatting
-          return M.on_attach(client, ...)
+          return M.on_attach(client, bufnr)
         end
         lsp.formatting = nil
       end
       if lsp.hover ~= nil then
-        opts.on_attach = function(client, ...)
+        opts.on_attach = function(client, bufnr)
           client.server_capabilities.hoverProvider = lsp.hover
-          return M.on_attach(client, ...)
+          return M.on_attach(client, bufnr)
         end
         lsp.hover = nil
       end
       if lsp.on_attach ~= nil then
         local lsp_on_attach = lsp.on_attach
         local opts_on_attach = opts.on_attach
-        opts.on_attach = function(...)
-          if lsp_on_attach(...) == false then
+        opts.on_attach = function(client, bufnr)
+          if lsp_on_attach(client, bufnr) == false then
             return false
           end
-          return opts_on_attach(...)
+          return opts_on_attach(client, bufnr)
         end
         lsp.on_attach = nil
       end
