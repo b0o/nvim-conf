@@ -5,6 +5,7 @@ return {
     ft = 'lua',
     opts = {
       library = {
+        { 'lazy.nvim', words = { 'lazy', 'LazySpec' } },
         { path = 'luvit-meta/library', words = { 'vim%.uv' } },
       },
     },
