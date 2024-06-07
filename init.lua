@@ -22,12 +22,17 @@ _G.very_lazy = lazyutil.very_lazy
 require 'user.settings'
 require 'user.commands'
 
-require('lazy').setup({ import = 'user.plugins' }, {
+require('lazy').setup({
+  import = 'user.plugins',
+}, {
   defaults = { lazy = true },
   ui = { border = 'rounded' },
   dev = {
     path = vim.env.GIT_PROJECTS_DIR .. '/nvim',
     fallback = true,
+  },
+  change_detection = {
+    enabled = false,
   },
 })
 
