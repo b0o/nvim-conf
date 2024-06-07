@@ -84,7 +84,7 @@ M.get_most_recent_any = function()
 end
 
 M.get_most_recent_smart = function()
-  local tabpage_recents = M.tabpage_get_recents_any()
+  local tabpage_recents = M.tabpage_get_recents_any() or {}
   if not vim.api.nvim_win_is_valid(tabpage_recents[1] or -1) then
     tabpage_recents = M.tabpage_get_recents()
   end

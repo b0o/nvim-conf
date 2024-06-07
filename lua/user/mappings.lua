@@ -57,7 +57,13 @@ map('i', '<M-S-Up>', '<C-o>5<C-y>', 'Scroll view up 5')
 
 map('n', '<M-b>', 'ge', 'Move to the end of the previous word')
 
-map('n', { 'Q', '<F29>' }, '<Cmd>CloseWin<Cr>', 'Close window')
+map('n', { 'Q', '<F29>' }, function()
+  local most_recent_win = require('user.util.recent-wins').get_most_recent_smart()
+  vim.cmd 'confirm q'
+  if most_recent_win then
+    vim.api.nvim_set_current_win(most_recent_win)
+  end
+end, 'Close window')
 map('n', 'ZQ', '<Cmd>confirm qall<Cr>', 'Quit all')
 map('n', xk '<C-S-w>', '<Cmd>tabclose<Cr>', 'Close tab (except last one)')
 map('n', '<leader>H', '<Cmd>hide<Cr>', 'Hide buffer')
