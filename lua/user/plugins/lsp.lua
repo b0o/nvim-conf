@@ -374,7 +374,41 @@ local on_attach = function(_, bufnr)
 
   bufmap('n', '<localleader>hs', vim.lsp.buf.signature_help, 'LSP: Signature help')
   bufmap('n', '<M-S-i>', user_lsp.peek_definition, 'LSP: Peek definition')
-  bufmap('ni', '<M-i>', vim.lsp.buf.hover, 'LSP: Hover')
+
+  --- Find the diagnostic float window for the current window
+  ---@param source_win? number @the window to use as the source window, or nil for the current window
+  ---@return number|nil @the diagnostic float window, or nil if none is found
+  local find_diagnostic_float = function(source_win)
+    source_win = require('user.util.api').resolve_winnr(source_win)
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      local winconfig = vim.api.nvim_win_get_config(win)
+      local w = vim.w[win]
+      if
+        winconfig.relative == 'win'
+        and (w.line or w.cursor or w.buffer)
+        and (source_win == nil or winconfig.win == source_win)
+      then
+        return win
+      end
+    end
+  end
+
+  --- If a diagnostic float is open, focus it
+  --- Otherwise, hover over the symbol under the cursor
+  local hover = function()
+    local win = vim.api.nvim_get_current_win()
+    local diag_win = find_diagnostic_float(win)
+    if diag_win then
+      map('n', '<M-i>', function()
+        vim.api.nvim_win_close(diag_win, true)
+      end, { buffer = vim.api.nvim_win_get_buf(diag_win) })
+      vim.api.nvim_set_current_win(diag_win)
+      return
+    end
+    vim.lsp.buf.hover()
+  end
+
+  bufmap('ni', '<M-i>', hover, 'LSP: Hover or focus diagnostic')
 end
 
 ---@type LazySpec[]
