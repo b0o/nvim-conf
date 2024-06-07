@@ -448,10 +448,9 @@ map('n', '<leader>vt', '<Cmd>vsplit<Cr>', 'Split (vert, cur)')
 -- TODO: Convert to Lua
 map('x', '<leader>I', '<Esc>:call user#fn#interleave()<Cr>', 'Interleave two contiguous blocks')
 
--- PasteRestore
--- paste register without overwriting with the original selectin, use P for original behavior
--- TODO: Convert to Lua
-map('x', 'p', 'user#fn#pasteRestore()', { expr = true, desc = 'PasteRestore' })
+-- swap p and P
+map('v', 'p', 'P', 'paste without overwriting with the original selection')
+map('v', 'P', 'p', 'paste')
 
 map('t', xk [[<C-S-n>]], '<C-\\><C-n>', 'Switch to normal mode')
 map('t', '<C-n>', '<C-n>', 'Send Ctrl-n')

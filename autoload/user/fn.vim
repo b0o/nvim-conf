@@ -1,19 +1,3 @@
-" paste register without overwriting with the original selection
-let g:restore_reg = ''
-function! user#fn#pasteRestore()
-  let g:restore_reg = @"
-  return "p@=user#fn#restoreRegister()\<cr>"
-endfunction
-function! user#fn#restoreRegister()
-  let @" = g:restore_reg
-  if &clipboard ==# 'unnamed'
-    let @* = g:restore_reg
-  elseif &clipboard ==# 'unnamedplus'
-    let @+ = g:restore_reg
-  endif
-  return ''
-endfunction
-
 " function to be called upon entering a terminal buffer
 function! user#fn#termEnter(insert)
   setlocal nospell
