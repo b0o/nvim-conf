@@ -80,22 +80,6 @@ local function on_attach(client, bufnr)
   end
 end
 
-local function on_first_attach()
-  vim.diagnostic.config {
-    float = {
-      border = 'rounded',
-    },
-    signs = {
-      text = {
-        [vim.diagnostic.severity.ERROR] = ' ',
-        [vim.diagnostic.severity.WARN] = ' ',
-        [vim.diagnostic.severity.HINT] = ' ',
-        [vim.diagnostic.severity.INFO] = ' ',
-      },
-    },
-  }
-end
-
 M.on_attach = function()
   vim.notify('Error: user.lsp.on_attach: lsp.setup() has not been called yet', vim.log.levels.ERROR)
 end
@@ -156,8 +140,6 @@ M.setup = function(config)
       if config.on_first_attach then
         config.on_first_attach(client, bufnr)
       end
-      ---@diagnostic disable-next-line: redundant-parameter
-      on_first_attach(client, bufnr)
       M.on_attach_called = true
     end
     if config.on_attach then

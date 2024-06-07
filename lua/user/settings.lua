@@ -90,6 +90,31 @@ vim.opt.listchars = {
 
 vim.o.termguicolors = true
 
+--- Diagnostics
+vim.diagnostic.config {
+  float = {
+    border = 'rounded',
+    prefix = function(diagnostic)
+      ---@cast diagnostic vim.Diagnostic
+      local source = diagnostic.source
+      local replacements = {
+        ['Lua Diagnostics.'] = 'LuaLS',
+      }
+      source = replacements[source] or source
+      ---@diagnostic disable-next-line: missing-return-value
+      return '[' .. source .. '] '
+    end,
+  },
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = ' ',
+      [vim.diagnostic.severity.WARN] = ' ',
+      [vim.diagnostic.severity.HINT] = ' ',
+      [vim.diagnostic.severity.INFO] = ' ',
+    },
+  },
+}
+
 ---- Providers
 vim.g.loaded_perl_provider = 0
 
