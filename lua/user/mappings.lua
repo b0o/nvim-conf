@@ -445,9 +445,6 @@ map('n', '<leader>st', '<Cmd>split<Cr>', 'Split (horiz, cur)')
 map('n', '<leader>vv', '<Cmd>vsplit<Cr>', 'Split (vert, cur)')
 map('n', '<leader>vt', '<Cmd>vsplit<Cr>', 'Split (vert, cur)')
 
--- TODO: Convert to Lua
-map('x', '<leader>I', '<Esc>:call user#fn#interleave()<Cr>', 'Interleave two contiguous blocks')
-
 -- swap p and P
 map('v', 'p', 'P', 'paste without overwriting with the original selection')
 map('v', 'P', 'p', 'paste')

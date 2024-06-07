@@ -88,10 +88,12 @@ autocmd('TermOpen', {
   group = group,
   command = [[setlocal scrolloff=0]],
 })
-autocmd('BufEnter', {
+autocmd('WinEnter', {
   group = group,
   pattern = 'term://*',
-  command = [[call user#fn#termEnter(1)]],
+  callback = vim.schedule_wrap(function()
+    vim.cmd 'startinsert'
+  end),
 })
 
 ------ Filetypes
