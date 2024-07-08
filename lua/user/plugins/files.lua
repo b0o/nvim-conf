@@ -34,6 +34,75 @@ local spec = {
         vim.keymap.set('n', 'P', preview.watch, opts 'Preview (Watch)')
         vim.keymap.set('n', '<Esc>', preview.unwatch, opts 'Close Preview/Unwatch')
 
+        local function get_visual_nodes()
+          local core = require 'nvim-tree.core'
+          local view = require 'nvim-tree.view'
+          local utils = require 'nvim-tree.utils'
+          if not core.get_explorer() then
+            return
+          end
+          local winnr = view.get_winnr()
+          if not winnr then
+            return
+          end
+          local start = vim.api.nvim_buf_get_mark(0, '<')[1]
+          local end_ = vim.api.nvim_buf_get_mark(0, '>')[1]
+          local nodes = utils.get_nodes_by_line(core.get_explorer().nodes, core.get_nodes_starting_line())
+          return vim.list_slice(nodes, start, end_)
+        end
+
+        local update_qflist = function(entries)
+          local current_qflist = vim.fn.getqflist()
+          local filtered = vim
+            .iter(entries)
+            :filter(function(entry)
+              return not vim.iter(current_qflist):any(function(qfl)
+                return qfl.bufnr == vim.fn.bufnr(entry.filename)
+              end)
+            end)
+            :totable()
+          if #entries > 0 and #filtered == 0 then
+            local replace = vim
+              .iter(current_qflist)
+              :filter(function(qfl)
+                return not vim.iter(entries):any(function(entry)
+                  return qfl.bufnr == vim.fn.bufnr(entry.filename)
+                end)
+              end)
+              :totable()
+            vim.fn.setqflist(replace, 'r')
+          else
+            vim.fn.setqflist(filtered, 'a')
+          end
+          require('nvim-tree.renderer').draw()
+        end
+
+        vim.keymap.set('n', '<C-q>', function()
+          local ok, node = pcall(api.tree.get_node_under_cursor)
+          if ok and node and node.name ~= '..' and node.type ~= 'directory' then
+            update_qflist { { filename = node.absolute_path, lnum = 1, col = 1 } }
+          end
+        end, opts 'Add to Quickfix')
+
+        vim.keymap.set('v', '<C-q>', function()
+          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<esc>', true, false, true), 'n', false)
+          vim.schedule(function()
+            local ok, nodes = pcall(get_visual_nodes)
+            if ok and nodes then
+              local entries = vim
+                .iter(nodes)
+                :filter(function(node)
+                  return node.name ~= '..' and node.type ~= 'directory'
+                end)
+                :map(function(node)
+                  return { filename = node.absolute_path, lnum = 1, col = 1 }
+                end)
+                :totable()
+              update_qflist(entries)
+            end
+          end)
+        end, opts 'Add to Quickfix')
+
         -- BEGIN_DEFAULT_ON_ATTACH
         vim.keymap.set('n', '<C-]>', api.tree.change_root_to_node, opts 'CD')
         vim.keymap.set('n', '<C-e>', api.node.open.replace_tree_buffer, opts 'Open: In Place')
