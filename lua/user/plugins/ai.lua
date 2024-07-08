@@ -1,4 +1,4 @@
-very_lazy(function()
+require('user.util.lazy').after_load('noice.nvim', function()
   require('user.ai').setup {
     default_copilot = vim.g.ActiveCopilot or 'supermaven',
     autostart = true,

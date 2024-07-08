@@ -144,4 +144,40 @@ M.very_lazy(function()
   very_lazy_fired = true
 end)
 
+---Runs a callback after the given plugin is loaded
+---@param plugin_name string @the plugin to listen for
+---@param cb fun() @the callback to call when the plugin is loaded
+M.after_load = function(plugin_name, cb)
+  if not package.loaded['lazy'] or not require('lazy.stats')._stats.times.LazyDone then
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'LazyDone',
+      once = true,
+      callback = vim.schedule_wrap(function()
+        M.after_load(plugin_name, cb)
+      end),
+    })
+    return
+  end
+
+  local plugin = require('lazy.core.config').plugins[plugin_name]
+  if not plugin then
+    error('Plugin not found: ' .. plugin_name)
+  end
+
+  if plugin._.loaded or package.loaded[plugin.main] then
+    vim.schedule(cb)
+    return
+  end
+
+  vim.api.nvim_create_autocmd('User', {
+    pattern = 'LazyLoad',
+    callback = function(event)
+      if event.data == plugin_name then
+        cb()
+        return true
+      end
+    end,
+  })
+end
+
 return M
