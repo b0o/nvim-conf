@@ -269,16 +269,16 @@ map('n', 'gxa', 'ga', 'Show char code in decimal, hexadecimal and octal')
 map('i', xk '<C-`>', '<C-o>~<Left>', 'Toggle case')
 
 -- emacs-style motion & editing in command mode
-map('c', '<C-a>', '<Home>', 'Goto beginning of line')
-map('c', '<C-b>', '<Left>', 'Goto char backward')
-map('c', '<C-d>', '<Delete>', 'Kill char forward')
-map('c', '<C-f>', '<Right>', 'Goto char forward')
-map('c', '<C-g>', '<C-c>', 'Cancel')
-map('c', '<C-k>', [[<C-\>e(" ".getcmdline())[:getcmdpos()-1][1:]<Cr>]], 'Kill to end of line')
-map('c', '<M-f>', [[<C-\>euser#fn#cmdlineMoveWord( 1, 0)<Cr>]], 'Goto word forward')
-map('c', '<M-b>', [[<C-\>euser#fn#cmdlineMoveWord(-1, 0)<Cr>]], 'Goto word backward')
-map('c', '<M-d>', [[<C-\>euser#fn#cmdlineMoveWord( 1, 1)<Cr>]], 'Kill word forward')
-map('c', '<M-Backspace>', [[<C-\>euser#fn#cmdlineMoveWord(-1, 1)<Cr>]], 'Kill word backward')
+map('c', '<C-a>', '<Home>', { silent = false, desc = 'Goto beginning of line' })
+map('c', '<C-b>', '<Left>', { silent = false, desc = 'Goto char backward' })
+map('c', '<C-d>', '<Delete>', { silent = false, desc = 'Kill char forward' })
+map('c', '<C-f>', '<Right>', { silent = false, desc = 'Goto char forward' })
+map('c', '<C-g>', '<C-c>', { silent = false, desc = 'Cancel' })
+map('c', '<C-k>', [[<C-\>e(" ".getcmdline())[:getcmdpos()-1][1:]<Cr>]], { silent = false, desc = 'Kill to EOL' })
+map('c', '<M-f>', [[<C-\>euser#fn#cmdlineMoveWord( 1, 0)<Cr>]], { silent = false, desc = 'Goto word forward' })
+map('c', '<M-b>', [[<C-\>euser#fn#cmdlineMoveWord(-1, 0)<Cr>]], { silent = false, desc = 'Goto word backward' })
+map('c', '<M-d>', [[<C-\>euser#fn#cmdlineMoveWord( 1, 1)<Cr>]], { silent = false, desc = 'Kill word forward' })
+map('c', '<M-Backspace>', [[<C-\>euser#fn#cmdlineMoveWord(-1, 1)<Cr>]], { silent = false, desc = 'Kill word backward' })
 
 map('c', '<M-k>', '<C-k>', 'Insert digraph')
 
@@ -532,7 +532,7 @@ ft('man', function(bufmap)
   bufmap('n', '<S-Tab>', [[:call search('\(\w\+(\w\+)\)', 'sb')<Cr>]], 'Man: Goto prev tag')
 
   -- search from beginning of line (useful for finding command args like -h)
-  bufmap('n', 'g/', [[/^\s*\zs]], 'Man: Start BOL search')
+  bufmap('n', 'g/', [[/^\s*\zs]], { silent = false, desc = 'Man: Start BOL search' })
 end)
 
 ---- folke/lazy.nvim
