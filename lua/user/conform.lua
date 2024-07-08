@@ -91,7 +91,7 @@ function M.setup()
       if format_on_save then
         return {
           timeout_ms = 5000,
-          lsp_fallback = true,
+          lsp_format = 'fallback',
         }
       end
     end,
