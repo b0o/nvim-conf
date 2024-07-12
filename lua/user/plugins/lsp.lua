@@ -303,32 +303,39 @@ local on_attach = function(_, bufnr)
   local code_actions = lazy_require('actions-preview').code_actions
   bufmap('nx', { '<localleader>A', '<localleader>ca' }, code_actions, 'LSP: Code action')
 
-  local function gotoDiag(dir)
+  local function goto_diag(dir)
     return function(sev)
       return function()
-        local _dir = dir
-        local args = {
-          enable_popup = true,
+        local opts = {
+          float = true,
           severity = vim.diagnostic.severity[sev],
         }
-        if _dir == 'first' or _dir == 'last' then
-          args.wrap = false
+
+        if dir == 'first' or dir == 'last' then
+          opts.wrap = false
           if dir == 'first' then
-            args.cursor_position = { 1, 1 }
-            _dir = 'next'
+            opts.pos = { 1, -1 }
+            opts.count = 1
           else
-            args.cursor_position = { vim.api.nvim_buf_line_count(0) - 1, 1 }
-            _dir = 'prev'
+            opts.pos = { vim.api.nvim_buf_line_count(0) - 1, 99999 }
+            opts.count = -1
           end
+        elseif dir == 'prev' then
+          opts.count = -1
+        elseif dir == 'next' then
+          opts.count = 1
+        else
+          error('Invalid direction: ' .. dir)
         end
-        vim.diagnostic['goto_' .. _dir](args)
+
+        vim.diagnostic.jump(opts)
       end
     end
   end
-  local prevDiag = gotoDiag 'prev'
-  local nextDiag = gotoDiag 'next'
-  local firstDiag = gotoDiag 'first'
-  local lastDiag = gotoDiag 'last'
+  local diag_prev = goto_diag 'prev'
+  local diag_next = goto_diag 'next'
+  local diag_first = goto_diag 'first'
+  local diag_last = goto_diag 'last'
 
   bufmap('n', '<localleader>ds', vim.diagnostic.show, 'LSP: Show diagnostics')
   bufmap('n', { '<localleader>dt', '<localleader>T' }, trouble.toggle, 'LSP: Toggle Trouble')
@@ -339,27 +346,27 @@ local on_attach = function(_, bufnr)
     vim.notify('Diagnostics ' .. (enabled and 'disabled' or 'enabled'))
   end, 'LSP: Toggle Diagnostic')
 
-  bufmap('n', '[d', prevDiag(), 'LSP: Goto prev diagnostic')
-  bufmap('n', ']d', nextDiag(), 'LSP: Goto next diagnostic')
-  bufmap('n', '[h', prevDiag 'HINT', 'LSP: Goto prev hint')
-  bufmap('n', ']h', nextDiag 'HINT', 'LSP: Goto next hint')
-  bufmap('n', '[i', prevDiag 'INFO', 'LSP: Goto prev info')
-  bufmap('n', ']i', nextDiag 'INFO', 'LSP: Goto next info')
-  bufmap('n', '[w', prevDiag 'WARN', 'LSP: Goto prev warning')
-  bufmap('n', ']w', nextDiag 'WARN', 'LSP: Goto next warning')
-  bufmap('n', '[e', prevDiag 'ERROR', 'LSP: Goto prev error')
-  bufmap('n', ']e', nextDiag 'ERROR', 'LSP: Goto next error')
+  bufmap('n', '[d', diag_prev(), 'LSP: Goto prev diagnostic')
+  bufmap('n', ']d', diag_next(), 'LSP: Goto next diagnostic')
+  bufmap('n', '[h', diag_prev 'HINT', 'LSP: Goto prev hint')
+  bufmap('n', ']h', diag_next 'HINT', 'LSP: Goto next hint')
+  bufmap('n', '[i', diag_prev 'INFO', 'LSP: Goto prev info')
+  bufmap('n', ']i', diag_next 'INFO', 'LSP: Goto next info')
+  bufmap('n', '[w', diag_prev 'WARN', 'LSP: Goto prev warning')
+  bufmap('n', ']w', diag_next 'WARN', 'LSP: Goto next warning')
+  bufmap('n', '[e', diag_prev 'ERROR', 'LSP: Goto prev error')
+  bufmap('n', ']e', diag_next 'ERROR', 'LSP: Goto next error')
 
-  bufmap('n', '[D', firstDiag(), 'LSP: Goto first diagnostic')
-  bufmap('n', ']D', lastDiag(), 'LSP: Goto last diagnostic')
-  bufmap('n', '[H', firstDiag 'HINT', 'LSP: Goto first hint')
-  bufmap('n', ']H', lastDiag 'HINT', 'LSP: Goto last hint')
-  bufmap('n', '[I', firstDiag 'INFO', 'LSP: Goto first info')
-  bufmap('n', ']I', lastDiag 'INFO', 'LSP: Goto last info')
-  bufmap('n', '[W', firstDiag 'WARN', 'LSP: Goto first warning')
-  bufmap('n', ']W', lastDiag 'WARN', 'LSP: Goto last warning')
-  bufmap('n', '[E', firstDiag 'ERROR', 'LSP: Goto first error')
-  bufmap('n', ']E', lastDiag 'ERROR', 'LSP: Goto last error')
+  bufmap('n', '[D', diag_first(), 'LSP: Goto first diagnostic')
+  bufmap('n', ']D', diag_last(), 'LSP: Goto last diagnostic')
+  bufmap('n', '[H', diag_first 'HINT', 'LSP: Goto first hint')
+  bufmap('n', ']H', diag_last 'HINT', 'LSP: Goto last hint')
+  bufmap('n', '[I', diag_first 'INFO', 'LSP: Goto first info')
+  bufmap('n', ']I', diag_last 'INFO', 'LSP: Goto last info')
+  bufmap('n', '[W', diag_first 'WARN', 'LSP: Goto first warning')
+  bufmap('n', ']W', diag_last 'WARN', 'LSP: Goto last warning')
+  bufmap('n', '[E', diag_first 'ERROR', 'LSP: Goto first error')
+  bufmap('n', ']E', diag_last 'ERROR', 'LSP: Goto last error')
 
   bufmap('n', '<localleader>dr', function()
     vim.diagnostic.reset(nil, 0)
