@@ -78,14 +78,21 @@ local function get_wrap_seq(lhs_in)
   return lhs_in, lhs_in
 end
 
-M.wrap_visual_selection = function()
-  local lhs = vim.fn.input { prompt = 'LHS: ', cancelreturn = -1 }
+---@param params? { lhs?: string, rhs?: string }
+---@return { lhs: string, rhs: string }|nil
+M.wrap_visual_selection = function(params)
+  params = params or {}
+  local lhs = params.lhs or vim.fn.input { prompt = 'LHS: ', cancelreturn = -1 }
   if lhs == -1 then
     return
   end
   local rhs
-  lhs, rhs = get_wrap_seq(lhs)
-  rhs = vim.fn.input { prompt = 'RHS: ', default = rhs, cancelreturn = -1 }
+  if params.rhs then
+    rhs = params.rhs
+  else
+    lhs, rhs = get_wrap_seq(lhs)
+    rhs = vim.fn.input { prompt = 'RHS: ', default = rhs, cancelreturn = -1 }
+  end
   if rhs == -1 then
     return
   end
@@ -117,6 +124,10 @@ M.wrap_visual_selection = function()
       return new_lines
     end
   end)
+  return {
+    lhs = lhs,
+    rhs = rhs,
+  }
 end
 
 return M

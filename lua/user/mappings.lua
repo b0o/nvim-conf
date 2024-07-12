@@ -181,13 +181,35 @@ map('n', '<C-M-k>', '"dY"dP', 'Duplicate line upwards')
 map('x', '<C-M-j>', '"dy`<"dPjgv', 'Duplicate selection downwards')
 map('x', '<C-M-k>', '"dy`>"dpgv', 'Duplicate selection upwards')
 
-local wrap_visual_selection = lazy.require('user.util.wrap').wrap_visual_selection
+local wrap_visual_selection_prev = nil
+local wrap_visual_selection = function(params)
+  local res_params = require('user.util.wrap').wrap_visual_selection(params)
+  if res_params then
+    wrap_visual_selection_prev = res_params
+    vim.cmd [[silent! call repeat#set("\<Plug>WrapVisualSelectionRepeat")]]
+  end
+end
+
+local wrap_cursor_line_prev = nil
+local wrap_cursor_line = function(params)
+  vim.cmd [[normal! V]]
+  local res_params = require('user.util.wrap').wrap_visual_selection(params)
+  if res_params then
+    wrap_cursor_line_prev = res_params
+    vim.cmd [[silent! call repeat#set("\<Plug>WrapCursorLineRepeat")]]
+  end
+end
 
 map('x', '<M-w>', wrap_visual_selection, 'Wrap selection')
-map('n', '<M-S-W>', function()
-  vim.cmd [[normal! V]]
-  wrap_visual_selection()
-end, 'Wrap line')
+map('n', '<Plug>WrapVisualSelectionRepeat', function()
+  vim.cmd [[normal! gv]]
+  wrap_visual_selection(wrap_visual_selection_prev)
+end, { desc = 'Wrap visual selection' })
+
+map('n', '<M-S-W>', wrap_cursor_line, 'Wrap line')
+map('n', '<Plug>WrapCursorLineRepeat', function()
+  wrap_cursor_line(wrap_cursor_line_prev)
+end, { desc = 'Wrap cursor line' })
 
 ---- Treesitter
 local node_motion = lazy.require('user.util.treesitter').node_motion
@@ -534,6 +556,10 @@ ft('man', function(bufmap)
   -- search from beginning of line (useful for finding command args like -h)
   bufmap('n', 'g/', [[/^\s*\zs]], { silent = false, desc = 'Man: Start BOL search' })
 end)
+
+---- tpope/vim-repeat
+-- make . repeat work from visual mode
+map('x', '.', [[<Esc>.]], { remap = true, silent = true, desc = 'Repeat last command' })
 
 ---- folke/lazy.nvim
 map('n', '<leader>ll', '<Cmd>Lazy<cr>', 'Lazy')
