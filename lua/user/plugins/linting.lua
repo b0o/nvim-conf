@@ -9,6 +9,7 @@ local linters_by_ft = {
     -- { name = 'cppcheck', args = { '--enable=all', '--inconclusive' } },
     -- 'cpplint',
   },
+  cmake = { 'cmakelint' },
 }
 
 ---@type LazySpec[]

@@ -22,7 +22,14 @@ local servers = function()
         'cuda',
       },
     },
-    'cmake',
+    {
+      'neocmake',
+      formatting = false,
+      init_options = {
+        format = { enable = false },
+        lint = { enable = false },
+      },
+    },
     {
       'cssls',
       settings = {

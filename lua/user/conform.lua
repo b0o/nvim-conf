@@ -16,9 +16,7 @@ end
 M.formatters = {}
 
 M.formatters_by_ft = {
-  lua = { 'stylua' },
-
-  -- python = { 'isort', 'black' },
+  cmake = { 'gersemi' },
 
   glsl = { 'clang_format' },
 
