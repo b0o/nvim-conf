@@ -9,7 +9,7 @@ local function getClientData(client)
   }
 end
 
-function M.on_attach(client)
+function M.on_attach(client, _)
   local clientData = getClientData(client)
   M.clients.running[client.id] = clientData
   M.clients.exited[client.id] = nil
