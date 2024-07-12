@@ -557,6 +557,11 @@ ft('man', function(bufmap)
   bufmap('n', 'g/', [[/^\s*\zs]], { silent = false, desc = 'Man: Start BOL search' })
 end)
 
+---- folke/noice.nvim
+ft('noice', function(bufmap)
+  bufmap('n', 'K', '5k', 'Scroll up 5')
+end)
+
 ---- tpope/vim-repeat
 -- make . repeat work from visual mode
 map('x', '.', [[<Esc>.]], { remap = true, silent = true, desc = 'Repeat last command' })
