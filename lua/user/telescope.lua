@@ -80,7 +80,7 @@ local function multiopen(method)
         else
           local command = i == 1 and 'edit' or edit_file_cmds[method]
           if vim.api.nvim_buf_get_name(0) ~= filename or command ~= 'edit' then
-            filename = require('plenary.path'):new(vim.fn.fnameescape(filename)):normalize(vim.loop.cwd())
+            filename = require('plenary.path'):new(vim.fn.fnameescape(filename)):normalize(vim.uv.cwd())
             ---@diagnostic disable-next-line: param-type-mismatch
             pcall(vim.cmd, string.format('%s %s', command, filename))
           end

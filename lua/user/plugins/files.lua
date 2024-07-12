@@ -259,7 +259,7 @@ local spec = {
       if vim.fn.argc() == 1 then
         local argv0 = vim.fn.argv(0)
         ---@cast argv0 string
-        local stat = vim.loop.fs_stat(argv0)
+        local stat = vim.uv.fs_stat(argv0)
         if stat and stat.type == 'directory' then
           require('lazy').load { plugins = { 'oil.nvim' } }
         end

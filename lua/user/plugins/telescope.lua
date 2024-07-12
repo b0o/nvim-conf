@@ -160,7 +160,7 @@ very_lazy(function()
       return
     end
     ---@diagnostic disable-next-line: param-type-mismatch
-    if not vim.loop.fs_stat(file) then
+    if not vim.uv.fs_stat(file) then
       require('telescope.builtin').find_files { default_text = file }
       return
     end

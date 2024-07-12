@@ -26,7 +26,7 @@ local cache = {
 local augroup = vim.api.nvim_create_augroup('pnpm', {})
 
 local function cwd()
-  local cwd_ = vim.loop.cwd()
+  local cwd_ = vim.uv.cwd()
   assert(cwd_, 'Could not get current working directory')
   return Path:new(cwd_)
 end
