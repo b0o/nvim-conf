@@ -58,10 +58,10 @@ M.ft = function(ft, callback)
   vim.api.nvim_create_autocmd('FileType', {
     group = ft_augroup,
     pattern = ft,
-    callback = function()
-      callback(function(mode, lhs, rhs, opts)
-        return M.map(mode, lhs, rhs, M.process_opts(opts, { buffer = 0 }))
-      end)
+    callback = function(event)
+      callback(vim.schedule_wrap(function(mode, lhs, rhs, opts)
+        return M.map(mode, lhs, rhs, M.process_opts(opts, { buffer = event.buf }))
+      end))
     end,
   })
 end
