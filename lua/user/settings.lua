@@ -102,7 +102,7 @@ vim.diagnostic.config {
       }
       source = replacements[source] or source
       ---@diagnostic disable-next-line: missing-return-value
-      return '[' .. source .. '] '
+      return source and ('[' .. source .. '] ') or ''
     end,
   },
   signs = {
