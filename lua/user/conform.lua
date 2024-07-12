@@ -22,7 +22,11 @@ M.formatters_by_ft = {
 
   go = { 'gofmt', 'goimports' },
 
+  lua = { 'stylua' },
+
   nix = { 'nixfmt' },
+
+  -- python = { 'isort', 'black' },
 
   javascript = { 'dprint' },
   javascriptreact = { 'dprint' },
@@ -35,7 +39,7 @@ M.formatters_by_ft = {
   markdown = {
     'dprint' --[[ , 'injected' ]],
   },
-  -- I'd prefer dprint, but https://github.com/dprint/dprint-plugin-markdown/issues/93
+  -- TODO: Use dprint when MDX is supported: https://github.com/dprint/dprint-plugin-markdown/issues/93
   mdx = { 'prettierd' },
   rust = { 'dprint' },
   toml = { 'dprint' },
