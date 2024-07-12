@@ -511,11 +511,7 @@ return {
     cmd = 'Glance',
   },
   {
-    -- 'pmizio/typescript-tools.nvim',
-    -- TODO: Revert once https://github.com/pmizio/typescript-tools.nvim/pull/267 is merged
-    'notomo/typescript-tools.nvim',
-    branch = 'fix-deprecated',
-    enabled = true,
+    'pmizio/typescript-tools.nvim',
     ft = {
       'typescript',
       'javascript',
