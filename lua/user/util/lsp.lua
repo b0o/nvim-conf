@@ -178,17 +178,19 @@ M.setup = function(config)
       ---@diagnostic disable-next-line: cast-local-type
       name = lsp[1]
       if lsp.formatting ~= nil then
+        local opts_on_attach = opts.on_attach
         opts.on_attach = function(client, bufnr)
           client.server_capabilities.documentFormattingProvider = lsp.formatting
           client.server_capabilities.documentRangeFormattingProvider = lsp.formatting
-          return M.on_attach(client, bufnr)
+          return opts_on_attach(client, bufnr)
         end
         lsp.formatting = nil
       end
       if lsp.hover ~= nil then
+        local opts_on_attach = opts.on_attach
         opts.on_attach = function(client, bufnr)
           client.server_capabilities.hoverProvider = lsp.hover
-          return M.on_attach(client, bufnr)
+          return opts_on_attach(client, bufnr)
         end
         lsp.hover = nil
       end
