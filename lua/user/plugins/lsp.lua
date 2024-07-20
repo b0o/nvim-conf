@@ -116,7 +116,7 @@ local servers = function()
       root_dir = root_pattern('*.opam', 'esy.json', 'package.json', '.git', '.merlin'),
     },
     {
-      'pyright',
+      'basedpyright',
       formatting = false,
     },
     {
