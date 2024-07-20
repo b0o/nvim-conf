@@ -81,7 +81,7 @@ vim.o.smoothscroll = true -- scroll by screen line rather than by text line when
 
 vim.opt.list = true
 vim.opt.listchars = {
-  eol = '⌐',
+  eol = '¬',
   tab = 'ᐧᐧᐧ',
   trail = '~',
   extends = '»',
