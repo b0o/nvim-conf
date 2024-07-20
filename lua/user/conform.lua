@@ -1,7 +1,5 @@
 local M = {}
 
-local conform = require 'conform'
-
 local format_on_save = true
 
 function M.set_format_on_save(val)
@@ -41,7 +39,7 @@ M.formatters_by_ft = {
   },
   -- TODO: Use dprint when MDX is supported: https://github.com/dprint/dprint-plugin-markdown/issues/93
   mdx = { 'prettierd' },
-  rust = { 'dprint' },
+  -- rust = { 'dprint' },
   toml = { 'dprint' },
 
   css = { 'prettierd', 'stylelint' },
@@ -86,7 +84,7 @@ function M.set_formatters_by_ft(tbl, merge, setup)
 end
 
 function M.setup()
-  conform.setup {
+  require('conform').setup {
     log_level = vim.log.levels.DEBUG,
     notify_on_error = true,
     format_on_save = function()
