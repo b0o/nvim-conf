@@ -219,25 +219,27 @@ local spec = {
       vim.cmd.delcommand 'Rename'
       vim.cmd.cabbrev { 'Rename', 'ObsidianRename' }
 
-      local maputil = require 'user.util.map'
-      local map = maputil.map
-      local ft = maputil.ft
+      very_lazy(function()
+        local maputil = require 'user.util.map'
+        local map = maputil.map
+        local ft = maputil.ft
 
-      map('n', { '<C-f><C-f>', '<C-f>o', '<C-f><C-o>' }, '<Cmd>ObsidianQuickSwitch<Cr>', 'Obsidian: Quick Switch')
+        map('n', { '<C-f><C-f>', '<C-f>o', '<C-f><C-o>' }, '<Cmd>ObsidianQuickSwitch<Cr>', 'Obsidian: Quick Switch')
 
-      map('n', '<C-p>', function()
-        vim.api.nvim_feedkeys(':Obsidian', 't', false)
-        vim.defer_fn(require('cmp').complete, 0)
-      end, ':Obsidian')
+        map('n', '<C-p>', function()
+          vim.api.nvim_feedkeys(':Obsidian', 't', false)
+          vim.defer_fn(require('cmp').complete, 0)
+        end, ':Obsidian')
 
-      ft('markdown', function(bufmap)
-        bufmap('n', '<C-]>', function()
-          if require('obsidian').util.cursor_on_markdown_link() then
-            return '<Cmd>ObsidianFollowLink<CR>'
-          else
-            return '<C-]>'
-          end
-        end, { expr = true, desc = 'Obsidian: Follow Link' })
+        ft('markdown', function(bufmap)
+          bufmap('n', '<C-]>', function()
+            if require('obsidian').util.cursor_on_markdown_link() then
+              return '<Cmd>ObsidianFollowLink<CR>'
+            else
+              return '<C-]>'
+            end
+          end, { expr = true, desc = 'Obsidian: Follow Link' })
+        end)
       end)
     end,
   },

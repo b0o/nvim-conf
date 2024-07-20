@@ -130,7 +130,13 @@ very_lazy(function()
 
   map('n', '<C-f>F', tc.any_files, 'Telescope: Any Files')
   map('n', { '<C-f>o', '<C-f><C-o>' }, tc.oldfiles, 'Telescope: Old files')
-  map('n', { '<C-f>f', '<C-f><C-f>' }, tc.smart_files, 'Telescope: Files (Smart)')
+
+  map('n', {
+    '<C-f>f',
+      -- Don't override Obsidian <C-f><C-f> mapping
+    not package.loaded.obsidian and '<C-f><C-f>' or nil,
+  }, tc.smart_files, 'Telescope: Files (Smart)')
+
   map('n', { '<C-f>d', '<C-f><C-d>' }, tc.dir_files, 'Telescope: Files (Dir)')
   map('n', { '<C-f>w', '<C-f><C-w>' }, wrap(tc.windows, {}), 'Telescope: Windows')
   map('n', { '<C-f>i', '<C-f><C-i>' }, '<Cmd>Easypick headers<Cr>', 'Telescope: Includes (headers)')
