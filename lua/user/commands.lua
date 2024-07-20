@@ -78,17 +78,22 @@ command {
   'Bclean',
   {
     function(o)
-      vim
+      local bufs = vim
         .iter(vim.api.nvim_list_bufs())
         :filter(function(buf)
           local bo = vim.bo[buf]
           local bang = o.bang == '!'
           return bo.buftype == '' and bo.buflisted and (bang or not bo.modified) and #vim.fn.win_findbuf(buf) == 0
         end)
-        :each(function(buf)
-          vim.notify('Deleting buffer ' .. buf)
-          vim.cmd('confirm bdelete ' .. buf)
-        end)
+        :totable()
+      if #bufs == 0 then
+        vim.notify 'No unused buffers found'
+        return
+      end
+      vim.notify(string.format('Deleting %d unused buffer%s', #bufs, #bufs == 1 and '' or 's'))
+      vim.iter(bufs):each(function(buf)
+        vim.cmd('confirm bdelete ' .. buf)
+      end)
     end,
     'bang',
   },
