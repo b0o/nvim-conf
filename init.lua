@@ -27,10 +27,10 @@ require('lazy').setup({
 }, {
   defaults = { lazy = true },
   ui = { border = 'rounded' },
-  dev = {
+  dev = vim.env.GIT_PROJECTS_DIR and {
     path = vim.env.GIT_PROJECTS_DIR .. '/nvim',
     fallback = true,
-  },
+  } or nil,
   change_detection = {
     enabled = false,
   },
