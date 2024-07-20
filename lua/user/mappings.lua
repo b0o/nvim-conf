@@ -435,6 +435,7 @@ map('n', '<M-S-a>', ':execute "wincmd g\\<Tab>"<Cr>', 'Tabs: Goto last accessed'
 
 map('n', '<M-a>', recent_wins.focus_most_recent, 'Panes: Goto previously focused')
 map('n', '<M-x>', recent_wins.flip_recents, 'Panes: Flip the last normal wins')
+map('n', xk '<C-S-a>', 'g<Tab>', 'Tabs: Goto last accessed')
 
 map('n', '<M-1>', tabnm(1), 'Goto tab 1')
 map('n', '<M-2>', tabnm(2), 'Goto tab 2')
