@@ -1,31 +1,32 @@
 ---- Recent wins
 -- An extension of the 'wincmd p' concept, but ignoring special windows like
 -- popups, sidebars, and quickfix.
--- TODO: Keep track of more than 2 wins, fallback when a window is closed
 
 local fn = require 'user.fn'
 
+---@alias tabpage_id number
+
 local M = {
-  tabpages = {},
-  tabpages_any = {},
+  tabpage_wins_normal = {}, -- only normal windows
+  tabpage_wins_any = {}, -- all windows
 }
 
 M.update = function()
   local tabpage = vim.api.nvim_get_current_tabpage()
-  if not M.tabpages then
-    M.tabpages = {}
+  if not M.tabpage_wins_normal then
+    M.tabpage_wins_normal = {}
   end
-  if not M.tabpages[tabpage] then
-    M.tabpages[tabpage] = {}
+  if not M.tabpage_wins_normal[tabpage] then
+    M.tabpage_wins_normal[tabpage] = {}
   end
-  if not M.tabpages_any[tabpage] then
-    M.tabpages_any[tabpage] = {}
+  if not M.tabpage_wins_any[tabpage] then
+    M.tabpage_wins_any[tabpage] = {}
   end
-  local tabpage_recents = M.tabpages[tabpage]
-  local tabpage_recents_any = M.tabpages_any[tabpage]
+  local tabpage_recents = M.tabpage_wins_normal[tabpage]
+  local tabpage_recents_any = M.tabpage_wins_any[tabpage]
   local cur_winid = vim.api.nvim_get_current_win()
   if cur_winid ~= tabpage_recents_any[1] then
-    M.tabpages_any[tabpage] = {
+    M.tabpage_wins_any[tabpage] = {
       cur_winid,
       tabpage_recents_any[1] or nil,
     }
@@ -34,7 +35,7 @@ M.update = function()
     return
   end
   if cur_winid ~= tabpage_recents[1] then
-    M.tabpages[tabpage] = {
+    M.tabpage_wins_normal[tabpage] = {
       cur_winid,
       tabpage_recents[1] or nil,
     }
@@ -43,12 +44,12 @@ end
 
 M.tabpage_get_recents = function(tabpage)
   tabpage = tabpage or vim.api.nvim_get_current_tabpage()
-  return M.tabpages[tabpage]
+  return M.tabpage_wins_normal[tabpage]
 end
 
 M.tabpage_get_recents_any = function(tabpage)
   tabpage = tabpage or vim.api.nvim_get_current_tabpage()
-  return M.tabpages_any[tabpage]
+  return M.tabpage_wins_any[tabpage]
 end
 
 M.tabpage_get_recents_smart = function(tabpage)
@@ -58,7 +59,7 @@ M.tabpage_get_recents_smart = function(tabpage)
       if type(tp) == 'function' then
         recents = tp()
       else
-        recents = M.tabpages[tp]
+        recents = M.tabpage_wins_normal[tp]
       end
     end
     if recents then
@@ -75,6 +76,9 @@ M.get_most_recent = function(tabpage_recents)
   end
   if vim.api.nvim_get_current_win() == winid then
     winid = tabpage_recents[2]
+  end
+  if not winid or not vim.api.nvim_win_is_valid(winid) then
+    return
   end
   return winid
 end
