@@ -188,6 +188,7 @@ local spec = {
       highlight = {
         pattern = { [[.*<(KEYWORDS)\s*(\(.+\))?\s*:]] },
         -- TODO: use 'wide' when https://github.com/folke/todo-comments.nvim/issues/10 is fixed
+        multiline = false,
         keyword = 'fg',
         after = 'fg',
       },
