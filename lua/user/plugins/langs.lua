@@ -250,7 +250,7 @@ very_lazy(function()
   local map = maputil.map
 
   map('n', { '<leader>O', '<leader>oo' }, '<Cmd>Other<Cr>', 'Other: Switch to other file')
-  map('n', '<leader>os', '<Cmd>OtherSplit<Cr>', 'Other: Open other in split')
+  map('n', { '<leader>os', '<leader>ox' }, '<Cmd>OtherSplit<Cr>', 'Other: Open other in split')
   map('n', '<leader>ov', '<Cmd>OtherVSplit<Cr>', 'Other: Open other in vsplit')
 end)
 
