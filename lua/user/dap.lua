@@ -5,6 +5,18 @@ local M = {
   closers = {},
 }
 
+local signs = {
+  DapBreakpoint = '󰍟',
+  DapBreakpointCondition = '󰅂',
+  DapLogPoint = '',
+  DapStopped = '',
+  DapBreakpointRejected = '󱈸',
+}
+
+for k, v in pairs(signs) do
+  vim.fn.sign_define(k, { text = v, texthl = k, priority = 50 })
+end
+
 ---- Lua
 -- local lua_conf = {
 --   host = '127.0.0.1',
@@ -105,6 +117,7 @@ dap.adapters.chrome = {
 }
 dap.configurations.javascript = {
   {
+    name = 'Chrome',
     type = 'chrome',
     request = 'attach',
     program = '${file}',

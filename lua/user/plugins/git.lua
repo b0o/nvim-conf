@@ -163,7 +163,7 @@ return {
           untracked = { text = '┆' },
         },
         attach_to_untracked = true,
-        sign_priority = 10,
+        sign_priority = 100,
         preview_config = {
           border = 'rounded',
         },
