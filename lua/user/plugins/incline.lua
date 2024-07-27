@@ -425,6 +425,25 @@ return {
               }
             end
           end
+
+          if vim.bo[props.buf].buftype == 'help' then
+            local icon = {
+              bg = colors.green,
+              fg = 'black',
+              icon = ':h',
+            }
+            -- tail without .txt extension
+            local name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ':t:r')
+            return {
+              wrap_status(bg, buf_focused, props, icon, {
+                ' ',
+                name,
+                guibg = bg,
+                guifg = fg,
+              }),
+            }
+          end
+
           local file_info = get_file_info(props)
 
           local diag_disabled = not vim.diagnostic.is_enabled { bufnr = props.buf }
