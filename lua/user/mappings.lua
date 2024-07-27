@@ -168,6 +168,12 @@ map('n', '<C-y>', [[pumvisible() ? "\<C-y>" : '"+yy']], { expr = true, desc = 'Y
 map('x', '<C-y>', [[pumvisible() ? "\<C-y>" : '"+y']], { expr = true, desc = 'Yank line to system clipboard' })
 
 map('n', '<leader>yp', '<Cmd>let @+ = expand("%:p")<Cr>:echom "Copied " . @+<Cr>', 'Yank file path')
+map('n', '<leader>yP', function()
+  local line = vim.fn.line '.'
+  local file = vim.fn.expand '%'
+  vim.fn.setreg('+', file .. ':' .. line)
+  vim.notify('Copied ' .. file .. ':' .. line, vim.log.levels.INFO)
+end, 'Yank file path with line number')
 map('n', '<leader>y:', [[<Cmd>let @+=@:<Cr>:echom "Copied '" . @+ . "'"<Cr>]], 'Yank last command')
 
 map('nx', '<C-p>', '"+p', 'Paste from system clipboard')
