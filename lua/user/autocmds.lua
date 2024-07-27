@@ -18,6 +18,37 @@ autocmd({ 'WinNew', 'WinLeave' }, {
     vim.cmd [[setlocal winhl=CursorLine:CursorLineNC,CursorLineNr:CursorLineNrNC]]
   end,
 })
+
+local other_hl_wins = {}
+autocmd('WinEnter', {
+  group = group,
+  pattern = { '*.c', '*.c++', '*.cc', '*.cpp', '*.cxx', '*.h', '*.h++', '*.hh', '*.hpp', '*.hxx' },
+  ---@param event AutocmdEvent
+  callback = function(event)
+    local curwin = vim.api.nvim_get_current_win()
+    local other = require 'other-nvim'
+    local bufname = vim.api.nvim_buf_get_name(event.buf)
+    local others = other.findOther(bufname)
+    for _, other in ipairs(others) do
+      ---@cast other { exists: boolean, filename: string }
+      if other.exists then
+        local bufnr = vim.fn.bufnr(other.filename)
+        if bufnr ~= -1 then
+          local wins = vim.fn.win_findbuf(bufnr)
+          for _, win in ipairs(wins) do
+            if win ~= curwin then
+              table.insert(other_hl_wins, win)
+              vim.api.nvim_win_call(win, function()
+                vim.cmd [[setlocal winhighlight=NormalNC:Normal]]
+              end)
+            end
+          end
+        end
+      end
+    end
+  end,
+})
+
 autocmd('WinEnter', {
   group = group,
   callback = function(event)
@@ -43,6 +74,12 @@ end, { threshold = 500, mode = 'rolling' })
 autocmd('WinLeave', {
   group = group,
   callback = function()
+    for _, other in ipairs(other_hl_wins) do
+      vim.api.nvim_win_call(other, function()
+        vim.cmd [[setlocal winhighlight=]]
+      end)
+    end
+    other_hl_wins = {}
     update_recent_wins()
     pcall(vim.api.nvim_del_autocmd, rwins_cursormoved_autocmd)
     pcall(vim.api.nvim_del_autocmd, rwins_modechanged_autocmd)
