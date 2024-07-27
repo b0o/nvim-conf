@@ -96,14 +96,6 @@ autocmd('WinEnter', {
   end),
 })
 
------- Filetypes
--- vitest snapshots
-autocmd({ 'BufRead', 'BufNewFile' }, {
-  group = group,
-  pattern = { '**/__snapshots__/*.ts.snap', '**/__snapshots__/*.js.snap' },
-  command = 'set filetype=jsonc',
-})
-
 ------ Plugins
 
 ---- kyazdani42/nvim-tree.lua

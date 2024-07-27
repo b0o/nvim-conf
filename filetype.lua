@@ -3,4 +3,8 @@ vim.filetype.add {
     astro = 'astro',
     mdx = 'mdx',
   },
+  pattern = {
+    ['**/__snapshots__/*.ts.snap'] = { 'jsonc' },
+    ['**/__snapshots__/*.js.snap'] = { 'jsonc' },
+  },
 }
