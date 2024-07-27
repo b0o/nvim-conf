@@ -393,6 +393,38 @@ return {
             }
           end
 
+          if ft == 'qf' then
+            local loclist = vim.fn.getwininfo(props.win)[1].loclist == 1
+            if loclist then
+              local icon = {
+                bg = 'blue',
+                fg = 'white',
+                icon = '',
+              }
+              return {
+                wrap_status(bg, buf_focused, props, icon, {
+                  ' ',
+                  'Loclist',
+                  guibg = bg,
+                  guifg = fg,
+                }),
+              }
+            else
+              local icon = {
+                bg = 'red',
+                fg = 'white',
+                icon = '',
+              }
+              return {
+                wrap_status(bg, buf_focused, props, icon, {
+                  ' ',
+                  'Quickfix',
+                  guibg = bg,
+                  guifg = fg,
+                }),
+              }
+            end
+          end
           local file_info = get_file_info(props)
 
           local diag_disabled = not vim.diagnostic.is_enabled { bufnr = props.buf }
@@ -448,7 +480,15 @@ return {
         ignore = {
           unlisted_buffers = false,
           buftypes = function(bufnr, buftype)
-            return not (buftype == '' or vim.bo[bufnr].filetype == 'dap-repl')
+            return not (
+              buftype == ''
+              or buftype == 'help'
+              or buftype == 'quickfix'
+              or vim.bo[bufnr].filetype == 'dap-repl'
+            )
+          end,
+          wintypes = function(_, wintype)
+            return not (wintype == '' or wintype == 'quickfix' or wintype == 'loclist')
           end,
         },
       }

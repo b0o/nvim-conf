@@ -145,6 +145,7 @@ require('cmp').setup.filetype({ 'dap-repl', 'dapui_watches', 'dapui_hover' }, {
 
 cmp.setup.cmdline('/', {
   mapping = cmp.mapping.preset.cmdline {
+    ['<C-z>'] = { c = false },
     ['<C-n>'] = { c = select_item_smart('next', { fallback = wrap(feedkeys.call, keymap.t '<Down>', 'n') }) },
     ['<C-p>'] = { c = select_item_smart('prev', { fallback = wrap(feedkeys.call, keymap.t '<Up>', 'n') }) },
     [xk '<C-S-n>'] = {

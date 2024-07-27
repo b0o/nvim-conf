@@ -370,23 +370,43 @@ map('n', ']q', '<Cmd>cnext<Cr>', 'Quickfix: Next')
 map('n', '[q', '<Cmd>cprev<Cr>', 'Quickfix: Prev')
 
 ft('qf', function(bufmap)
+  local function is_loclist(winid)
+    return vim.fn.getwininfo(winid)[1].loclist == 1
+  end
+
+  local function get_list(winid)
+    return is_loclist(winid) and vim.fn.getloclist(winid) or vim.fn.getqflist()
+  end
+
+  local function set_list(winid, list, action)
+    if is_loclist(winid) then
+      vim.fn.setloclist(winid, list, action)
+    else
+      vim.fn.setqflist(list, action)
+    end
+  end
+
   bufmap('n', 'dd', function()
+    local winid = vim.api.nvim_get_current_win()
     local line = vim.fn.line '.'
-    vim.fn.setqflist(
-      vim.fn.filter(vim.fn.getqflist(), function(idx)
+    set_list(
+      winid,
+      vim.fn.filter(get_list(winid), function(idx)
         return idx ~= line - 1
       end),
       'r'
     )
     vim.fn.setpos('.', { 0, line, 1, 0 })
-  end, 'Quickfix: Delete item under cursor')
+  end, 'Delete item under cursor')
 
   bufmap('v', 'd', function()
     vim.schedule(function()
+      local winid = vim.api.nvim_get_current_win()
       local start = vim.fn.line "'<"
       local finish = vim.fn.line "'>"
-      vim.fn.setqflist(
-        vim.fn.filter(vim.fn.getqflist(), function(idx)
+      set_list(
+        winid,
+        vim.fn.filter(get_list(winid), function(idx)
           return idx < start - 1 or idx >= finish
         end),
         'r'
@@ -394,12 +414,17 @@ ft('qf', function(bufmap)
       vim.fn.setpos('.', { 0, start, 1, 0 })
     end)
     vim.cmd [[call feedkeys("\<Esc>", 'n')]]
-  end, 'Quickfix: Delete selected items')
+  end, 'Delete selected items')
 
-  bufmap('n', '<Tab>', '<Cr><Cmd>copen<Cr>', 'Quickfix: Jump to item under cursor')
+  bufmap('n', '<Tab>', function()
+    local winid = vim.api.nvim_get_current_win()
+    return '<Cr><Cmd>' .. (is_loclist(winid) and 'lopen' or 'copen') .. '<Cr>'
+  end, { expr = true, desc = 'Jump to item under cursor' })
 
   bufmap('n', '<M-w>', function()
-    local sel = vim.fn.getqflist({ id = 0, idx = vim.fn.line '.', items = 0 }).items[1]
+    local winid = vim.api.nvim_get_current_win()
+    local list = get_list(winid)
+    local sel = list[vim.fn.line '.']
     if not sel then
       return
     end
@@ -409,8 +434,55 @@ ft('qf', function(bufmap)
       vim.api.nvim_set_current_win(win)
       vim.api.nvim_win_set_cursor(win, { sel.lnum, sel.col })
     end
-  end, 'Quickfix: Jump to item under cursor (pick window)')
+  end, 'Jump to item under cursor (pick window)')
 end)
+
+---- Location list
+map('n', ']z', '<Cmd>lnext<Cr>', 'Loclist: Next')
+map('n', '[z', '<Cmd>lprev<Cr>', 'Loclist: Prev')
+
+map('n', '<M-S-z>', function()
+  local winid = vim.api.nvim_get_current_win()
+  local loclist = vim.fn.getloclist(winid)
+  if vim.tbl_isempty(loclist) then
+    vim.notify('No location list', vim.log.levels.WARN)
+    return
+  end
+  local loclist_win = vim.fn.getloclist(winid, { winid = 0 }).winid
+  if loclist_win == 0 then
+    vim.cmd 'lopen'
+    vim.cmd.wincmd 'p'
+  else
+    vim.cmd 'lclose'
+  end
+end, 'Loclist: Toggle')
+
+map(
+  'n',
+  [[<M-z>]],
+  fn.filetype_command('qf', wrap(vim.cmd.wincmd, 'p'), wrap(vim.cmd, 'lopen')),
+  'Loclist: Toggle Focus'
+)
+
+map('c', { '<C-z>', '<C-q>' }, function(args)
+  local cmdtype = vim.fn.getcmdtype()
+  if cmdtype ~= '/' and cmdtype ~= '?' then
+    return
+  end
+  local cmdline = vim.fn.getcmdline()
+  if cmdline == '' then
+    return
+  end
+  vim.schedule(function()
+    vim.cmd.nohlsearch()
+    if args.lhs == '<C-q>' then
+      vim.cmd('silent! vimgrep /' .. cmdline .. '/ % | botright copen')
+    else
+      vim.cmd('silent! lvimgrep /' .. cmdline .. '/ % | lopen')
+    end
+  end)
+  return '<Esc>'
+end, { expr = true, args = true, desc = 'Add search matches to qflist/loclist' })
 
 ---- Tabs
 -- Navigate tabs

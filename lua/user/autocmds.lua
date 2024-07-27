@@ -8,7 +8,7 @@ local autocmd = vim.api.nvim_create_autocmd
 autocmd({ 'WinNew', 'WinLeave' }, {
   group = group,
   callback = function(event)
-    if win_is_floating(0) then
+    if win_is_floating(0) or vim.bo.filetype == 'qf' then
       return
     end
     local ft = vim.bo[event.buf].filetype
@@ -21,14 +21,14 @@ autocmd({ 'WinNew', 'WinLeave' }, {
 autocmd('WinEnter', {
   group = group,
   callback = function(event)
-    if win_is_floating(0) then
+    if win_is_floating(0) or vim.bo.filetype == 'qf' then
       return
     end
     local ft = vim.bo[event.buf].filetype
     if ft == 'NvimTree' then
       return
     end
-    vim.cmd [[setlocal winhl=]]
+    vim.cmd [[setlocal winhighlight=]]
     vim.b.user_winhl = true
   end,
 })
@@ -94,6 +94,29 @@ autocmd('WinEnter', {
   callback = vim.schedule_wrap(function()
     vim.cmd 'startinsert'
   end),
+})
+
+------ Filetypes
+autocmd('FileType', {
+  pattern = 'qf',
+  group = group,
+  ---@param event AutocmdEvent
+  callback = function(event)
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      if vim.api.nvim_win_get_buf(win) == event.buf then
+        vim.api.nvim_win_call(win, function()
+          vim.cmd [[setlocal winfixheight]]
+          if vim.fn.getwininfo(win)[1].loclist == 1 then
+            -- use setlocal to avoid leaving the winhighlight into newly opened windows
+            -- see: https://github.com/neovim/neovim/issues/18283
+            vim.cmd [[setlocal winhighlight=Normal:LocListNormal,NormalNC:LocListNormalNC,CursorLine:LocListCursorLine,CursorLineNC:LocListCursorLineNC]]
+          else -- qflist
+            vim.cmd [[setlocal winhighlight=Normal:QFListNormal,NormalNC:QFListNormalNC,CursorLine:QFListCursorLine,CursorLineNC:QFListCursorLineNC]]
+          end
+        end)
+      end
+    end
+  end,
 })
 
 ------ Plugins

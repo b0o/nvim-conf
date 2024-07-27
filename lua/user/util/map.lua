@@ -27,6 +27,8 @@ M.map = function(mode, lhs, rhs, opts)
   mode = type(mode) == 'string' and vim.split(mode, '') or mode
   lhs = type(lhs) == 'table' and lhs or { lhs }
   opts = M.process_opts(opts, { silent = true })
+  local args = opts.args or false -- include extra args when calling the rhs
+  opts.args = nil
 
   -- wrap callable tables in a function
   if type(rhs) == 'table' then
@@ -42,7 +44,14 @@ M.map = function(mode, lhs, rhs, opts)
 
   for _, l in ipairs(lhs) do
     ---@cast l string
-    vim.keymap.set(mode, l, rhs, opts)
+    if args then
+      if type(rhs) ~= 'function' then
+        error 'map: args can only be used with function rhs'
+      end
+      vim.keymap.set(mode, l, M.wrap(rhs, { lhs = l }), opts)
+    else
+      vim.keymap.set(mode, l, rhs, opts)
+    end
   end
 end
 
