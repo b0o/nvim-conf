@@ -1,7 +1,6 @@
 local api = vim.api
 local M = {}
 
--- Configuration options
 local config = {
   default_lens = 'add comments to explain the code',
   window_position = 'below', -- or "above"
@@ -10,14 +9,9 @@ local config = {
   diff_mode = true,
 }
 
--- Load the Groq API key from the user's private configuration
-local groq_api_key = require('user.private').groq_api_key
+local groq_client
 
--- Initialize the Groq client
-local groq = require('user.ai.groq').client { api_key = groq_api_key }
-
--- State variables
-local lens_win, lens_buf, lens_augroup, lens_content
+local lens_win, lens_buf, lens_content
 local win_prev_winline = {}
 
 local function get_window_row_normal_mode(params)
@@ -147,30 +141,23 @@ local function strip_markdown_fence(text)
   return text, nil
 end
 
---- get the current text
---- if in normal mode, return the current line
---- if in visual mode, return the selected text
---- if in other modes, return nil
 local function get_current_text()
   local mode = vim.api.nvim_get_mode().mode
-  if mode:match '^[vV\22]' then -- visual mode
-    -- don't use < and > marks because aren't updated until after leaving visual mode
-    -- we can use vim.fn.line('.') and vim.fn.line('v') instead
+  if mode:match '^[vV\22]' then
     local cursor_line = vim.fn.line '.'
     local other_end_line = vim.fn.line 'v'
     local start_line = math.min(cursor_line, other_end_line)
     local end_line = math.max(cursor_line, other_end_line)
     local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
     return lines
-  elseif mode:match '^[iI]' then -- insert mode
+  elseif mode:match '^[iI]' then
     return nil
-  else -- normal mode
+  else
     return { vim.api.nvim_get_current_line() }
   end
 end
 
 local function get_diff_patch(old_lines, new_lines)
-  -- use the system diff tool to generate the diff patch
   local temp_file_old = vim.fn.tempname()
   local temp_file_new = vim.fn.tempname()
   vim.fn.writefile(old_lines, temp_file_old)
@@ -214,7 +201,7 @@ local function update_lens()
     position = vim.api.nvim_win_get_cursor(0),
   }
 
-  groq.chat.completions.create {
+  groq_client.chat.completions.create {
     -- model = 'llama-3.1-8b-instant',
     model = 'llama-3.1-70b-versatile',
     -- model = 'llama-3.1-405b-reasoning',
@@ -331,6 +318,7 @@ end
 
 function M.setup(opts)
   config = vim.tbl_deep_extend('force', config, opts or {})
+  groq_client = require('user.ai.groq').client { api_key = config.groq_api_key }
 
   vim.keymap.set({ 'n', 'x' }, '<leader>lt', M.toggle_lens, { desc = 'Toggle lens' })
   vim.keymap.set({ 'n', 'x' }, '<leader>la', M.apply_lens, { desc = 'Apply lens' })

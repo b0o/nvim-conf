@@ -101,7 +101,9 @@ M.setup = function(config)
     M.silent = silent
   end
 
-  require('user.ai.llens').setup()
+  require('user.ai.llens').setup {
+    groq_api_key = require('user.private').groq_api_key,
+  }
 end
 
 M.start_copilot = function(copilot_name)

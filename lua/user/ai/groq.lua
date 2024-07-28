@@ -5,8 +5,6 @@ local M = {}
 
 local BASE_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
-local cache = {}
-
 function M.client(opts)
   local api_key = opts.api_key
 
