@@ -4,6 +4,7 @@
 local M = {}
 
 M.openai_api_key = 'sk-xxxxxxxxxxxxxxxxxxxx'
+M.groq_api_key = 'gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 M.obsidian_vault = {
   name = 'name',
   path = '/path/to/obsidian/vault',

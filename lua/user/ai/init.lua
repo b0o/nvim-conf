@@ -100,6 +100,8 @@ M.setup = function(config)
     M.start_copilot()
     M.silent = silent
   end
+
+  require('user.ai.llens').setup()
 end
 
 M.start_copilot = function(copilot_name)
