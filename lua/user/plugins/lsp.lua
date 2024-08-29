@@ -195,6 +195,7 @@ local servers = function()
         },
       },
     },
+    'lemminx', -- XML
     'zls',
   }
 end
