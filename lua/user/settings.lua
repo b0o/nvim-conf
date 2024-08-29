@@ -48,7 +48,7 @@ vim.o.eadirection = 'hor'
 vim.o.wildchar = 9 -- equivalent to 'set wildchar=<Tab>'
 
 vim.o.modeline = true -- always parse modelines when loading files
-vim.o.exrc = true -- enable exrc files - .nvim.lua, .nvimrc, .exrc
+vim.o.exrc = false -- use jedrzejboczar/exrc.nvim instead
 
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ','

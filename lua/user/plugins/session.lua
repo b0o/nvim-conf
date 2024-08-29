@@ -19,4 +19,13 @@ return {
       }
     end,
   },
+  {
+    'jedrzejboczar/exrc.nvim',
+    lazy = false,
+    opts = {
+      --- IMPORTANT! When you use on_vim_enter=true do not lazy-load
+      on_vim_enter = true, -- Load exrc from current directory on start
+      use_telescope = false,
+    },
+  },
 }
