@@ -35,6 +35,8 @@ M.xk = fn.utf8keys {
   [ [[<C-M-S-/>]] ] = 0x00d8,
   [ [[<M-Space>]] ] = 0x00d9,
   [ [[<C-M-S-s>]] ] = 0x00da,
+  [ [[<C-S-u>]] ] = 0x00db,
+  [ [[<C-S-r>]] ] = 0x00dc,
 }
 
 return M
