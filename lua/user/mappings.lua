@@ -546,10 +546,10 @@ map('n', '<M-:>', ':-tabm<Cr>', 'Move tab left')
 
 map('n', '<F13>', '<Cmd>tabnew<Cr>', 'Open new tab')
 
-map('t', '<M-h>', '<C-\\><C-n><C-w>h', 'Goto tab left')
-map('t', '<M-j>', '<C-\\><C-n><C-w>j', 'Goto tab down')
-map('t', '<M-k>', '<C-\\><C-n><C-w>k', 'Goto tab up')
-map('t', '<M-l>', '<C-\\><C-n><C-w>l', 'Goto tab right')
+map('t', '<M-h>', '<C-\\><C-n><C-w>h', 'Goto window left')
+map('t', '<M-j>', '<C-\\><C-n><C-w>j', 'Goto window down')
+map('t', '<M-k>', '<C-\\><C-n><C-w>k', 'Goto window up')
+map('t', '<M-l>', '<C-\\><C-n><C-w>l', 'Goto window right')
 
 map('n', '<leader>sf', wrap(fn.toggle_winfix, 'height'), 'Toggle fixed window height')
 map('n', '<leader>sF', wrap(fn.toggle_winfix, 'width'), 'Toggle fixed window width')
