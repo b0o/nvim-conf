@@ -245,6 +245,13 @@ _cmds.dir_files = function()
   }
 end
 
+_cmds.dir_grep = function()
+  M.cmds.live_grep_args {
+    prompt_title = 'Live Grep (Dir)',
+    cwd = vim.fn.expand '%:p:h',
+  }
+end
+
 _cmds.tags = function()
   tb.tags { only_current_buffer = true }
 end
