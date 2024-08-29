@@ -74,9 +74,9 @@ local spec = {
         },
         task_list = {
           direction = 'bottom',
-          max_width = { 180, 0.4 },
+          max_width = { 140, 0.4 },
           min_width = { 40, 0.1 },
-          max_height = { 40, 0.5 },
+          max_height = { 60, 0.6 },
           min_height = { 15, 0.2 },
           bindings = {
             ---@diagnostic disable-next-line: assign-type-mismatch
@@ -104,6 +104,15 @@ very_lazy(function()
   local recent_wins = lazy_require 'user.util.recent-wins'
   local overseer = lazy_require 'overseer'
 
+  vim.api.nvim_create_user_command('OverseerRestartLast', function()
+    local tasks = overseer.list_tasks { recent_first = true }
+    if vim.tbl_isempty(tasks) then
+      vim.notify('No tasks found', vim.log.levels.WARN)
+    else
+      overseer.run_action(tasks[1], 'restart')
+    end
+  end, {})
+
   map('n', '<M-S-o>', wrap(overseer.toggle, { enter = false }), 'Overseer: Toggle')
 
   map(
@@ -114,6 +123,7 @@ very_lazy(function()
   )
 
   map('n', '<leader>or', '<cmd>OverseerRun<Cr>', 'Overseer: Run')
+  map('n', '<leader>oR', '<cmd>OverseerRestartLast<Cr>', 'Overseer: Restart Last')
 
   local function toggleterm_open(direction, mode)
     mode = mode or 'n'
