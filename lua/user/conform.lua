@@ -12,17 +12,7 @@ function M.toggle_format_on_save()
 end
 
 ---@type table<string, conform.FormatterConfigOverride|fun(bufnr: integer): nil|conform.FormatterConfigOverride>
-M.formatters = {
-  ['prettierd'] = function()
-    ---@type conform.FormatterConfigOverride
-    local override = {
-      env = {
-        PRETTIERD_DEFAULT_CONFIG = vim.fn.stdpath 'config' .. '/prettier.config.mjs',
-      },
-    }
-    return vim.tbl_deep_extend('force', override, require 'conform.formatters.prettierd')
-  end,
-}
+M.formatters = {}
 
 M.formatters_by_ft = {
   cmake = { 'gersemi' },
