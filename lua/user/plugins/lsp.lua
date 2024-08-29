@@ -454,6 +454,12 @@ return {
         symbol_map = {
           Type = '',
           Copilot = '',
+          -- Neopyter:
+          Magic = '',
+          Path = '',
+          ['Dict key'] = '',
+          Instance = '󰆧',
+          Statement = '󱇯',
         },
       }
     end,

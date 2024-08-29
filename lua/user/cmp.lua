@@ -82,6 +82,7 @@ cmp.setup {
         git = ' Git',
         obsidian = ' Obsidian',
         obsidian_new = 'Obsidian New',
+        neopyter = ' IPy',
       })[entry.source.name] or entry.source.name
       local sym = require('lspkind').symbolic(vim_item.kind)
       if sym == '' then
@@ -124,13 +125,14 @@ cmp.setup {
     end,
   },
   sources = cmp.config.sources {
-    { name = 'lazydev', group_index = 0 },
-    { name = 'nvim_lsp', priority = 100 },
-    { name = 'otter' },
-    { name = 'nvim_lua' },
-    { name = 'path' },
-    { name = 'treesitter' },
-    { name = 'buffer' },
+    { name = 'lazydev', group_index = 0, priority = 100 },
+    { name = 'nvim_lsp', group_index = 0, priority = 100 },
+    { name = 'otter', group_index = 1, priority = 80 },
+    { name = 'nvim_lua', group_index = 1, priority = 80 },
+    { name = 'neopyter', group_index = 1, priority = 80 },
+    { name = 'treesitter', group_index = 1, priority = 60 },
+    { name = 'buffer', group_index = 1, priority = 40 },
+    { name = 'path', group_index = 1, priority = 20 },
   },
   enabled = function()
     return vim.bo.buftype ~= 'prompt' or require('cmp_dap').is_dap_buffer()

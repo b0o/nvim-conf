@@ -165,6 +165,38 @@ local spec = {
     },
   },
   {
+    'SUSTech-data/neopyter',
+    dependencies = { 'AbaoFromCUG/websocket.nvim' },
+    event = { 'BufRead *.ju.*', 'BufNewFile *.ju.*' },
+    ---@type neopyter.Option
+    opts = {
+      mode = 'direct',
+      remote_address = '127.0.0.1:8889',
+      file_pattern = { '*.ju.*' },
+      parser = {
+        trim_whitespace = true,
+      },
+      highlight = {
+        enable = false,
+        shortsighted = false,
+      },
+      on_attach = function(bufnr)
+        local bufmap = require('user.util.map').buf(bufnr)
+        bufmap('n', '<C-Cr>', '<cmd>Neopyter execute notebook:run-cell<Cr>', 'Jupyter: Run selected')
+        bufmap('n', '<Leader>jX', '<cmd>Neopyter execute notebook:run-all-above<Cr>', 'Jupyter: Run all above cell')
+        bufmap('n', '<Leader>jr', '<cmd>Neopyter kernel restart<Cr>', 'Jupyter: Restart kernel')
+        bufmap('n', '<Leader>jR', '<cmd>Neopyter kernel restartRunAll<Cr>', 'Jupyter: Restart kernel and run all')
+        bufmap('n', '<S-Cr>', '<cmd>Neopyter execute runmenu:run<Cr>', 'Jupyter: Run selected and select next')
+        bufmap(
+          'n',
+          '<M-Cr>',
+          '<cmd>Neopyter execute run-cell-and-insert-below<Cr>',
+          'Jupyter: Run selected and insert below'
+        )
+      end,
+    },
+  },
+  {
     'epwalsh/obsidian.nvim',
     version = '*',
     event = {
