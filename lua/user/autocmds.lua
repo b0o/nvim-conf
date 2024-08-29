@@ -36,7 +36,7 @@ autocmd('WinEnter', {
         if bufnr ~= -1 then
           local wins = vim.fn.win_findbuf(bufnr)
           for _, win in ipairs(wins) do
-            if win ~= curwin then
+            if win ~= curwin and vim.api.nvim_win_is_valid(win) then
               table.insert(other_hl_wins, win)
               vim.api.nvim_win_call(win, function()
                 vim.cmd [[setlocal winhighlight=NormalNC:Normal]]
@@ -75,9 +75,11 @@ autocmd('WinLeave', {
   group = group,
   callback = function()
     for _, other in ipairs(other_hl_wins) do
-      vim.api.nvim_win_call(other, function()
-        vim.cmd [[setlocal winhighlight=]]
-      end)
+      if vim.api.nvim_win_is_valid(other) then
+        vim.api.nvim_win_call(other, function()
+          vim.cmd [[setlocal winhighlight=]]
+        end)
+      end
     end
     other_hl_wins = {}
     update_recent_wins()
@@ -127,9 +129,16 @@ autocmd('TermOpen', {
 })
 autocmd('WinEnter', {
   group = group,
-  pattern = 'term://*',
-  callback = vim.schedule_wrap(function()
-    vim.cmd 'startinsert'
+  pattern = { 'term://*', '\\[dap-repl-*\\]' },
+  callback = vim.schedule_wrap(function(event)
+    local bufnr = vim.api.nvim_get_current_buf()
+    if event.buf ~= bufnr then
+      return
+    end
+    vim.cmd 'normal! $'
+    vim.schedule(function()
+      vim.cmd 'startinsert!'
+    end)
   end),
 })
 
@@ -141,16 +150,18 @@ autocmd('FileType', {
   callback = function(event)
     for _, win in ipairs(vim.api.nvim_list_wins()) do
       if vim.api.nvim_win_get_buf(win) == event.buf then
-        vim.api.nvim_win_call(win, function()
-          vim.cmd [[setlocal winfixheight]]
-          if vim.fn.getwininfo(win)[1].loclist == 1 then
-            -- use setlocal to avoid leaving the winhighlight into newly opened windows
-            -- see: https://github.com/neovim/neovim/issues/18283
-            vim.cmd [[setlocal winhighlight=Normal:LocListNormal,NormalNC:LocListNormalNC,CursorLine:LocListCursorLine,CursorLineNC:LocListCursorLineNC]]
-          else -- qflist
-            vim.cmd [[setlocal winhighlight=Normal:QFListNormal,NormalNC:QFListNormalNC,CursorLine:QFListCursorLine,CursorLineNC:QFListCursorLineNC]]
-          end
-        end)
+        if vim.api.nvim_win_is_valid(win) then
+          vim.api.nvim_win_call(win, function()
+            vim.cmd [[setlocal winfixheight]]
+            if vim.fn.getwininfo(win)[1].loclist == 1 then
+              -- use setlocal to avoid leaving the winhighlight into newly opened windows
+              -- see: https://github.com/neovim/neovim/issues/18283
+              vim.cmd [[setlocal winhighlight=Normal:LocListNormal,NormalNC:LocListNormalNC,CursorLine:LocListCursorLine,CursorLineNC:LocListCursorLineNC]]
+            else -- qflist
+              vim.cmd [[setlocal winhighlight=Normal:QFListNormal,NormalNC:QFListNormalNC,CursorLine:QFListCursorLine,CursorLineNC:QFListCursorLineNC]]
+            end
+          end)
+        end
       end
     end
   end,
