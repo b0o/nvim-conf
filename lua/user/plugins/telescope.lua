@@ -138,6 +138,7 @@ very_lazy(function()
   }, tc.smart_files, 'Telescope: Files (Smart)')
 
   map('n', { '<C-f>d', '<C-f><C-d>' }, tc.dir_files, 'Telescope: Files (Dir)')
+  map('n', '<C-f>D', tc.dir_grep, 'Telescope: Live Grep (Dir)')
   map('n', { '<C-f>w', '<C-f><C-w>' }, wrap(tc.windows, {}), 'Telescope: Windows')
   map('n', { '<C-f>i', '<C-f><C-i>' }, '<Cmd>Easypick headers<Cr>', 'Telescope: Includes (headers)')
 
