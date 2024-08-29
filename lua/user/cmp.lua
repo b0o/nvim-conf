@@ -28,6 +28,8 @@ local select_item_smart = function(dir, opts)
       else
         ({ prev = cmp.select_next_item, next = cmp.select_prev_item })[dir](opts)
       end
+    elseif vim.bo.ft == 'dap-repl' then
+      feedkeys.call(keymap.t(({ next = '<Down>', prev = '<Up>' })[dir]), 'i', false)
     else
       fallback()
     end

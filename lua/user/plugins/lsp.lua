@@ -395,17 +395,18 @@ local on_attach = function(_, bufnr)
   ---@return number|nil @the diagnostic float window, or nil if none is found
   local find_diagnostic_float = function(source_win)
     source_win = require('user.util.api').resolve_winnr(source_win)
-    for _, win in ipairs(vim.api.nvim_list_wins()) do
+    return require('user.fn').find_float(function(win)
       local winconfig = vim.api.nvim_win_get_config(win)
       local w = vim.w[win]
-      if
-        winconfig.relative == 'win'
-        and (w.line or w.cursor or w.buffer)
-        and (source_win == nil or winconfig.win == source_win)
-      then
-        return win
-      end
-    end
+      return (w.line or w.cursor or w.buffer) and (source_win == nil or winconfig.win == source_win)
+    end)
+  end
+
+  local find_dapui_float = function()
+    return require('user.fn').find_float(function(win)
+      local buf = vim.api.nvim_win_get_buf(win)
+      return vim.bo[buf].filetype:match '^dapui_'
+    end)
   end
 
   --- If a diagnostic float is open, focus it
@@ -418,6 +419,14 @@ local on_attach = function(_, bufnr)
         vim.api.nvim_win_close(diag_win, true)
       end, { buffer = vim.api.nvim_win_get_buf(diag_win) })
       vim.api.nvim_set_current_win(diag_win)
+      return
+    end
+    local dapui_win = find_dapui_float()
+    if dapui_win then
+      map('n', '<M-i>', function()
+        vim.cmd [[noautocmd wincmd p]]
+      end, { buffer = vim.api.nvim_win_get_buf(dapui_win) })
+      vim.api.nvim_set_current_win(dapui_win)
       return
     end
     vim.lsp.buf.hover()

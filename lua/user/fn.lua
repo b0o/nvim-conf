@@ -196,15 +196,22 @@ M.man = function(dest, ...)
   end
 end
 
-M.close_float_wins = function(fts)
+M.close_float_wins = function(opts)
+  opts = opts or {}
+  local fts = opts.fts or {}
+  local exclude = opts.exclude or {}
+  local noft = opts.noft == nil and true or opts.noft
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     local ok, config, bufnr
     ok, config = pcall(vim.api.nvim_win_get_config, win)
     if ok then
       ok, bufnr = pcall(vim.api.nvim_win_get_buf, win)
-      if ok and config.relative ~= '' and vim.tbl_contains(fts, vim.api.nvim_buf_get_option(bufnr, 'filetype')) then
-        -- for some reason, vim.api.nvim_win_close() causes issues with some plugins, but win_execute('close') works fine
-        vim.fn.win_execute(win, 'close')
+      if ok and config.relative ~= '' then
+        local ft = vim.bo[bufnr].filetype
+        if (ft == '' and noft) or (vim.tbl_contains(fts, ft) and not vim.tbl_contains(exclude, ft)) then
+          -- for some reason, vim.api.nvim_win_close() causes issues with some plugins, but win_execute('close') works fine
+          vim.fn.win_execute(win, 'close')
+        end
       end
     end
   end
@@ -445,12 +452,25 @@ end
 --   })
 -- end
 
+-- returns true if val is a function or callable table
+M.is_callable = function(val)
+  local t = type(val)
+  if t == 'function' then
+    return true
+  end
+  if t == 'table' then
+    local mt = getmetatable(val)
+    return mt and M.is_callable(mt.__call)
+  end
+  return false
+end
+
 M.filetype_command = function(ft, if_match, if_not_match)
   return function()
     if vim.bo.filetype == ft then
       if_match()
     else
-      if type(if_not_match) == 'function' then
+      if M.is_callable(if_not_match) then
         if_not_match()
       end
     end
@@ -653,6 +673,18 @@ M.get_indent_info = function(bufnr)
     return { char = ' ', size = shiftwidth }
   else
     return { char = '	', size = tabstop }
+  end
+end
+
+--- Find a floating window that matches a predicate
+---@param predicate fun(win: number): boolean
+---@return number|nil @the floating window, or nil if none is found
+M.find_float = function(predicate)
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    local winconfig = vim.api.nvim_win_get_config(win)
+    if winconfig.relative ~= '' and predicate(win) then
+      return win
+    end
   end
 end
 

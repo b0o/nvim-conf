@@ -62,15 +62,18 @@ local ft_augroup = vim.api.nvim_create_augroup('user_mappings_ft', { clear = tru
 --- to create buffer mappings for the given filetype. It has the same signature
 --- as map.map()
 ---@param ft string|string[] The filetype(s) to create the mapping for
----@param callback fun(bufmap: fun(mode: string|string[], lhs: string|string[], rhs: string|function, opts?: string|table)) The function to call to create the mappings
+---@param callback fun(bufmap: fun(mode: string|string[], lhs: string|string[], rhs: string|function, opts?: string|table), event: AutocmdEvent) The function to call to create the mappings
 M.ft = function(ft, callback)
   vim.api.nvim_create_autocmd('FileType', {
     group = ft_augroup,
     pattern = ft,
     callback = function(event)
-      callback(vim.schedule_wrap(function(mode, lhs, rhs, opts)
-        return M.map(mode, lhs, rhs, M.process_opts(opts, { buffer = event.buf }))
-      end))
+      callback(
+        vim.schedule_wrap(function(mode, lhs, rhs, opts)
+          return M.map(mode, lhs, rhs, M.process_opts(opts, { buffer = event.buf }))
+        end),
+        event
+      )
     end,
   })
 end

@@ -201,4 +201,23 @@ function M.close(ft)
   end
 end
 
+local dapui = lazy_require 'dapui'
+
+require('dapui').setup {
+  select_window = lazy_require('window-picker').pick_window,
+}
+
+dap.listeners.before.attach.dapui_config = function()
+  dapui.open()
+end
+dap.listeners.before.launch.dapui_config = function()
+  dapui.open()
+end
+dap.listeners.before.event_terminated.dapui_config = function()
+  dapui.close()
+end
+dap.listeners.before.event_exited.dapui_config = function()
+  dapui.close()
+end
+
 return M

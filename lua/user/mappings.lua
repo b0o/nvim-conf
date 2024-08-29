@@ -251,7 +251,9 @@ map('i', '<M-.>', match_indent(1), 'Match indent of next line')
 -- - Clear command-line
 -- - Close floating windows
 map('n', [[<Esc>]], function()
+  local close_noft = true
   vim.cmd 'nohlsearch'
+  vim.snippet.stop()
   if package.loaded['nvim-tree'] then
     require('nvim-tree.actions.node.file-popup').close_popup()
   end
@@ -261,12 +263,25 @@ map('n', [[<Esc>]], function()
   if package.loaded['noice'] then
     vim.cmd 'NoiceDismiss'
   end
+  if vim.fn.win_gettype() == 'popup' and vim.bo.filetype == 'leetcode.nvim' then
+    close_noft = false
+  end
   fn.close_float_wins {
-    '',
-    'notify',
-    'markdown',
-    'aerial',
-    'dap-float',
+    noft = close_noft,
+    fts = {
+      'notify',
+      'markdown',
+      'aerial',
+      'dap-float',
+      'dapui_scopes',
+      'dapui_breakpoints',
+      'dapui_stacks',
+      'dapui_watches',
+      'dapui_hover',
+    },
+    exclude = {
+      'leetcode.nvim',
+    },
   }
   vim.cmd "echo ''"
 end, 'Clear UI')

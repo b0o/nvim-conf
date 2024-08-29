@@ -393,6 +393,24 @@ return {
             }
           end
 
+          if ft:match '^dapui_' then
+            local icon = {
+              bg = 'red',
+              fg = 'white',
+              icon = '',
+            }
+            local name = ft:gsub('dapui_', '')
+            name = name:sub(1, 1):upper() .. name:sub(2)
+            return {
+              wrap_status(bg, buf_focused, props, icon, {
+                ' ',
+                name,
+                guibg = bg,
+                guifg = fg,
+              }),
+            }
+          end
+
           if ft == 'qf' then
             local loclist = vim.fn.getwininfo(props.win)[1].loclist == 1
             if loclist then
@@ -504,6 +522,11 @@ return {
               or buftype == 'help'
               or buftype == 'quickfix'
               or vim.bo[bufnr].filetype == 'dap-repl'
+              or vim.bo[bufnr].filetype == 'dapui_scopes'
+              or vim.bo[bufnr].filetype == 'dapui_breakpoints'
+              or vim.bo[bufnr].filetype == 'dapui_stacks'
+              or vim.bo[bufnr].filetype == 'dapui_watches'
+              or vim.bo[bufnr].filetype == 'dapui_console'
             )
           end,
           wintypes = function(_, wintype)
