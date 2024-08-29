@@ -1,4 +1,7 @@
 require('user.util.lazy').after_load('noice.nvim', function()
+  if package.loaded['leetcode'] then
+    return
+  end
   require('user.ai').setup {
     default_copilot = vim.g.ActiveCopilot or 'supermaven',
     autostart = true,
