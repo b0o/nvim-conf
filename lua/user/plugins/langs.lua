@@ -83,17 +83,6 @@ local spec = {
             context = 'implementation',
             target = '%1.jsx',
           },
-          ---- C
-          {
-            pattern = '(.*).c$',
-            context = 'header',
-            target = '%1.h',
-          },
-          {
-            pattern = '(.*).h$',
-            context = 'implementation',
-            target = '%1.c',
-          },
           ---- C++
           {
             pattern = '(.*).cpp$',
@@ -104,6 +93,17 @@ local spec = {
             pattern = '(.*).h$',
             context = 'implementation',
             target = '%1.cpp',
+          },
+          ---- C
+          {
+            pattern = '(.*).c$',
+            context = 'header',
+            target = '%1.h',
+          },
+          {
+            pattern = '(.*).h$',
+            context = 'implementation',
+            target = '%1.c',
           },
         },
         keybindings = {
@@ -119,6 +119,19 @@ local spec = {
           ['<C-x>'] = 'open_file_sp()',
         },
         hooks = {
+          ---@param files { filename: string, context: string, exists: boolean }[]
+          onFindOtherFiles = function(files)
+            local existing = vim
+              .iter(files)
+              :filter(function(file)
+                return file.exists
+              end)
+              :totable()
+            if #existing > 0 then
+              return existing
+            end
+            return files
+          end,
           onOpenFile = function(filename, exists)
             if exists then
               local bufnr = vim.fn.bufnr(filename)
