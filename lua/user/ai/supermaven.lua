@@ -3,6 +3,14 @@ local M = {}
 M.start = function()
   require('supermaven-nvim').setup {
     disable_keymaps = true,
+    ignore_filetypes = {
+      ['dap-repl'] = true,
+      dapui_scopes = true,
+      dapui_breakpoints = true,
+      dapui_stacks = true,
+      dapui_watches = true,
+      dapui_hover = true,
+    },
   }
 
   local c = require 'supermaven-nvim.completion_preview'
