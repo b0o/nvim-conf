@@ -14,26 +14,13 @@ M.new_callback = function(fn)
   return #callbacks
 end
 
--- returns true if val is a function or callable table
-local function is_callable(val)
-  local t = type(val)
-  if t == 'function' then
-    return true
-  end
-  if t == 'table' then
-    local mt = getmetatable(val)
-    return mt and is_callable(mt.__call)
-  end
-  return false
-end
-
 -- Register a vim command
 M.command = function(t)
   local c = {}
   for _, e in ipairs(t) do
     if type(e) == 'function' or type(e) == 'table' then
       local replacements = {}
-      if type(e) == 'table' and not is_callable(e) then
+      if type(e) == 'table' and not require('user.fn').is_callable(e) then
         local et = e
         e = table.remove(e, 1)
         for _, r in ipairs(et) do
