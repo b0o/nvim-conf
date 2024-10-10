@@ -5,11 +5,6 @@ local servers = function()
     {
       'mdx_analyzer',
       filetypes = { 'mdx' },
-      init_options = {
-        typescript = {
-          tsdk = require('user.private').mdx_tsdk,
-        },
-      },
     },
     'bashls',
     {
@@ -43,7 +38,24 @@ local servers = function()
       formatting = false,
     },
     'dotls',
-    'emmet_language_server',
+    {
+      'emmet_language_server',
+      filetypes = {
+        'css',
+        'eruby',
+        'html',
+        'htmlangular',
+        'htmldjango',
+        'javascriptreact',
+        'less',
+        'markdown',
+        'mdx',
+        'pug',
+        'sass',
+        'scss',
+        'typescriptreact',
+      },
+    },
     {
       'eslint',
       root_dir = root_pattern(
@@ -56,6 +68,18 @@ local servers = function()
         '.eslintrc.json',
         'package.json'
       ),
+      filetypes = {
+        'astro',
+        'javascript',
+        'javascript.jsx',
+        'javascriptreact',
+        'mdx',
+        'svelte',
+        'typescript',
+        'typescriptreact',
+        'typescript.tsx',
+        'vue',
+      },
       settings = {
         experimentalUseFlatConfig = true,
         codeAction = {
@@ -540,34 +564,51 @@ return {
       'javascript',
       'typescriptreact',
       'javascriptreact',
+      -- 'mdx',
     },
-    opts = {
-      on_attach = function(client, bufnr)
-        require('twoslash-queries').attach(client, bufnr)
-        user_lsp.on_attach(client, bufnr)
-      end,
-      settings = {
-        separate_diagnostic_server = true,
-        publish_diagnostic_on = 'insert_leave',
-        tsserver_file_preferences = {
-          includeCompletionsForModuleExports = true,
+    config = function()
+      require('typescript-tools').setup {
+        on_attach = function(client, bufnr)
+          require('twoslash-queries').attach(client, bufnr)
+          user_lsp.on_attach(client, bufnr)
+        end,
+        settings = {
+          separate_diagnostic_server = true,
+          publish_diagnostic_on = 'insert_leave',
+          tsserver_file_preferences = {
+            includeCompletionsForModuleExports = true,
 
-          -- inlay hints
-          includeInlayParameterNameHints = 'literals',
-          includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-          includeInlayFunctionParameterTypeHints = true,
-          includeInlayVariableTypeHints = true,
-          includeInlayVariableTypeHintsWhenTypeMatchesName = false,
-          includeInlayPropertyDeclarationTypeHints = true,
-          includeInlayFunctionLikeReturnTypeHints = true,
-          includeInlayEnumMemberValueHints = true,
+            -- inlay hints
+            includeInlayParameterNameHints = 'literals',
+            includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+            includeInlayFunctionParameterTypeHints = true,
+            includeInlayVariableTypeHints = true,
+            includeInlayVariableTypeHintsWhenTypeMatchesName = false,
+            includeInlayPropertyDeclarationTypeHints = true,
+            includeInlayFunctionLikeReturnTypeHints = true,
+            includeInlayEnumMemberValueHints = true,
+          },
+          tsserver_format_options = {
+            allowIncompleteCompletions = false,
+            allowRenameOfImportPath = false,
+          },
+
+          --- mdx
+          tsserver_plugins = {
+            '@mdx-js/typescript-plugin',
+          },
         },
-        tsserver_format_options = {
-          allowIncompleteCompletions = false,
-          allowRenameOfImportPath = false,
+      }
+      require('lspconfig')['typescript-tools'].setup {
+        filetypes = {
+          'typescript',
+          'javascript',
+          'typescriptreact',
+          'javascriptreact',
+          -- 'mdx',
         },
-      },
-    },
+      }
+    end,
   },
   {
     'marilari88/twoslash-queries.nvim',
