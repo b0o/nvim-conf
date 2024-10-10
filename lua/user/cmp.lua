@@ -36,14 +36,22 @@ local select_item_smart = function(dir, opts)
   end
 end
 
-local set_hl = function(r, g, b)
-  local color = string.format('%02x%02x%02x', r, g, b)
+local set_hl_hex = function(hex)
+  if hex:sub(1, 1) == '#' then
+    hex = hex:sub(2)
+  end
+  local color = string.format('%06x', tonumber(hex, 16))
   local group = 'CmpColor' .. color
   local opts = { bg = '#' .. color }
   if vim.fn.hlID(group) < 1 then
     vim.api.nvim_set_hl(0, group, opts)
   end
   return group
+end
+
+local set_hl_rgb = function(r, g, b)
+  local color = string.format('%02x%02x%02x', r, g, b)
+  return set_hl_hex(color)
 end
 
 cmp.setup {
@@ -92,10 +100,16 @@ cmp.setup {
       end
       local doc = entry.completion_item.documentation
       if vim_item.kind == 'Color' and type(doc) == 'string' then
-        local ok, _, r, g, b = doc:find 'rgba?%((%d+), (%d+), (%d+)'
-        if ok then
-          vim_item.kind_hl_group = set_hl(r, g, b)
+        local ok_rgb, _, r, g, b = doc:find 'rgba?%((%d+), (%d+), (%d+)'
+        if ok_rgb then
+          vim_item.kind_hl_group = set_hl_rgb(r, g, b)
           sym = ' '
+        else
+          local ok_hex, _, hex = doc:find '(%#%x+)'
+          if ok_hex then
+            vim_item.kind_hl_group = set_hl_hex(hex)
+            sym = ' '
+          end
         end
       end
       vim_item.menu = (vim_item.menu or '') .. '->' .. (vim_item.kind or '')
