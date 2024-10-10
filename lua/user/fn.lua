@@ -466,8 +466,9 @@ M.is_callable = function(val)
 end
 
 M.filetype_command = function(ft, if_match, if_not_match)
+  local fts = type(ft) == 'table' and ft or { ft }
   return function()
-    if vim.bo.filetype == ft then
+    if vim.tbl_contains(fts, vim.bo.filetype) then
       if_match()
     else
       if M.is_callable(if_not_match) then
@@ -517,7 +518,15 @@ M.is_normal_win = function(winid)
   if vim.api.nvim_buf_get_option(bufid, 'buftype') ~= '' then
     return false
   end
-  if vim.tbl_contains({ 'NvimTree', 'Trouble', 'aerial' }, vim.api.nvim_buf_get_option(bufid, 'filetype')) then
+  if
+    vim.tbl_contains({
+      'NvimTree',
+      'Trouble',
+      'aerial',
+      'Avante',
+      'AvanteInput',
+    }, vim.bo[bufid].filetype)
+  then
     return false
   end
   return true

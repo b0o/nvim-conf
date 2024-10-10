@@ -5,6 +5,7 @@ local M = {}
 
 M.openai_api_key = 'sk-xxxxxxxxxxxxxxxxxxxx'
 M.groq_api_key = 'gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+M.cerebras_api_key = 'csk-xxxxxxxxxxxxxxxxxxxx'
 M.anthropic_api_key = 'sk-xxxxxxxxxxxxxxxxxxxx'
 M.obsidian_vault = {
   name = 'name',
