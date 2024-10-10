@@ -10,18 +10,19 @@ local ICON_PLACEMENT = require('nvim-tree.enum').ICON_PLACEMENT
 
 local Decorator = require 'nvim-tree.renderer.decorator'
 
----@class DecoratorQuickfix: Decorator
+---@class (exact) DecoratorQuickfix: Decorator
 ---@field icon HighlightedString|nil
 local DecoratorQuickfix = Decorator:new()
 
-local autgroup = vim.api.nvim_create_augroup('nvim-tree-decorator-quickfix', { clear = true })
+local augroup = vim.api.nvim_create_augroup('nvim-tree-decorator-quickfix', { clear = true })
 
 ---@return DecoratorQuickfix
-function DecoratorQuickfix:new()
+function DecoratorQuickfix:new(opts, explorer)
   local o = Decorator.new(self, {
+    explorer = explorer,
     enabled = true,
-    hl_pos = HL_POSITION.all,
-    icon_placement = ICON_PLACEMENT.signcolumn,
+    hl_pos = HL_POSITION[opts.renderer.highlight_bookmarks] or HL_POSITION.none,
+    icon_placement = ICON_PLACEMENT[opts.renderer.icons.bookmarks_placement] or ICON_PLACEMENT.none,
   })
   ---@cast o DecoratorQuickfix
   if not o.enabled then
@@ -34,20 +35,20 @@ function DecoratorQuickfix:new()
   o:define_sign(o.icon)
 
   vim.api.nvim_create_autocmd('QuickfixCmdPost', {
-    group = autgroup,
+    group = augroup,
     callback = function()
-      require('nvim-tree.renderer').draw()
+      explorer.renderer:draw()
     end,
   })
   vim.api.nvim_create_autocmd('FileType', {
     pattern = 'qf',
-    group = autgroup,
+    group = augroup,
     callback = function(evt)
       vim.api.nvim_create_autocmd('TextChanged', {
         buffer = evt.buf,
-        group = autgroup,
+        group = augroup,
         callback = function()
-          require('nvim-tree.renderer').draw()
+          explorer.renderer:draw()
         end,
       })
     end,
@@ -70,20 +71,17 @@ end
 ---@param node Node
 ---@return HighlightedString[]|nil icons
 function DecoratorQuickfix:calculate_icons(node)
-  if not self.enabled or not is_qf_item(node) then
-    return nil
+  if is_qf_item(node) then
+    return { self.icon }
   end
-  return { self.icon }
 end
 
----Modified highlight: modified.enable, renderer.highlight_modified and node is modified
 ---@param node Node
 ---@return string|nil group
 function DecoratorQuickfix:calculate_highlight(node)
-  if not self.enabled or self.hl_pos == HL_POSITION.none or not is_qf_item(node) then
-    return nil
+  if is_qf_item(node) then
+    return 'QuickFixLine'
   end
-  return 'QuickFixLine'
 end
 
 return DecoratorQuickfix
