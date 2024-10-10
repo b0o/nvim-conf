@@ -210,6 +210,13 @@ local spec = {
     },
   },
   {
+    'MeanderingProgrammer/render-markdown.nvim',
+    opts = {
+      file_types = { 'markdown', 'Avante', 'mdx' },
+    },
+    ft = { 'markdown', 'Avante', 'mdx' },
+  },
+  {
     'epwalsh/obsidian.nvim',
     version = '*',
     event = {
