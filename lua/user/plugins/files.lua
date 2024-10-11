@@ -8,13 +8,10 @@ local spec = {
         'b0o/nvim-tree-preview.lua',
         dev = true,
       },
-      'antosha417/nvim-lsp-file-operations',
     },
     config = function()
       local api = require 'nvim-tree.api'
       local preview = require 'nvim-tree-preview'
-
-      require('lsp-file-operations').setup()
 
       local on_attach = function(bufnr)
         local function opts(desc)
