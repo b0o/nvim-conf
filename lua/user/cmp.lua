@@ -120,8 +120,16 @@ cmp.setup {
   mapping = cmp.mapping.preset.insert {
     ['<C-n>'] = select_item_smart 'next',
     ['<C-p>'] = select_item_smart 'prev',
-    ['<C-k>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-j>'] = cmp.mapping.scroll_docs(4),
+    ['<C-k>'] = function()
+      if not require('noice.lsp').scroll(-4) then
+        cmp.scroll_docs(-4)
+      end
+    end,
+    ['<C-j>'] = function()
+      if not require('noice.lsp').scroll(4) then
+        cmp.scroll_docs(4)
+      end
+    end,
     ['<C-g>'] = cmp.mapping.abort(),
     ['<CR>'] = cmp.mapping.confirm { select = true },
     ['<C-c>'] = function(fallback)
