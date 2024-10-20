@@ -97,7 +97,7 @@ very_lazy(function()
 
     -- scroll to end of buffer when text changes in non-focused dap-repl windows
     vim.api.nvim_buf_attach(event.buf, false, {
-      on_lines = function()
+      on_lines = vim.schedule_wrap(function()
         local focused_win = vim.api.nvim_get_current_buf()
         local wins = vim.fn.win_findbuf(event.buf)
         for _, win in ipairs(wins) do
@@ -105,7 +105,7 @@ very_lazy(function()
             vim.api.nvim_win_set_cursor(win, { vim.api.nvim_buf_line_count(event.buf), 0 })
           end
         end
-      end,
+      end),
     })
   end)
 
