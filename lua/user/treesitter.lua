@@ -150,7 +150,6 @@ require('nvim-treesitter.configs').setup {
 
 -- Additional Filetypes
 
-vim.treesitter.language.register('markdown', { 'mdx' })
 -- ft_to_parser.mdx = 'markdown'
 
 -- ---- JoosepAlviste/nvim-ts-context-commentstring
