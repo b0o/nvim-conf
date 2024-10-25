@@ -87,6 +87,16 @@ very_lazy(function()
   map('n', '<leader>dl', dap.step_into, 'DAP: Step into')
   map('n', '<leader>dj', dap.step_over, 'DAP: Step over')
 
+  map('nv', { '<C-Cr>', '<F12>' }, function()
+    local lines = {}
+    if vim.fn.mode() == 'n' then
+      lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+    else
+      lines = vim.api.nvim_buf_get_lines(0, vim.fn.line "'<" - 1, vim.fn.line "'>", false)
+    end
+    dap.repl.execute(table.concat(lines, '\n'))
+  end, 'DAP: Evaluate in REPL')
+
   ft('dap-repl', function(bufmap, event)
     bufmap('i', '<M-k>', '<C-w>k', 'Goto window up')
     bufmap('i', '<M-j>', '<C-w>j', 'Goto window down')
@@ -98,11 +108,11 @@ very_lazy(function()
     -- scroll to end of buffer when text changes in non-focused dap-repl windows
     vim.api.nvim_buf_attach(event.buf, false, {
       on_lines = vim.schedule_wrap(function()
-        local focused_win = vim.api.nvim_get_current_buf()
+        local focused_win = vim.api.nvim_get_current_win()
         local wins = vim.fn.win_findbuf(event.buf)
         for _, win in ipairs(wins) do
           if win ~= focused_win then
-            vim.api.nvim_win_set_cursor(win, { vim.api.nvim_buf_line_count(event.buf), 0 })
+            vim.api.nvim_win_set_cursor(win, { vim.api.nvim_buf_line_count(event.buf), 9999 })
           end
         end
       end),
