@@ -524,6 +524,11 @@ map('t', "<M-'>", '<C-\\><C-n>:tabn<Cr>', 'Tabs: Goto next')
 map('t', '<M-;>', '<C-\\><C-n>:tabp<Cr>', 'Tabs: Goto prev')
 map('n', '<M-S-a>', ':execute "wincmd g\\<Tab>"<Cr>', 'Tabs: Goto last accessed')
 
+ft('toggleterm', function(bufmap)
+  bufmap('n', '<C-n>', 'i<C-n>', 'Goto next')
+  bufmap('n', '<C-p>', 'i<C-p>', 'Goto prev')
+end)
+
 map('n', '<M-a>', recent_wins.focus_most_recent, 'Panes: Goto previously focused')
 map('n', '<M-x>', recent_wins.flip_recents, 'Panes: Flip the last normal wins')
 map('n', xk '<C-S-a>', 'g<Tab>', 'Tabs: Goto last accessed')
