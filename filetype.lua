@@ -8,3 +8,10 @@ vim.filetype.add {
     ['**/__snapshots__/*.js.snap'] = { 'jsonc' },
   },
 }
+
+vim.filetype.add {
+  extension = {
+    pyx = 'cython',
+    pxd = 'cython',
+  },
+}

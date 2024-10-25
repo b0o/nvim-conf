@@ -81,6 +81,7 @@ local spec = {
       require('Comment.ft').set('capnp', { '#%s' })
       require('Comment.ft').set('systemd', { '#%s' })
       require('Comment.ft').set('jq', { '#%s' })
+      require('Comment.ft').set('cython', { '#%s' })
     end,
   },
   {

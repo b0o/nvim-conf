@@ -205,6 +205,14 @@ M.setup = function(config)
         end
         lsp.on_attach = nil
       end
+      if lsp.custom == true then
+        if not lsp.default_config then
+          error 'LSP: default_config is required for custom servers'
+        end
+        local configs = require 'lspconfig.configs'
+        configs[name] = { default_config = lsp.default_config }
+        lsp.default_config = nil
+      end
       for k, v in pairs(lsp) do
         if k ~= 1 then
           opts[k] = v

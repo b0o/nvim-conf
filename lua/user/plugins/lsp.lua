@@ -144,6 +144,36 @@ local servers = function()
       formatting = false,
     },
     {
+      'cyright',
+      custom = true,
+      default_config = {
+        cmd = { 'cyright', '--stdio' },
+        filetypes = { 'cython' },
+        root_dir = function(fname)
+          local root_files = {
+            'pyproject.toml',
+            'setup.py',
+            'setup.cfg',
+            'requirements.txt',
+            'Pipfile',
+            'pyrightconfig.json',
+            '.git',
+          }
+          return root_pattern(unpack(root_files))(fname)
+        end,
+        single_file_support = true,
+        settings = {
+          python = {
+            analysis = {
+              autoSearchPaths = true,
+              useLibraryCodeForTypes = true,
+              diagnosticMode = 'openFilesOnly',
+            },
+          },
+        },
+      },
+    },
+    {
       'ruff',
       hover = false,
     },

@@ -7,6 +7,13 @@ if ok then
   dap_repl_hl.setup() -- must be setup before nvim-treesitter
 end
 
+vim.treesitter.language.register('markdown', { 'mdx' })
+
+vim.treesitter.language.add('cython', {
+  path = vim.fn.stdpath 'cache' .. '/../tree-sitter/lib/cython.so',
+})
+vim.treesitter.language.register('cython', { 'pyx', 'pxd' })
+
 ---@diagnostic disable-next-line: missing-fields
 require('nvim-treesitter.configs').setup {
   query_linter = {
