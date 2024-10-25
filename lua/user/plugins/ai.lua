@@ -27,7 +27,7 @@ return {
   },
   {
     'yetone/avante.nvim',
-    -- dev = true,
+    dev = true,
     event = 'VeryLazy',
     build = 'make',
     config = function()
@@ -102,6 +102,9 @@ return {
             align = 'center', -- left, center, right for title
             rounded = true,
           },
+          ask = {
+            floating = true,
+          },
         },
         highlights = {
           ---@type AvanteConflictHighlights
@@ -164,7 +167,7 @@ return {
               return
             end
           end
-          vim.cmd 'AvanteAsk'
+          require('avante.api').ask { floating = false }
         end),
         'Avante: Toggle Focus'
       )
@@ -173,7 +176,11 @@ return {
         local winid = (vim.bo.filetype ~= 'AvanteInput' and vim.bo.filetype ~= 'Avante')
             and vim.api.nvim_get_current_win()
           or nil
-        vim.cmd 'AvanteAsk'
+        if require('avante').is_sidebar_open() then
+          require('avante').close_sidebar()
+          return
+        end
+        require('avante.api').ask { floating = false }
         if winid ~= nil then
           vim.defer_fn(function()
             vim.api.nvim_set_current_win(winid)
