@@ -697,4 +697,32 @@ M.find_float = function(predicate)
   end
 end
 
+---Find the noice float window for the current window
+---@return number|nil @the hover float window, or nil if none is found
+M.find_noice_float = function()
+  return M.find_float(function(win)
+    local buf = vim.api.nvim_win_get_buf(win)
+    return vim.bo[buf].filetype == 'noice'
+  end)
+end
+
+---Find the diagnostic float window for the current window
+---@param source_win? number @the window to use as the source window, or nil for the current window
+---@return number|nil @the diagnostic float window, or nil if none is found
+M.find_diagnostic_float = function(source_win)
+  source_win = require('user.util.api').resolve_winnr(source_win)
+  return M.find_float(function(win)
+    local winconfig = vim.api.nvim_win_get_config(win)
+    local w = vim.w[win]
+    return (w.line or w.cursor or w.buffer) and (source_win == nil or winconfig.win == source_win)
+  end)
+end
+
+M.find_dapui_float = function()
+  return M.find_float(function(win)
+    local buf = vim.api.nvim_win_get_buf(win)
+    return vim.bo[buf].filetype:match '^dapui_'
+  end)
+end
+
 return M

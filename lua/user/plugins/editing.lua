@@ -167,15 +167,48 @@ local spec = {
   {
     'matze/vim-move',
     init = function()
-      vim.g.move_key_modifier = 'C'
-      vim.g.move_key_modifier_visualmode = 'C'
+      vim.g.move_map_keys = false
     end,
-    keys = {
-      { '<C-h>', mode = { 'n', 'v' } },
-      { '<C-j>', mode = { 'n', 'v' } },
-      { '<C-k>', mode = { 'n', 'v' } },
-      { '<C-l>', mode = { 'n', 'v' } },
-    },
+    event = 'VeryLazy',
+    config = function()
+      local map = require('user.util.map').map
+
+      ---@param dir 'Down' | 'Up'
+      local function move_or_scroll(dir)
+        return function()
+          local fn = require 'user.fn'
+          local win = vim.api.nvim_get_current_win()
+          local noice_win = fn.find_noice_float()
+          if noice_win then
+            if require('noice.lsp').scroll(dir == 'Down' and 4 or -4) then
+              return ''
+            end
+          end
+          local diag_win = fn.find_diagnostic_float(win)
+          if diag_win then
+            -- TODO: scroll diagnostic float
+            return ''
+          end
+          local dapui_win = fn.find_dapui_float()
+          if dapui_win then
+            -- TODO: scroll dapui float
+            return ''
+          end
+          return '<Plug>MoveLine' .. dir
+        end
+      end
+
+      map('n', '<C-j>', move_or_scroll 'Down', { remap = true, expr = true, desc = 'Move block down' })
+      map('n', '<C-k>', move_or_scroll 'Up', { remap = true, expr = true, desc = 'Move block up' })
+
+      map('n', '<C-h>', '<Plug>MoveCharLeft', { remap = true, desc = 'Move block left' })
+      map('n', '<C-l>', '<Plug>MoveCharRight', { remap = true, desc = 'Move block right' })
+
+      map('v', '<C-h>', '<Plug>MoveBlockLeft', { remap = true, desc = 'Move block left' })
+      map('v', '<C-j>', '<Plug>MoveBlockDown', { remap = true, desc = 'Move block down' })
+      map('v', '<C-k>', '<Plug>MoveBlockUp', { remap = true, desc = 'Move block up' })
+      map('v', '<C-l>', '<Plug>MoveBlockRight', { remap = true, desc = 'Move block right' })
+    end,
   },
   {
     'folke/todo-comments.nvim',

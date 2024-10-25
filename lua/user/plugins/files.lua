@@ -30,6 +30,12 @@ local spec = {
         end, opts 'Preview')
         vim.keymap.set('n', 'P', preview.watch, opts 'Preview (Watch)')
         vim.keymap.set('n', '<Esc>', preview.unwatch, opts 'Close Preview/Unwatch')
+        vim.keymap.set('n', '<C-j>', function()
+          preview.scroll(4)
+        end, opts 'Preview: Scroll Down')
+        vim.keymap.set('n', '<C-k>', function()
+          preview.scroll(-4)
+        end, opts 'Preview: Scroll Up')
 
         local function get_visual_nodes()
           local core = require 'nvim-tree.core'
@@ -103,7 +109,7 @@ local spec = {
         -- BEGIN_DEFAULT_ON_ATTACH
         vim.keymap.set('n', '<C-]>', api.tree.change_root_to_node, opts 'CD')
         vim.keymap.set('n', '<C-e>', api.node.open.replace_tree_buffer, opts 'Open: In Place')
-        vim.keymap.set('n', '<C-k>', api.node.show_info_popup, opts 'Info')
+        -- vim.keymap.set('n', '<C-k>', api.node.show_info_popup, opts 'Info')
         vim.keymap.set('n', '<C-r>', api.fs.rename_sub, opts 'Rename: Omit Filename')
         vim.keymap.set('n', '<C-t>', api.node.open.tab, opts 'Open: New Tab')
         vim.keymap.set('n', '<C-v>', api.node.open.vertical, opts 'Open: Vertical Split')
