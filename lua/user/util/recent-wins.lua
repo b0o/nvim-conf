@@ -11,8 +11,9 @@ local M = {
   tabpage_wins_any = {}, -- all windows
 }
 
-M.update = function()
-  local tabpage = vim.api.nvim_get_current_tabpage()
+M.update = function(current_win)
+  current_win = current_win or vim.api.nvim_get_current_win()
+  local tabpage = vim.api.nvim_win_get_tabpage(current_win)
   if not M.tabpage_wins_normal then
     M.tabpage_wins_normal = {}
   end
@@ -24,19 +25,18 @@ M.update = function()
   end
   local tabpage_recents = M.tabpage_wins_normal[tabpage]
   local tabpage_recents_any = M.tabpage_wins_any[tabpage]
-  local cur_winid = vim.api.nvim_get_current_win()
-  if cur_winid ~= tabpage_recents_any[1] then
+  if current_win ~= tabpage_recents_any[1] then
     M.tabpage_wins_any[tabpage] = {
-      cur_winid,
+      current_win,
       tabpage_recents_any[1] or nil,
     }
   end
-  if not fn.is_normal_win(cur_winid) then
+  if not fn.is_normal_win(current_win) then
     return
   end
-  if cur_winid ~= tabpage_recents[1] then
+  if current_win ~= tabpage_recents[1] then
     M.tabpage_wins_normal[tabpage] = {
-      cur_winid,
+      current_win,
       tabpage_recents[1] or nil,
     }
   end
@@ -68,13 +68,14 @@ M.tabpage_get_recents_smart = function(tabpage)
   end
 end
 
-M.get_most_recent = function(tabpage_recents)
+M.get_most_recent = function(tabpage_recents, current_win)
+  current_win = current_win or vim.api.nvim_get_current_win()
   tabpage_recents = tabpage_recents or M.tabpage_get_recents()
   local winid = tabpage_recents and tabpage_recents[1]
   if not winid then
     return
   end
-  if vim.api.nvim_get_current_win() == winid then
+  if current_win == winid then
     winid = tabpage_recents[2]
   end
   if not winid or not vim.api.nvim_win_is_valid(winid) then
@@ -83,16 +84,16 @@ M.get_most_recent = function(tabpage_recents)
   return winid
 end
 
-M.get_most_recent_any = function()
-  return M.get_most_recent(M.tabpage_get_recents_any())
+M.get_most_recent_any = function(current_win)
+  return M.get_most_recent(M.tabpage_get_recents_any(), current_win)
 end
 
-M.get_most_recent_smart = function()
-  local tabpage_recents = M.tabpage_get_recents_any() or {}
+M.get_most_recent_smart = function(current_win)
+  local tabpage_recents = M.tabpage_get_recents_any(current_win) or {}
   if not vim.api.nvim_win_is_valid(tabpage_recents[1] or -1) then
     tabpage_recents = M.tabpage_get_recents()
   end
-  return M.get_most_recent(tabpage_recents)
+  return M.get_most_recent(tabpage_recents, current_win)
 end
 
 M.focus_most_recent = function(winid)

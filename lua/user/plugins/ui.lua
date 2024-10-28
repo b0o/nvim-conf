@@ -95,6 +95,29 @@ return {
     end,
   },
   {
+    'folke/zen-mode.nvim',
+    config = function()
+      require('zen-mode').setup {
+        window = {
+          backdrop = 0.8,
+          width = function()
+            local min = 60
+            local max = 160
+            local target = 0.5
+            return math.floor(math.max(min, math.min(max, vim.o.columns * target)))
+          end,
+        },
+        on_open = function()
+          require('user.zen-mode').on_open()
+        end,
+      }
+    end,
+    cmd = 'ZenMode',
+    keys = {
+      { '<leader>Z', '<Cmd>ZenMode<Cr>', desc = 'Zen: Toggle' },
+    },
+  },
+  {
     's1n7ax/nvim-window-picker',
     keys = {
       {

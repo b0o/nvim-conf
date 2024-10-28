@@ -136,12 +136,26 @@ local spec = {
             if exists then
               local bufnr = vim.fn.bufnr(filename)
               if bufnr > 0 then
+                local target_win
                 local wins = vim.api.nvim_tabpage_list_wins(0)
                 for _, win in ipairs(wins) do
                   if vim.api.nvim_win_get_buf(win) == bufnr then
-                    vim.api.nvim_set_current_win(win)
-                    return false
+                    target_win = win
+                    break
                   end
+                end
+                local zen_view = package.loaded['zen-mode.view']
+                if zen_view and zen_view.is_open() then
+                  if target_win then
+                    require('user.zen-mode').move { win = target_win }
+                  else
+                    require('user.zen-mode').move { buf = bufnr }
+                  end
+                  return false
+                end
+                if target_win then
+                  vim.api.nvim_set_current_win(target_win)
+                  return false
                 end
               end
             end

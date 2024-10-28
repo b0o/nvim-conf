@@ -275,6 +275,43 @@ return {
         return dap.status()
       end
 
+      local function zen_status()
+        local zen_view = package.loaded['zen-mode.view']
+        if zen_view == nil or not zen_view.is_open() then
+          return ''
+        end
+        ---@param dir 'h' | 'j' | 'k' | 'l'
+        local function can_move(dir)
+          local target_win = vim.api.nvim_win_call(zen_view.parent, function()
+            return vim.fn.win_getid(vim.fn.winnr(dir))
+          end)
+          if not target_win or not vim.api.nvim_win_is_valid(target_win) or target_win == zen_view.parent then
+            return false
+          end
+          local target_buf = vim.api.nvim_win_get_buf(target_win)
+          if not target_buf or not vim.api.nvim_buf_is_valid(target_buf) or not vim.bo[target_buf].buflisted then
+            return false
+          end
+          return true
+        end
+        local can_move_h = can_move 'h'
+        local can_move_j = can_move 'j'
+        local can_move_k = can_move 'k'
+        local can_move_l = can_move 'l'
+        local can_move_any = can_move_h or can_move_j or can_move_k or can_move_l
+        if not can_move_any then
+          return ''
+        end
+        return {
+          can_move_h and '' or '',
+          can_move_j and '' or '',
+          can_move_k and '' or '',
+          can_move_l and '' or '',
+          ' ',
+          guifg = colors.deep_velvet,
+        }
+      end
+
       local get_icon = function(props)
         local bufname = a.nvim_buf_get_name(props.buf)
         local buf_focused = props.buf == a.nvim_get_current_buf()
@@ -491,7 +528,10 @@ return {
             guifg = fg,
           }
 
-          return wrap_status(bg, buf_focused, props, icon, status)
+          return {
+            zen_status(),
+            wrap_status(bg, buf_focused, props, icon, status),
+          }
         end,
 
         debounce_threshold = { rising = 20, falling = 150 },
@@ -516,6 +556,7 @@ return {
         },
         ignore = {
           unlisted_buffers = false,
+          floating_wins = false,
           buftypes = function(bufnr, buftype)
             return not (
               buftype == ''
@@ -529,7 +570,11 @@ return {
               or vim.bo[bufnr].filetype == 'dapui_console'
             )
           end,
-          wintypes = function(_, wintype)
+          wintypes = function(winid, wintype)
+            local zen_view = package.loaded['zen-mode.view']
+            if zen_view and zen_view.is_open() then
+              return winid ~= zen_view.win
+            end
             return not (wintype == '' or wintype == 'quickfix' or wintype == 'loclist')
           end,
         },
