@@ -23,7 +23,6 @@ function DecoratorQuickfix:new()
 
   self:define_sign(self.qf_icon)
 
-  -- Set up autocmds to refresh tree when quickfix list changes
   vim.api.nvim_create_autocmd('QuickfixCmdPost', {
     group = augroup,
     callback = function()
