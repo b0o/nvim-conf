@@ -23,7 +23,7 @@ local spec = {
           local ok, node = pcall(api.tree.get_node_under_cursor)
           if ok and node then
             if node.type == 'directory' then
-              api.node.open.edit()
+              api.node.open.edit(node)
             else
               preview.node(node, { toggle_focus = true })
             end
