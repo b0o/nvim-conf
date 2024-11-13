@@ -1,0 +1,2 @@
+-- TODO: Remove this file once this is fixed:
+-- https://github.com/nvim-tree/nvim-tree.lua/issues/2948#issuecomment-2473706581

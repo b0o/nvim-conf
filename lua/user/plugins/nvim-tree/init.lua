@@ -2,6 +2,7 @@
 local spec = {
   {
     'kyazdani42/nvim-tree.lua',
+    branch = '2948-add-user-decorators',
     cmd = { 'NvimTreeOpen', 'NvimTreeFocus' },
     dependencies = {
       {
@@ -77,7 +78,7 @@ local spec = {
           else
             vim.fn.setqflist(filtered, 'a')
           end
-          require('nvim-tree.renderer').draw()
+          require('nvim-tree.api').tree.reload()
         end
 
         vim.keymap.set('n', '<C-q>', function()
@@ -243,6 +244,11 @@ local spec = {
               },
             },
           },
+          user_decorators = {
+            {
+              class = require 'user.plugins.nvim-tree.decorator-quickfix',
+            },
+          },
         },
         view = {
           adaptive_size = false,
@@ -251,99 +257,6 @@ local spec = {
       }
 
       require('nvim-tree.commands').setup()
-    end,
-  },
-  {
-    'stevearc/oil.nvim',
-    cmd = 'Oil',
-    -- If nvim is started with a directory argument, load oil immediately
-    -- via https://github.com/folke/lazy.nvim/issues/533
-    init = function()
-      if vim.fn.argc() == 1 then
-        local argv0 = vim.fn.argv(0)
-        ---@cast argv0 string
-        local stat = vim.uv.fs_stat(argv0)
-        if stat and stat.type == 'directory' then
-          require('lazy').load { plugins = { 'oil.nvim' } }
-        end
-      end
-      if not require('lazy.core.config').plugins['oil.nvim']._.loaded then
-        vim.api.nvim_create_autocmd('BufNew', {
-          callback = function()
-            if vim.fn.isdirectory(vim.fn.expand '<afile>') == 1 then
-              require('lazy').load { plugins = { 'oil.nvim' } }
-              -- Once oil is loaded, we can delete this autocmd
-              return true
-            end
-          end,
-        })
-      end
-    end,
-    config = function()
-      local oil = require 'oil'
-
-      oil.setup {
-        default_file_exporer = true,
-        view_options = {
-          show_hidden = true,
-        },
-        float = {
-          padding = 2,
-          max_width = 100,
-          max_height = 40,
-          override = function(conf)
-            return vim.tbl_deep_extend('force', conf, {
-              zindex = 80,
-            })
-          end,
-        },
-        skip_confirm_for_simple_edits = true,
-        keymaps = {
-          ['<M-u>'] = 'actions.parent',
-          ['<M-i>'] = 'actions.select',
-          ['<Leader><C-v>'] = 'actions.select_vsplit',
-          ['<Leader><C-x>'] = 'actions.select_split',
-          ['<Leader>v'] = 'actions.select_vsplit',
-          ['<Leader>x'] = 'actions.select_split',
-          ['<C-r>'] = 'actions.refresh',
-          ['<C-s>'] = {
-            callback = function()
-              oil.save()
-            end,
-            desc = 'Oil: Save',
-            mode = { 'n', 'i', 'v' },
-          },
-          ['Q'] = {
-            callback = function()
-              local modified = vim.bo.modified
-              if modified then
-                local choice = vim.fn.confirm('Save changes?', '&Save\n&Discard\n&Cancel', 3)
-                if choice == 1 then
-                  oil.save()
-                elseif choice == 2 then
-                  oil.discard_all_changes()
-                else
-                  return
-                end
-              end
-              oil.close()
-            end,
-            desc = 'Oil: Close',
-            mode = { 'n' },
-          },
-        },
-      }
-
-      -- Close the window when oil is closed
-      -- Also has the effect of quitting vim when the Oil buffer is the last one
-      vim.api.nvim_create_autocmd('BufUnload', {
-        pattern = 'oil://*',
-        callback = function()
-          if vim.api.nvim_buf_get_name(0) == '' then
-            vim.cmd 'confirm q'
-          end
-        end,
-      })
     end,
   },
 }
@@ -377,15 +290,13 @@ very_lazy(function()
   local function nvim_tree_open_oil(enter)
     return function()
       local oil = require 'oil'
-      local tree = require 'nvim-tree.lib'
-
-      local node = tree.get_node_at_cursor()
+      local tree = require('nvim-tree.api').tree
+      local node = tree.get_node_under_cursor()
       if not node then
         return
       end
       local path, is_dir
       if node and node.fs_stat then
-        ---@type uv.aliases.fs_stat_table
         local fs_stat = node.fs_stat
         is_dir = fs_stat.type == 'directory'
         path = is_dir and enter and node.absolute_path or node.parent.absolute_path
