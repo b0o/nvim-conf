@@ -153,14 +153,11 @@ very_lazy(function()
 
   map('n', '<C-f>gf', tc.git_files, 'Telescope-Git: Files')
 
-  map('n', '<M-f>b', tc.current_buffer_fuzzy_find, 'Telescope-Buffer: Fuzzy find')
+  map('n', { '<M-f><M-f>', '<M-f>f' }, tc.current_buffer_fuzzy_find, 'Telescope-Buffer: Fuzzy find')
   map('n', '<M-f>t', tc.tags, 'Telescope-Buffer: Tags')
 
   map('n', '<C-f>A', tc.aerial, 'Telescope-Workspace: Aerial')
 
-  -- Like 'gf', but if the file doesn't exist, open Telescope with the filename
-  -- as the default text
-  -- Credit: justabubble123 on Discord
   local function gf_telescope(cmd)
     local file = vim.fn.expand '<cfile>'
     if not file or file == '' then
