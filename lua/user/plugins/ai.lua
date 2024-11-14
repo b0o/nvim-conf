@@ -28,7 +28,18 @@ return {
   {
     'yetone/avante.nvim',
     dev = true,
-    event = 'VeryLazy',
+    cmd = {
+      'AvanteAsk',
+      'AvanteChat',
+      'AvanteEdit',
+      'AvanteBuild',
+      'AvanteClear',
+      'AvanteFocus',
+      'AvanteToggle',
+      'AvanteRefresh',
+      'AvanteShowRepoMap',
+      'AvanteSwitchProvider',
+    },
     build = 'make',
     config = function()
       local fn = require 'user.fn'

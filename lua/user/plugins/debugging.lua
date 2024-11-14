@@ -18,6 +18,7 @@ local spec = {
     config = function()
       require 'user.dap'
     end,
+    dependencies = { 'rcarriga/cmp-dap' },
   },
   { 'rcarriga/nvim-dap-ui', dependencies = 'nvim-neotest/nvim-nio' },
   'LiadOz/nvim-dap-repl-highlights',

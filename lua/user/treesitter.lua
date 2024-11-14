@@ -2,8 +2,8 @@ local xk = require('user.keys').xk
 local maputil = require 'user.util.map'
 local map = maputil.map
 
-local ok, dap_repl_hl = pcall(require, 'nvim-dap-repl-highlights')
-if ok then
+local has_dap_repl_hl, dap_repl_hl = pcall(require, 'nvim-dap-repl-highlights')
+if has_dap_repl_hl then
   dap_repl_hl.setup() -- must be setup before nvim-treesitter
 end
 
@@ -49,6 +49,7 @@ require('nvim-treesitter.configs').setup {
     'python',
     'query',
     'regex',
+    'swift',
     'toml',
     'typescript',
     'tsx',
@@ -63,8 +64,8 @@ require('nvim-treesitter.configs').setup {
       local max_filesize = 100 * 1024 -- 100 KB
       local stats
       ---@diagnostic disable-next-line: undefined-field
-      ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
-      if ok and stats and stats.size > max_filesize then
+      has_dap_repl_hl, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+      if has_dap_repl_hl and stats and stats.size > max_filesize then
         return true
       end
     end,
