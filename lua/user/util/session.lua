@@ -30,7 +30,11 @@ M.session_load = function()
   vim.api.nvim_create_autocmd('SessionLoadPost', {
     once = true,
     callback = vim.schedule_wrap(function()
-      local meta = vim.json.decode(vim.g.SessionMeta or '{}')
+      local ok, meta = pcall(vim.json.decode, vim.g.SessionMeta or '{}')
+      if not ok then
+        vim.notify('session_load: failed to decode metadata: ' .. meta, vim.log.levels.WARN)
+        meta = {}
+      end
       vim.g.SessionMeta = nil
       local ok, res = pcall(function()
         if meta.nvimTreeOpen then
