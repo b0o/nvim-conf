@@ -30,28 +30,22 @@ M.session_load = function()
   vim.api.nvim_create_autocmd('SessionLoadPost', {
     once = true,
     callback = vim.schedule_wrap(function()
-      local ok, meta = pcall(vim.json.decode, vim.g.SessionMeta or '{}')
-      if not ok then
+      local meta_ok, meta = pcall(vim.json.decode, vim.g.SessionMeta or '{}')
+      if not meta_ok then
         vim.notify('session_load: failed to decode metadata: ' .. meta, vim.log.levels.WARN)
         meta = {}
       end
       vim.g.SessionMeta = nil
-      local ok, res = pcall(function()
-        if meta.nvimTreeOpen then
-          vim.cmd 'NvimTreeOpen'
-        end
-        if meta.nvimTreeFocused then
-          vim.cmd 'NvimTreeFocus'
-        elseif meta.focused and vim.api.nvim_win_is_valid(meta.focused) then
-          vim.api.nvim_set_current_win(meta.focused)
-        end
-      end)
-      if not ok then
-        vim.notify('session_load failed: ' .. res)
+      if meta.nvimTreeOpen then
+        vim.cmd 'NvimTreeOpen'
+      end
+      if meta.nvimTreeFocused then
+        vim.cmd 'NvimTreeFocus'
+      elseif meta.focused and vim.api.nvim_win_is_valid(meta.focused) then
+        vim.api.nvim_set_current_win(meta.focused)
       end
     end),
   })
-
   require('session_manager').load_current_dir_session(false)
 end
 
