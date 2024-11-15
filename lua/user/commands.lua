@@ -198,6 +198,5 @@ cabbrev('Cp', 'Copy')
 cabbrev('XDu', 'Duplicate')
 cabbrev('Du', 'Duplicate')
 cabbrev('Vd', 'VDuplicate')
-cabbrev('LI', 'lua =')
 
 return M

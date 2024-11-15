@@ -132,6 +132,9 @@ map_toggle_locals({ 'st' }, { 'smarttab' })
 map_toggle_locals({ '|' }, { 'cursorcolumn' })
 map_toggle_locals({ 'W', 'ww' }, { 'wrap' })
 
+---- Lua helpers
+map('n', '+', ':=', { silent = false, desc = 'Lua: Dump expression' })
+
 ---- Cut/Copy Buffers
 local cutbuf = lazy.require 'user.util.cutbuf'
 map('n', '<localleader>x', cutbuf.cut, 'cutbuf: cut')
