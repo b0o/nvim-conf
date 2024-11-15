@@ -61,7 +61,6 @@ vim.o.title = true
 vim.o.titlestring = '%f'
 
 vim.o.showtabline = 0
--- vim.o.statuscolumn = "%!luaeval('require[[user.statuscolumn]].render()')"
 
 vim.o.cursorline = true
 

@@ -32,11 +32,4 @@ return {
       { '<M-l>', wrap(smart_splits.move_cursor_right), desc = 'Goto window/pane right' },
     },
   },
-  {
-    'famiu/bufdelete.nvim',
-    config = function()
-      vim.api.nvim_create_user_command('Bd', 'Bdelete', {})
-    end,
-    cmd = { 'Bdelete', 'Bd' },
-  },
 }

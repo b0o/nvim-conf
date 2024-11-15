@@ -38,21 +38,6 @@ return {
     event = 'VeryLazy',
   },
   {
-    'rcarriga/nvim-notify',
-    event = 'VeryLazy',
-    config = function()
-      local notify = require 'notify'
-      ---@diagnostic disable-next-line: missing-fields
-      notify.setup {
-        top_down = false,
-        on_open = function(win)
-          vim.api.nvim_win_set_config(win, { zindex = 200 })
-        end,
-      }
-      vim.notify = notify
-    end,
-  },
-  {
     'folke/noice.nvim',
     event = 'VeryLazy',
     keys = {
@@ -67,6 +52,7 @@ return {
           ['cmp.entry.get_documentation'] = true,
         },
         hover = {
+          enabled = true,
           opts = {
             zindex = 200,
           },
@@ -77,7 +63,7 @@ return {
         bottom_search = true, -- use a classic bottom cmdline for search
         command_palette = true, -- position the cmdline and popupmenu together
         long_message_to_split = true, -- long messages will be sent to a split
-        inc_rename = false, -- enables an input dialog for inc-rename.nvim
+        inc_rename = true, -- enables an input dialog for inc-rename.nvim
         lsp_doc_border = true, -- add a border to hover docs and signature help
       },
     },
