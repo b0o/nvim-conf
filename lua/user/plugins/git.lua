@@ -1,124 +1,124 @@
-local maputil = require 'user.util.map'
-local map = maputil.map
-local ft = maputil.ft
-local wrap = maputil.wrap
+very_lazy(function()
+  local maputil = require 'user.util.map'
+  local map = maputil.map
 
-local neogit = lazy_require 'neogit'
-local git = lazy_require 'neogit.lib.git'
-local git_cli = lazy_require 'neogit.lib.git.cli'
+  local neogit = lazy_require 'neogit'
+  local git = lazy_require 'neogit.lib.git'
+  local git_cli = lazy_require 'neogit.lib.git.cli'
 
-local neogit_action = function(popup, action, args)
-  return function()
-    ---@diagnostic disable-next-line: missing-parameter
-    require('plenary.async').run(function()
-      require('neogit.popups.' .. popup .. '.actions')[action] {
-        state = { env = {} },
-        get_arguments = function()
-          return args
-        end,
-      }
-    end)
-  end
-end
-
-local async_action = function(cmd, ...)
-  local arg0 = ...
-  local args = { select(2, ...) }
-  return function()
-    ---@diagnostic disable-next-line: missing-parameter
-    require('plenary.async').run(function()
-      if type(arg0) == 'function' then
-        cmd(arg0(unpack(args)))
-      else
-        cmd(arg0, unpack(args))
-      end
-    end)
-  end
-end
-
-local function open_neogit(opts)
-  opts = vim.tbl_extend('force', {
-    kind = 'vsplit',
-    replace = true,
-  }, opts or {})
-  return function()
-    if
-      opts.replace
-      and vim.bo.buftype == ''
-      and vim.bo.filetype == ''
-      and vim.bo.modified == false
-      and vim.api.nvim_buf_line_count(0) == 1
-      and vim.fn.getline '.' == ''
-    then
-      neogit.open { kind = 'replace' }
-    else
-      neogit.open { kind = opts.kind }
+  local neogit_action = function(popup, action, args)
+    return function()
+      ---@diagnostic disable-next-line: missing-parameter
+      require('plenary.async').run(function()
+        require('neogit.popups.' .. popup .. '.actions')[action] {
+          state = { env = {} },
+          get_arguments = function()
+            return args
+          end,
+        }
+      end)
     end
   end
-end
 
-map('n', '<leader>gs', open_neogit { kind = 'vsplit' }, 'Neogit')
-map('n', '<leader>gg', open_neogit { kind = 'replace' }, 'Neogit (replace)')
-map('n', '<leader>G', open_neogit { kind = 'tab', replace = false }, 'Neogit (tab)')
-
-map(
-  'n',
-  { [[<leader>gA]], [[<leader>gaa]] },
-  async_action(function()
-    ---@diagnostic disable-next-line: undefined-field
-    git_cli.add.args('--all').call()
-  end),
-  'Git: Add all'
-)
-map(
-  'n',
-  [[<leader>gaf]],
-  async_action(git.index.add, function()
-    return { vim.fn.expand '%:p' }
-  end),
-  'Git: Add file'
-)
-
-map('n', '<leader>gC', '<Cmd>Neogit commit<Cr>', 'Neogit: Commit popup')
-map('n', '<leader>gcc', neogit_action('commit', 'commit', { '--verbose' }), 'Git: Commit')
-map('n', '<leader>gca', neogit_action('commit', 'commit', { '--verbose', '--all' }), 'Git: Commit (all)')
-map('n', '<leader>gcA', neogit_action('commit', 'commit', { '--verbose', '--amend' }), 'Git: Commit (amend)')
-
-map('n', '<leader>gl', '<Cmd>Neogit log<Cr>', 'Neogit: Log')
-
-map('n', '<leader>gp', '<Cmd>Neogit push<Cr>', 'Neogit: Push popup')
-map('n', '<leader>gP', '<Cmd>Neogit pull<Cr>', 'Neogit: Pull popup')
-
----@diagnostic disable-next-line: undefined-field
-map('n', '<leader>gR', async_action(git_cli.reset.call), 'Git: Reset')
-
-map('n', '<leader>cc', function()
-  local actions = {
-    GitConflictCurrent = 'ours',
-    GitConflictCurrentLabel = 'ours',
-    GitConflictAncestor = 'base',
-    GitConflictAncestorLabel = 'base',
-    GitConflictIncoming = 'theirs',
-    GitConflictIncomingLabel = 'theirs',
-  }
-  local choose = function(which)
-    vim.notify('Choosing ' .. which, vim.log.levels.INFO)
-    require('git-conflict').choose(which)
+  local async_action = function(cmd, ...)
+    local arg0 = ...
+    local args = { select(2, ...) }
+    return function()
+      ---@diagnostic disable-next-line: missing-parameter
+      require('plenary.async').run(function()
+        if type(arg0) == 'function' then
+          cmd(arg0(unpack(args)))
+        else
+          cmd(arg0, unpack(args))
+        end
+      end)
+    end
   end
-  local line = vim.api.nvim_get_current_line()
-  if line == '=======' then
-    choose 'both'
-    return
+
+  local function open_neogit(opts)
+    opts = vim.tbl_extend('force', {
+      kind = 'vsplit',
+      replace = true,
+    }, opts or {})
+    return function()
+      if
+        opts.replace
+        and vim.bo.buftype == ''
+        and vim.bo.filetype == ''
+        and vim.bo.modified == false
+        and vim.api.nvim_buf_line_count(0) == 1
+        and vim.fn.getline '.' == ''
+      then
+        neogit.open { kind = 'replace' }
+      else
+        neogit.open { kind = opts.kind }
+      end
+    end
   end
-  local mark = vim.iter(vim.inspect_pos().extmarks):find(function(e)
-    return e.ns == 'git-conflict' and actions[e.opts.hl_group]
-  end)
-  if not mark then
-    vim.notify('No conflict under cursor', vim.log.levels.WARN)
-    return
-  end
-  choose(actions[mark.opts.hl_group])
-end, 'Git Conflict: Choose hunk under cursor')
+
+  map('n', '<leader>gs', open_neogit { kind = 'vsplit' }, 'Neogit')
+  map('n', '<leader>gg', open_neogit { kind = 'replace' }, 'Neogit (replace)')
+  map('n', '<leader>G', open_neogit { kind = 'tab', replace = false }, 'Neogit (tab)')
+
+  map(
+    'n',
+    { [[<leader>gA]], [[<leader>gaa]] },
+    async_action(function()
+      ---@diagnostic disable-next-line: undefined-field
+      git_cli.add.args('--all').call()
+    end),
+    'Git: Add all'
+  )
+  map(
+    'n',
+    [[<leader>gaf]],
+    async_action(git.index.add, function()
+      return { vim.fn.expand '%:p' }
+    end),
+    'Git: Add file'
+  )
+
+  map('n', '<leader>gC', '<Cmd>Neogit commit<Cr>', 'Neogit: Commit popup')
+  map('n', '<leader>gcc', neogit_action('commit', 'commit', { '--verbose' }), 'Git: Commit')
+  map('n', '<leader>gca', neogit_action('commit', 'commit', { '--verbose', '--all' }), 'Git: Commit (all)')
+  map('n', '<leader>gcA', neogit_action('commit', 'commit', { '--verbose', '--amend' }), 'Git: Commit (amend)')
+
+  map('n', '<leader>gl', '<Cmd>Neogit log<Cr>', 'Neogit: Log')
+
+  map('n', '<leader>gp', '<Cmd>Neogit push<Cr>', 'Neogit: Push popup')
+  map('n', '<leader>gP', '<Cmd>Neogit pull<Cr>', 'Neogit: Pull popup')
+
+  ---@diagnostic disable-next-line: undefined-field
+  map('n', '<leader>gR', async_action(git_cli.reset.call), 'Git: Reset')
+
+  map('n', '<leader>cc', function()
+    local actions = {
+      GitConflictCurrent = 'ours',
+      GitConflictCurrentLabel = 'ours',
+      GitConflictAncestor = 'base',
+      GitConflictAncestorLabel = 'base',
+      GitConflictIncoming = 'theirs',
+      GitConflictIncomingLabel = 'theirs',
+    }
+    local choose = function(which)
+      vim.notify('Choosing ' .. which, vim.log.levels.INFO)
+      require('git-conflict').choose(which)
+    end
+    local line = vim.api.nvim_get_current_line()
+    if line == '=======' then
+      choose 'both'
+      return
+    end
+    local mark = vim.iter(vim.inspect_pos().extmarks):find(function(e)
+      return e.ns == 'git-conflict' and actions[e.opts.hl_group]
+    end)
+    if not mark then
+      vim.notify('No conflict under cursor', vim.log.levels.WARN)
+      return
+    end
+    choose(actions[mark.opts.hl_group])
+  end, 'Git Conflict: Choose hunk under cursor')
+end)
 
 ---@type LazySpec[]
 return {
@@ -127,6 +127,9 @@ return {
     cmd = { 'Gitsigns' },
     event = 'VeryLazy',
     config = function()
+      local maputil = require 'user.util.map'
+      local wrap = maputil.wrap
+
       require('gitsigns').setup {
         on_attach = function(bufnr)
           local function gitsigns_visual_op(op)
@@ -205,6 +208,10 @@ return {
     'NeogitOrg/neogit',
     cmd = 'Neogit',
     config = function()
+      local maputil = require 'user.util.map'
+      local ft = maputil.ft
+
+      local neogit = require 'neogit'
       neogit.setup {
         disable_builtin_notifications = true,
         disable_insert_on_commit = true,
