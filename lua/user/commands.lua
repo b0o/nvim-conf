@@ -49,8 +49,8 @@ command {
   [[ lua require'user.fn'.man('tab', <q-args>)]],
 }
 
-command { 'SessionSave', fn.session_save }
-command { 'SessionLoad', fn.session_load }
+command { 'SessionSave', lazy_require('user.util.session').session_save }
+command { 'SessionLoad', lazy_require('user.util.session').session_load }
 cabbrev('SS', 'SessionSave')
 cabbrev('SL', 'SessionLoad')
 

@@ -2,7 +2,6 @@
 local apiutil = require 'user.util.api'
 
 local M = {
-  callbacks = {},
   quiet = false,
   captured = {},
 }
@@ -30,18 +29,6 @@ M.capture = function(f, ...)
   M.captured = {}
   local res = { M.silent(f, ...) }
   return M.captured, unpack(res)
-end
-
--- Register a global anonymous callback
--- Returns an id that can be passed to fn.callback() to call the function
-M.new_callback = function(fn)
-  table.insert(M.callbacks, fn)
-  return #M.callbacks
-end
-
--- Call the callback associated with 'id'
-M.callback = function(id, ...)
-  return M.callbacks[id](...)
 end
 
 -- print + vim.inspect
@@ -257,68 +244,6 @@ M.jumplist_jump_buf = function(dir)
   local keys =
     vim.api.nvim_replace_termcodes(('%d<C-%s>'):format(math.abs(dist), dir > 0 and 'i' or 'o'), true, false, true)
   vim.api.nvim_feedkeys(keys, 'n', false)
-end
-
----- Shatur/neovim-session-manager
--- Wrapper functions which persist and load additional state with the session,
--- such as whether nvim-tree is open.
-M.session_save = function()
-  local meta = {
-    focused = vim.api.nvim_get_current_win(),
-    nvimTreeOpen = false,
-    nvimTreeFocused = false,
-  }
-  if package.loaded['nvim-tree'] and require('nvim-tree.view').is_visible() then
-    meta.nvimTreeOpen = true
-    meta.nvimTreeFocused = vim.fn.bufname(vim.fn.bufnr()) == 'NvimTree'
-    vim.cmd 'NvimTreeClose'
-  end
-
-  -- require('treesitter-context').disable()
-
-  vim.g.SessionMeta = vim.inspect(meta)
-  require('session_manager').save_current_session()
-  vim.g.SessionMeta = nil
-
-  -- require('treesitter-context').enable()
-
-  if meta.nvimTreeOpen then
-    vim.cmd 'NvimTreeOpen'
-    if not meta.nvimTreeFocused and vim.api.nvim_win_is_valid(meta.focused) then
-      vim.api.nvim_set_current_win(meta.focused)
-    end
-  end
-end
-
--- Load the session associated with the CWD
-M.session_load = function()
-  local cb = M.new_callback(function()
-    vim.schedule(function()
-      local ok, res = pcall(function()
-        local meta = loadstring('return ' .. (vim.g.SessionMeta or '{}'))()
-        vim.g.SessionMeta = nil
-        if meta.nvimTreeOpen then
-          vim.cmd 'NvimTreeOpen'
-        end
-        if meta.nvimTreeFocused then
-          vim.cmd 'NvimTreeFocus'
-        elseif meta.focused and vim.api.nvim_win_is_valid(meta.focused) then
-          vim.api.nvim_set_current_win(meta.focused)
-        end
-        -- require('treesitter-context').enable()
-      end)
-      if not ok then
-        notify('session_load failed: ' .. res)
-      end
-    end)
-  end)
-
-  vim.cmd(([[
-    autocmd! SessionLoadPost * ++once lua require('user.fn').callback(%s)
-  ]]):format(cb))
-
-  -- require('treesitter-context').disable()
-  require('session_manager').load_current_dir_session(false)
 end
 
 M.set_winfix = function(set, ...)
