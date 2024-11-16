@@ -1,6 +1,9 @@
 ---@type LazySpec[]
 return {
-  'nvim-lua/plenary.nvim',
+  {
+    'nvim-lua/plenary.nvim',
+    cmd = { 'PlenaryBustedFile', 'PlenaryBustedDirectory' },
+  },
   'MunifTanjim/nui.nvim',
   {
     'folke/snacks.nvim',
