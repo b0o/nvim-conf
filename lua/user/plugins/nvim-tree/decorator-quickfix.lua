@@ -12,17 +12,12 @@ local DecoratorQuickfix = UserDecorator:extend()
 
 local augroup = vim.api.nvim_create_augroup('nvim-tree-decorator-quickfix', { clear = true })
 
-function DecoratorQuickfix:new()
-  DecoratorQuickfix.super.new(self, {
-    enabled = true,
-    hl_pos = 'name',
-    icon_placement = 'signcolumn',
-  })
-
-  self.qf_icon = { str = '', hl = { 'QuickFixLine' } }
-
-  self:define_sign(self.qf_icon)
-
+local autocmds_setup = false
+local function setup_autocmds()
+  if autocmds_setup then
+    return
+  end
+  autocmds_setup = true
   vim.api.nvim_create_autocmd('QuickfixCmdPost', {
     group = augroup,
     callback = function()
@@ -43,6 +38,17 @@ function DecoratorQuickfix:new()
       })
     end,
   })
+end
+
+function DecoratorQuickfix:new()
+  DecoratorQuickfix.super.new(self, {
+    enabled = true,
+    hl_pos = 'name',
+    icon_placement = 'signcolumn',
+  })
+  self.qf_icon = { str = '', hl = { 'QuickFixLine' } }
+  self:define_sign(self.qf_icon)
+  setup_autocmds()
 end
 
 ---@param node Node
