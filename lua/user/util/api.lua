@@ -3,7 +3,7 @@ local api = vim.api
 
 local M = {}
 
----@param bufnr? number @the buffer number to resolve
+---@param bufnr? number @the buffer number to resolve (defaults to current buffer)
 ---@return number|nil @the resolved buffer number or nil if the buffer is invalid
 function M.resolve_bufnr(bufnr)
   local resolved = bufnr ~= 0 and bufnr or vim.api.nvim_get_current_buf()

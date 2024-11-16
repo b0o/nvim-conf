@@ -118,8 +118,13 @@ function M.set_inlay_hints_global(status)
   end
 end
 
+---@param bufnr? number @the buffer number
+---@param status? boolean @whether to enable inlay hints
 function M.set_inlay_hints(bufnr, status)
   bufnr = require('user.util.api').resolve_bufnr(bufnr)
+  if not bufnr then
+    return
+  end
   if status == nil then
     status = not M.inlay_hints_enabled[bufnr]
   end
