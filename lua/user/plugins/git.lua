@@ -242,14 +242,20 @@ return {
       ft('NeogitStatus', function(bufmap)
         local function neogit_status_buf_item()
           local status = require('neogit.buffers.status').instance()
-          if not status then return end
+          if not status then
+            return
+          end
           local sel = status.buffer.ui:get_item_under_cursor()
-          if not sel or not sel.absolute_path then return end
+          if not sel or not sel.absolute_path then
+            return
+          end
           return sel
         end
         bufmap('n', '<M-w>', function()
           local item = neogit_status_buf_item()
-          if not item then return end
+          if not item then
+            return
+          end
           local win = require('window-picker').pick_window()
           if win and vim.api.nvim_win_is_valid(win) then
             vim.api.nvim_win_set_buf(win, vim.fn.bufadd(item.absolute_path))
@@ -258,7 +264,9 @@ return {
         end)
         bufmap('n', '<Cr>', function()
           local item = neogit_status_buf_item()
-          if not item then return end
+          if not item then
+            return
+          end
           local prev_win = require('user.util.recent-wins').get_most_recent()
           if not prev_win or not vim.api.nvim_win_is_valid(prev_win or -1) then
             vim.cmd('vsplit ' .. item.name)

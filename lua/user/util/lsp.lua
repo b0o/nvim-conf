@@ -1,5 +1,5 @@
-local user_lsp_status = require 'user.util.lsp_status'
 local nvim_cmp_lsp = require 'cmp_nvim_lsp'
+local user_lsp_status = require 'user.util.lsp_status'
 
 local methods = vim.lsp.protocol.Methods
 
@@ -84,9 +84,7 @@ M.on_attach = function()
   vim.notify('Error: user.lsp.on_attach: lsp.setup() has not been called yet', vim.log.levels.ERROR)
 end
 
-local function on_exit(code, signal, id)
-  user_lsp_status.on_exit(code, signal, id)
-end
+local function on_exit(code, signal, id) user_lsp_status.on_exit(code, signal, id) end
 
 function M.peek_definition()
   local params = vim.lsp.util.make_position_params()
