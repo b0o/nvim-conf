@@ -6,17 +6,21 @@ very_lazy(function()
   local git = lazy_require 'neogit.lib.git'
   local git_cli = lazy_require 'neogit.lib.git.cli'
 
-  local neogit_action = function(popup, action, args)
+  local neogit_action = function(...)
+    local args = { ... }
     return function()
-      ---@diagnostic disable-next-line: missing-parameter
-      require('plenary.async').run(function()
-        require('neogit.popups.' .. popup .. '.actions')[action] {
-          state = { env = {} },
-          get_arguments = function()
-            return args
-          end,
-        }
-      end)
+      local neogit_loaded = package.loaded['neogit'] ~= nil
+      local action = require('neogit').action(unpack(args))
+      if neogit_loaded then
+        action()
+      else
+        require('plenary.async').void(function()
+          require('neogit.lib.git').repo:dispatch_refresh {
+            source = 'popup',
+            callback = function() action() end,
+          }
+        end)()
+      end
     end
   end
 
