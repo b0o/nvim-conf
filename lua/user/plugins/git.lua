@@ -73,14 +73,7 @@ very_lazy(function()
     end),
     'Git: Add all'
   )
-  map(
-    'n',
-    [[<leader>gaf]],
-    async_action(git.index.add, function()
-      return { vim.fn.expand '%:p' }
-    end),
-    'Git: Add file'
-  )
+  map('n', [[<leader>gaf]], async_action(git.index.add, function() return { vim.fn.expand '%:p' } end), 'Git: Add file')
 
   map('n', '<leader>gC', '<Cmd>Neogit commit<Cr>', 'Neogit: Commit popup')
   map('n', '<leader>gcc', neogit_action('commit', 'commit', { '--verbose' }), 'Git: Commit')
@@ -113,9 +106,9 @@ very_lazy(function()
       choose 'both'
       return
     end
-    local mark = vim.iter(vim.inspect_pos().extmarks):find(function(e)
-      return e.ns == 'git-conflict' and actions[e.opts.hl_group]
-    end)
+    local mark = vim
+      .iter(vim.inspect_pos().extmarks)
+      :find(function(e) return e.ns == 'git-conflict' and actions[e.opts.hl_group] end)
     if not mark then
       vim.notify('No conflict under cursor', vim.log.levels.WARN)
       return
@@ -137,9 +130,7 @@ return {
       require('gitsigns').setup {
         on_attach = function(bufnr)
           local function gitsigns_visual_op(op)
-            return function()
-              return require('gitsigns')[op] { vim.fn.line '.', vim.fn.line 'v' }
-            end
+            return function() return require('gitsigns')[op] { vim.fn.line '.', vim.fn.line 'v' } end
           end
           local bufmap = maputil.buf(bufnr)
           local gs = require 'gitsigns'
@@ -251,20 +242,14 @@ return {
       ft('NeogitStatus', function(bufmap)
         local function neogit_status_buf_item()
           local status = require('neogit.buffers.status').instance()
-          if not status then
-            return
-          end
+          if not status then return end
           local sel = status.buffer.ui:get_item_under_cursor()
-          if not sel or not sel.absolute_path then
-            return
-          end
+          if not sel or not sel.absolute_path then return end
           return sel
         end
         bufmap('n', '<M-w>', function()
           local item = neogit_status_buf_item()
-          if not item then
-            return
-          end
+          if not item then return end
           local win = require('window-picker').pick_window()
           if win and vim.api.nvim_win_is_valid(win) then
             vim.api.nvim_win_set_buf(win, vim.fn.bufadd(item.absolute_path))
@@ -273,9 +258,7 @@ return {
         end)
         bufmap('n', '<Cr>', function()
           local item = neogit_status_buf_item()
-          if not item then
-            return
-          end
+          if not item then return end
           local prev_win = require('user.util.recent-wins').get_most_recent()
           if not prev_win or not vim.api.nvim_win_is_valid(prev_win or -1) then
             vim.cmd('vsplit ' .. item.name)
@@ -302,9 +285,7 @@ return {
         group = augroup,
         pattern = 'NeogitLogView',
         callback = function()
-          vim.defer_fn(function()
-            vim.api.nvim_buf_del_keymap(0, 'n', '<esc>')
-          end, 200)
+          vim.defer_fn(function() vim.api.nvim_buf_del_keymap(0, 'n', '<esc>') end, 200)
         end,
       })
     end,
