@@ -91,6 +91,10 @@ vim.o.termguicolors = true
 
 --- Diagnostics
 vim.diagnostic.config {
+  virtual_text = {
+    source = 'if_many',
+    severity = vim.diagnostic.severity.ERROR,
+  },
   float = {
     border = 'rounded',
     prefix = function(diagnostic)
@@ -112,6 +116,8 @@ vim.diagnostic.config {
       [vim.diagnostic.severity.INFO] = ' ',
     },
   },
+  underline = true,
+  update_in_insert = false,
 }
 
 ---- Providers

@@ -11,24 +11,15 @@ local M = {
 }
 
 local lsp_handlers = {
-  ['textDocument/publishDiagnostics'] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
-    virtual_text = {
-      source = 'if_many',
-      severity = vim.diagnostic.severity.ERROR,
-    },
-    signs = true,
-    underline = true,
-    update_in_insert = false,
-  }),
   ['textDocument/definition'] = function(_, result, ctx)
     if result == nil or vim.tbl_isempty(result) then
-      print 'Definition not found'
-      return nil
+      vim.notify('Definition not found', vim.log.levels.WARN)
+      return
     end
     local function jumpto(loc)
       local split_cmd = vim.uri_from_bufnr(0) == loc.targetUri and 'split' or 'tabnew'
       vim.cmd(split_cmd)
-      vim.lsp.util.jump_to_location(loc, ctx.client.offset_encoding)
+      vim.lsp.util.show_document(loc, ctx.client.offset_encoding, { focus = true })
     end
     if vim.islist(result) then
       jumpto(result[1])
@@ -151,7 +142,7 @@ M.setup = function(config)
     return on_attach(client, bufnr)
   end
 
-  vim.lsp.set_log_level(vim.lsp.log_levels.WARN)
+  vim.lsp.set_log_level(vim.log.levels.WARN)
 
   for k, v in pairs(lsp_handlers) do
     vim.lsp.handlers[k] = v
