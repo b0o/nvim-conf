@@ -34,6 +34,8 @@ return {
 
       vim.api.nvim_create_user_command('Gbrowse', function() Snacks.gitbrowse() end, {})
 
+      vim.api.nvim_create_user_command('Notifications', function() Snacks.notifier.show_history() end, {})
+
       map('nt', ')', function() Snacks.words.jump(vim.v.count1, true) end, 'Snacks: Jump to next word')
 
       map('nt', '(', function() Snacks.words.jump(-vim.v.count1, true) end, 'Snacks: Jump to prev word')
