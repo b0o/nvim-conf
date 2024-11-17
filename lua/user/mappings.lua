@@ -657,6 +657,16 @@ ft('man', function(bufmap)
   bufmap('n', 'g/', [[/^\s*\zs]], { silent = false, desc = 'Man: Start BOL search' })
 end)
 
+ft('help', function(bufmap)
+  -- navigate to next/prev help tag
+  bufmap('n', '<Tab>', function()
+    vim.fn.search([[\(|\S\+|\|\*\S\+\*\)]], 's')
+  end, 'Help: Goto next tag')
+  bufmap('n', '<S-Tab>', function()
+    vim.fn.search([[\(|\S\+|\|\*\S\+\*\)]], 'sb')
+  end, 'Help: Goto prev tag')
+end)
+
 ---- folke/noice.nvim
 ft('noice', function(bufmap)
   bufmap('n', 'K', '5k', 'Scroll up 5')
