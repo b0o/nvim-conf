@@ -244,16 +244,15 @@ local spec = {
               },
             },
           },
-          user_decorators = {
-            {
-              class = require 'user.plugins.nvim-tree.decorator-quickfix',
-            },
-          },
         },
         view = {
           adaptive_size = false,
         },
         on_attach = on_attach,
+      }
+
+      require('nvim-tree.api').decorator.register {
+        decorator = require 'user.plugins.nvim-tree.decorator-quickfix',
       }
 
       require('nvim-tree.commands').setup()
