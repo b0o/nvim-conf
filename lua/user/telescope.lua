@@ -99,9 +99,7 @@ end
 local function stopinsert(callback)
   return function(prompt_bufnr)
     vim.cmd.stopinsert()
-    vim.schedule(function()
-      callback(prompt_bufnr)
-    end)
+    vim.schedule(function() callback(prompt_bufnr) end)
   end
 end
 
@@ -252,9 +250,7 @@ _cmds.dir_grep = function()
   }
 end
 
-_cmds.tags = function()
-  tb.tags { only_current_buffer = true }
-end
+_cmds.tags = function() tb.tags { only_current_buffer = true } end
 
 _cmds.builtin = function()
   load_extensions()
@@ -282,9 +278,7 @@ M.cmds = setmetatable({}, {
       if type(v) == 'table' then
         return require('user.util.lazy').on_call_rec(v, cb)
       end
-      return function(...)
-        return cb(v, ...)
-      end
+      return function(...) return cb(v, ...) end
     end
     return v
   end,

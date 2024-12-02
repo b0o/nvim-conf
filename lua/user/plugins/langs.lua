@@ -9,12 +9,11 @@ local spec = {
   {
     'fatih/vim-go',
     ft = 'go',
-    config = function()
-      vim.g.go_doc_keywordprg_enabled = 0
-    end,
+    config = function() vim.g.go_doc_keywordprg_enabled = 0 end,
   },
   {
     'rgroli/other.nvim',
+    -- dev = true,
     cmd = { 'Other', 'OtherTabNew', 'OtherSplit', 'OtherVSplit' },
     config = function()
       local other = require 'other-nvim'
@@ -121,12 +120,7 @@ local spec = {
         hooks = {
           ---@param files { filename: string, context: string, exists: boolean }[]
           onFindOtherFiles = function(files)
-            local existing = vim
-              .iter(files)
-              :filter(function(file)
-                return file.exists
-              end)
-              :totable()
+            local existing = vim.iter(files):filter(function(file) return file.exists end):totable()
             if #existing > 0 then
               return existing
             end

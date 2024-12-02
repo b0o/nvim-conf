@@ -27,9 +27,7 @@ return {
       }
       vim.cmd.colorscheme 'tokyonight'
     end,
-    cond = function()
-      return vim.env.COLORSCHEME == 'tokyonight'
-    end,
+    cond = function() return vim.env.COLORSCHEME == 'tokyonight' end,
   },
   'kyazdani42/nvim-web-devicons',
   {
@@ -93,9 +91,7 @@ return {
             return math.floor(math.max(min, math.min(max, vim.o.columns * target)))
           end,
         },
-        on_open = function()
-          require('user.zen-mode').on_open()
-        end,
+        on_open = function() require('user.zen-mode').on_open() end,
       }
     end,
     cmd = 'ZenMode',

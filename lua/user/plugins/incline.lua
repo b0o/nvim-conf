@@ -232,9 +232,7 @@ return {
         end
         scheduled_pnpm_callbacks[root:absolute()] = true
         pnpm.get_workspace_package_paths(root, {
-          callback = function()
-            pnpm.get_workspace_info()
-          end,
+          callback = function() pnpm.get_workspace_info() end,
         })
       end
 
@@ -282,9 +280,10 @@ return {
         end
         ---@param dir 'h' | 'j' | 'k' | 'l'
         local function can_move(dir)
-          local target_win = vim.api.nvim_win_call(zen_view.parent, function()
-            return vim.fn.win_getid(vim.fn.winnr(dir))
-          end)
+          local target_win = vim.api.nvim_win_call(
+            zen_view.parent,
+            function() return vim.fn.win_getid(vim.fn.winnr(dir)) end
+          )
           if not target_win or not vim.api.nvim_win_is_valid(target_win) or target_win == zen_view.parent then
             return false
           end

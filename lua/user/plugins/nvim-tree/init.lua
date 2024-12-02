@@ -31,12 +31,8 @@ local spec = {
         end, opts 'Preview')
         vim.keymap.set('n', 'P', preview.watch, opts 'Preview (Watch)')
         vim.keymap.set('n', '<Esc>', preview.unwatch, opts 'Close Preview/Unwatch')
-        vim.keymap.set('n', '<C-j>', function()
-          preview.scroll(4)
-        end, opts 'Preview: Scroll Down')
-        vim.keymap.set('n', '<C-k>', function()
-          preview.scroll(-4)
-        end, opts 'Preview: Scroll Up')
+        vim.keymap.set('n', '<C-j>', function() preview.scroll(4) end, opts 'Preview: Scroll Down')
+        vim.keymap.set('n', '<C-k>', function() preview.scroll(-4) end, opts 'Preview: Scroll Up')
 
         local function get_visual_nodes()
           local core = require 'nvim-tree.core'
@@ -60,18 +56,16 @@ local spec = {
           local filtered = vim
             .iter(entries)
             :filter(function(entry)
-              return not vim.iter(current_qflist):any(function(qfl)
-                return qfl.bufnr == vim.fn.bufnr(entry.filename)
-              end)
+              return not vim
+                .iter(current_qflist)
+                :any(function(qfl) return qfl.bufnr == vim.fn.bufnr(entry.filename) end)
             end)
             :totable()
           if #entries > 0 and #filtered == 0 then
             local replace = vim
               .iter(current_qflist)
               :filter(function(qfl)
-                return not vim.iter(entries):any(function(entry)
-                  return qfl.bufnr == vim.fn.bufnr(entry.filename)
-                end)
+                return not vim.iter(entries):any(function(entry) return qfl.bufnr == vim.fn.bufnr(entry.filename) end)
               end)
               :totable()
             vim.fn.setqflist(replace, 'r')
@@ -95,12 +89,8 @@ local spec = {
             if ok and nodes then
               local entries = vim
                 .iter(nodes)
-                :filter(function(node)
-                  return node.name ~= '..' and node.type ~= 'directory'
-                end)
-                :map(function(node)
-                  return { filename = node.absolute_path, lnum = 1, col = 1 }
-                end)
+                :filter(function(node) return node.name ~= '..' and node.type ~= 'directory' end)
+                :map(function(node) return { filename = node.absolute_path, lnum = 1, col = 1 } end)
                 :totable()
               update_qflist(entries)
             end
@@ -293,7 +283,8 @@ very_lazy(function()
     'Nvim-Tree: Toggle Focus'
   )
 
-  local function nvim_tree_open_oil(enter)
+  local function nvim_tree_open_oil(opts)
+    opts = opts or {}
     return function()
       local oil = require 'oil'
       local tree = require('nvim-tree.api').tree
@@ -305,16 +296,16 @@ very_lazy(function()
       if node and node.fs_stat then
         local fs_stat = node.fs_stat
         is_dir = fs_stat.type == 'directory'
-        path = is_dir and enter and node.absolute_path or node.parent.absolute_path
+        path = is_dir and opts.enter and node.absolute_path or node.parent.absolute_path
       else
         ---@type string
         ---@diagnostic disable-next-line: undefined-field
         local base = tree.get_nodes().absolute_path
         is_dir = node.name == '..' or node.name == '.'
-        path = enter and node.name == '..' and base .. '/..' or base
+        path = opts.enter and node.name == '..' and base .. '/..' or base
       end
 
-      if is_dir and enter then
+      if is_dir and opts.enter then
         oil.toggle_float(path)
         return
       end
@@ -323,9 +314,7 @@ very_lazy(function()
         if not oil.get_entry_on_line(e.buf, 1) then
           tries = tries or 0
           if tries <= 8 then
-            vim.defer_fn(function()
-              bufenter_cb(e, tries + 1)
-            end, tries * tries)
+            vim.defer_fn(function() bufenter_cb(e, tries + 1) end, tries * tries)
           end
           return
         end
@@ -360,7 +349,7 @@ very_lazy(function()
           return
         end
         local file = node.absolute_path
-        vim.cmd(fmt and (cmd):format(file) or ('%s %s'):format(cmd, file))
+        vim.cmd(fmt and (cmd):format(file) or string.format('%s %s', cmd, file))
       end
     end
 
@@ -386,8 +375,8 @@ very_lazy(function()
       'Nvim-Tree: Bdelete'
     )
 
-    bufmap('n', 'i', nvim_tree_open_oil(false), 'Nvim-Tree: Open Oil')
-    bufmap('n', '<M-i>', nvim_tree_open_oil(true), 'Nvim-Tree: Open Oil (enter dir)')
+    bufmap('n', 'i', nvim_tree_open_oil(), 'Nvim-Tree: Open Oil')
+    bufmap('n', '<M-i>', nvim_tree_open_oil { enter = true }, 'Nvim-Tree: Open Oil (enter dir)')
   end)
 end)
 
