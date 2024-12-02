@@ -1,7 +1,7 @@
 ---@type LazySpec[]
 local spec = {
   {
-    'kyazdani42/nvim-tree.lua',
+    'nvim-tree/nvim-tree.lua',
     branch = '2948-add-user-decorators',
     cmd = { 'NvimTreeOpen', 'NvimTreeFocus' },
     dependencies = {
@@ -244,15 +244,22 @@ local spec = {
               },
             },
           },
+          decorators = {
+            'Git',
+            'Open',
+            'Hidden',
+            'Modified',
+            'Bookmark',
+            'Diagnostics',
+            require 'user.plugins.nvim-tree.decorator-quickfix',
+            'Copied',
+            'Cut',
+          },
         },
         view = {
           adaptive_size = false,
         },
         on_attach = on_attach,
-      }
-
-      require('nvim-tree.api').decorator.register {
-        decorator = require 'user.plugins.nvim-tree.decorator-quickfix',
       }
 
       require('nvim-tree.commands').setup()

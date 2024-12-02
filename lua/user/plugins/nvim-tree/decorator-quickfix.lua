@@ -1,10 +1,6 @@
-local api = require 'nvim-tree.api'
-
----@class (exact) DecoratorQuickfix: nvim_tree.api.decorator.AbstractDecorator
----@field private init fun(self: DecoratorQuickfix, args: nvim_tree.api.decorator.AbstractDecoratorInitArgs)
----@field private define_sign fun(self: DecoratorQuickfix, sign: nvim_tree.api.HighlightedString)
+---@class (exact) DecoratorQuickfix: nvim_tree.api.decorator.UserDecorator
 ---@field private qf_icon nvim_tree.api.HighlightedString
-local DecoratorQuickfix = api.decorator.create()
+local QuickfixDecorator = require('nvim-tree.api').decorator.UserDecorator:extend()
 
 local augroup = vim.api.nvim_create_augroup('nvim-tree-decorator-quickfix', { clear = true })
 
@@ -32,14 +28,10 @@ local function setup_autocmds()
   })
 end
 
-function DecoratorQuickfix:new()
-  ---@type nvim_tree.api.decorator.AbstractDecoratorInitArgs
-  local args = {
-    enabled = true,
-    highlight_range = 'name',
-    icon_placement = 'signcolumn',
-  }
-  self:init(args)
+function QuickfixDecorator:new()
+  self.enabled = true
+  self.highlight_range = 'all'
+  self.icon_placement = 'signcolumn'
   self.qf_icon = { str = '', hl = { 'QuickFixLine' } }
   self:define_sign(self.qf_icon)
   setup_autocmds()
@@ -59,7 +51,7 @@ end
 ---Return quickfix icons for the node
 ---@param node nvim_tree.api.Node
 ---@return nvim_tree.api.HighlightedString[]? icons
-function DecoratorQuickfix:icons(node)
+function QuickfixDecorator:icons(node)
   if is_qf_item(node) then
     return { self.qf_icon }
   end
@@ -69,11 +61,11 @@ end
 ---Return highlight group for the node
 ---@param node nvim_tree.api.Node
 ---@return string? highlight_group
-function DecoratorQuickfix:highlight_group(node)
+function QuickfixDecorator:highlight_group(node)
   if is_qf_item(node) then
     return 'QuickFixLine'
   end
   return nil
 end
 
-return DecoratorQuickfix
+return QuickfixDecorator
