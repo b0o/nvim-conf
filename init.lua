@@ -13,8 +13,6 @@ if not vim.uv.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require 'user.util.polyfill' -- TODO: Remove once all plugins have migrated away from deprecated APIs
-
 local lazyutil = require 'user.util.lazy'
 _G.lazy_require = lazyutil.require
 _G.very_lazy = lazyutil.very_lazy
