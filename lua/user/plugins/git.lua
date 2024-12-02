@@ -274,6 +274,8 @@ return {
             vim.api.nvim_win_set_buf(prev_win, vim.fn.bufadd(item.absolute_path))
           end
         end)
+        bufmap('n', 'Q', function() neogit.close() end, 'Neogit: Close')
+        bufmap('n', 'K', '5k', 'Jump up')
       end)
 
       local augroup = vim.api.nvim_create_augroup('user.neogit', {})
