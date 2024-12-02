@@ -1,4 +1,4 @@
----@alias UserAiCopilot "github" | "supermaven"
+---@alias UserAiCopilot "copilot"|"gh_copilot"|"supermaven"
 
 ---@class UserAiConfig
 ---@field default_copilot? UserAiCopilot
@@ -27,14 +27,22 @@ end
 ---@field start fun()
 ---@field stop fun()
 
----@type Map<UserAiCopilot, UserAiCopilotManager>
+---@type {[UserAiCopilot]: UserAiCopilotManager}
 local copilots = {
-  github = {
+  copilot = {
     start = function()
       require('user.ai.copilot').enable()
     end,
     stop = function()
       require('user.ai.copilot').disable()
+    end,
+  },
+  gh_copilot = {
+    start = function()
+      require('user.ai.gh_copilot').enable()
+    end,
+    stop = function()
+      require('user.ai.gh_copilot').disable()
     end,
   },
   supermaven = {

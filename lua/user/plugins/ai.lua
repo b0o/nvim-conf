@@ -1,5 +1,5 @@
 require('user.util.lazy').after_load('noice.nvim', function()
-  if package.loaded['leetcode'] then
+  if package.loaded['leetcode'] or vim.g.ActiveCopilot == 'disabled' then
     return
   end
   require('user.ai').setup {
@@ -10,21 +10,30 @@ end)
 
 ---@type LazySpec[]
 return {
-  'zbirenbaum/copilot.lua',
-  'supermaven-inc/supermaven-nvim',
   {
-    'David-Kunz/gen.nvim',
-    cmd = { 'Gen' },
-    opts = {
-      -- model = 'llama3',
-      model = 'codegemma',
-      host = 'localhost',
-      port = '11434',
-      quit_map = 'q',
-      retry_map = '<C-r>',
-      show_model = true,
-    },
+    'zbirenbaum/copilot.lua',
+    enabled = false,
   },
+  {
+    'github/copilot.vim',
+    enabled = false,
+    init = function()
+      vim.g.copilot_no_tab_map = true
+      vim.g.copilot_filetypes = {
+        yaml = true,
+        markdown = true,
+        help = true,
+        gitcommit = true,
+        gitrebase = true,
+        hgcommit = true,
+        svn = true,
+        cvs = true,
+        oil = false,
+      }
+    end,
+    cmd = { 'GHCopilot' },
+  },
+  'supermaven-inc/supermaven-nvim',
   {
     'yetone/avante.nvim',
     dev = true,
@@ -40,36 +49,57 @@ return {
       'AvanteShowRepoMap',
       'AvanteSwitchProvider',
     },
+    keys = {
+      {
+        '<leader>aa',
+        function() require('avante.api').ask() end,
+        mode = { 'v', 'n' },
+      },
+      {
+        '<leader>ae',
+        vim.schedule_wrap(function() require('avante.api').edit() end),
+        mode = 'v',
+        desc = 'Avante: Edit',
+      },
+      '<leader>ap',
+      '<M-m>',
+      '<M-S-m>',
+    },
     build = 'make',
     config = function()
       local fn = require 'user.fn'
       local recent_wins = require 'user.util.recent-wins'
       local maputil = require 'user.util.map'
       local map = maputil.map
+      local private = require 'user.private'
 
-      vim.env.ANTHROPIC_API_KEY = require('user.private').anthropic_api_key
-      vim.env.OPENAI_API_KEY = require('user.private').cerebras_api_key
+      vim.env.ANTHROPIC_API_KEY = private.anthropic_api_key
+      vim.env.CEREBRAS_API_KEY = private.cerebras_api_key
+      vim.env.GROQ_API_KEY = private.groq_api_key
+
       require('avante').setup {
-        ---@alias Provider "openai" | "claude" | "azure"  | "copilot" | "cohere" | [string]
-        -- provider = 'openai',
+        ---@type "openai" | "claude" | "azure"  | "copilot" | "cohere"
         provider = 'claude',
-        auto_suggestions_provider = 'openai',
+        auto_suggestions_provider = 'cerebras',
         claude = {
           endpoint = 'https://api.anthropic.com',
           model = 'claude-3-5-sonnet-20241022',
           temperature = 0,
           max_tokens = 4096,
         },
-        ---@type AvanteSupportedProvider
-        openai = {
-          -- endpoint = 'https://api.openai.com/v1',
-          -- model = 'gpt-4o',
-          endpoint = 'https://api.cerebras.ai/v1',
-          model = 'llama3.1-70b',
-          timeout = 30000, -- Timeout in milliseconds
-          temperature = 0,
-          max_tokens = 4096,
-          ['local'] = false,
+        vendors = {
+          groq = {
+            __inherited_from = 'openai',
+            api_key_name = 'GROQ_API_KEY',
+            endpoint = 'https://api.groq.com/openai/v1/',
+            model = 'llama-3.2-90b-text-preview',
+          },
+          cerebras = {
+            __inherited_from = 'openai',
+            api_key_name = 'CEREBRAS_API_KEY',
+            endpoint = 'https://api.cerebras.ai/v1/',
+            model = 'llama3.1-70b',
+          },
         },
         behaviour = {
           auto_suggestions = false,
@@ -77,6 +107,11 @@ return {
           auto_set_keymaps = true,
           auto_apply_diff_after_generation = false,
           support_paste_from_clipboard = false,
+        },
+        dual_boost = {
+          enabled = false,
+          first_provider = 'groq',
+          second_provider = 'claude',
         },
         mappings = {
           ask = '<leader>aa',
@@ -115,6 +150,7 @@ return {
           },
           ask = {
             floating = true,
+            focus_on_apply = 'theirs',
           },
         },
         highlights = {
@@ -126,22 +162,19 @@ return {
         },
         --- @class AvanteConflictUserConfig
         diff = {
-          debug = false,
           autojump = true,
-          ---@type string | fun(): any
-          list_opener = 'copen',
+          override_timeoutlen = 1000,
         },
       }
 
       map('n', '<leader>ap', function()
         local providers = {
-          'openai',
           'claude',
+          'groq',
+          'cerebras',
         }
         local provider = require('avante.config').provider
-        local idx = vim.iter(ipairs(providers)):find(function(_, e)
-          return e == provider
-        end)
+        local idx = vim.iter(ipairs(providers)):find(function(_, e) return e == provider end)
         if idx == nil then
           idx = 1
         else
@@ -194,6 +227,7 @@ return {
         require('avante.api').ask { floating = false }
         if winid ~= nil then
           vim.defer_fn(function()
+            vim.cmd [[stopinsert]]
             vim.api.nvim_set_current_win(winid)
           end, 0)
         end
