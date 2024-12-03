@@ -1,5 +1,3 @@
-local private = require 'user.private'
-
 ---@type LazySpec[]
 local spec = {
   {
@@ -225,83 +223,7 @@ local spec = {
     ft = { 'markdown', 'Avante', 'mdx' },
   },
   {
-    'epwalsh/obsidian.nvim',
-    version = '*',
-    event = {
-      ('BufReadPre %s/**.md'):format(private.obsidian_vault.path),
-      ('BufNewFile %s/**.md'):format(private.obsidian_vault.path),
     },
-    cmd = {
-      'ObsidianOpen',
-      'ObsidianNew',
-      'ObsidianQuickSwitch',
-      'ObsidianFollowLink',
-      'ObsidianBacklinks',
-      'ObsidianTags',
-      'ObsidianToday',
-      'ObsidianYesterday',
-      'ObsidianTomorrow',
-      'ObsidianDailies',
-      'ObsidianTemplate',
-      'ObsidianSearch',
-      'ObsidianLink',
-      'ObsidianLinkNew',
-      'ObsidianLinks',
-      'ObsidianExtractNote',
-      'ObsidianWorkspace',
-      'ObsidianPasteImg',
-      'ObsidianRename',
-    },
-    config = function()
-      vim.o.conceallevel = 1
-
-      require('obsidian').setup {
-        workspaces = {
-          private.obsidian_vault,
-        },
-        completion = {
-          nvim_cmp = true,
-          min_chars = 1,
-        },
-        templates = {
-          subdir = 'Meta/Templates',
-          date_format = '%Y-%m-%d',
-          time_format = '%H:%M',
-          substitutions = {},
-        },
-        daily_notes = {
-          folder = 'Journal',
-          date_format = '%Y/%Y-%m/%Y-%m-%d',
-          template = 'JournalNvim.md',
-        },
-      }
-
-      vim.cmd.delcommand 'Rename'
-      vim.cmd.cabbrev { 'Rename', 'ObsidianRename' }
-
-      very_lazy(function()
-        local maputil = require 'user.util.map'
-        local map = maputil.map
-        local ft = maputil.ft
-
-        map('n', { '<C-f><C-f>', '<C-f>o', '<C-f><C-o>' }, '<Cmd>ObsidianQuickSwitch<Cr>', 'Obsidian: Quick Switch')
-
-        map('n', '<C-p>', function()
-          vim.api.nvim_feedkeys(':Obsidian', 't', false)
-          vim.defer_fn(require('cmp').complete, 0)
-        end, ':Obsidian')
-
-        ft('markdown', function(bufmap)
-          bufmap('n', '<C-]>', function()
-            if require('obsidian').util.cursor_on_markdown_link() then
-              return '<Cmd>ObsidianFollowLink<CR>'
-            else
-              return '<C-]>'
-            end
-          end, { expr = true, desc = 'Obsidian: Follow Link' })
-        end)
-      end)
-    end,
   },
 }
 
