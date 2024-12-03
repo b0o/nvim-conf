@@ -3,6 +3,8 @@ local xk = require('user.keys').xk
 ---@type LazySpec[]
 return {
   {
+    -- TODO: Remove once blink.cmp supports command-line completion
+    -- https://github.com/Saghen/blink.cmp/pull/323
     'hrsh7th/nvim-cmp',
     config = function() require 'user.cmp' end,
     event = 'VeryLazy',
