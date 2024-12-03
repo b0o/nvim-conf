@@ -1,4 +1,3 @@
-local nvim_cmp_lsp = require 'cmp_nvim_lsp'
 local user_lsp_status = require 'user.util.lsp_status'
 
 local methods = vim.lsp.protocol.Methods
@@ -78,7 +77,7 @@ end
 local function on_exit(code, signal, id) user_lsp_status.on_exit(code, signal, id) end
 
 function M.peek_definition()
-  local params = vim.lsp.util.make_position_params()
+  local params = vim.lsp.util.make_position_params(0, 'utf-8')
   return vim.lsp.buf_request(0, 'textDocument/definition', params, function(_, results)
     ---@type lsp.Location|lsp.LocationLink|nil
     local location = results and results[1]
@@ -148,7 +147,7 @@ M.setup = function(config)
     vim.lsp.handlers[k] = v
   end
 
-  local capabilities = nvim_cmp_lsp.default_capabilities()
+  local capabilities = require('blink.cmp').get_lsp_capabilities()
   local lspconfig = require 'lspconfig'
 
   local function is_enabled(server)

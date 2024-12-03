@@ -55,6 +55,9 @@ return {
             zindex = 200,
           },
         },
+        signature = {
+          enabled = false,
+        },
       },
       -- you can enable a preset for easier configuration
       presets = {

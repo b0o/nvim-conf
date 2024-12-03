@@ -10,9 +10,7 @@ local wincfg = vim.tbl_extend('force', cmp.config.window.bordered(), {
 
 local function wrap(fn, ...)
   local args = { ... }
-  return function()
-    return fn(unpack(args))
-  end
+  return function() return fn(unpack(args)) end
 end
 
 -- Select item next/prev, taking into account whether the cmp window is
@@ -36,46 +34,10 @@ local select_item_smart = function(dir, opts)
   end
 end
 
-local set_hl_hex = function(hex)
-  if hex:sub(1, 1) == '#' then
-    hex = hex:sub(2)
-  end
-  local color = string.format('%06x', tonumber(hex, 16))
-  local group = 'CmpColor' .. color
-  local opts = { bg = '#' .. color }
-  if vim.fn.hlID(group) < 1 then
-    vim.api.nvim_set_hl(0, group, opts)
-  end
-  return group
-end
-
-local set_hl_rgb = function(r, g, b)
-  local color = string.format('%02x%02x%02x', r, g, b)
-  return set_hl_hex(color)
-end
-
 cmp.setup {
-  snippet = {
-    expand = function(args)
-      vim.snippet.expand(args.body)
-    end,
-  },
-  completion = {
-    completeopt = 'menu,menuone,noselect',
-    get_trigger_characters = function(trigger_characters)
-      return vim.tbl_filter(function(char)
-        return char ~= ' '
-      end, trigger_characters)
-    end,
-  },
   window = {
     completion = wincfg,
     documentation = wincfg,
-  },
-  view = {
-    --- https://github.com/hrsh7th/nvim-cmp/issues/910
-    ---@diagnostic disable-next-line: assign-type-mismatch
-    entries = { name = 'custom', selection_order = 'bottom_up' },
   },
   formatting = {
     fields = { 'kind', 'abbr', 'menu' },
@@ -83,91 +45,19 @@ cmp.setup {
     format = function(entry, vim_item)
       vim_item.menu = ({
         cmdline = ' Cmd',
-        nvim_lsp = ' LSP',
-        otter = ' Ott',
-        treesitter = '  TS',
-        nvim_lua = ' Lua',
-        buffer = ' Buf',
-        path = 'Path',
-        git = ' Git',
-        obsidian = ' Obsidian',
-        obsidian_new = 'Obsidian New',
-        neopyter = ' IPy',
       })[entry.source.name] or entry.source.name
       local sym = require('lspkind').symbolic(vim_item.kind)
       if sym == '' then
         sym = '∅'
-      end
-      local doc = entry.completion_item.documentation
-      if vim_item.kind == 'Color' and type(doc) == 'string' then
-        local ok_rgb, _, r, g, b = doc:find 'rgba?%((%d+), (%d+), (%d+)'
-        if ok_rgb then
-          vim_item.kind_hl_group = set_hl_rgb(r, g, b)
-          sym = ' '
-        else
-          local ok_hex, _, hex = doc:find '(%#%x+)'
-          if ok_hex then
-            vim_item.kind_hl_group = set_hl_hex(hex)
-            sym = ' '
-          end
-        end
       end
       vim_item.menu = (vim_item.menu or '') .. '->' .. (vim_item.kind or '')
       vim_item.kind = ' ' .. sym .. ' '
       return vim_item
     end,
   },
-  mapping = cmp.mapping.preset.insert {
-    ['<C-n>'] = select_item_smart 'next',
-    ['<C-p>'] = select_item_smart 'prev',
-    ['<C-k>'] = function()
-      if not require('noice.lsp').scroll(-4) then
-        cmp.scroll_docs(-4)
-      end
-    end,
-    ['<C-j>'] = function()
-      if not require('noice.lsp').scroll(4) then
-        cmp.scroll_docs(4)
-      end
-    end,
-    ['<C-g>'] = cmp.mapping.abort(),
-    ['<CR>'] = cmp.mapping.confirm { select = true },
-    ['<C-c>'] = function(fallback)
-      if cmp.visible() then
-        cmp.confirm { select = true }
-        cmp.complete()
-      else
-        fallback()
-      end
-    end,
-    [xk [[<C-S-a>]]] = function()
-      if cmp.visible() then
-        cmp.close()
-      else
-        cmp.complete()
-      end
-    end,
-  },
-  sources = cmp.config.sources {
-    { name = 'lazydev', group_index = 0, priority = 100 },
-    { name = 'nvim_lsp', group_index = 0, priority = 100 },
-    { name = 'otter', group_index = 1, priority = 80 },
-    { name = 'nvim_lua', group_index = 1, priority = 80 },
-    { name = 'neopyter', group_index = 1, priority = 80 },
-    { name = 'treesitter', group_index = 1, priority = 60 },
-    { name = 'buffer', group_index = 1, priority = 40 },
-    { name = 'path', group_index = 1, priority = 20 },
-  },
-  enabled = function()
-    return vim.bo.buftype ~= 'prompt' or require('cmp_dap').is_dap_buffer()
-  end,
+  sources = {},
+  enabled = function() return vim.bo.buftype ~= 'prompt' end,
 }
-
-require('cmp').setup.filetype({ 'dap-repl', 'dapui_watches', 'dapui_hover' }, {
-  sources = {
-    { name = 'dap' },
-  },
-})
 
 cmp.setup.cmdline('/', {
   mapping = cmp.mapping.preset.cmdline {
@@ -191,8 +81,6 @@ cmp.setup.cmdline('/', {
   },
   sources = {
     { name = 'buffer' },
-    { name = 'nvim_lsp' },
-    { name = 'treesitter' },
   },
 })
 
@@ -254,120 +142,3 @@ cmp.setup.cmdline(':', {
     { name = 'cmdline' },
   },
 })
-
--- Set configuration for specific filetype.
----@diagnostic disable-next-line: undefined-field
-cmp.setup.filetype({ 'gitcommit', 'NeogitCommitMessage' }, {
-  sources = cmp.config.sources {
-    { name = 'git' },
-    { name = 'buffer' },
-  },
-})
-
-require('cmp_git').setup {
-  remotes = { 'upstream', 'origin', 'b0o' },
-  github = {
-    issues = {
-      filter = 'all',
-      limit = 250,
-      state = 'all',
-      format = {
-        label = function(_, issue)
-          local icon = ({
-            open = '',
-            closed = '',
-          })[string.lower(issue.state)]
-          return string.format('%s #%d: %s', icon, issue.number, issue.title)
-        end,
-      },
-      sort_by = function(issue)
-        local kind_rank = issue.pull_request and 1 or 0
-        local state_rank = issue.state == 'open' and 0 or 1
-        local age = os.difftime(os.time(), require('cmp_git.utils').parse_github_date(issue.updatedAt))
-        return string.format('%d%d%010d', kind_rank, state_rank, age)
-      end,
-      filter_fn = function(trigger_char, issue)
-        return string.format('%s %s %s', trigger_char, issue.number, issue.title)
-      end,
-    },
-    mentions = {
-      limit = 250,
-      sort_by = nil,
-      filter_fn = function(trigger_char, mention)
-        return string.format('%s %s %s', trigger_char, mention.username)
-      end,
-    },
-    pull_requests = {
-      limit = 250,
-      state = 'all',
-      format = {
-        label = function(_, pr)
-          local icon = ({
-            open = '',
-            closed = '',
-          })[string.lower(pr.state)]
-          return string.format('%s #%d: %s', icon, pr.number, pr.title)
-        end,
-      },
-      sort_by = function(pr)
-        local state_rank = pr.state == 'open' and 0 or 1
-        local age = os.difftime(os.time(), require('cmp_git.utils').parse_github_date(pr.updatedAt))
-        return string.format('%d%010d', state_rank, age)
-      end,
-      filter_fn = function(trigger_char, pr)
-        return string.format('%s %s %s', trigger_char, pr.number, pr.title)
-      end,
-    },
-  },
-  trigger_actions = {
-    {
-      debug_name = 'git_commits',
-      trigger_character = ':',
-      action = function(sources, trigger_char, callback, params, _)
-        return sources.git:get_commits(callback, params, trigger_char)
-      end,
-    },
-    {
-      debug_name = 'github_issues',
-      trigger_character = '#',
-      action = function(sources, trigger_char, callback, _, git_info)
-        return sources.github:get_issues(callback, git_info, trigger_char)
-      end,
-    },
-    {
-      debug_name = 'github_pulls',
-      trigger_character = '!',
-      action = function(sources, trigger_char, callback, _, git_info)
-        return sources.github:get_pull_requests(callback, git_info, trigger_char)
-      end,
-    },
-    {
-      debug_name = 'github_mentions',
-      trigger_character = '@',
-      action = function(sources, trigger_char, callback, _, git_info)
-        return sources.github:get_mentions(callback, git_info, trigger_char)
-      end,
-    },
-    {
-      debug_name = 'gitlab_issues',
-      trigger_character = '#',
-      action = function(sources, trigger_char, callback, _, git_info)
-        return sources.gitlab:get_issues(callback, git_info, trigger_char)
-      end,
-    },
-    {
-      debug_name = 'gitlab_mentions',
-      trigger_character = '@',
-      action = function(sources, trigger_char, callback, _, git_info)
-        return sources.gitlab:get_mentions(callback, git_info, trigger_char)
-      end,
-    },
-    {
-      debug_name = 'gitlab_mrs',
-      trigger_character = '!',
-      action = function(sources, trigger_char, callback, _, git_info)
-        return sources.gitlab:get_merge_requests(callback, git_info, trigger_char)
-      end,
-    },
-  },
-}
