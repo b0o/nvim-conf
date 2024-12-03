@@ -11,8 +11,6 @@ return {
       local feedkeys = require 'cmp.utils.feedkeys'
       local keymap = require 'cmp.utils.keymap'
 
-      local xk = require('user.keys').xk
-
       local wincfg = vim.tbl_extend('force', cmp.config.window.bordered(), {
         winhighlight = 'Normal:CmpNormal,FloatBorder:CmpBorder,CursorLine:CmpSel,Search:None',
       })
