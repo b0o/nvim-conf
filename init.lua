@@ -32,6 +32,9 @@ require('lazy').setup({
   change_detection = {
     enabled = false,
   },
+  rocks = {
+    hererocks = true,
+  },
 })
 
 very_lazy(function()
