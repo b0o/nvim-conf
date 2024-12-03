@@ -13,6 +13,25 @@ local spec = {
     config = function()
       local api = require 'nvim-tree.api'
       local preview = require 'nvim-tree-preview'
+      preview.setup {
+        image_preview = {
+          enable = true,
+          patterns = {
+            '.*%.avif$',
+            '.*%.bmp$',
+            '.*%.gif$',
+            '.*%.heic$',
+            '.*%.ico$',
+            '.*%.jpeg$',
+            '.*%.jpg$',
+            '.*%.pdf$',
+            '.*%.png$',
+            '.*%.svg$',
+            '.*%.webp$',
+            '.*%.xpm$',
+          },
+        },
+      }
 
       local on_attach = function(bufnr)
         local function opts(desc)
