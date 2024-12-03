@@ -182,6 +182,7 @@ map('n', xk '<C-.>', sibling_swap.swap_with_right, 'Sibling-Swap: Swap with righ
 map('n', '<F34>', sibling_swap.swap_with_left, 'Sibling-Swap: Swap with left')
 
 ---- Wansmer/treesj
+local lang_utils = require 'treesj.langs.utils'
 local treesj = require 'treesj'
 
 treesj.setup {
@@ -204,7 +205,20 @@ treesj.setup {
 
   -- Notify about possible problems or not
   notify = true,
-  langs = { --[[ configuration for languages ]]
+
+  langs = {
+    zig = {
+      initializer_list = lang_utils.set_preset_for_list(),
+      arguments = lang_utils.set_preset_for_args(),
+      call_expression = lang_utils.set_preset_for_args {
+        split = {
+          last_separator = true,
+        },
+        both = {
+          shrink_node = { from = '(', to = ')' },
+        },
+      },
+    },
   },
 
   -- Use `dot` for repeat action
