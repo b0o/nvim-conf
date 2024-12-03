@@ -1,4 +1,4 @@
-; inherits: zig
+; extends
 ; TODO: Remove once merged:
 ; https://github.com/nvim-treesitter/nvim-treesitter/pull/7199
 [
