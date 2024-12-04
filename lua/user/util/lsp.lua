@@ -3,78 +3,14 @@ local user_lsp_status = require 'user.util.lsp_status'
 local methods = vim.lsp.protocol.Methods
 
 local M = {
+  setup_called = false,
+  config = {},
+  servers = {},
   fmt_on_save_enabled = false,
   on_attach_called = false,
   inlay_hints_enabled_global = false,
   inlay_hints_enabled = {},
 }
-
-local lsp_handlers = {
-  ['textDocument/definition'] = function(_, result, ctx)
-    if result == nil or vim.tbl_isempty(result) then
-      vim.notify('Definition not found', vim.log.levels.WARN)
-      return
-    end
-    local function jumpto(loc)
-      local split_cmd = vim.uri_from_bufnr(0) == loc.targetUri and 'split' or 'tabnew'
-      vim.cmd(split_cmd)
-      vim.lsp.util.show_document(loc, ctx.client.offset_encoding, { focus = true })
-    end
-    if vim.islist(result) then
-      jumpto(result[1])
-      if #result > 1 then
-        vim.fn.setqflist(vim.lsp.util.locations_to_items(result, ctx.client.offset_encoding))
-        vim.api.nvim_command 'copen'
-        vim.api.nvim_command 'wincmd p'
-      end
-    else
-      jumpto(result)
-    end
-  end,
-}
-
-local function on_attach(client, bufnr)
-  vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
-  user_lsp_status.on_attach(client, bufnr)
-
-  -- Enable inlay hints if the client supports it.
-  -- Credit @MariaSolOs:
-  -- https://github.com/MariaSolOs/dotfiles/blob/8607ace4af5eb2e9001b3f14870c2ffc937f4dcd/.config/nvim/lua/lsp.lua#L118
-  if methods and client.supports_method(methods.textDocument_inlayHint) then
-    local inlay_hints_group = vim.api.nvim_create_augroup('InlayHints', { clear = true })
-
-    -- Initial inlay hint display.
-    if M.inlay_hints_enabled[bufnr] == nil then
-      M.inlay_hints_enabled[bufnr] = M.inlay_hints_enabled_global
-    end
-    vim.lsp.inlay_hint.enable(M.inlay_hints_enabled[bufnr], { bufnr = bufnr })
-
-    vim.api.nvim_create_autocmd('InsertEnter', {
-      group = inlay_hints_group,
-      buffer = bufnr,
-      callback = function()
-        if M.inlay_hints_enabled[bufnr] then
-          vim.lsp.inlay_hint.enable(false, { bufnr = bufnr })
-        end
-      end,
-    })
-    vim.api.nvim_create_autocmd('InsertLeave', {
-      group = inlay_hints_group,
-      buffer = bufnr,
-      callback = function()
-        if M.inlay_hints_enabled[bufnr] then
-          vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-        end
-      end,
-    })
-  end
-end
-
-M.on_attach = function()
-  vim.notify('Error: user.lsp.on_attach: lsp.setup() has not been called yet', vim.log.levels.ERROR)
-end
-
-local function on_exit(code, signal, id) user_lsp_status.on_exit(code, signal, id) end
 
 function M.peek_definition()
   local params = vim.lsp.util.make_position_params(0, 'utf-8')
@@ -120,7 +56,62 @@ function M.set_inlay_hints(bufnr, status)
   vim.lsp.inlay_hint.enable(status, { bufnr = bufnr })
 end
 
+M.on_attach = function(client, bufnr)
+  if not M.setup_called then
+    vim.notify('Error: user.lsp.on_attach: user.lsp.setup() has not been called yet', vim.log.levels.ERROR)
+    return
+  end
+  if not M.on_attach_called then
+    if M.config.on_first_attach then
+      M.config.on_first_attach(client, bufnr)
+    end
+    M.on_attach_called = true
+  end
+  if M.config.on_attach then
+    M.config.on_attach(client, bufnr)
+  end
+  vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
+  user_lsp_status.on_attach(client, bufnr)
+
+  -- Enable inlay hints if the client supports it.
+  -- Credit @MariaSolOs:
+  -- https://github.com/MariaSolOs/dotfiles/blob/8607ace4af5eb2e9001b3f14870c2ffc937f4dcd/.config/nvim/lua/lsp.lua#L118
+  if methods and client.supports_method(methods.textDocument_inlayHint) then
+    local inlay_hints_group = vim.api.nvim_create_augroup('InlayHints', { clear = true })
+
+    -- Initial inlay hint display.
+    if M.inlay_hints_enabled[bufnr] == nil then
+      M.inlay_hints_enabled[bufnr] = M.inlay_hints_enabled_global
+    end
+    vim.lsp.inlay_hint.enable(M.inlay_hints_enabled[bufnr], { bufnr = bufnr })
+
+    vim.api.nvim_create_autocmd('InsertEnter', {
+      group = inlay_hints_group,
+      buffer = bufnr,
+      callback = function()
+        if M.inlay_hints_enabled[bufnr] then
+          vim.lsp.inlay_hint.enable(false, { bufnr = bufnr })
+        end
+      end,
+    })
+    vim.api.nvim_create_autocmd('InsertLeave', {
+      group = inlay_hints_group,
+      buffer = bufnr,
+      callback = function()
+        if M.inlay_hints_enabled[bufnr] then
+          vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+        end
+      end,
+    })
+  end
+end
+
 M.setup = function(config)
+  if M.setup_called then
+    vim.notify('Error: user.lsp.setup: user.lsp.setup() has already been called', vim.log.levels.ERROR)
+    return
+  end
+
   config = config or {}
   local servers = config.servers
   if not servers then
@@ -128,23 +119,37 @@ M.setup = function(config)
     return
   end
 
-  M.on_attach = function(client, bufnr)
-    if not M.on_attach_called then
-      if config.on_first_attach then
-        config.on_first_attach(client, bufnr)
-      end
-      M.on_attach_called = true
-    end
-    if config.on_attach then
-      config.on_attach(client, bufnr)
-    end
-    return on_attach(client, bufnr)
-  end
+  M.setup_called = true
+  M.config = config
+  M.servers = servers
 
   vim.lsp.set_log_level(vim.log.levels.WARN)
 
-  for k, v in pairs(lsp_handlers) do
-    vim.lsp.handlers[k] = v
+  vim.lsp.handlers['textDocument/definition'] = function(_, result, ctx)
+    if result == nil or vim.tbl_isempty(result) then
+      vim.notify('Definition not found', vim.log.levels.WARN)
+      return
+    end
+    local client = vim.lsp.get_client_by_id(ctx.client_id)
+    if client == nil then
+      vim.notify('Client not found: ' .. ctx.client_id, vim.log.levels.WARN)
+      return
+    end
+    local function jumpto(loc)
+      local split_cmd = vim.uri_from_bufnr(0) == loc.targetUri and 'split' or 'tabnew'
+      vim.cmd(split_cmd)
+      vim.lsp.util.show_document(loc, client.offset_encoding, { focus = true })
+    end
+    if vim.islist(result) then
+      jumpto(result[1])
+      if #result > 1 then
+        vim.fn.setqflist(vim.lsp.util.locations_to_items(result, client.offset_encoding))
+        vim.api.nvim_command 'copen'
+        vim.api.nvim_command 'wincmd p'
+      end
+    else
+      jumpto(result)
+    end
   end
 
   local capabilities = require('blink.cmp').get_lsp_capabilities()
@@ -160,7 +165,7 @@ M.setup = function(config)
   for _, lsp in ipairs(vim.tbl_filter(is_enabled, servers)) do
     local opts = {
       on_attach = M.on_attach,
-      on_exit = on_exit,
+      on_exit = function(code, signal, id) user_lsp_status.on_exit(code, signal, id) end,
       flags = {
         debounce_text_changes = 150,
       },
