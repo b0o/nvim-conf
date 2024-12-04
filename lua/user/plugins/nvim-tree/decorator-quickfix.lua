@@ -30,7 +30,7 @@ end
 
 function QuickfixDecorator:new()
   self.enabled = true
-  self.highlight_range = 'all'
+  self.highlight_range = 'none'
   self.icon_placement = 'signcolumn'
   self.qf_icon = { str = '', hl = { 'QuickFixLine' } }
   self:define_sign(self.qf_icon)
