@@ -533,7 +533,6 @@ M.trigger = function()
 
     cleanup_preview()
 
-    ---@type table
     local opts = {
       relative = 'cursor',
       row = 1,
