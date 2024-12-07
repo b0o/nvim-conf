@@ -50,7 +50,6 @@ local function get_lspkind_symbol(kind)
   return '●'
 end
 
--- Define highlight groups if they don't exist
 local function ensure_highlights()
   ---@type table<string, table>
   local highlights = {
@@ -82,10 +81,7 @@ local function get_kind_highlight_group(kind)
     return 'CmpItemAbbr'
   end
 
-  -- Remove spaces and special characters
   kind_name = kind_name:gsub('[^%w]', '')
-
-  -- Try specific highlight group
   local specific_hl = 'CmpItemKind' .. kind_name
   if vim.fn.hlexists(specific_hl) == 1 then
     return specific_hl
@@ -120,7 +116,6 @@ local function calculate_column_widths(lines, window_width)
     widths.kind = math.max(widths.kind, vim.fn.strdisplaywidth(line.kind))
   end
 
-  -- Define fixed column spacings
   local ICON_LEFT_PADDING = 1
   local ICON_RIGHT_PADDING = 1
   local LABEL_MAX_WIDTH = 16
@@ -478,7 +473,6 @@ end
 
 ---Triggers the completion window
 M.trigger = function()
-  -- If we're in a preview window, move back to previous window
   if preview_state.win and vim.api.nvim_get_current_win() == preview_state.win then
     vim.wo[preview_state.win].cursorline = false
     noautocmd(function() vim.cmd 'wincmd p' end)
@@ -562,11 +556,9 @@ M.trigger = function()
     vim.wo[win].cursorline = false
     vim.wo[win].winhighlight = 'Normal:CmpNormal,FloatBorder:CmpBorder,CursorLine:CmpSel,Search:None'
 
-    -- Create augroup for preview window
     preview_state.augroup = 'CmpPreview' .. win
     local augroup = vim.api.nvim_create_augroup(preview_state.augroup, { clear = true })
 
-    -- Set up focus-related autocommands
     vim.api.nvim_create_autocmd('WinEnter', {
       group = augroup,
       callback = function()
@@ -589,7 +581,6 @@ M.trigger = function()
 
     setup_preview_keymaps()
 
-    -- Close preview window when cursor moves outside
     vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
       group = augroup,
       callback = function()
@@ -602,7 +593,6 @@ M.trigger = function()
       buffer = vim.api.nvim_get_current_buf(),
     })
 
-    -- Clean up when preview window is closed
     vim.api.nvim_create_autocmd('WinClosed', {
       group = augroup,
       callback = function(args)
