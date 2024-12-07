@@ -314,7 +314,7 @@ end
 ---@return string
 local function get_line_indentation(line) return line:match '^%s*' end
 
----@param node userdata TSNode
+---@param node TSNode
 ---@param bufnr number
 ---@param cursor number[]
 ---@return string
