@@ -468,6 +468,13 @@ local on_attach = function(_, bufnr)
   end
 
   bufmap('ni', '<M-i>', hover, 'LSP: Hover or focus diagnostic')
+
+  map(
+    'n',
+    '<M-p>',
+    vim.schedule_wrap(lazy_require('user.util.cmp_preview').trigger),
+    'Hover: Preview completions for word under cursor'
+  )
 end
 
 ---@type LazySpec[]
