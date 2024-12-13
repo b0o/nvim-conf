@@ -271,6 +271,24 @@ local spec = {
     },
     ft = { 'markdown', 'noice', 'cmp_docs' },
   },
+  {
+    'lervag/vimtex',
+    lazy = false, -- we don't want to lazy load VimTeX
+    -- tag = "v2.15", -- uncomment to pin to a specific release
+    init = function()
+      vim.g.vimtex_imaps_enabled = 0
+      vim.g.vimtex_view_method = 'zathura_simple'
+      vim.g.vimtex_quickfix_ignore_filters = {
+        'Underfull \\\\hbox',
+        'Underfull \\\\vbox',
+        'Overfull \\\\hbox',
+        'Overfull \\\\vbox',
+        'LaTeX Warning: .\\+ float specifier changed to',
+        'LaTeX hooks Warning',
+        'Package hyperref Warning: Token not allowed in a PDF string',
+      }
+    end,
+  },
 }
 
 very_lazy(function()
