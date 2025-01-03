@@ -1,5 +1,14 @@
+very_lazy(function()
+  local maputil = require 'user.util.map'
+  local map = maputil.map
+
+  map('n', { '<leader>O', '<leader>oo' }, '<Cmd>Other<Cr>', 'Other: Switch to other file')
+  map('n', { '<leader>os', '<leader>ox' }, '<Cmd>OtherSplit<Cr>', 'Other: Open other in split')
+  map('n', '<leader>ov', '<Cmd>OtherVSplit<Cr>', 'Other: Open other in vsplit')
+end)
+
 ---@type LazySpec[]
-local spec = {
+return {
   {
     'aouelete/sway-vim-syntax',
     ft = 'sway',
@@ -184,6 +193,75 @@ local spec = {
     },
   },
   {
+    'mrcjkb/rustaceanvim',
+    version = '^5',
+    ft = 'rust',
+    dependencies = {
+      {
+        'Joakker/lua-json5',
+        build = './install.sh',
+        config = function()
+          local vim_json_decode = vim.json.decode
+          -- Support JSON5 syntax in .vscode/settings.json
+          ---@diagnostic disable-next-line: duplicate-set-field
+          vim.json.decode = function(str, opts)
+            -- Try builtin JSON parser
+            local ok, json = pcall(vim_json_decode, str, opts or {})
+            if ok then
+              return json
+            end
+            -- Try JSON5 parser
+            return require('json5').parse(str)
+          end
+        end,
+      },
+    },
+    config = function()
+      local maputil = require 'user.util.map'
+      local ft = maputil.ft
+
+      ---@type rustaceanvim.Config
+      vim.g.rustaceanvim = {
+        tools = {
+          float_win_config = {
+            border = 'rounded',
+          },
+        },
+        server = {
+          on_attach = function(client, bufnr) require('user.util.lsp').on_attach(client, bufnr) end,
+        },
+      }
+
+      require 'rustaceanvim' -- force lazydev to load types for rustaceanvim
+
+      ft('rust', function(bufmap)
+        bufmap('n', '<localleader>rA', '<cmd>RustLsp codeAction<Cr>', { silent = true, desc = 'Rust: Code action' })
+        bufmap(
+          'n',
+          '<localleader>re',
+          '<cmd>RustLsp explainError current<Cr>',
+          { silent = true, desc = 'Rust: Explain error' }
+        )
+        bufmap('n', '<localleader>ri', function()
+          require('user.util.lsp').hover(function() vim.cmd.RustLsp { 'hover', 'actions' } end)
+        end, { silent = true, desc = 'Rust: Hover actions' })
+        bufmap(
+          'v',
+          '<M-i>',
+          function() vim.cmd.RustLsp { 'hover', 'range' } end,
+          { silent = true, desc = 'Rust: Hover range' }
+        )
+        bufmap(
+          'n',
+          '<localleader>rd',
+          '<cmd>RustLsp renderDiagnostic current<Cr>',
+          { silent = true, desc = 'Rust: Cycle diagnostics' }
+        )
+        bufmap('n', '<localleader>rI', '<cmd>RustLsp openDocs<Cr>', { silent = true, desc = 'Rust: Open docs' })
+      end)
+    end,
+  },
+  {
     'SUSTech-data/neopyter',
     dependencies = { 'AbaoFromCUG/websocket.nvim' },
     event = { 'BufRead *.ju.*', 'BufNewFile *.ju.*' },
@@ -291,14 +369,3 @@ local spec = {
     end,
   },
 }
-
-very_lazy(function()
-  local maputil = require 'user.util.map'
-  local map = maputil.map
-
-  map('n', { '<leader>O', '<leader>oo' }, '<Cmd>Other<Cr>', 'Other: Switch to other file')
-  map('n', { '<leader>os', '<leader>ox' }, '<Cmd>OtherSplit<Cr>', 'Other: Open other in split')
-  map('n', '<leader>ov', '<Cmd>OtherVSplit<Cr>', 'Other: Open other in vsplit')
-end)
-
-return spec

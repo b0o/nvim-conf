@@ -177,7 +177,6 @@ local servers = function()
       'ruff',
       hover = false,
     },
-    'rust_analyzer',
     'rnix',
     {
       'lua_ls',
