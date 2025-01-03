@@ -531,6 +531,15 @@ return {
     opts = {},
   },
   {
+    'b0o/seek.nvim',
+    dev = true,
+    config = function()
+      require('seek').setup {
+        debug = vim.g.SeekDebug or false,
+      }
+    end,
+  },
+  {
     'DNLHC/glance.nvim',
     config = function()
       local glance = require 'glance'
