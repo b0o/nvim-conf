@@ -6,7 +6,7 @@ local M = {}
 --- The base are merged with the given options, with the given options taking precedence
 ---@param opts? string|table The options to process
 ---@param base? table The base options to merge with the given options
-M.process_opts = function(opts, base)
+local process_opts = function(opts, base)
   opts = opts or {}
   if type(opts) == 'string' then
     opts = { desc = opts }
@@ -26,7 +26,7 @@ end
 M.map = function(mode, lhs, rhs, opts)
   mode = type(mode) == 'string' and vim.split(mode, '') or mode
   lhs = type(lhs) == 'table' and lhs or { lhs }
-  opts = M.process_opts(opts, { silent = true })
+  opts = process_opts(opts, { silent = true })
   local args = opts.args or false -- include extra args when calling the rhs
   opts.args = nil
 
@@ -37,9 +37,7 @@ M.map = function(mode, lhs, rhs, opts)
       error 'map: rhs must be a function or callable table'
     end
     local orig_rhs = rhs
-    rhs = function(...)
-      return orig_rhs(...)
-    end
+    rhs = function(...) return orig_rhs(...) end
   end
 
   for _, l in ipairs(lhs) do
@@ -62,16 +60,16 @@ local ft_augroup = vim.api.nvim_create_augroup('user_mappings_ft', { clear = tru
 --- to create buffer mappings for the given filetype. It has the same signature
 --- as map.map()
 ---@param ft string|string[] The filetype(s) to create the mapping for
----@param callback fun(bufmap: fun(mode: string|string[], lhs: string|string[], rhs: string|function, opts?: string|table), event: AutocmdEvent) The function to call to create the mappings
+---@param callback fun(bufmap: fun(mode: string|string[], lhs: string|string[], rhs: string|function, opts?: string|table), event: vim.api.keyset.create_autocmd.callback_args) The function to call to create the mappings
 M.ft = function(ft, callback)
   vim.api.nvim_create_autocmd('FileType', {
     group = ft_augroup,
     pattern = ft,
     callback = function(event)
       callback(
-        vim.schedule_wrap(function(mode, lhs, rhs, opts)
-          return M.map(mode, lhs, rhs, M.process_opts(opts, { buffer = event.buf }))
-        end),
+        vim.schedule_wrap(
+          function(mode, lhs, rhs, opts) return M.map(mode, lhs, rhs, process_opts(opts, { buffer = event.buf })) end
+        ),
         event
       )
     end,
@@ -86,9 +84,7 @@ M.buf = function(bufnr)
   --- @param lhs string|string[]   The key to map, can be a single string or a list of strings for multiple keys
   --- @param rhs string|function   The rhs of the mapping
   --- @param opts? string|table    The options for the mapping, if string, it's the description, otherwise it's a table of options
-  local function bufmap(mode, lhs, rhs, opts)
-    return M.map(mode, lhs, rhs, M.process_opts(opts, { buffer = bufnr }))
-  end
+  local function bufmap(mode, lhs, rhs, opts) return M.map(mode, lhs, rhs, process_opts(opts, { buffer = bufnr })) end
   return bufmap
 end
 
@@ -98,9 +94,7 @@ end
 ---@param ... any The arguments to pass to func
 M.wrap = function(func, ...)
   local args = { ... }
-  return function(...)
-    return func(unpack(vim.list_extend(vim.list_extend({}, args), { ... })))
-  end
+  return function(...) return func(unpack(vim.list_extend(vim.list_extend({}, args), { ... }))) end
 end
 
 return M
