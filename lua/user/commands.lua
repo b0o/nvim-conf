@@ -1,5 +1,5 @@
-local lazy = require 'user.util.lazy'
 local command_util = require 'user.util.command'
+local lazy = require 'user.util.lazy'
 
 local fn = lazy.require_on_call_rec 'user.fn'
 
@@ -110,9 +110,7 @@ command {
         return
       end
       vim.notify(string.format('Deleting %d unused buffer%s', #bufs, #bufs == 1 and '' or 's'))
-      vim.iter(bufs):each(function(buf)
-        vim.cmd('confirm bdelete ' .. buf)
-      end)
+      vim.iter(bufs):each(function(buf) vim.cmd('confirm bdelete ' .. buf) end)
     end,
     'bang',
   },
@@ -135,9 +133,10 @@ M.cmp.copy = function(input)
   local sep = fn.get_path_separator()
   local prefix = vim.fn.expand '%:p:h' .. sep
   local files = vim.fn.glob(prefix .. input .. '*', false, true)
-  files = vim.tbl_map(function(file)
-    return string.sub(file, #prefix + 1) .. (vim.fn.isdirectory(file) == 1 and sep or '')
-  end, files)
+  files = vim.tbl_map(
+    function(file) return string.sub(file, #prefix + 1) .. (vim.fn.isdirectory(file) == 1 and sep or '') end,
+    files
+  )
   if #files > 0 then
     table.insert(files, '..' .. sep)
   end
@@ -152,9 +151,7 @@ local function magicFileCmd(func, name, edit_cmd)
     "-complete=customlist,v:lua.require'user.commands'.cmp.copy",
     name,
     {
-      function(o)
-        func(0, o.args[1], o.bang == '!', edit_cmd, true)
-      end,
+      function(o) func(0, o.args[1], o.bang == '!', edit_cmd, true) end,
       'args',
       'bang',
     },
@@ -200,9 +197,7 @@ end
 -- highlighting regex matches in the current buffer.
 local function write_matches_to_clipboard_preview(opts, preview_ns, preview_buf) end
 
-vim.api.nvim_create_user_command('CopyMatches', function(o)
-  write_matches_to_clipboard(o.args, o.bang)
-end, {
+vim.api.nvim_create_user_command('CopyMatches', function(o) write_matches_to_clipboard(o.args, o.bang) end, {
   bang = true,
   nargs = 1,
   preview = write_matches_to_clipboard_preview,

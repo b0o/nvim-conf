@@ -23,7 +23,6 @@ local other_hl_wins = {}
 autocmd('WinEnter', {
   group = group,
   pattern = { '*.c', '*.c++', '*.cc', '*.cpp', '*.cxx', '*.h', '*.h++', '*.hh', '*.hpp', '*.hxx' },
-  ---@param event AutocmdEvent
   callback = function(event)
     local curwin = vim.api.nvim_get_current_win()
     local other = require 'other-nvim'
@@ -38,9 +37,7 @@ autocmd('WinEnter', {
           for _, win in ipairs(wins) do
             if win ~= curwin and vim.api.nvim_win_is_valid(win) then
               table.insert(other_hl_wins, win)
-              vim.api.nvim_win_call(win, function()
-                vim.cmd [[setlocal winhighlight=NormalNC:Normal]]
-              end)
+              vim.api.nvim_win_call(win, function() vim.cmd [[setlocal winhighlight=NormalNC:Normal]] end)
             end
           end
         end
@@ -76,9 +73,7 @@ autocmd('WinLeave', {
   callback = function()
     for _, other in ipairs(other_hl_wins) do
       if vim.api.nvim_win_is_valid(other) then
-        vim.api.nvim_win_call(other, function()
-          vim.cmd [[setlocal winhighlight=]]
-        end)
+        vim.api.nvim_win_call(other, function() vim.cmd [[setlocal winhighlight=]] end)
       end
     end
     other_hl_wins = {}
@@ -96,9 +91,7 @@ autocmd('WinLeave', {
       end,
     })
     rwins_modechanged_autocmd = autocmd('ModeChanged', {
-      callback = function()
-        update_recent_wins:immediate()
-      end,
+      callback = function() update_recent_wins:immediate() end,
       once = true,
     })
   end,
@@ -106,22 +99,16 @@ autocmd('WinLeave', {
 
 autocmd('FocusGained', {
   group = group,
-  callback = function()
-    vim.g.nvim_focused = true
-  end,
+  callback = function() vim.g.nvim_focused = true end,
 })
 autocmd('FocusLost', {
   group = group,
-  callback = function()
-    vim.g.nvim_focused = false
-  end,
+  callback = function() vim.g.nvim_focused = false end,
 })
 
 autocmd('TextYankPost', {
   group = group,
-  callback = function()
-    vim.highlight.on_yank()
-  end,
+  callback = function() vim.highlight.on_yank() end,
 })
 autocmd('TermOpen', {
   group = group,
@@ -136,9 +123,7 @@ autocmd('WinEnter', {
       return
     end
     vim.cmd 'normal! $'
-    vim.schedule(function()
-      vim.cmd 'startinsert!'
-    end)
+    vim.schedule(function() vim.cmd 'startinsert!' end)
   end),
 })
 
@@ -146,7 +131,6 @@ autocmd('WinEnter', {
 autocmd('FileType', {
   pattern = 'qf',
   group = group,
-  ---@param event AutocmdEvent
   callback = function(event)
     for _, win in ipairs(vim.api.nvim_list_wins()) do
       if vim.api.nvim_win_get_buf(win) == event.buf then
@@ -169,7 +153,7 @@ autocmd('FileType', {
 
 ------ Plugins
 
----- kyazdani42/nvim-tree.lua
+---- nvim-tree/nvim-tree.lua
 autocmd('BufEnter', {
   group = group,
   nested = true,
