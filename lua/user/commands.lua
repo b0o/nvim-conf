@@ -11,16 +11,35 @@ local M = {
 
 ------ User Commands
 command {
+  '-bang',
   '-nargs=+',
   '-complete=command',
   'Put',
   {
     function(o)
       local l = vim.api.nvim_win_get_cursor(0)[1]
-      local res = vim.split(vim.fn.trim(vim.fn.execute(table.concat(o.args, ' '))), '\n')
-      vim.api.nvim_buf_set_lines(0, l, l, false, res)
+      ---@type string
+      local res
+      if o.bang == '!' then
+        local out = vim
+          .system({
+            vim.o.shell,
+            vim.o.shellcmdflag,
+            table.concat(o.args, ' '),
+          }, {})
+          :wait()
+        if out.code ~= 0 then
+          vim.notify('Command failed with exit code ' .. out.code)
+          return
+        end
+        res = out.stdout or ''
+      else
+        res = vim.fn.execute(table.concat(o.args, ' '))
+      end
+      vim.api.nvim_buf_set_lines(0, l, l, false, vim.split(vim.fn.trim(res), '\n'))
     end,
     'args',
+    'bang',
   },
 }
 
