@@ -86,6 +86,9 @@ vim.opt.listchars = {
   extends = '»',
   precedes = '«',
 }
+vim.opt.fillchars = {
+  diff = '╱',
+}
 
 vim.o.termguicolors = true
 
