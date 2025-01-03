@@ -204,21 +204,6 @@ M.close_float_wins = function(opts)
   end
 end
 
--- Open a Help topic
---  - If a blank buffer is focused, open it there
---  - Otherwise, open in a new tab
-M.help = function(...)
-  for _, topic in ipairs { ... } do
-    if vim.fn.bufname() == '' and vim.api.nvim_buf_line_count(0) == 1 and vim.fn.getline(1) == '' then
-      local win = vim.api.nvim_get_current_win()
-      vim.cmd 'help'
-      vim.api.nvim_win_close(win, false)
-    else
-      vim.cmd('tab help ' .. topic)
-    end
-  end
-end
-
 -- Jump to prev/next buffer in jumplist
 M.jumplist_jump_buf = function(dir)
   local jumplist, jumppos = unpack(vim.fn.getjumplist())
