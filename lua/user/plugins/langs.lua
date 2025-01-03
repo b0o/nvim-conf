@@ -219,6 +219,8 @@ local spec = {
     'MeanderingProgrammer/render-markdown.nvim',
     opts = {
       file_types = { 'markdown', 'Avante', 'mdx' },
+      bullet = { right_pad = 1 },
+      code = { language_name = false },
     },
     ft = { 'markdown', 'Avante', 'mdx' },
   },
