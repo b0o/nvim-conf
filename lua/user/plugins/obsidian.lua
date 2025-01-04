@@ -1,14 +1,15 @@
 local private = require 'user.util.private'
+local vault = private.obsidian_vault or {}
 
 ---@type LazySpec[]
 return {
   {
     'epwalsh/obsidian.nvim',
     dev = true,
-    event = {
-      ('BufReadPre %s/**.md'):format(private.obsidian_vault.path),
-      ('BufNewFile %s/**.md'):format(private.obsidian_vault.path),
-    },
+    event = vault.path and {
+      ('BufReadPre %s/**.md'):format(vault.path),
+      ('BufNewFile %s/**.md'):format(vault.path),
+    } or nil,
     cmd = {
       'ObsidianBacklinks',
       'ObsidianDailies',
@@ -36,9 +37,7 @@ return {
 
       require('obsidian').setup {
         ui = { enable = false },
-        workspaces = {
-          private.obsidian_vault,
-        },
+        workspaces = { vault },
         ---@diagnostic disable-next-line: missing-fields
         completion = { nvim_cmp = false },
         ---@diagnostic disable-next-line: missing-fields
