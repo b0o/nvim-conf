@@ -25,7 +25,7 @@ return {
       },
       keys = {
         toggle = { 'Q', 'q' },
-        confirm = { '<C-Cr>' },
+        confirm = xk '<C-Cr>',
         reset_testcases = xk '<C-S-r>',
         use_testcase = xk '<C-S-u>',
         focus_testcases = '<M-h>',
