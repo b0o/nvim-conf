@@ -259,47 +259,6 @@ M.resize_win = function(dir, dist)
   M.set_winfix(true, (dir == '<' or dir == '>') and 'width' or 'height')
 end
 
----- UTF-8
--- Convert a number to a utf8 string
-M.utf8 = function(decimal)
-  if type(decimal) == 'string' then
-    decimal = vim.fn.char2nr(decimal)
-  end
-  if decimal < 128 then
-    return string.char(decimal)
-  end
-  local charbytes = {}
-  for bytes, vals in ipairs { { 0x7FF, 192 }, { 0xFFFF, 224 }, { 0x1FFFFF, 240 } } do
-    if decimal <= vals[1] then
-      for b = bytes + 1, 2, -1 do
-        local mod = decimal % 64
-        decimal = (decimal - mod) / 64
-        charbytes[b] = string.char(128 + mod)
-      end
-      charbytes[1] = string.char(vals[2] + decimal)
-      break
-    end
-  end
-  return table.concat(charbytes)
-end
-
--- For each { k = v } in keys, return a table that when indexed by any k' such
--- that tolower(k') == tolower(k) returns utf8(v)
-M.utf8keys = function(keys)
-  local _keys = {}
-  for k, v in pairs(keys) do
-    _keys[string.lower(k)] = M.utf8(v)
-  end
-  return setmetatable(_keys, {
-    __index = function(self, k)
-      return rawget(self, string.lower(k))
-    end,
-    __call = function(self, k)
-      return self[k]
-    end,
-  })
-end
-
 -- Replace occurrences of ${k} with v in tmpl for each { k = v } in data
 M.template = function(tmpl, data)
   local fn = function(_data)
