@@ -10,29 +10,7 @@ end)
 
 ---@type LazySpec[]
 return {
-  {
-    'zbirenbaum/copilot.lua',
-    enabled = false,
-  },
-  {
-    'github/copilot.vim',
-    enabled = false,
-    init = function()
-      vim.g.copilot_no_tab_map = true
-      vim.g.copilot_filetypes = {
-        yaml = true,
-        markdown = true,
-        help = true,
-        gitcommit = true,
-        gitrebase = true,
-        hgcommit = true,
-        svn = true,
-        cvs = true,
-        oil = false,
-      }
-    end,
-    cmd = { 'GHCopilot' },
-  },
+  'zbirenbaum/copilot.lua',
   'supermaven-inc/supermaven-nvim',
   {
     'yetone/avante.nvim',
