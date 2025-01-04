@@ -125,16 +125,14 @@ very_lazy(function()
   map(
     'n',
     '<M-\\>',
-    fn.filetype_command('aerial', recent_wins.focus_most_recent, wrap(aerial_open, true)),
+    fn.if_filetype('aerial', recent_wins.focus_most_recent, wrap(aerial_open, true)),
     'Aerial: Toggle Focus'
   )
 
   map(
     'n',
     xk '<C-M-S-\\>',
-    fn.filetype_command('aerial', function()
-      vim.cmd.AerialClose()
-    end, function()
+    fn.if_filetype('aerial', function() vim.cmd.AerialClose() end, function()
       require('aerial').refetch_symbols()
       vim.cmd.AerialOpen 'float'
     end),

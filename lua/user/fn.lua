@@ -249,9 +249,7 @@ M.set_winfix = function(set, ...)
   end
 end
 
-M.toggle_winfix = function(...)
-  M.set_winfix('toggle', ...)
-end
+M.toggle_winfix = function(...) M.set_winfix('toggle', ...) end
 
 M.resize_win = function(dir, dist)
   dist = dist or ''
@@ -274,9 +272,7 @@ M.template = function(tmpl, data)
   return fn
 end
 
-M.tmpl_cmd = function(...)
-  return vim.cmd(M.template(...))
-end
+M.tmpl_cmd = function(...) return vim.cmd(M.template(...)) end
 
 M.tmpl_hi = function(tmpl, colors)
   colors = colors or require 'user.colors'
@@ -334,13 +330,16 @@ M.is_callable = function(val)
   return false
 end
 
-M.filetype_command = function(ft, if_match, if_not_match)
+---@param ft string|string[]
+---@param if_match fun()
+---@param if_not_match? fun()
+M.if_filetype = function(ft, if_match, if_not_match)
   local fts = type(ft) == 'table' and ft or { ft }
   return function()
     if vim.tbl_contains(fts, vim.bo.filetype) then
       if_match()
     else
-      if M.is_callable(if_not_match) then
+      if if_not_match and M.is_callable(if_not_match) then
         if_not_match()
       end
     end
@@ -350,9 +349,7 @@ end
 M.get_latest_messages = function(count)
   local messages = vim.fn.execute 'messages'
   local lines = vim.split(messages, '\n')
-  lines = vim.tbl_filter(function(line)
-    return line ~= ''
-  end, lines)
+  lines = vim.tbl_filter(function(line) return line ~= '' end, lines)
   count = count and tonumber(count) or nil
   count = (count ~= nil and count >= 0) and count - 1 or #lines
   return table.concat(vim.list_slice(lines, #lines - count), '\n')
@@ -374,9 +371,7 @@ M.resolve_bufnr = apiutil.resolve_bufnr
 M.resolve_winnr = apiutil.resolve_winnr
 
 M.get_wins_of_type = function(wintype)
-  return vim.tbl_filter(function(winid)
-    return vim.fn.win_gettype(winid) == wintype
-  end, vim.api.nvim_list_wins())
+  return vim.tbl_filter(function(winid) return vim.fn.win_gettype(winid) == wintype end, vim.api.nvim_list_wins())
 end
 
 M.is_normal_win = function(winid)
@@ -520,9 +515,7 @@ M.transform_string = function(opts)
   local postFn = opts.postFn
   local meta = opts.meta
 
-  local function identityFn(x, ...)
-    return x
-  end
+  local function identityFn(x, ...) return x end
   -- If preFn or postFn are not provided, default to identityFn
   preFn = preFn or identityFn
   postFn = postFn or identityFn

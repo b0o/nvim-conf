@@ -18,20 +18,14 @@ local spec = {
           end
         end,
         open_mapping = xk [[<C-S-/>]],
-        on_open = function()
-          vim.cmd 'startinsert!'
-        end,
+        on_open = function() vim.cmd 'startinsert!' end,
         direction = 'float',
         persist_size = false,
         shade_terminals = false,
         float_opts = {
           border = 'curved',
-          width = function()
-            return math.max(40, math.min(200, math.floor(vim.o.columns * 0.55)))
-          end,
-          height = function()
-            return math.max(30, math.min(100, math.floor(vim.o.lines * 0.55)))
-          end,
+          width = function() return math.max(40, math.min(200, math.floor(vim.o.columns * 0.55))) end,
+          height = function() return math.max(30, math.min(100, math.floor(vim.o.lines * 0.55))) end,
           zindex = 200,
         },
       }
@@ -118,7 +112,7 @@ very_lazy(function()
   map(
     'n',
     '<M-o>',
-    fn.filetype_command('OverseerList', recent_wins.focus_most_recent, overseer.open),
+    fn.if_filetype('OverseerList', recent_wins.focus_most_recent, overseer.open),
     'Overseer: Toggle Focus'
   )
 

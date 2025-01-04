@@ -43,7 +43,6 @@ local spec = {
       vim.api.nvim_create_autocmd({ 'BufWritePost', 'BufReadPost', 'TextChanged', 'InsertLeave' }, {
         group = vim.api.nvim_create_augroup('user_lint', { clear = true }),
         callback = function(event)
-          ---@cast event AutocmdEvent
           local bufnr = event.buf
           local ft = vim.bo[bufnr].filetype
           local linters = by_ft[ft]
