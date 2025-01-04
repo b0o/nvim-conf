@@ -54,9 +54,7 @@ return {
           lualine_a = {
             {
               'mode',
-              fmt = function(str)
-                return str:sub(1, 1)
-              end,
+              fmt = function(str) return str:sub(1, 1) end,
             },
           },
           lualine_b = {
@@ -65,9 +63,10 @@ return {
             'diff',
             'diagnostics',
           },
-          -- lualine_c = {
-          --   'aerial',
-          -- },
+          lualine_c = {
+            { 'filename', path = 1 },
+            'aerial',
+          },
           lualine_x = {
             {
               'tabs',
@@ -89,12 +88,8 @@ return {
                 local buf = require('user.util.tabs').get_most_recent_buf(tabpage)
                 local mod = vim
                   .iter(vim.api.nvim_tabpage_list_wins(tabpage))
-                  :map(function(winnr)
-                    return vim.api.nvim_win_get_buf(winnr)
-                  end)
-                  :any(function(bufnr)
-                    return vim.bo[bufnr].modified
-                  end)
+                  :map(function(winnr) return vim.api.nvim_win_get_buf(winnr) end)
+                  :any(function(bufnr) return vim.bo[bufnr].modified end)
                 local name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ':t')
                 return vim
                   .iter({
@@ -103,9 +98,7 @@ return {
                     name,
                     mod and ' *',
                   })
-                  :filter(function(v)
-                    return v and v ~= ''
-                  end)
+                  :filter(function(v) return v and v ~= '' end)
                   :join ''
               end,
             },
@@ -124,9 +117,7 @@ return {
         local lualine_nvim_opts = require 'lualine.utils.nvim_opts'
         local base_set = lualine_nvim_opts.set
 
-        local tpipeline_update = Debounce(function()
-          vim.cmd 'silent! call tpipeline#update()'
-        end, {
+        local tpipeline_update = Debounce(function() vim.cmd 'silent! call tpipeline#update()' end, {
           threshold = 20,
         })
 
@@ -155,9 +146,7 @@ return {
       vim.cmd.hi { 'link', 'StatusLine', 'WinSeparator' }
       vim.g.tpipeline_statusline = ''
       vim.o.laststatus = 0
-      vim.defer_fn(function()
-        vim.o.laststatus = 0
-      end, 0)
+      vim.defer_fn(function() vim.o.laststatus = 0 end, 0)
       vim.o.fillchars = 'stl:─,stlnc:─'
       vim.api.nvim_create_autocmd('OptionSet', {
         pattern = 'laststatus',
@@ -169,9 +158,7 @@ return {
         end,
       })
     end,
-    cond = function()
-      return vim.env.TMUX ~= nil
-    end,
+    cond = function() return vim.env.TMUX ~= nil end,
     dependencies = {
       'nvim-lualine/lualine.nvim',
     },
