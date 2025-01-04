@@ -37,6 +37,7 @@ return {
   {
     'yetone/avante.nvim',
     dev = true,
+    event = 'VeryLazy',
     cmd = {
       'AvanteAsk',
       'AvanteChat',
@@ -65,20 +66,27 @@ return {
       '<M-m>',
       '<M-S-m>',
     },
-    build = 'make',
+    build = 'make BUILD_FROM_SOURCE=true',
     config = function()
       local fn = require 'user.fn'
       local recent_wins = require 'user.util.recent-wins'
       local maputil = require 'user.util.map'
+      local xk = require('user.keys').xk
       local map = maputil.map
       local private = require 'user.private'
 
       vim.env.ANTHROPIC_API_KEY = private.anthropic_api_key
       vim.env.CEREBRAS_API_KEY = private.cerebras_api_key
       vim.env.GROQ_API_KEY = private.groq_api_key
+      vim.env.DEEPINFRA_API_KEY = private.deepinfra_api_key
 
       require('avante').setup {
-        ---@type "openai" | "claude" | "azure"  | "copilot" | "cohere"
+        debug = true,
+        ---@type "openai"|"claude"|"azure"|"copilot"|"cohere"|string
+        -- provider = 'copilot',
+        -- provider = 'deepinfra',
+        -- provider = 'deepinfra_turbo',
+        -- provider = 'groq',
         provider = 'claude',
         auto_suggestions_provider = 'cerebras',
         claude = {
@@ -92,13 +100,29 @@ return {
             __inherited_from = 'openai',
             api_key_name = 'GROQ_API_KEY',
             endpoint = 'https://api.groq.com/openai/v1/',
-            model = 'llama-3.2-90b-text-preview',
+            -- model = 'llama-3.2-90b-text-preview',
+            -- model = 'llama-3.3-70b-specdec',
+            model = 'llama-3.3-70b-versatile',
           },
           cerebras = {
             __inherited_from = 'openai',
             api_key_name = 'CEREBRAS_API_KEY',
             endpoint = 'https://api.cerebras.ai/v1/',
             model = 'llama3.1-70b',
+          },
+          deepinfra = {
+            __inherited_from = 'openai',
+            api_key_name = 'DEEPINFRA_API_KEY',
+            endpoint = 'https://api.deepinfra.com/v1/openai/',
+            model = 'meta-llama/Llama-3.3-70B-Instruct',
+            -- model = 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+          },
+          deepinfra_turbo = {
+            -- __inherited_from = 'deepinfra',
+            __inherited_from = 'openai',
+            api_key_name = 'DEEPINFRA_API_KEY',
+            endpoint = 'https://api.deepinfra.com/v1/openai/',
+            model = 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
           },
         },
         behaviour = {
@@ -132,7 +156,7 @@ return {
           },
           submit = {
             normal = '<CR>',
-            insert = '<F12>', -- <C-Cr>
+            insert = xk '<C-Cr>',
           },
           toggle = {
             debug = '<leader>ad',
@@ -204,7 +228,7 @@ return {
       map(
         'n',
         '<M-m>',
-        fn.filetype_command({ 'Avante', 'AvanteInput' }, recent_wins.focus_most_recent, function()
+        fn.if_filetype({ 'Avante', 'AvanteInput' }, recent_wins.focus_most_recent, function()
           for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
             if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == 'AvanteInput' then
               vim.api.nvim_set_current_win(win)
@@ -237,6 +261,7 @@ return {
       'nvim-tree/nvim-web-devicons',
       'stevearc/dressing.nvim',
       'MunifTanjim/nui.nvim',
+      'zbirenbaum/copilot.lua', -- for providers='copilot'
       {
         'HakonHarnes/img-clip.nvim',
         event = 'VeryLazy',
