@@ -1,4 +1,4 @@
-local private = require 'user.private'
+local private = require 'user.util.private'
 
 ---@type LazySpec[]
 return {

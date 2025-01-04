@@ -51,7 +51,7 @@ return {
       local maputil = require 'user.util.map'
       local xk = require('user.keys').xk
       local map = maputil.map
-      local private = require 'user.private'
+      local private = require 'user.util.private'
 
       vim.env.ANTHROPIC_API_KEY = private.anthropic_api_key
       vim.env.CEREBRAS_API_KEY = private.cerebras_api_key
