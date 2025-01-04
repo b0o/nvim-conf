@@ -126,14 +126,16 @@ local servers = function()
           return false
         end
       end,
-      settings = require('user.util.lazy').table(function()
-        return {
-          json = {
-            schemas = require('schemastore').json.schemas(),
-          },
-          validate = { enable = true },
-        }
-      end),
+      settings = require('user.util.lazy').table(
+        function()
+          return {
+            json = {
+              schemas = require('schemastore').json.schemas(),
+            },
+            validate = { enable = true },
+          }
+        end
+      ),
     },
     {
       'ocamllsp',
@@ -253,9 +255,9 @@ local servers = function()
   }
 end
 
+local fn = require 'user.fn'
 local maputil = require 'user.util.map'
 local recent_wins = require 'user.util.recent-wins'
-local fn = require 'user.fn'
 
 local user_lsp = lazy_require 'user.util.lsp'
 local trouble = lazy_require 'trouble'
@@ -307,11 +309,7 @@ local on_first_attach = function()
   map(
     'n',
     '<M-t>',
-    fn.filetype_command(
-      'trouble',
-      recent_wins.focus_most_recent,
-      wrap(trouble.open, { mode = 'diagnostics', focus = true })
-    ),
+    fn.if_filetype('trouble', recent_wins.focus_most_recent, wrap(trouble.open, { mode = 'diagnostics', focus = true })),
     'Trouble: Toggle Focus'
   )
 
@@ -352,9 +350,12 @@ local on_attach = function(_, bufnr)
   bufmap('n', '<localleader>wa', vim.lsp.buf.add_workspace_folder, 'LSP: Add workspace folder')
   bufmap('n', '<localleader>wr', vim.lsp.buf.remove_workspace_folder, 'LSP: Rm workspace folder')
 
-  bufmap('n', '<localleader>wl', function()
-    fn.inspect(vim.lsp.buf.list_workspace_folders())
-  end, 'LSP: List workspace folders')
+  bufmap(
+    'n',
+    '<localleader>wl',
+    function() fn.inspect(vim.lsp.buf.list_workspace_folders()) end,
+    'LSP: List workspace folders'
+  )
 
   bufmap('n', '<localleader>R', function()
     require 'inc_rename' -- Force lazy.nvim to load inc_rename
@@ -429,9 +430,7 @@ local on_attach = function(_, bufnr)
   bufmap('n', '[E', diag_first 'ERROR', 'LSP: Goto first error')
   bufmap('n', ']E', diag_last 'ERROR', 'LSP: Goto last error')
 
-  bufmap('n', '<localleader>dr', function()
-    vim.diagnostic.reset(nil, 0)
-  end, 'LSP: Reset diagnostics (buffer)')
+  bufmap('n', '<localleader>dr', function() vim.diagnostic.reset(nil, 0) end, 'LSP: Reset diagnostics (buffer)')
 
   bufmap(
     'n',
@@ -442,38 +441,9 @@ local on_attach = function(_, bufnr)
 
   bufmap('n', '<localleader>hs', vim.lsp.buf.signature_help, 'LSP: Signature help')
   bufmap('n', '<M-S-i>', user_lsp.peek_definition, 'LSP: Peek definition')
+  bufmap('ni', '<M-i>', user_lsp.hover, 'LSP: Hover or focus diagnostic')
 
-  --- If a diagnostic float is open, focus it
-  --- Otherwise, hover over the symbol under the cursor
-  local hover = function()
-    local win = vim.api.nvim_get_current_win()
-    local diag_win = fn.find_diagnostic_float(win)
-    if diag_win then
-      map('n', '<M-i>', function()
-        vim.api.nvim_win_close(diag_win, true)
-      end, { buffer = vim.api.nvim_win_get_buf(diag_win) })
-      vim.api.nvim_set_current_win(diag_win)
-      return
-    end
-    local dapui_win = fn.find_dapui_float()
-    if dapui_win then
-      map('n', '<M-i>', function()
-        vim.cmd [[noautocmd wincmd p]]
-      end, { buffer = vim.api.nvim_win_get_buf(dapui_win) })
-      vim.api.nvim_set_current_win(dapui_win)
-      return
-    end
-    vim.lsp.buf.hover()
-  end
-
-  bufmap('ni', '<M-i>', hover, 'LSP: Hover or focus diagnostic')
-
-  map(
-    'n',
-    '<M-p>',
-    vim.schedule_wrap(lazy_require('user.util.cmp_preview').trigger),
-    'Hover: Preview completions for word under cursor'
-  )
+  map('n', '<M-p>', vim.schedule_wrap(lazy_require('seek').trigger), 'Hover: Preview completions for word under cursor')
 end
 
 ---@type LazySpec[]
@@ -492,9 +462,7 @@ return {
   },
   {
     'stevearc/conform.nvim',
-    config = function()
-      require('user.conform').setup()
-    end,
+    config = function() require('user.conform').setup() end,
     event = 'BufWritePre',
   },
   {
@@ -518,9 +486,7 @@ return {
     'jmbuhr/otter.nvim',
     enabled = false,
     dependencies = { 'neovim/nvim-lspconfig' },
-    config = function()
-      require('user.otter').setup()
-    end,
+    config = function() require('user.otter').setup() end,
   },
   'b0o/schemastore.nvim',
   'aznhe21/actions-preview.nvim',
@@ -567,9 +533,7 @@ return {
                 return
               end
               actions.jump {
-                cmd = function()
-                  vim.api.nvim_set_current_win(win)
-                end,
+                cmd = function() vim.api.nvim_set_current_win(win) end,
               }
             end,
             ['<M-a>'] = actions.enter_win 'preview',

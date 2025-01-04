@@ -12,6 +12,34 @@ local M = {
   inlay_hints_enabled = {},
 }
 
+---If a diagnostic float is open, focus it
+---Otherwise, hover over the symbol under the cursor
+---@param cb? fun()
+function M.hover(cb)
+  cb = cb or vim.lsp.buf.hover
+  local fn = require 'user.fn'
+  local map = require('user.util.map').map
+  local win = vim.api.nvim_get_current_win()
+  local diag_win = fn.find_diagnostic_float(win)
+  if diag_win then
+    map(
+      'n',
+      '<M-i>',
+      function() vim.api.nvim_win_close(diag_win, true) end,
+      { buffer = vim.api.nvim_win_get_buf(diag_win) }
+    )
+    vim.api.nvim_set_current_win(diag_win)
+    return
+  end
+  local dapui_win = fn.find_dapui_float()
+  if dapui_win then
+    map('n', '<M-i>', function() vim.cmd [[noautocmd wincmd p]] end, { buffer = vim.api.nvim_win_get_buf(dapui_win) })
+    vim.api.nvim_set_current_win(dapui_win)
+    return
+  end
+  cb()
+end
+
 function M.peek_definition()
   local params = vim.lsp.util.make_position_params(0, 'utf-8')
   return vim.lsp.buf_request(0, 'textDocument/definition', params, function(_, results)
