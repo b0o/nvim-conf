@@ -78,10 +78,13 @@ local spec = {
         end,
       }
 
-      require('Comment.ft').set('capnp', { '#%s' })
-      require('Comment.ft').set('systemd', { '#%s' })
-      require('Comment.ft').set('jq', { '#%s' })
-      require('Comment.ft').set('cython', { '#%s' })
+      local ft = require 'Comment.ft'
+      ft.set('capnp', { '#%s' })
+      ft.set('cython', { '#%s' })
+      ft.set('dosini', { '#%s' })
+      ft.set('jq', { '#%s' })
+      ft.set('sway', { '#%s' })
+      ft.set('systemd', { '#%s' })
     end,
   },
   {
@@ -146,29 +149,25 @@ local spec = {
     end,
   },
   {
+    -- TODO: Remove once Snacks.indent is fixed
     'lukas-reineke/indent-blankline.nvim',
     event = 'VeryLazy',
     main = 'ibl',
     enabled = true,
-    config = function()
-      local ibl = require 'ibl'
-      ibl.setup {
-        debounce = 500,
-        indent = {
-          char = '│',
-        },
-        scope = {
-          show_start = true,
-          enabled = true,
-        },
-      }
-    end,
+    opts = {
+      debounce = 500,
+      indent = {
+        char = '│',
+      },
+      scope = {
+        show_start = false,
+        enabled = true,
+      },
+    },
   },
   {
     'matze/vim-move',
-    init = function()
-      vim.g.move_map_keys = false
-    end,
+    init = function() vim.g.move_map_keys = false end,
     event = 'VeryLazy',
     config = function()
       local map = require('user.util.map').map
@@ -266,57 +265,6 @@ very_lazy(function()
 
   map('n', '[t', todo_comments.jump_prev, 'Todo Comments: Previous')
   map('n', ']t', todo_comments.jump_next, 'Todo Comments: Next')
-
-  ---@param mode 'start-outer' | 'start-inner' | 'end-outer' | 'end-inner'
-  local function goto_scope(mode)
-    return function()
-      local forward = mode == 'end-outer' or mode == 'end-inner'
-      local bufnr = vim.api.nvim_get_current_buf()
-      local config = require('ibl.config').get_config(bufnr)
-      local start_line = vim.api.nvim_win_get_cursor(0)[1]
-      local num_lines = vim.api.nvim_buf_line_count(bufnr)
-      local current_line = start_line
-      local dest_line
-      while true do
-        local scope = require('ibl.scope').get(bufnr, config)
-        if not scope then
-          return
-        end
-        if mode == 'start-outer' then
-          dest_line = scope:start() + 1
-        elseif mode == 'start-inner' then
-          dest_line = scope:start() + 2
-        elseif mode == 'end-outer' then
-          dest_line = scope:end_() + 1
-        elseif mode == 'end-inner' then
-          dest_line = scope:end_()
-        end
-        if (forward and dest_line > start_line) or (not forward and dest_line < start_line) then
-          break
-        end
-        if mode == 'start-outer' or mode == 'start-inner' then
-          current_line = current_line - 1
-          if current_line <= 0 then
-            vim.notify('No scope start found', vim.log.levels.WARN)
-            return
-          end
-        else
-          current_line = current_line + 1
-          if current_line > num_lines then
-            vim.notify('No scope end found', vim.log.levels.WARN)
-            return
-          end
-        end
-        vim.api.nvim_win_set_cursor(0, { current_line, 0 })
-      end
-      vim.api.nvim_win_set_cursor(0, { dest_line, 0 })
-    end
-  end
-
-  map('n', '[s', goto_scope 'start-inner', 'IBL: Scope start (inner)')
-  map('n', '[S', goto_scope 'start-outer', 'IBL: Scope start (outer)')
-  map('n', ']s', goto_scope 'end-inner', 'IBL: Scope end (inner)')
-  map('n', ']S', goto_scope 'end-outer', 'IBL: Scope end (outer)')
 end)
 
 return spec
