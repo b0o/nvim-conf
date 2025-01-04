@@ -6,6 +6,7 @@ local spec = {
     opts = {
       adapters = {
         lazy_require 'neotest-vitest',
+        lazy_require 'rustaceanvim.neotest',
       },
       quickfix = {
         enabled = false,
@@ -42,9 +43,7 @@ very_lazy(function()
   local neotest_summary = lazy_require 'neotest.consumers.summary'
 
   map('n', '<leader>nn', neotest.run.run, 'Neotest: Run Nearest Test')
-  map('n', { '<leader>N', '<leader>nf' }, function()
-    neotest.run.run(vim.fn.expand '%')
-  end, 'Neotest: Run File')
+  map('n', { '<leader>N', '<leader>nf' }, function() neotest.run.run(vim.fn.expand '%') end, 'Neotest: Run File')
 
   map('n', '[n', wrap(neotest.jump.prev, { status = 'failed' }), 'Neotest: Jump Prev Failed')
   map('n', ']n', wrap(neotest.jump.next, { status = 'failed' }), 'Neotest: Jump Next Failed')
