@@ -219,7 +219,7 @@ return {
     config = function()
       local maputil = require 'user.util.map'
       local ft = maputil.ft
-
+      ---@module 'rustaceanvim'
       ---@type rustaceanvim.Config
       vim.g.rustaceanvim = {
         tools = {
@@ -231,8 +231,6 @@ return {
           on_attach = function(client, bufnr) require('user.util.lsp').on_attach(client, bufnr) end,
         },
       }
-
-      require 'rustaceanvim' -- force lazydev to load types for rustaceanvim
 
       ft('rust', function(bufmap)
         bufmap('n', '<localleader>rA', '<cmd>RustLsp codeAction<Cr>', { silent = true, desc = 'Rust: Code action' })
@@ -265,6 +263,7 @@ return {
     'SUSTech-data/neopyter',
     dependencies = { 'AbaoFromCUG/websocket.nvim' },
     event = { 'BufRead *.ju.*', 'BufNewFile *.ju.*' },
+    ---@module 'neopyter'
     ---@type neopyter.Option
     opts = {
       mode = 'direct',
@@ -279,7 +278,8 @@ return {
       },
       on_attach = function(bufnr)
         local bufmap = require('user.util.map').buf(bufnr)
-        bufmap('n', '<C-Cr>', '<cmd>Neopyter execute notebook:run-cell<Cr>', 'Jupyter: Run selected')
+        local xk = require('user.keys').xk
+        bufmap('n', xk '<C-Cr>', '<cmd>Neopyter execute notebook:run-cell<Cr>', 'Jupyter: Run selected')
         bufmap('n', '<Leader>jX', '<cmd>Neopyter execute notebook:run-all-above<Cr>', 'Jupyter: Run all above cell')
         bufmap('n', '<Leader>jr', '<cmd>Neopyter kernel restart<Cr>', 'Jupyter: Restart kernel')
         bufmap('n', '<Leader>jR', '<cmd>Neopyter kernel restartRunAll<Cr>', 'Jupyter: Restart kernel and run all')
