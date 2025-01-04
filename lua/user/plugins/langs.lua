@@ -223,12 +223,43 @@ return {
       ---@type rustaceanvim.Config
       vim.g.rustaceanvim = {
         tools = {
+          enable_clippy = true,
           float_win_config = {
             border = 'rounded',
           },
         },
         server = {
+          standalone = true,
           on_attach = function(client, bufnr) require('user.util.lsp').on_attach(client, bufnr) end,
+          settings = {
+            ['rust-analyzer'] = {
+              imports = {
+                granularity = {
+                  group = 'module',
+                },
+                prefix = 'self',
+              },
+              cargo = {
+                features = 'all',
+                buildScripts = {
+                  enable = true,
+                },
+              },
+              procMacro = {
+                enable = true,
+              },
+              checkOnSave = true,
+              check = {
+                command = 'clippy',
+                features = 'all',
+                invocationLocation = 'workspace',
+                extraArgs = { '--tests' },
+              },
+              files = {
+                excludeDirs = { '.direnv' },
+              },
+            },
+          },
         },
       }
 
