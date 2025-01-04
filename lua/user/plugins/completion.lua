@@ -128,6 +128,9 @@ return {
               kind_icon = {
                 ellipsis = false,
                 text = function(ctx)
+                  if ctx.kind == 'Color' then
+                    return '███'
+                  end
                   local sym = require('lspkind').symbolic(ctx.kind)
                   if sym == nil or sym == '' then
                     sym = ctx.kind_icon
