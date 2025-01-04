@@ -15,9 +15,7 @@ local spec = {
       'DapToggleBreakpoint',
       'DapToggleRepl',
     },
-    config = function()
-      require 'user.dap'
-    end,
+    config = function() require 'user.dap' end,
     dependencies = { 'rcarriga/cmp-dap' },
   },
   { 'rcarriga/nvim-dap-ui', dependencies = 'nvim-neotest/nvim-nio' },
@@ -29,6 +27,7 @@ local spec = {
 very_lazy(function()
   local fn = require 'user.fn'
   local maputil = require 'user.util.map'
+  local xk = require('user.keys').xk
   local map = maputil.map
   local wrap = maputil.wrap
   local ft = maputil.ft
@@ -49,7 +48,7 @@ very_lazy(function()
   map(
     'n',
     '<M-d>',
-    fn.filetype_command('dap-repl', focus_most_recent, function()
+    fn.if_filetype('dap-repl', focus_most_recent, function()
       local dap_win = vim.fn.win_findbuf(vim.fn.bufnr 'dap-repl')[1]
       if dap_win == nil then
         dap.repl.open()
@@ -72,9 +71,60 @@ very_lazy(function()
 
   map('n', '<leader>db', dap.toggle_breakpoint, 'DAP: Toggle breakpoint')
   map('n', '<leader>de', wrap(dap.set_exception_breakpoints, { 'all' }), 'DAP: Break on exception')
-  map('n', '<leader>dB', function()
-    dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
-  end, 'DAP: Set breakpoint condition')
+  map(
+    'n',
+    '<leader>dB',
+    function() dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ') end,
+    'DAP: Set breakpoint condition'
+  )
+
+  ---TODO: Remove once completed: https://github.com/mfussenegger/nvim-dap/issues/1388
+  ---via https://github.com/mfussenegger/nvim-dap/issues/792#issuecomment-1980921023
+  ---@param dir "next"|"prev"
+  local function gotoBreakpoint(dir)
+    return function()
+      local breakpoints = require('dap.breakpoints').get()
+      if #breakpoints == 0 then
+        vim.notify('No breakpoints set', vim.log.levels.WARN)
+        return
+      end
+      local points = {}
+      for bufnr, buffer in pairs(breakpoints) do
+        for _, point in ipairs(buffer) do
+          table.insert(points, { bufnr = bufnr, line = point.line })
+        end
+      end
+
+      local current = {
+        bufnr = vim.api.nvim_get_current_buf(),
+        line = vim.api.nvim_win_get_cursor(0)[1],
+      }
+
+      local nextPoint
+      for i = 1, #points do
+        local isAtBreakpointI = points[i].bufnr == current.bufnr and points[i].line == current.line
+        if isAtBreakpointI then
+          local nextIdx = dir == 'next' and i + 1 or i - 1
+          if nextIdx > #points then
+            nextIdx = 1
+          end
+          if nextIdx == 0 then
+            nextIdx = #points
+          end
+          nextPoint = points[nextIdx]
+          break
+        end
+      end
+      if not nextPoint then
+        nextPoint = points[1]
+      end
+
+      vim.cmd(('buffer +%s %s'):format(nextPoint.line, nextPoint.bufnr))
+    end
+  end
+
+  map('n', ']b', gotoBreakpoint 'next', 'DAP: Goto next breakpoint')
+  map('n', '[b', gotoBreakpoint 'prev', 'DAP: Goto prev breakpoint')
 
   map('n', { '<leader>di', '<C-M-i>' }, dap_widgets.hover, 'DAP: Hover variables')
 
@@ -88,7 +138,7 @@ very_lazy(function()
   map('n', '<leader>dl', dap.step_into, 'DAP: Step into')
   map('n', '<leader>dj', dap.step_over, 'DAP: Step over')
 
-  map('nv', { '<C-Cr>', '<F12>' }, function()
+  map('nv', { '<C-Cr>', xk '<C-Cr>' }, function()
     local lines = {}
     if vim.fn.mode() == 'n' then
       lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
