@@ -1,5 +1,6 @@
 ---@type LazySpec[]
 return {
+  'MunifTanjim/nui.nvim',
   {
     'b0o/lavi.nvim',
     dev = true,
