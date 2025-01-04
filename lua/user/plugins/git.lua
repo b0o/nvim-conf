@@ -307,7 +307,6 @@ return {
   },
   {
     'sindrets/diffview.nvim',
-    opts = {},
     cmd = {
       'DiffviewClose',
       'DiffviewFileHistory',
@@ -316,7 +315,39 @@ return {
       'DiffviewOpen',
       'DiffviewRefresh',
       'DiffviewToggleFiles',
+      'DiffviewOpenPr',
     },
+    config = function()
+      local diffview = require 'diffview'
+      diffview.setup {}
+
+      -- usage: DiffviewOpenPr [<pr-number>]
+      vim.api.nvim_create_user_command('DiffviewOpenPr', function(args)
+        local pr_str = args.args
+        if pr_str == '' then
+          pr_str = vim.fn.input 'PR number: '
+        end
+        if pr_str == '' then
+          vim.notify('No PR number provided', vim.log.levels.WARN)
+          return
+        end
+        local pr_number = tonumber(pr_str)
+        if not pr_number then
+          vim.notify('Invalid PR number: ' .. pr_str, vim.log.levels.WARN)
+          return
+        end
+        local range = require('user.util.git').gh_pr_range(pr_number)
+        if not range then
+          vim.notify('Failed to get PR range', vim.log.levels.WARN)
+          return
+        end
+        local range_str = table.concat(range, '..')
+        diffview.open { range_str }
+        vim.notify(string.format('Opening Diffview for PR #%d (%s)', pr_number, range_str))
+      end, {
+        nargs = '?',
+      })
+    end,
   },
   {
     'akinsho/git-conflict.nvim',
