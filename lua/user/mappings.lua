@@ -23,13 +23,9 @@ map('n', 'q:', '<Nop>')
 map('n', 'q/', '<Nop>')
 map('n', 'q?', '<Nop>')
 
-map('n', 'j', function()
-  return vim.v.count > 1 and 'j' or 'gj'
-end, { expr = true, desc = 'Line down' })
+map('n', 'j', function() return vim.v.count > 1 and 'j' or 'gj' end, { expr = true, desc = 'Line down' })
 
-map('n', 'k', function()
-  return vim.v.count > 0 and 'k' or 'gk'
-end, { expr = true, desc = 'Line up' })
+map('n', 'k', function() return vim.v.count > 0 and 'k' or 'gk' end, { expr = true, desc = 'Line up' })
 
 map('nx', 'J', '5j', 'Jump down')
 map('nx', 'K', '5k', 'Jump up')
@@ -62,7 +58,7 @@ map('n', { 'Q', '<F29>' }, function()
     vim.api.nvim_set_current_win(most_recent_win)
   end
 end, 'Close window')
-map('n', 'ZQ', '<Cmd>confirm qall<Cr>', 'Quit all')
+map('n', 'ZQ', '<Cmd>confirm qall<Cr>', { silent = false, desc = 'Quit all' })
 map('n', xk '<C-S-w>', '<Cmd>tabclose<Cr>', 'Close tab (except last one)')
 map('n', '<leader>H', '<Cmd>hide<Cr>', 'Hide buffer')
 map('n', '<C-s>', '<Cmd>w<Cr>', 'Write buffer')
@@ -79,9 +75,7 @@ local function map_toggle_locals(keys, opts, vals)
   opts = type(opts) == 'table' and opts or { opts }
   vals = vals or { true, false }
 
-  local lhs = vim.tbl_map(function(k)
-    return [[<localleader><localleader>]] .. k
-  end, keys)
+  local lhs = vim.tbl_map(function(k) return [[<localleader><localleader>]] .. k end, keys)
 
   local rhs = function()
     vim.tbl_map(function(opt)
@@ -179,9 +173,6 @@ map('n', '<leader>y:', [[<Cmd>let @+=@:<Cr>:echom "Copied '" . @+ . "'"<Cr>]], '
 
 map('nx', '<C-p>', '"+p', 'Paste from system clipboard')
 
-map('n', '<M-p>', 'a <Esc>p', 'Insert a space and then paste after cursor')
-map('n', '<M-P>', 'i <Esc>P', 'Insert a space and then paste before cursor')
-
 map('n', '<C-M-j>', '"dY"dp', 'Duplicate line downwards')
 map('n', '<C-M-k>', '"dY"dP', 'Duplicate line upwards')
 
@@ -214,9 +205,12 @@ map('n', '<Plug>WrapVisualSelectionRepeat', function()
 end, { desc = 'Wrap visual selection' })
 
 map('n', '<M-S-W>', wrap_cursor_line, 'Wrap line')
-map('n', '<Plug>WrapCursorLineRepeat', function()
-  wrap_cursor_line(wrap_cursor_line_prev)
-end, { desc = 'Wrap cursor line' })
+map(
+  'n',
+  '<Plug>WrapCursorLineRepeat',
+  function() wrap_cursor_line(wrap_cursor_line_prev) end,
+  { desc = 'Wrap cursor line' }
+)
 
 ---- Treesitter
 local node_motion = lazy.require('user.util.treesitter').node_motion
@@ -257,9 +251,6 @@ map('n', [[<Esc>]], function()
   vim.snippet.stop()
   if package.loaded['nvim-tree'] then
     require('nvim-tree.actions.node.file-popup').close_popup()
-  end
-  if package.loaded['cmp'] then
-    require('cmp').close()
   end
   if package.loaded['noice'] then
     vim.cmd 'NoiceDismiss'
@@ -326,15 +317,8 @@ map('c', '<M-Backspace>', [[<C-\>euser#fn#cmdlineMoveWord(-1, 1)<Cr>]], { silent
 
 map('c', '<M-k>', '<C-k>', 'Insert digraph')
 
--- See: https://github.com/mhinz/vim-galore#saner-command-line-history
-map('c', '<C-p>', [[pumvisible() ? "\<C-p>" : "\<Up>"]], { expr = true, desc = 'History prev' })
-map('c', '<C-n>', [[pumvisible() ? "\<C-n>" : "\<Down>"]], { expr = true, desc = 'History next' })
-map('c', '<M-/>', [[pumvisible() ? "\<C-y>" : "\<M-/>"]], { expr = true, desc = 'Accept completion suggestion' })
-
-map('c', xk '<C-/>', [[pumvisible() ? "\<C-y>\<Tab>" : nr2char(0x001f)]], {
-  expr = true,
-  desc = 'Accept completion suggestion & continue',
-})
+map('c', xk '<C-S-p>', '<Up>', { silent = false, desc = 'History prev (prefix)' })
+map('c', xk '<C-S-n>', '<Down>', { silent = false, desc = 'History next (prefix)' })
 
 local function cursor_lock(lock)
   return function()
@@ -384,7 +368,7 @@ end, 'Quickfix: Toggle')
 map(
   'n',
   [[<M-q>]],
-  fn.filetype_command('qf', recent_wins.focus_most_recent, wrap(vim.cmd, 'botright copen')),
+  fn.if_filetype('qf', recent_wins.focus_most_recent, wrap(vim.cmd, 'botright copen')),
   'Quickfix: Toggle Focus'
 )
 
@@ -392,13 +376,9 @@ map('n', ']q', '<Cmd>cnext<Cr>', 'Quickfix: Next')
 map('n', '[q', '<Cmd>cprev<Cr>', 'Quickfix: Prev')
 
 ft('qf', function(bufmap)
-  local function is_loclist(winid)
-    return vim.fn.getwininfo(winid)[1].loclist == 1
-  end
+  local function is_loclist(winid) return vim.fn.getwininfo(winid)[1].loclist == 1 end
 
-  local function get_list(winid)
-    return is_loclist(winid) and vim.fn.getloclist(winid) or vim.fn.getqflist()
-  end
+  local function get_list(winid) return is_loclist(winid) and vim.fn.getloclist(winid) or vim.fn.getqflist() end
 
   local function set_list(winid, list, action)
     if is_loclist(winid) then
@@ -411,13 +391,7 @@ ft('qf', function(bufmap)
   bufmap('n', 'dd', function()
     local winid = vim.api.nvim_get_current_win()
     local line = vim.fn.line '.'
-    set_list(
-      winid,
-      vim.fn.filter(get_list(winid), function(idx)
-        return idx ~= line - 1
-      end),
-      'r'
-    )
+    set_list(winid, vim.fn.filter(get_list(winid), function(idx) return idx ~= line - 1 end), 'r')
     vim.fn.setpos('.', { 0, line, 1, 0 })
   end, 'Delete item under cursor')
 
@@ -426,13 +400,7 @@ ft('qf', function(bufmap)
       local winid = vim.api.nvim_get_current_win()
       local start = vim.fn.line "'<"
       local finish = vim.fn.line "'>"
-      set_list(
-        winid,
-        vim.fn.filter(get_list(winid), function(idx)
-          return idx < start - 1 or idx >= finish
-        end),
-        'r'
-      )
+      set_list(winid, vim.fn.filter(get_list(winid), function(idx) return idx < start - 1 or idx >= finish end), 'r')
       vim.fn.setpos('.', { 0, start, 1, 0 })
     end)
     vim.cmd [[call feedkeys("\<Esc>", 'n')]]
@@ -479,12 +447,7 @@ map('n', '<M-S-z>', function()
   end
 end, 'Loclist: Toggle')
 
-map(
-  'n',
-  [[<M-z>]],
-  fn.filetype_command('qf', wrap(vim.cmd.wincmd, 'p'), wrap(vim.cmd, 'lopen')),
-  'Loclist: Toggle Focus'
-)
+map('n', [[<M-z>]], fn.if_filetype('qf', wrap(vim.cmd.wincmd, 'p'), wrap(vim.cmd, 'lopen')), 'Loclist: Toggle Focus')
 
 map('c', { '<C-z>', '<C-q>' }, function(args)
   local cmdtype = vim.fn.getcmdtype()
@@ -631,17 +594,11 @@ ft({ 'typescript', 'javascript', 'typescriptreact', 'javascriptreact' }, functio
 end)
 
 ft('man', function(bufmap)
-  bufmap('n', '<C-]>', function()
-    fn.man('', vim.fn.expand '<cword>')
-  end, 'Man: Open tag in current buffer')
+  bufmap('n', '<C-]>', function() fn.man('', vim.fn.expand '<cword>') end, 'Man: Open tag in current buffer')
 
-  bufmap('n', '<M-]>', function()
-    fn.man('tab', vim.fn.expand '<cword>')
-  end, 'Man: Open tag in new tab')
+  bufmap('n', '<M-]>', function() fn.man('tab', vim.fn.expand '<cword>') end, 'Man: Open tag in new tab')
 
-  bufmap('n', '}', function()
-    fn.man('split', vim.fn.expand '<cword>')
-  end, 'Man: Open tag in new split')
+  bufmap('n', '}', function() fn.man('split', vim.fn.expand '<cword>') end, 'Man: Open tag in new split')
 
   -- navigate to next/prev section
   bufmap('n', '[[', ":<C-u>call user#fn#manSectionMove('b', 'n', v:count1)<Cr>", 'Man: Goto prev section')
@@ -659,18 +616,12 @@ end)
 
 ft('help', function(bufmap)
   -- navigate to next/prev help tag
-  bufmap('n', '<Tab>', function()
-    vim.fn.search([[\(|\S\+|\|\*\S\+\*\)]], 's')
-  end, 'Help: Goto next tag')
-  bufmap('n', '<S-Tab>', function()
-    vim.fn.search([[\(|\S\+|\|\*\S\+\*\)]], 'sb')
-  end, 'Help: Goto prev tag')
+  bufmap('n', '<Tab>', function() vim.fn.search([[\(|\S\+|\|\*\S\+\*\)]], 's') end, 'Help: Goto next tag')
+  bufmap('n', '<S-Tab>', function() vim.fn.search([[\(|\S\+|\|\*\S\+\*\)]], 'sb') end, 'Help: Goto prev tag')
 end)
 
 ---- folke/noice.nvim
-ft('noice', function(bufmap)
-  bufmap('n', 'K', '5k', 'Scroll up 5')
-end)
+ft('noice', function(bufmap) bufmap('n', 'K', '5k', 'Scroll up 5') end)
 
 ---- tpope/vim-repeat
 -- make . repeat work from visual mode
