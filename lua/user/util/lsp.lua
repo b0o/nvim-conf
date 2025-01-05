@@ -1,5 +1,3 @@
--- local user_lsp_status = require 'user.util.lsp_status'
-
 local methods = vim.lsp.protocol.Methods
 
 local M = {
