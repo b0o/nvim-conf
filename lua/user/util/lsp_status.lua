@@ -45,13 +45,9 @@ function M.getBufClients(bufnr)
   return getBufClients(bufnr, vim.list_extend(vim.list_extend({}, M.clients.running), M.clients.exited))
 end
 
-function M.getRunningBufClients(bufnr)
-  return getBufClients(bufnr, M.clients.running)
-end
+function M.getRunningBufClients(bufnr) return getBufClients(bufnr, M.clients.running) end
 
-function M.getExitedBufClients(bufnr)
-  return getBufClients(bufnr, M.clients.exited)
-end
+function M.getExitedBufClients(bufnr) return getBufClients(bufnr, M.clients.exited) end
 
 function M.status_clients_count(status, bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()

@@ -1,4 +1,4 @@
-local user_lsp_status = require 'user.util.lsp_status'
+-- local user_lsp_status = require 'user.util.lsp_status'
 
 local methods = vim.lsp.protocol.Methods
 
@@ -99,7 +99,7 @@ M.on_attach = function(client, bufnr)
     M.config.on_attach(client, bufnr)
   end
   vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
-  user_lsp_status.on_attach(client, bufnr)
+  require('user.util.lsp_status').on_attach(client, bufnr)
 
   -- Enable inlay hints if the client supports it.
   -- Credit @MariaSolOs:
@@ -193,7 +193,7 @@ M.setup = function(config)
   for _, lsp in ipairs(vim.tbl_filter(is_enabled, servers)) do
     local opts = {
       on_attach = M.on_attach,
-      on_exit = function(code, signal, id) user_lsp_status.on_exit(code, signal, id) end,
+      on_exit = function(code, signal, id) require('user.util.lsp_status').on_exit(code, signal, id) end,
       flags = {
         debounce_text_changes = 150,
       },
