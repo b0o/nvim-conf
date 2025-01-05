@@ -7,9 +7,7 @@ function M.set_format_on_save(val)
   vim.notify('Format on save ' .. (val and 'enabled' or 'disabled'))
 end
 
-function M.toggle_format_on_save()
-  M.set_format_on_save(not format_on_save)
-end
+function M.toggle_format_on_save() M.set_format_on_save(not format_on_save) end
 
 ---@type table<string, conform.FormatterConfigOverride|fun(bufnr: integer): nil|conform.FormatterConfigOverride>
 M.formatters = {}

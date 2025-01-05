@@ -266,7 +266,7 @@ local map = maputil.map
 local wrap = maputil.wrap
 
 local conform = lazy_require 'conform'
-local user_conform = lazy_require 'user.conform'
+local user_conform = lazy_require 'user.plugins.conform.internal'
 
 very_lazy(function()
   local attach_grimoire = function()
@@ -459,11 +459,6 @@ return {
         on_first_attach = on_first_attach,
       }
     end,
-  },
-  {
-    'stevearc/conform.nvim',
-    config = function() require('user.conform').setup() end,
-    event = 'BufWritePre',
   },
   {
     'onsails/lspkind-nvim',
