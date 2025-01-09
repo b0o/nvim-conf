@@ -149,23 +149,6 @@ local spec = {
     end,
   },
   {
-    -- TODO: Remove once Snacks.indent is fixed
-    'lukas-reineke/indent-blankline.nvim',
-    event = 'VeryLazy',
-    main = 'ibl',
-    enabled = true,
-    opts = {
-      debounce = 500,
-      indent = {
-        char = '│',
-      },
-      scope = {
-        show_start = false,
-        enabled = true,
-      },
-    },
-  },
-  {
     'matze/vim-move',
     init = function() vim.g.move_map_keys = false end,
     event = 'VeryLazy',

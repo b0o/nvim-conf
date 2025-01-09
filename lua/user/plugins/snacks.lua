@@ -34,13 +34,12 @@ return {
         statuscolumn = { enabled = true },
         terminal = { enabled = false },
         words = { enabled = true },
-        -- TODO: Re-enable when more stable
-        -- indent = {
-        --   enabled = true,
-        --   indent = { enabled = true },
-        --   animate = { enabled = false },
-        --   scope = { enabled = true, only_current = true },
-        -- },
+        indent = {
+          enabled = true,
+          indent = { enabled = true },
+          animate = { enabled = false },
+          scope = { enabled = true, only_current = true },
+        },
         scope = {
           enabled = true,
           keys = {
