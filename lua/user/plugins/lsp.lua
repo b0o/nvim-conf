@@ -269,17 +269,6 @@ local conform = lazy_require 'conform'
 local user_conform = lazy_require 'user.plugins.conform.internal'
 
 very_lazy(function()
-  local attach_grimoire = function()
-    vim.lsp.start {
-      name = 'grimoire-ls',
-      cmd = { vim.env.GIT_PROJECTS_DIR .. '/grimoire-ls/.venv/bin/python', '-m', 'grimoire_ls.run' },
-      capabilities = vim.lsp.protocol.make_client_capabilities(),
-      root_dir = vim.fn.getcwd(),
-    }
-  end
-
-  vim.api.nvim_create_user_command('GrimoireLs', attach_grimoire, { desc = 'Attach Grimoire LSP' })
-
   map('n', '<leader>lif', '<Cmd>LspInfo<Cr>', 'LSP: Show LSP information')
   map('n', '<leader>lr', '<Cmd>LspRestart<Cr>', 'LSP: Restart LSP')
   map('n', '<leader>ls', '<Cmd>LspStart<Cr>', 'LSP: Start LSP')
