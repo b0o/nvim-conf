@@ -115,6 +115,12 @@ return {
           first_provider = 'groq',
           second_provider = 'claude',
         },
+        file_selector = {
+          --- @alias FileSelectorProvider "native" | "fzf" | "telescope" | string
+          provider = 'telescope',
+          -- Options override for custom providers
+          provider_opts = {},
+        },
         mappings = {
           ask = '<leader>aa',
           edit = '<leader>ae',
