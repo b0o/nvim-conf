@@ -107,10 +107,14 @@ local spec = {
   },
   {
     '2kabhishek/nerdy.nvim',
-    dependencies = {
-      'stevearc/dressing.nvim',
-    },
+    dependencies = { 'stevearc/dressing.nvim' },
     cmd = 'Nerdy',
+  },
+  {
+    'Allaman/emoji.nvim',
+    dependencies = { 'stevearc/dressing.nvim' },
+    opts = {},
+    cmd = 'Emoji',
   },
 }
 
