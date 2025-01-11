@@ -1,5 +1,3 @@
-local methods = vim.lsp.protocol.Methods
-
 local M = {
   setup_called = false,
   config = {},
@@ -102,6 +100,7 @@ M.on_attach = function(client, bufnr)
   -- Enable inlay hints if the client supports it.
   -- Credit @MariaSolOs:
   -- https://github.com/MariaSolOs/dotfiles/blob/8607ace4af5eb2e9001b3f14870c2ffc937f4dcd/.config/nvim/lua/lsp.lua#L118
+  local methods = vim.lsp.protocol.Methods
   if methods and client.supports_method(methods.textDocument_inlayHint) then
     local inlay_hints_group = vim.api.nvim_create_augroup('InlayHints', { clear = true })
 
