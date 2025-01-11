@@ -156,12 +156,19 @@ map('n', 'gO', 'O<C-u>', 'Insert on new line above without autocomment')
 
 map('n', 'Y', 'y$', 'Yank until end of line')
 
-map('x', '<leader>y', '"+y', 'Yank to system clipboard')
-map('n', '<leader>y', '"+yg_', "Yank 'til EOL to system clipboard")
 map('n', '<leader>yy', '"+yy', 'Yank line to system clipboard')
 map('n', '<C-y>', [[pumvisible() ? "\<C-y>" : '"+yy']], { expr = true, desc = 'Yank line to system clipboard' })
 map('x', '<C-y>', [[pumvisible() ? "\<C-y>" : '"+y']], { expr = true, desc = 'Yank line to system clipboard' })
 
+map('n', '<leader>ym', function()
+  local file = vim.fn.expand '%'
+  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+  local code_block = table.concat(lines, '\n')
+  local filetype = vim.fn.expand '%:e'
+  local markdown = string.format('# %s\n```%s\n%s\n```', file, filetype, code_block)
+  vim.fn.setreg('+', markdown)
+  vim.notify('Copied ' .. file .. ' as markdown code block', vim.log.levels.INFO)
+end, 'Yank file as markdown code block')
 map('n', '<leader>yp', '<Cmd>let @+ = expand("%:p")<Cr>:echom "Copied " . @+<Cr>', 'Yank file path')
 map('n', '<leader>yP', function()
   local line = vim.fn.line '.'
