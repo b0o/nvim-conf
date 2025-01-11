@@ -7,9 +7,7 @@ local spec = {
     cmd = 'Telescope',
     dependencies = {},
     config = function()
-      vim.schedule(function()
-        require 'user.telescope'
-      end)
+      vim.schedule(function() require 'user.telescope' end)
     end,
   },
   'nvim-lua/popup.nvim',
