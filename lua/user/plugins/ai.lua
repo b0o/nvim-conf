@@ -59,7 +59,7 @@ return {
       vim.env.DEEPINFRA_API_KEY = private.deepinfra_api_key
 
       require('avante').setup {
-        debug = true,
+        -- debug = true,
         ---@type "openai"|"claude"|"azure"|"copilot"|"cohere"|string
         -- provider = 'copilot',
         -- provider = 'deepinfra',
