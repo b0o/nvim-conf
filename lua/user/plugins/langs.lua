@@ -335,7 +335,6 @@ return {
   },
   {
     '3rd/image.nvim',
-    dev = true,
     opts = {
       backend = 'kitty',
       -- processor = 'magick_rock',
