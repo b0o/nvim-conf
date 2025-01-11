@@ -202,17 +202,15 @@ local spec = {
         XXX = { icon = ' ', color = 'error' },
       },
       highlight = {
-        pattern = { [[.*<(KEYWORDS)\s*(\(.+\))?\s*:]] },
-        -- TODO: use 'wide' when https://github.com/folke/todo-comments.nvim/issues/10 is fixed
+        pattern = { [[.*<(KEYWORDS)\s*(\(.+\))?\s*(:|$)]] },
         multiline = false,
-        keyword = 'fg',
+        keyword = 'wide',
         after = 'fg',
       },
       search = {
-        pattern = [[\b(KEYWORDS)(\(.*\))?:]], -- ripgrep regex
+        pattern = [[\b(KEYWORDS)\b]],
       },
     },
-    telescope_ext = 'todo-comments',
   },
 }
 
