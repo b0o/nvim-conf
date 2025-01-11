@@ -160,6 +160,12 @@ map('n', '<leader>yy', '"+yy', 'Yank line to system clipboard')
 map('n', '<C-y>', [[pumvisible() ? "\<C-y>" : '"+yy']], { expr = true, desc = 'Yank line to system clipboard' })
 map('x', '<C-y>', [[pumvisible() ? "\<C-y>" : '"+y']], { expr = true, desc = 'Yank line to system clipboard' })
 
+map('n', '<leader>Y', function()
+  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+  vim.fn.setreg('+', table.concat(lines, '\n'))
+  vim.notify('Copied ' .. #lines .. ' lines to clipboard', vim.log.levels.INFO)
+end, 'Yank file as markdown code block')
+
 map('n', '<leader>ym', function()
   local file = vim.fn.expand '%'
   local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
@@ -169,13 +175,16 @@ map('n', '<leader>ym', function()
   vim.fn.setreg('+', markdown)
   vim.notify('Copied ' .. file .. ' as markdown code block', vim.log.levels.INFO)
 end, 'Yank file as markdown code block')
+
 map('n', '<leader>yp', '<Cmd>let @+ = expand("%:p")<Cr>:echom "Copied " . @+<Cr>', 'Yank file path')
+
 map('n', '<leader>yP', function()
   local line = vim.fn.line '.'
   local file = vim.fn.expand '%'
   vim.fn.setreg('+', file .. ':' .. line)
   vim.notify('Copied ' .. file .. ':' .. line, vim.log.levels.INFO)
 end, 'Yank file path with line number')
+
 map('n', '<leader>y:', [[<Cmd>let @+=@:<Cr>:echom "Copied '" . @+ . "'"<Cr>]], 'Yank last command')
 
 map('nx', '<C-p>', '"+p', 'Paste from system clipboard')
