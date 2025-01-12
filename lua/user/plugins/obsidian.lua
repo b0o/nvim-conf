@@ -45,7 +45,17 @@ return {
           subdir = 'Meta/Templates',
           date_format = '%Y-%m-%d',
           time_format = '%H:%M',
-          substitutions = {},
+          substitutions = {
+            yesterday = function() return os.date('%Y-%m-%d', os.time() - 86400) end,
+            tomorrow = function() return os.date('%Y-%m-%d', os.time() + 86400) end,
+            month_abbr = function() return os.date('%b', os.time()) end,
+            month = function() return os.date('%B', os.time()) end,
+            year = function() return os.date('%Y', os.time()) end,
+            weekday = function() return os.date('%A', os.time()) end,
+            today_human = function() return os.date('%A, %B %d', os.time()) end,
+            tomorrow_human = function() return os.date('%A, %B %d', os.time() + 86400) end,
+            yesterday_human = function() return os.date('%A, %B %d', os.time() - 86400) end,
+          },
         },
         ---@diagnostic disable-next-line: missing-fields
         daily_notes = {
