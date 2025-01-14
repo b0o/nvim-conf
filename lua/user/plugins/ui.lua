@@ -9,10 +9,12 @@ return {
     config = function()
       if (vim.env.COLORSCHEME or 'lavi') == 'lavi' then
         vim.cmd.colorscheme 'lavi'
+      elseif vim.env.COLORSCHEME == 'lavi-light' then
+        vim.cmd.colorscheme 'lavi-light'
       end
     end,
     cond = function()
-      return vim.env.COLORSCHEME == nil or vim.env.COLORSCHEME == 'lavi'
+      return vim.env.COLORSCHEME == nil or vim.env.COLORSCHEME == 'lavi' or vim.env.COLORSCHEME == 'lavi-light'
     end,
   },
   {
@@ -21,12 +23,52 @@ return {
     config = function()
       require('tokyonight').setup {
         on_highlights = function(hl, c)
-          hl.CmpSel = {
-            bg = c.bg_visual,
-          }
+          hl.CmpSel = { bg = c.bg_visual }
+
+          hl.RenderMarkdownH1Bg = { fg = '#829bff', bg = '#383b7a' }
+          hl.RenderMarkdownH2Bg = { fg = '#719af1', bg = '#252d50' }
+          hl.RenderMarkdownH3Bg = { fg = '#739bef', bg = '#262c4a' }
+          hl.RenderMarkdownH4Bg = { fg = '#7091c1', bg = '#1f2435' }
+          hl.RenderMarkdownH5Bg = { fg = '#7494c3', bg = '#1f2435' }
+          hl.RenderMarkdownH6Bg = { fg = '#7494c3', bg = '#1f2435' }
+          hl.RenderMarkdownH1 = { fg = hl.RenderMarkdownH1Bg.fg }
+          hl.RenderMarkdownH2 = { fg = hl.RenderMarkdownH2Bg.fg }
+          hl.RenderMarkdownH3 = { fg = hl.RenderMarkdownH3Bg.fg }
+          hl.RenderMarkdownH4 = { fg = hl.RenderMarkdownH4Bg.fg }
+          hl.RenderMarkdownH5 = { fg = hl.RenderMarkdownH5Bg.fg }
+          hl.RenderMarkdownH6 = { fg = hl.RenderMarkdownH6Bg.fg }
+
+          hl.RenderMarkdownCode = { bg = '#2d324a' }
+          hl.RenderMarkdownCodeInline = { bg = '#373d5a' }
+          hl.RenderMarkdownInlineHighlight = { link = 'RenderMarkdownCodeInline' }
+
+          hl.RenderMarkdownChecked = { fg = '#b3f6c0' }
+          hl.RenderMarkdownUnchecked = { fg = '#db4b4b' }
+          hl.RenderMarkdownTodo = { fg = '#bb9af7' }
+
+          hl.RenderMarkdownLink = { fg = '#7aa2f7' }
+          hl.RenderMarkdownWikiLink = { link = 'RenderMarkdownLink' }
+
+          hl.RenderMarkdownError = { fg = '#db4b4b' }
+          hl.RenderMarkdownWarn = { fg = '#e0af68' }
+          hl.RenderMarkdownInfo = { fg = '#1abc9c' }
+          hl.RenderMarkdownHint = { fg = '#565f89' }
+          hl.RenderMarkdownSuccess = { fg = '#b3f6c0' }
+
+          hl.RenderMarkdownQuote = { fg = '#565f89' }
+          hl.RenderMarkdownSign = { fg = '#565f89' }
+          hl.RenderMarkdownDash = { fg = '#565f89' }
+          hl.RenderMarkdownBullet = { link = 'Normal' }
+
+          hl.RenderMarkdownTableHead = { fg = '#0db9d7' }
+          hl.RenderMarkdownTableRow = { link = 'Normal' }
+          hl.RenderMarkdownTableFill = { link = 'Conceal' }
+
+          hl.RenderMarkdownHtmlComment = { fg = '#565f89' }
+          hl.RenderMarkdownMath = { fg = '#a39880', italic = true }
         end,
       }
-      vim.cmd.colorscheme 'tokyonight'
+      vim.cmd.colorscheme 'tokyonight-storm'
     end,
     cond = function() return vim.env.COLORSCHEME == 'tokyonight' end,
   },

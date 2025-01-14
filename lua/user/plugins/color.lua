@@ -36,10 +36,10 @@ return {
     config = function()
       require('colorizer').setup {
         user_default_options = {
-          RGB = true,
-          RRGGBB = true,
+          --   RGB = true,
+          --   RRGGBB = true,
           names = true,
-          RRGGBBAA = true,
+          --   RRGGBBAA = true,
           css = true,
           tailwind = true,
           mode = 'virtualtext',
@@ -89,9 +89,7 @@ return {
         return { R, G, B, H, S, L }
       end
 
-      function RgbHslInput.to_rgb(value)
-        return { value[1], value[2], value[3] }
-      end
+      function RgbHslInput.to_rgb(value) return { value[1], value[2], value[3] } end
 
       function RgbHslInput:_set_rgb(RGB)
         self.value[1] = RGB[1]

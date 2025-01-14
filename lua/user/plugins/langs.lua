@@ -304,6 +304,7 @@ return {
         trim_whitespace = true,
       },
       highlight = {
+        mode = 'zen',
         enable = false,
         shortsighted = false,
       },
@@ -326,18 +327,70 @@ return {
   },
   {
     'MeanderingProgrammer/render-markdown.nvim',
-    opts = {
-      file_types = { 'markdown', 'Avante', 'mdx' },
-      bullet = { right_pad = 1 },
-      code = { language_name = false },
-    },
+    config = function()
+      require('render-markdown').setup {
+        debounce = 50,
+        render_modes = { 'n', 'i', 'v', 'V', 'c', 't' },
+        file_types = { 'markdown', 'Avante', 'mdx' },
+        code = { language_name = false },
+        anti_conceal = { enabled = false },
+        win_options = {
+          concealcursor = { rendered = 'n' },
+        },
+        heading = {
+          icons = {
+            '  󰼏  ',
+            '  󰼐  ',
+            '  󰼑  ',
+            '󰼒  ',
+            '󰼓  ',
+            '󰼔  ',
+          },
+          position = 'overlay',
+          border = true,
+        },
+        checkbox = {
+          unchecked = { icon = ' 󰄱 ' },
+          checked = { icon = ' 󰄵 ' },
+        },
+        link = {
+          wiki = { icon = '󰌹 ' },
+        },
+      }
+      local maputil = require 'user.util.map'
+      local ft = maputil.ft
+
+      ft({ 'markdown', 'Avante', 'mdx' }, function(bufmap)
+        vim.o.wrap = false
+
+        bufmap('n', '<localleader>C', function()
+          ---@diagnostic disable-next-line: invisible
+          local config = require('render-markdown.state').config
+          pcall(
+            require('render-markdown').setup,
+            vim.tbl_deep_extend('force', config, config.anti_conceal.enabled and {
+              anti_conceal = { enabled = false },
+              win_options = {
+                concealcursor = { rendered = 'n' },
+              },
+            } or {
+              anti_conceal = { enabled = true },
+              win_options = {
+                concealcursor = { rendered = '' },
+              },
+            })
+          )
+        end, 'Markdown: Toggle concealcursor')
+
+        bufmap('n', '<localleader>M', '<cmd>RenderMarkdown toggle<Cr>', 'Markdown: Toggle')
+      end)
+    end,
     ft = { 'markdown', 'Avante', 'mdx' },
   },
   {
     '3rd/image.nvim',
     opts = {
       backend = 'kitty',
-      -- processor = 'magick_rock',
       processor = 'magick_cli',
       integrations = {
         markdown = {
@@ -353,7 +406,7 @@ return {
         html = { enabled = false },
         css = { enabled = false },
       },
-      max_width = nil,
+      max_width = 80,
       max_height = nil,
       max_width_window_percentage = nil,
       max_height_window_percentage = 50,
@@ -380,6 +433,25 @@ return {
       },
     },
     ft = { 'markdown', 'noice', 'cmp_docs' },
+  },
+  {
+    '3rd/diagram.nvim',
+    dev = true,
+    dependencies = {
+      '3rd/image.nvim',
+    },
+    ft = { 'markdown' },
+    opts = {
+      renderer_options = {
+        mermaid = {
+          background = 'transparent',
+          theme = 'dark',
+        },
+        gnuplot = {
+          theme = 'dark',
+        },
+      },
+    },
   },
   {
     'lervag/vimtex',
