@@ -43,7 +43,7 @@ return {
           hl.RenderMarkdownInlineHighlight = { link = 'RenderMarkdownCodeInline' }
 
           hl.RenderMarkdownChecked = { fg = '#b3f6c0' }
-          hl.RenderMarkdownUnchecked = { fg = '#db4b4b' }
+          hl.RenderMarkdownUnchecked = { fg = '#7aa2f7' }
           hl.RenderMarkdownTodo = { fg = '#bb9af7' }
 
           hl.RenderMarkdownLink = { fg = '#7aa2f7' }
