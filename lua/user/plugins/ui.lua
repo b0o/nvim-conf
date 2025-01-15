@@ -25,12 +25,12 @@ return {
         on_highlights = function(hl, c)
           hl.CmpSel = { bg = c.bg_visual }
 
-          hl.RenderMarkdownH1Bg = { fg = '#829bff', bg = '#383b7a' }
-          hl.RenderMarkdownH2Bg = { fg = '#719af1', bg = '#252d50' }
-          hl.RenderMarkdownH3Bg = { fg = '#739bef', bg = '#262c4a' }
-          hl.RenderMarkdownH4Bg = { fg = '#7091c1', bg = '#1f2435' }
-          hl.RenderMarkdownH5Bg = { fg = '#7494c3', bg = '#1f2435' }
-          hl.RenderMarkdownH6Bg = { fg = '#7494c3', bg = '#1f2435' }
+          hl.RenderMarkdownH1Bg = { fg = '#1abc9c', bg = '#003c4b' }
+          hl.RenderMarkdownH2Bg = { fg = '#829bff', bg = '#252d50' }
+          hl.RenderMarkdownH3Bg = { fg = '#829bff', bg = '#1f2435' }
+          hl.RenderMarkdownH4Bg = { fg = '#6b8cbc', bg = '#1f2435' }
+          hl.RenderMarkdownH5Bg = { fg = '#6b8cbc', bg = '#1f2435' }
+          hl.RenderMarkdownH6Bg = { fg = '#6b8cbc', bg = '#1f2435' }
           hl.RenderMarkdownH1 = { fg = hl.RenderMarkdownH1Bg.fg }
           hl.RenderMarkdownH2 = { fg = hl.RenderMarkdownH2Bg.fg }
           hl.RenderMarkdownH3 = { fg = hl.RenderMarkdownH3Bg.fg }
@@ -66,6 +66,9 @@ return {
 
           hl.RenderMarkdownHtmlComment = { fg = '#565f89' }
           hl.RenderMarkdownMath = { fg = '#a39880', italic = true }
+
+          hl.NoiceCmdlinePopup = { link = 'NormalFloat' }
+          hl.BlinkCmpMenuBorder = { link = 'FloatBorder' }
         end,
       }
       vim.cmd.colorscheme 'tokyonight-storm'
