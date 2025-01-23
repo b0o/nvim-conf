@@ -160,7 +160,7 @@ M.cmp.copy = function(input)
 end
 
 local function magicFileCmd(func, name, edit_cmd)
-  cmd(name, function(o) func(0, o.args[1], o.bang == true, edit_cmd, true) end, {
+  cmd(name, function(o) func(0, o.args, o.bang == true, edit_cmd, true) end, {
     nargs = 1,
     bar = true,
     bang = true,
