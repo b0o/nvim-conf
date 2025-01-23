@@ -57,7 +57,9 @@ M.luarun = function(file)
       text = vim.api.nvim_get_current_line()
     elseif mode == 'v' or mode == 'V' or mode == 'CTRL-V' or mode == '\22' then
       local selection = require('user.util.visual').get_visual_selection_list(mode)
-      text = table.concat(selection, '\n')
+      if selection ~= nil then
+        text = table.concat(selection, '\n')
+      end
     else
       return
     end
@@ -93,8 +95,8 @@ M.luarun = function(file)
 
   local block, errmsg
   loadok, block, errmsg = pcall(loadstring, text)
-  if not loadok then
-    error(errmsg)
+  if not loadok or block == nil then
+    error(errmsg or 'luarun: failed to load block')
   end
 
   local msg = 'luarun (block)'
@@ -379,7 +381,7 @@ M.is_normal_win = function(winid)
     return false
   end
   local bufid = vim.api.nvim_win_get_buf(winid)
-  if vim.api.nvim_buf_get_option(bufid, 'buftype') ~= '' then
+  if vim.bo[bufid].buftype ~= '' then
     return false
   end
   if
@@ -407,6 +409,9 @@ end
 M.magic_file_path = function(winnr, new_name, add_ext)
   assert(new_name ~= '', 'magic_file_path: no name specified')
   winnr = M.resolve_winnr(winnr)
+  if winnr == nil then
+    return
+  end
   add_ext = add_ext ~= nil and add_ext or false
 
   local bufnr = vim.api.nvim_win_get_buf(winnr)
@@ -423,7 +428,7 @@ M.magic_file_path = function(winnr, new_name, add_ext)
     end
   else
     local dest_dir
-    if vim.api.nvim_buf_get_option(bufnr, 'buftype') == '' then
+    if vim.bo[bufnr].buftype == '' then
       dest_dir = vim.fn.fnamemodify(file_path, ':p:h')
     else
       dest_dir = vim.fn.getcwd(winnr)
@@ -455,6 +460,9 @@ M.magic_newfile = function(winnr, new_name, force, edit_cmd, add_ext, lines)
   end
 
   local dest_path = M.magic_file_path(winnr, new_name, add_ext)
+  if dest_path == nil then
+    return
+  end
 
   assert(force or vim.fn.filereadable(dest_path) == 0, 'File exists: ' .. dest_path)
   local ok, msg = pcall(vim.fn.writefile, lines, dest_path, '')
@@ -466,6 +474,9 @@ end
 -- Saveas and edit a new file with a magic path
 M.magic_saveas = function(winnr, new_name, force, edit_cmd, add_ext)
   winnr = M.resolve_winnr(winnr)
+  if winnr == nil then
+    return
+  end
   local bufnr = vim.api.nvim_win_get_buf(winnr)
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   return M.magic_newfile(winnr, new_name, force, edit_cmd or 'edit!', add_ext, lines)
@@ -515,6 +526,7 @@ M.transform_string = function(opts)
   local postFn = opts.postFn
   local meta = opts.meta
 
+  ---@diagnostic disable-next-line: unused-vararg
   local function identityFn(x, ...) return x end
   -- If preFn or postFn are not provided, default to identityFn
   preFn = preFn or identityFn
