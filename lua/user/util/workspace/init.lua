@@ -8,7 +8,7 @@ local pnpm = require 'user.util.workspace.pnpm'
 
 ---@alias user.util.workspace.WorkspaceType "pnpm"|"cargo"
 
----@alias user.util.workspace.WorkspaceInfo user.util.pnpm.WorkspaceInfo|user.util.cargo.WorkspaceInfo
+---@alias user.util.workspace.WorkspaceInfo user.util.workspace.pnpm.WorkspaceInfo|user.util.workspace.cargo.WorkspaceInfo
 
 ---@class user.util.workspace.GetWorkspaceInfoOpts
 ---@field workspace_type? user.util.workspace.WorkspaceType

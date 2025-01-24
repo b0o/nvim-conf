@@ -6,18 +6,18 @@
 local Path = require 'user.util.path' ---@module 'plenary.path'
 local util = require 'user.util.workspace.util'
 
----@class user.util.cargo.PackageMeta
+---@class user.util.workspace.cargo.PackageMeta
 ---@field id string
 ---@field name string|nil
 ---@field version string|nil
 ---@field manifest_path string|nil
 
----@class user.util.cargo.WorkspaceMeta
----@field packages user.util.cargo.PackageMeta[]
+---@class user.util.workspace.cargo.WorkspaceMeta
+---@field packages user.util.workspace.cargo.PackageMeta[]
 ---@field workspace_members string[]
 ---@field workspace_root string
 
----@class user.util.cargo.PackageInfo
+---@class user.util.workspace.cargo.PackageInfo
 ---@field path Path
 ---@field name string|nil
 ---@field root boolean
@@ -25,35 +25,35 @@ local util = require 'user.util.workspace.util'
 ---@field relative_path string
 ---@field focused boolean
 
----@class user.util.cargo.GetPackageInfoOpts
+---@class user.util.workspace.cargo.GetPackageInfoOpts
 ---@field root? string|Path
 ---@field focused_path? string|Path
 ---@field only_cached? boolean
 
----@class user.util.cargo.WorkspaceInfo
----@field root user.util.cargo.PackageInfo|nil @the root package
----@field focused user.util.cargo.PackageInfo|nil @the focused package
----@field packages user.util.cargo.PackageInfo[] @all packages
+---@class user.util.workspace.cargo.WorkspaceInfo
+---@field root user.util.workspace.cargo.PackageInfo|nil @the root package
+---@field focused user.util.workspace.cargo.PackageInfo|nil @the focused package
+---@field packages user.util.workspace.cargo.PackageInfo[] @all packages
+
+---@class user.util.workspace.cargo.GetWorkspaceMetadataOpts
+---@field only_cached? boolean @whether to only use cached data
+---@field callback? fun(paths: user.util.workspace.cargo.WorkspaceMeta|nil) @the callback to call when the paths are found (get_workspace_package_paths will run asynchronously)
 
 local M = {}
 
 local cache = {
   ---@type table<string, Path|false>
   roots = {},
-  ---@type table<string, user.util.cargo.WorkspaceMeta>
+  ---@type table<string, user.util.workspace.cargo.WorkspaceMeta>
   workspaces = {},
 }
-
----@class user.util.cargo.GetWorkspaceMetadataOpts
----@field only_cached? boolean @whether to only use cached data
----@field callback? fun(paths: user.util.cargo.WorkspaceMeta|nil) @the callback to call when the paths are found (get_workspace_package_paths will run asynchronously)
 
 ---Get the paths of all packages in the workspace
 ---If opts.callback is provided, the function will run asynchronously and call the callback with the result,
 ---otherwise it will block until the result is available and return it.
 ---@param root_dir Path
----@param opts? user.util.cargo.GetWorkspaceMetadataOpts
----@return user.util.cargo.WorkspaceMeta|nil
+---@param opts? user.util.workspace.cargo.GetWorkspaceMetadataOpts
+---@return user.util.workspace.cargo.WorkspaceMeta|nil
 M.get_workspace_metadata = function(root_dir, opts)
   root_dir = root_dir or util.cwd()
   local abs_root = root_dir:absolute()
@@ -109,11 +109,11 @@ M.get_workspace_metadata = function(root_dir, opts)
   return vim.deepcopy(res)
 end
 
----@param meta user.util.cargo.WorkspaceMeta
+---@param meta user.util.workspace.cargo.WorkspaceMeta
 ---@return Path[]
 local function get_workspace_package_paths(meta)
   local paths = {}
-  ---@type table<string, user.util.cargo.PackageMeta>
+  ---@type table<string, user.util.workspace.cargo.PackageMeta>
   local pkg_id_to_meta = {}
   for _, pkg in ipairs(meta.packages) do
     pkg_id_to_meta[pkg.id] = pkg
@@ -182,12 +182,12 @@ end
 ---@param root_path Path
 ---@param ws_path Path
 ---@param opts? {only_cached?: boolean}
----@return user.util.cargo.PackageMeta?
+---@return user.util.workspace.cargo.PackageMeta?
 local function get_package_meta(root_path, ws_path, opts)
   opts = opts or {}
   local cargo_toml = Path:new(ws_path / 'Cargo.toml'):absolute()
   local root = root_path:absolute()
-  ---@type user.util.cargo.WorkspaceMeta?
+  ---@type user.util.workspace.cargo.WorkspaceMeta?
   local ws_meta = cache.workspaces[root]
   if not ws_meta then
     if opts.only_cached then
@@ -207,8 +207,8 @@ local function get_package_meta(root_path, ws_path, opts)
 end
 
 ---@param path string|Path
----@param opts? user.util.cargo.GetPackageInfoOpts
----@return user.util.cargo.PackageInfo|nil
+---@param opts? user.util.workspace.cargo.GetPackageInfoOpts
+---@return user.util.workspace.cargo.PackageInfo|nil
 M.get_package_info = function(path, opts)
   opts = opts or {}
   local root = opts.root and Path:new(opts.root) or M.get_root_path()
@@ -236,11 +236,10 @@ end
 M.clear_cache = function()
   cache.roots = {}
   cache.workspaces = {}
-  cache.package_meta = {}
 end
 
 ---@param opts? user.util.workspace.GetWorkspaceInfoOpts
----@return user.util.cargo.WorkspaceInfo|nil|false
+---@return user.util.workspace.cargo.WorkspaceInfo|nil|false
 M.get_workspace_info = function(opts)
   opts = opts or {}
   if opts.refresh then

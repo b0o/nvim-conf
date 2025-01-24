@@ -7,10 +7,10 @@ local Job = require 'plenary.job'
 local Path = require 'user.util.path' ---@module 'plenary.path'
 local util = require 'user.util.workspace.util'
 
----@class user.util.pnpm.PackageMeta
+---@class user.util.workspace.pnpm.PackageMeta
 ---@field name string|nil
 
----@class user.util.pnpm.PackageInfo
+---@class user.util.workspace.pnpm.PackageInfo
 ---@field path Path
 ---@field name string|nil
 ---@field root boolean
@@ -18,24 +18,24 @@ local util = require 'user.util.workspace.util'
 ---@field relative_path string
 ---@field focused boolean
 
----@class user.util.pnpm.GetPackageInfoOpts
+---@class user.util.workspace.pnpm.GetPackageInfoOpts
 ---@field root? string|Path
 ---@field focused_path? string|Path
 ---@field only_cached? boolean
 
----@class user.util.pnpm.WorkspaceInfo
----@field root user.util.pnpm.PackageInfo|nil @the root package
----@field focused user.util.pnpm.PackageInfo|nil @the focused package
----@field packages user.util.pnpm.PackageInfo[] @all packages
+---@class user.util.workspace.pnpm.WorkspaceInfo
+---@field root user.util.workspace.pnpm.PackageInfo|nil @the root package
+---@field focused user.util.workspace.pnpm.PackageInfo|nil @the focused package
+---@field packages user.util.workspace.pnpm.PackageInfo[] @all packages
 
 local M = {}
 
 local cache = {
-  ---@type Map<string, Path|false>
+  ---@type table<string, Path|false>
   roots = {},
-  ---@type Map<string, Path[]>
+  ---@type table<string, Path[]>
   workspaces = {},
-  ---@type Map<string, user.util.pnpm.PackageMeta>
+  ---@type table<string, user.util.workspace.pnpm.PackageMeta>
   package_meta = {},
 }
 
@@ -122,7 +122,7 @@ end
 
 ---@param path Path
 ---@param opts? {only_cached?: boolean}
----@return user.util.pnpm.PackageMeta|nil
+---@return user.util.workspace.pnpm.PackageMeta|nil
 local function get_package_meta(path, opts)
   local abs_path = path:absolute()
   if cache.package_meta[abs_path] then
@@ -138,7 +138,7 @@ local function get_package_meta(path, opts)
   if not read_ok or not package_json_data or package_json_data == '' then
     return
   end
-  ---@type boolean, user.util.pnpm.PackageMeta|nil
+  ---@type boolean, user.util.workspace.pnpm.PackageMeta|nil
   local decode_ok, package_meta = pcall(vim.fn.json_decode, package_json_data)
   if not decode_ok or not package_meta then
     return
@@ -160,8 +160,8 @@ local function get_package_meta(path, opts)
 end
 
 ---@param path string|Path
----@param opts? user.util.pnpm.GetPackageInfoOpts
----@return user.util.pnpm.PackageInfo|nil
+---@param opts? user.util.workspace.pnpm.GetPackageInfoOpts
+---@return user.util.workspace.pnpm.PackageInfo|nil
 M.get_package_info = function(path, opts)
   opts = opts or {}
   local root = opts.root and Path:new(opts.root) or nil
@@ -190,7 +190,7 @@ M.clear_cache = function()
 end
 
 ---@param opts? user.util.workspace.GetWorkspaceInfoOpts
----@return user.util.pnpm.WorkspaceInfo|nil|false
+---@return user.util.workspace.pnpm.WorkspaceInfo|nil|false
 M.get_workspace_info = function(opts)
   opts = opts or {}
   if opts.refresh then
