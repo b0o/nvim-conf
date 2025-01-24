@@ -75,7 +75,7 @@ return {
     end,
     cond = function() return vim.env.COLORSCHEME == 'tokyonight' end,
   },
-  'kyazdani42/nvim-web-devicons',
+  'nvim-tree/nvim-web-devicons',
   {
     'stevearc/dressing.nvim',
     opts = {},
