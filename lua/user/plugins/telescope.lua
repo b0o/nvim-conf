@@ -144,10 +144,10 @@ very_lazy(function()
   map('n', { '<C-f>w', '<C-f><C-w>' }, wrap(tc.windows, {}), 'Telescope: Windows')
   map('n', { '<C-f>i', '<C-f><C-i>' }, '<Cmd>Easypick headers<Cr>', 'Telescope: Includes (headers)')
 
-  map('n', { '<C-f>m', '<C-f><C-m>' }, tc.pnpm.workspace_package_files, 'Telescope: Pnpm package files')
-  map('n', { '<C-f>nf', '<C-f>nn' }, tc.pnpm.workspace_package_files, 'Telescope: Pnpm package files')
-  map('n', { '<C-f>M', '<C-f>np' }, tc.pnpm.workspace_packages, 'Telescope: Pnpm package')
-  map('n', { '<C-f>na' }, tc.pnpm.workspace_package_grep, 'Telescope: Pnpm package files grep')
+  map('n', { '<C-f>m', '<C-f><C-m>' }, tc.workspace.workspace_package_files, 'Telescope: Workspace package files')
+  map('n', { '<C-f>nf', '<C-f>nn' }, tc.workspace.workspace_package_files, 'Telescope: Workspace package files')
+  map('n', { '<C-f>M', '<C-f>np' }, tc.workspace.workspace_packages, 'Telescope: Workspace package')
+  map('n', { '<C-f>na' }, tc.workspace.workspace_package_grep, 'Telescope: Workspace package files grep')
 
   map('n', { '<C-f>t', '<C-f><C-t>' }, tc['todo-comments'], 'Telescope: Todo Comments')
 

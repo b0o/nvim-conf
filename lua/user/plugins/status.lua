@@ -9,7 +9,7 @@ return {
         if focused_path == '' then
           return ''
         end
-        local workspace_info = require('user.util.pnpm').get_workspace_info {
+        local workspace_info = require('user.util.workspace.pnpm').get_workspace_info {
           focused_path = focused_path,
           only_cached = true,
         }

@@ -1,12 +1,12 @@
 -- Based on https://github.com/stevearc/overseer.nvim/blob/68a2d344cea4a2e11acfb5690dc8ecd1a1ec0ce0/lua/overseer/template/npm.lua
 -- Modified to tweak how pnpm monorepos are handled:
--- - Use user.util.pnpm to get workspace info
+-- - Use user.util.workspace.pnpm to get workspace info
 -- - Give priority to focused workspace package scripts
 -- - Simplify get_candidate_package_files so the nearest package.json from the cwd is used
-local overseer = require 'overseer'
-local files = require 'overseer.files'
 local Path = require 'plenary.path'
-local pnpm = require 'user.util.pnpm'
+local files = require 'overseer.files'
+local overseer = require 'overseer'
+local pnpm = require 'user.util.workspace.pnpm'
 
 local lockfiles = {
   npm = 'package-lock.json',
@@ -73,24 +73,23 @@ local function get_workspaces(package_mgr, package_json)
       focused_path = Path:new(vim.api.nvim_buf_get_name(0)),
     }
     if info then
-      return vim.tbl_map(function(p)
-        return {
-          path = p.relative_path,
-          priority = p.focused and 0 or nil,
-          name = p.name,
-        }
-      end, info.packages)
+      return vim.tbl_map(
+        function(p)
+          return {
+            path = p.relative_path,
+            priority = p.focused and 0 or nil,
+            name = p.name,
+          }
+        end,
+        info.packages
+      )
     end
   end
-  return vim.tbl_map(function(p)
-    return { path = p }
-  end, package_json.workspaces or {})
+  return vim.tbl_map(function(p) return { path = p } end, package_json.workspaces or {})
 end
 
 return {
-  cache_key = function(opts)
-    return opts.dir
-  end,
+  cache_key = function(opts) return opts.dir end,
   condition = {
     callback = function(opts)
       local package_file = get_package_file(opts)

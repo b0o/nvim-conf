@@ -12,13 +12,11 @@ local action_state = require 'telescope.actions.state'
 
 local M = {}
 
-local right_pad = function(s, len)
-  return s .. string.rep(' ', len - #s)
-end
+local right_pad = function(s, len) return s .. string.rep(' ', len - #s) end
 
 ---@class WorkspacePackageOpts
 ---@field focused_path? string|Path @the path to use as the focused package
----@field refresh? boolean @whether to refresh the pnpm workspace cache
+---@field refresh? boolean @whether to refresh the workspace cache
 ---@field grep? boolean @whether to use grep instead of find
 
 local function get_focused_path(opts)
@@ -44,12 +42,12 @@ end
 ---@param opts WorkspacePackageOpts
 function M.workspace_packages(opts)
   opts = opts or {}
-  local info = require('user.util.pnpm').get_workspace_info {
+  local info = require('user.util.workspace').get_workspace_info {
     focused_path = get_focused_path(opts),
     refresh = opts.refresh,
   }
   if not info then
-    vim.notify('No PNPM workspace detected', vim.log.levels.WARN)
+    vim.notify('No workspace detected', vim.log.levels.WARN)
     return
   end
   local max_path_len = 0
@@ -57,7 +55,7 @@ function M.workspace_packages(opts)
     max_path_len = math.max(max_path_len, #package.relative_path)
   end
   tp.new(opts, {
-    prompt_title = 'Pnpm packages',
+    prompt_title = 'Workspace packages',
     finder = tf.new_table {
       results = info.packages,
       entry_maker = function(entry)
@@ -86,9 +84,7 @@ function M.workspace_packages(opts)
       end,
     },
     previewer = tv.new_termopen_previewer {
-      dyn_title = function(_, entry)
-        return 'Package ' .. entry.name
-      end,
+      dyn_title = function(_, entry) return 'Package ' .. entry.name end,
       get_command = function(entry)
         return {
           'eza',
@@ -109,32 +105,38 @@ function M.workspace_packages(opts)
       ta.select_default:replace(function()
         local entry = action_state.get_selected_entry().value
         ta.close(prompt_bufnr)
-        vim.schedule(function()
-          M.workspace_package_files(vim.tbl_extend('force', opts or {}, {
-            focused_path = entry.path,
-          }))
-        end)
+        vim.schedule(
+          function()
+            M.workspace_package_files(vim.tbl_extend('force', opts or {}, {
+              focused_path = entry.path,
+            }))
+          end
+        )
       end)
-      -- reload pnpm workspace info
+      -- reload workspace info
       map({ 'i', 'n' }, '<C-r>', function()
         ta.close(prompt_bufnr)
-        vim.schedule(function()
-          M.workspace_packages(vim.tbl_extend('force', opts or {}, {
-            focused_path = info.focused.path,
-            refresh = true,
-          }))
-        end)
+        vim.schedule(
+          function()
+            M.workspace_packages(vim.tbl_extend('force', opts or {}, {
+              focused_path = info.focused.path,
+              refresh = true,
+            }))
+          end
+        )
       end)
       -- grep in package
       map({ 'i', 'n' }, '<M-a>', function()
         local entry = action_state.get_selected_entry().value
         ta.close(prompt_bufnr)
-        vim.schedule(function()
-          M.workspace_package_files(vim.tbl_extend('force', opts or {}, {
-            focused_path = entry.path,
-            grep = true,
-          }))
-        end)
+        vim.schedule(
+          function()
+            M.workspace_package_files(vim.tbl_extend('force', opts or {}, {
+              focused_path = entry.path,
+              grep = true,
+            }))
+          end
+        )
       end)
       -- cd to package
       map({ 'i', 'n' }, '<C-i>', function()
@@ -150,16 +152,16 @@ end
 ---@param opts WorkspacePackageOpts
 function M.workspace_package_files(opts)
   opts = opts or {}
-  local info = require('user.util.pnpm').get_workspace_info {
+  local info = require('user.util.workspace').get_workspace_info {
     focused_path = get_focused_path(opts),
     refresh = opts.refresh,
   }
   if not info then
-    vim.notify('No PNPM workspace detected', vim.log.levels.WARN)
+    vim.notify('No workspace detected', vim.log.levels.WARN)
     return
   end
   local picker = opts.grep and tb.live_grep or tb.find_files
-  local title = 'Pnpm WS Package' .. (opts.grep and ' Grep' or ' Files')
+  local title = 'WS Package' .. (opts.grep and ' Grep' or ' Files')
   return picker(vim.tbl_extend('force', opts or {}, {
     prompt_title = title .. ' ' .. (info.focused.name or ('/' .. info.focused.relative_path)),
     cwd = info.focused.path:absolute(),
@@ -167,31 +169,37 @@ function M.workspace_package_files(opts)
       -- select a different package
       map({ 'i', 'n' }, '<C-o>', function(prompt_bufnr)
         ta.close(prompt_bufnr)
-        vim.schedule(function()
-          M.workspace_packages(vim.tbl_extend('force', opts or {}, {
-            focused_path = info.focused.path,
-          }))
-        end)
+        vim.schedule(
+          function()
+            M.workspace_packages(vim.tbl_extend('force', opts or {}, {
+              focused_path = info.focused.path,
+            }))
+          end
+        )
       end)
-      -- reload pnpm workspace info
+      -- reload workspace info
       map({ 'i', 'n' }, '<C-r>', function(prompt_bufnr)
         ta.close(prompt_bufnr)
-        vim.schedule(function()
-          M.workspace_package_files(vim.tbl_extend('force', opts or {}, {
-            focused_path = info.focused.path,
-            refresh = true,
-          }))
-        end)
+        vim.schedule(
+          function()
+            M.workspace_package_files(vim.tbl_extend('force', opts or {}, {
+              focused_path = info.focused.path,
+              refresh = true,
+            }))
+          end
+        )
       end)
       -- toggle grep
       map({ 'i', 'n' }, '<M-a>', function(prompt_bufnr)
         ta.close(prompt_bufnr)
-        vim.schedule(function()
-          M.workspace_package_files(vim.tbl_extend('force', opts or {}, {
-            focused_path = info.focused.path,
-            grep = not opts.grep,
-          }))
-        end)
+        vim.schedule(
+          function()
+            M.workspace_package_files(vim.tbl_extend('force', opts or {}, {
+              focused_path = info.focused.path,
+              grep = not opts.grep,
+            }))
+          end
+        )
       end)
       return true
     end,

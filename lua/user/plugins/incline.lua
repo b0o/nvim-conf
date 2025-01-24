@@ -16,7 +16,7 @@ return {
       local colors = require 'user.colors'
       local helpers = require 'incline.helpers'
       local lsp_status = require 'user.util.lsp_status'
-      local pnpm = require 'user.util.pnpm'
+      local workspace = require 'user.util.workspace'
 
       local extra_colors = {}
       if vim.g.colors_name == 'lavi' then
@@ -205,13 +205,13 @@ return {
       end
 
       ---@type Map<string, boolean> @root path -> true|nil
-      local scheduled_pnpm_callbacks = {}
+      local scheduled_workspace_callbacks = {}
 
       local function get_pnpm_workspace(bufname)
         if bufname == '' then
           return
         end
-        local ws = pnpm.get_workspace_info {
+        local ws = workspace.get_workspace_info {
           focused_path = bufname,
           only_cached = true,
         }
@@ -226,13 +226,13 @@ return {
         end
         -- if the root dir has not been cached yet, then the focused path may be in a workspace
         -- schedule an async call to populate the cache so that the next render will pick it up
-        local root = pnpm.get_pnpm_root_path(Path:new(bufname))
-        if not root or scheduled_pnpm_callbacks[root:absolute()] then
+        local root = workspace.get_root_path(Path:new(bufname))
+        if not root or scheduled_workspace_callbacks[root:absolute()] then
           return
         end
-        scheduled_pnpm_callbacks[root:absolute()] = true
-        pnpm.get_workspace_package_paths(root, {
-          callback = function() pnpm.get_workspace_info() end,
+        scheduled_workspace_callbacks[root:absolute()] = true
+        workspace.get_workspace_package_paths(root, {
+          callback = function() workspace.get_workspace_info() end,
         })
       end
 

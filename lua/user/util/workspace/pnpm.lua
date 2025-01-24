@@ -4,13 +4,29 @@
 -- MIT License
 
 local Job = require 'plenary.job'
-local Path = require 'plenary.path'
+local Path = require 'user.util.path'
+local util = require 'user.util.workspace.util'
 
----@class Path
----@field new fun(self: Path, path: string|Path): Path
-
----@class PackageMeta
+---@class user.util.pnpm.PackageMeta
 ---@field name string|nil
+
+---@class user.util.pnpm.PackageInfo
+---@field path Path
+---@field name string|nil
+---@field root boolean
+---@field current boolean
+---@field relative_path string
+---@field focused boolean
+
+---@class user.util.pnpm.GetPackageInfoOpts
+---@field root? string|Path
+---@field focused_path? string|Path
+---@field only_cached? boolean
+
+---@class user.util.pnpm.WorkspaceInfo
+---@field root user.util.pnpm.PackageInfo|nil @the root package
+---@field focused user.util.pnpm.PackageInfo|nil @the focused package
+---@field packages user.util.pnpm.PackageInfo[] @all packages
 
 local M = {}
 
@@ -19,34 +35,28 @@ local cache = {
   roots = {},
   ---@type Map<string, Path[]>
   workspaces = {},
-  ---@type Map<string, PackageMeta>
+  ---@type Map<string, user.util.pnpm.PackageMeta>
   package_meta = {},
 }
 
 local augroup = vim.api.nvim_create_augroup('pnpm', {})
 
-local function cwd()
-  local cwd_ = vim.uv.cwd()
-  assert(cwd_, 'Could not get current working directory')
-  return Path:new(cwd_)
-end
-
----@class GetWorkspacePackagePathsOpts
----@field only_cached? boolean @whether to only use cached data
----@field callback? fun(paths: Path[]|nil) @the callback to call when the paths are found (get_workspace_package_paths will run asynchronously)
-
+---Get the paths of all packages in the workspace
+---If opts.callback is provided, the function will run asynchronously and call the callback with the result,
+---otherwise it will block until the result is available and return it.
 ---@param root_dir Path
----@param opts? GetWorkspacePackagePathsOpts
+---@param opts? user.util.workspace.GetWorkspacePackagePathsOpts
 ---@return Path[]|nil
 M.get_workspace_package_paths = function(root_dir, opts)
   local abs_root = root_dir:absolute()
   local cb = opts and opts.callback
   if cache.workspaces[abs_root] then
+    local res = vim.deepcopy(cache.workspaces[abs_root])
     if cb then
-      cb(cache.workspaces[abs_root])
+      cb(res)
       return
     end
-    return vim.deepcopy(cache.workspaces[abs_root])
+    return res
   end
   if opts and opts.only_cached then
     if cb then
@@ -57,13 +67,12 @@ M.get_workspace_package_paths = function(root_dir, opts)
   end
   ---@type Path[]
   local res = {}
+  ---@diagnostic disable-next-line: missing-fields
   local job = Job:new {
     command = 'pnpm',
     args = { 'ls', '--recursive', '--depth', '-1', '--parseable' },
     cwd = root_dir:absolute(),
-    on_stdout = function(_, data)
-      table.insert(res, Path:new(data))
-    end,
+    on_stdout = function(_, data) table.insert(res, Path:new(data)) end,
     on_exit = function(_, code)
       if code == 0 then
         cache.workspaces[abs_root] = res
@@ -75,9 +84,7 @@ M.get_workspace_package_paths = function(root_dir, opts)
   }
   if cb then
     job:after(function()
-      vim.schedule(function()
-        cb(cache.workspaces[abs_root])
-      end)
+      vim.schedule(function() cb(cache.workspaces[abs_root]) end)
     end)
     job:start()
     return
@@ -89,9 +96,9 @@ end
 ---@param start_path? Path
 ---@param opts? {only_cached?: boolean}
 ---@return Path|nil|false @the root path, nil if not cached and only_cached is true, false if not found
-M.get_pnpm_root_path = function(start_path, opts)
+M.get_root_path = function(start_path, opts)
   opts = opts or {}
-  start_path = start_path or cwd()
+  start_path = start_path or util.cwd()
   local abs_path = start_path:absolute()
   if cache.roots[abs_path] == nil then
     if opts.only_cached then
@@ -115,7 +122,7 @@ end
 
 ---@param path Path
 ---@param opts? {only_cached?: boolean}
----@return PackageMeta|nil
+---@return user.util.pnpm.PackageMeta|nil
 local function get_package_meta(path, opts)
   local abs_path = path:absolute()
   if cache.package_meta[abs_path] then
@@ -127,13 +134,11 @@ local function get_package_meta(path, opts)
   ---@type Path
   local package_json = path / 'package.json'
   ---@type boolean, string|nil
-  local read_ok, package_json_data = pcall(function()
-    return package_json:read()
-  end)
+  local read_ok, package_json_data = pcall(function() return package_json:read() end)
   if not read_ok or not package_json_data or package_json_data == '' then
     return
   end
-  ---@type boolean, PackageMeta|nil
+  ---@type boolean, user.util.pnpm.PackageMeta|nil
   local decode_ok, package_meta = pcall(vim.fn.json_decode, package_json_data)
   if not decode_ok or not package_meta then
     return
@@ -154,22 +159,9 @@ local function get_package_meta(path, opts)
   return package_meta
 end
 
----@class PackageInfo
----@field path Path
----@field name string|nil
----@field root boolean
----@field current boolean
----@field relative_path string
----@field focused boolean
-
----@class GetPackageInfoOpts
----@field root? string|Path
----@field focused_path? string|Path
----@field only_cached? boolean
-
 ---@param path string|Path
----@param opts? GetPackageInfoOpts
----@return PackageInfo|nil
+---@param opts? user.util.pnpm.GetPackageInfoOpts
+---@return user.util.pnpm.PackageInfo|nil
 M.get_package_info = function(path, opts)
   opts = opts or {}
   local root = opts.root and Path:new(opts.root) or nil
@@ -185,7 +177,7 @@ M.get_package_info = function(path, opts)
     path = path,
     name = package_meta.name,
     root = is_root,
-    current = abs_path == cwd():absolute(),
+    current = abs_path == util.cwd():absolute(),
     relative_path = string.sub(abs_path, (root and #root:absolute() or 0) + 2),
     focused = not is_root and focused_path ~= nil and vim.startswith(focused_path:absolute(), abs_path),
   }
@@ -197,25 +189,15 @@ M.clear_cache = function()
   cache.package_meta = {}
 end
 
----@class WorkspaceInfo
----@field root PackageInfo|nil @the root package
----@field focused PackageInfo|nil @the focused package
----@field packages PackageInfo[] @all packages
-
----@class GetWorkspaceInfoOpts
----@field focused_path? string|Path @the path to use as the focused package
----@field refresh? boolean @whether to refresh the cache
----@field only_cached? boolean @whether to only use cached data
-
----@param opts? GetWorkspaceInfoOpts
----@return WorkspaceInfo|nil|false
+---@param opts? user.util.workspace.GetWorkspaceInfoOpts
+---@return user.util.pnpm.WorkspaceInfo|nil|false
 M.get_workspace_info = function(opts)
   opts = opts or {}
   if opts.refresh then
     M.clear_cache()
   end
-  local focused_path = Path:new(opts.focused_path or cwd())
-  local root_dir = M.get_pnpm_root_path(focused_path, {
+  local focused_path = Path:new(opts.focused_path or util.cwd())
+  local root_dir = M.get_root_path(focused_path, {
     only_cached = opts.only_cached,
   })
   if not root_dir then
