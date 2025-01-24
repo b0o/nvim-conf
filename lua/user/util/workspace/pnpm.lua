@@ -4,7 +4,7 @@
 -- MIT License
 
 local Job = require 'plenary.job'
-local Path = require 'user.util.path'
+local Path = require 'user.util.path' ---@module 'plenary.path'
 local util = require 'user.util.workspace.util'
 
 ---@class user.util.pnpm.PackageMeta

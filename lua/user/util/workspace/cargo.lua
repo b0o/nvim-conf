@@ -3,7 +3,7 @@
 -- Copyright 2023 Luka Hartwig
 -- MIT License
 
-local Path = require 'user.util.path'
+local Path = require 'user.util.path' ---@module 'plenary.path'
 local util = require 'user.util.workspace.util'
 
 ---@class user.util.cargo.PackageMeta
@@ -38,13 +38,11 @@ local util = require 'user.util.workspace.util'
 local M = {}
 
 local cache = {
-  ---@type Map<string, Path|false>
+  ---@type table<string, Path|false>
   roots = {},
   ---@type table<string, user.util.cargo.WorkspaceMeta>
   workspaces = {},
 }
-
-local augroup = vim.api.nvim_create_augroup('pnpm', {})
 
 ---@class user.util.cargo.GetWorkspaceMetadataOpts
 ---@field only_cached? boolean @whether to only use cached data
