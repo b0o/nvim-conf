@@ -29,6 +29,13 @@ return {
         notifier = {
           enabled = true,
           margin = { top = 2, right = 1, bottom = 1 },
+          style = 'fancy',
+          filter = function(notif)
+            local ignore = {
+              ['No information available'] = true,
+            }
+            return not ignore[notif.msg]
+          end,
         },
         quickfile = { enabled = true },
         statuscolumn = { enabled = true },
