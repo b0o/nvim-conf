@@ -314,7 +314,7 @@ map('i', '<M-l>', '<Right>', 'Move right')
 map('i', '<M-a>', '<C-o>_', 'Move to start of line')
 
 -- unicode stuff
-map('i', xk "<C-'>", '<C-k>', 'Insert digraph')
+map('i', { xk '<C-S-k>', xk "<C-'>" }, '<C-k>', 'Insert digraph')
 map('n', 'gxa', 'ga', 'Show char code in decimal, hexadecimal and octal')
 
 map('i', xk '<C-`>', '<C-o>~<Left>', 'Toggle case')
