@@ -27,6 +27,10 @@ local spec = {
           width = function() return math.max(40, math.min(200, math.floor(vim.o.columns * 0.55))) end,
           height = function() return math.max(30, math.min(100, math.floor(vim.o.lines * 0.55))) end,
           zindex = 200,
+          winblend = 0,
+        },
+        highlights = {
+          FloatBorder = { link = 'FloatBorder' },
         },
       }
     end,
