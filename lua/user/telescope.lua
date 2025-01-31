@@ -185,7 +185,7 @@ t.setup {
 
 local extensions = {
   'aerial',
-  'pnpm',
+  'workspace',
   'windows',
   'gh',
   'zf-native',
