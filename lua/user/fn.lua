@@ -305,20 +305,6 @@ M.memotable = function(target)
   })
 end
 
--- TODO
--- M.memofn = function(fn)
---   local mt = M.memotable({}, {
---     __index = function(k, v)
---       -- ...
---     end
---   })
---   return setmetatable({}, {
---     __call = function(_, arg1, ...)
---       return mt[arg1](...)
---     end
---   })
--- end
-
 -- returns true if val is a function or callable table
 M.is_callable = function(val)
   local t = type(val)

@@ -40,5 +40,4 @@ require('lazy').setup({
 very_lazy(function()
   require 'user.mappings'
   require 'user.autocmds'
-  -- require('user.fn').silent(require('user.util.auto-resize').enable)
 end)
