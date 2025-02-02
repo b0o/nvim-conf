@@ -92,6 +92,7 @@ local function collapse_window(win)
   vim.wo[win].winfixheight = true
   vim.api.nvim_win_set_config(win, { height = target_height })
   vim.api.nvim_win_set_cursor(win, M.window_views[win].cursor)
+  vim.cmd 'wincmd ='
 end
 
 ---Toggles collapse state for a specific window
