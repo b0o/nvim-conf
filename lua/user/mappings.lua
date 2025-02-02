@@ -137,9 +137,11 @@ map('n', '<localleader>p', cutbuf.paste, 'cutbuf: paste')
 map('n', '<localleader>X', cutbuf.swap, 'cutbuf: swap')
 
 ---- Window Management
-local auto_resize = require 'user.util.auto-resize'
-map('n', '<leader>sa', auto_resize.enable, 'Enable auto-resize')
-map('n', '<leader>sA', auto_resize.disable, 'Disable auto-resize')
+local smart_size = require 'user.util.smart-size'
+map('n', '<leader>sa', smart_size.enable_autoresize, 'Smart size: Enable auto-resize')
+map('n', '<leader>sA', smart_size.disable_autoresize, 'Smart size: Disable auto-resize')
+map('n', '<leader>sc', smart_size.toggle_collapse, 'Smart size: Toggle collapse')
+map('n', '<leader>sC', smart_size.clear_all_collapse, 'Smart size: Clear collapse')
 
 ---- Editing
 map('n', 'gi', [[:exec "normal i".nr2char(getchar())."\e"<Cr>]], 'Insert a single character')

@@ -60,7 +60,7 @@ local spec = {
 very_lazy(function()
   local maputil = require 'user.util.map'
   local recent_wins = require 'user.util.recent-wins'
-  local auto_resize = require 'user.util.auto-resize'
+  local smart_size = require 'user.util.smart-size'
   local fn = require 'user.fn'
   local xk = require('user.keys').xk
 
@@ -107,7 +107,7 @@ very_lazy(function()
 
     aerial.refetch_symbols()
     aerial.open { focus = focus or false }
-    auto_resize.trigger()
+    smart_size.update()
   end
 
   map('n', xk '<M-S-\\>', function()
