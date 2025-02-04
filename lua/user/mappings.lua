@@ -179,6 +179,19 @@ map('n', '<leader>ym', function()
 end, 'Yank file as markdown code block')
 
 map('n', '<leader>yp', '<Cmd>let @+ = expand("%:p")<Cr>:echom "Copied " . @+<Cr>', 'Yank file path')
+map('n', '<leader>yr', '<Cmd>let @+ = expand("%:.")<Cr>:echom "Copied " . @+<Cr>', 'Yank relative file path')
+
+map('n', '<localleader>aa', function()
+  require('user.util.aider').add_buf()
+  require('user.util.aider').copy_cmd()
+end, 'Aider: /add file')
+
+map('n', { '<localleader>aA', '<localleader>at' }, function()
+  require('user.util.aider').add_tabpage()
+  require('user.util.aider').copy_cmd()
+end, 'Aider: /add all files in tab')
+
+map('n', '<localleader>ac', function() require('user.util.aider').clear_cmd() end, 'Aider: Clear cmd')
 
 map('n', '<leader>yP', function()
   local line = vim.fn.line '.'
