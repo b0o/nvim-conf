@@ -9,7 +9,7 @@ local emmet_wrap = function(abbreviation)
   if not emmet then
     return
   end
-  local response = emmet.request_sync('emmet/expandAbbreviation', {
+  local response = emmet:request_sync('emmet/expandAbbreviation', {
     abbreviation = abbreviation,
     language = vim.bo.filetype,
     options = {
