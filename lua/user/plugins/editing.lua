@@ -30,6 +30,7 @@ local spec = {
       { '<C-n>', '<Cmd>MultipleCursorsAddJumpNextMatch<CR>', mode = { 'n', 'x' } },
       { [[\\A]], '<Cmd>MultipleCursorsAddMatches<CR>', mode = { 'n', 'x' } },
       { '<C-q>', '<Cmd>MultipleCursorsJumpNextMatch<CR>' },
+      { '<C-n>', '<Cmd>MultipleCursorsAddVisualArea<CR>', mode = { 'x' } },
     },
   },
   {
