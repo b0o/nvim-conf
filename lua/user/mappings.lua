@@ -1,5 +1,3 @@
-local M = {}
-
 local fn = require 'user.fn'
 local lazy = require 'user.util.lazy'
 local xk = require('user.keys').xk
@@ -657,5 +655,3 @@ map('x', '.', [[<Esc>.]], { remap = true, silent = true, desc = 'Repeat last com
 
 ---- folke/lazy.nvim
 map('n', '<leader>ll', '<Cmd>Lazy<cr>', 'Lazy')
-
-return M
