@@ -41,10 +41,7 @@ return {
   {
     'saghen/blink.cmp',
     dependencies = {
-      {
-        'saghen/blink.compat',
-        opts = {},
-      },
+      { 'saghen/blink.compat', opts = {} },
     },
     lazy = false, -- lazy loading handled internally
     -- dev = true,
