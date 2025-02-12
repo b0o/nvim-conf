@@ -63,6 +63,7 @@ M.xk = setmetatable({
   [ [[<C-Cr>]] ] = '<F12>',
   [ [[<C-S-p>]] ] = '<S-F1>',
   [ [[<C-S-n>]] ] = '<S-F2>',
+  [ [[<C-,>]] ] = '<F34>',
 }, {
   __index = function(self, k) return rawget(self, k) end,
   __call = function(self, k) return self[k] end,

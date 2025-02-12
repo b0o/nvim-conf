@@ -175,7 +175,7 @@ sibling_swap.setup {
 }
 
 map('n', xk '<C-.>', sibling_swap.swap_with_right, 'Sibling-Swap: Swap with right')
-map('n', '<F34>', sibling_swap.swap_with_left, 'Sibling-Swap: Swap with left')
+map('n', xk '<C-,>', sibling_swap.swap_with_left, 'Sibling-Swap: Swap with left')
 
 ---- Wansmer/treesj
 local lang_utils = require 'treesj.langs.utils'
