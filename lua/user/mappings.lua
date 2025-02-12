@@ -4,11 +4,8 @@ local fn = require 'user.fn'
 local lazy = require 'user.util.lazy'
 local xk = require('user.keys').xk
 local recent_wins = lazy_require 'user.util.recent-wins'
-
 local maputil = require 'user.util.map'
-local map = maputil.map
-local ft = maputil.ft
-local wrap = maputil.wrap
+local map, ft, wrap = maputil.map, maputil.ft, maputil.wrap
 
 -- Disable C-z suspend
 map('nvo', '<C-z>', '<Nop>')
