@@ -122,7 +122,7 @@ map_toggle_locals({ '|' }, { 'cursorcolumn' })
 map_toggle_locals({ 'W', 'ww' }, { 'wrap' })
 
 ---- Lua helpers
-map('n', '+', ':=', { silent = false, desc = 'Lua: Dump expression' })
+map('n', '+', ':=', { silent = false, desc = 'Lua: Inspect expression' })
 
 ---- Cut/Copy Buffers
 local cutbuf = lazy.require 'user.util.cutbuf'
