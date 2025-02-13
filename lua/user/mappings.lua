@@ -65,6 +65,9 @@ map('x', '<leader>/', ':s/', { silent = false, desc = 'Substitute' })
 map('x', '<leader>?', ':S/', { silent = false, desc = 'Substitute (rev)' })
 
 -- Buffer-local option toggles
+---@param keys string|string[]
+---@param opts string|string[]
+---@param vals? any|any[]
 local function map_toggle_locals(keys, opts, vals)
   keys = type(keys) == 'table' and keys or { keys }
   opts = type(opts) == 'table' and opts or { opts }
