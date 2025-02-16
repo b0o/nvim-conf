@@ -62,7 +62,9 @@ return {
         [xk [[<C-S-p>]]] = { 'select_prev', 'show' },
         ['<C-k>'] = { 'scroll_documentation_up', 'fallback' },
         ['<C-j>'] = { 'scroll_documentation_down', 'fallback' },
-        cmdline = {
+      },
+      cmdline = {
+        keymap = {
           ['<CR>'] = {
             function()
               vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-]><Cr>', true, true, true), 'n', true)
