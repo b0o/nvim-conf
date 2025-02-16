@@ -432,7 +432,7 @@ local on_attach = function(_, bufnr)
   bufmap('n', '<M-S-i>', user_lsp.peek_definition, 'LSP: Peek definition')
   bufmap('ni', '<M-i>', user_lsp.hover, 'LSP: Hover or focus diagnostic')
 
-  map('n', '<M-p>', vim.schedule_wrap(lazy_require('seek').trigger), 'Hover: Preview completions for word under cursor')
+  -- map('n', '<M-p>', vim.schedule_wrap(lazy_require('seek').trigger), 'Hover: Preview completions for word under cursor')
 end
 
 ---@type LazySpec[]
@@ -570,15 +570,15 @@ return {
     cmd = { 'IncRename' },
     opts = {},
   },
-  {
-    'b0o/seek.nvim',
-    dev = true,
-    config = function()
-      require('seek').setup {
-        debug = vim.g.SeekDebug or false,
-      }
-    end,
-  },
+  -- {
+  --   'b0o/seek.nvim',
+  --   dev = true,
+  --   config = function()
+  --     require('seek').setup {
+  --       debug = vim.g.SeekDebug or false,
+  --     }
+  --   end,
+  -- },
   {
     'DNLHC/glance.nvim',
     config = function()
