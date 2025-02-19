@@ -5,7 +5,7 @@ local M = {}
 M.node_motion = function()
   local bufnr = vim.api.nvim_win_get_buf(0)
   local ok, lang_tree = pcall(vim.treesitter.get_parser, bufnr)
-  if not ok then
+  if not ok or not lang_tree then
     return
   end
   local cpos = vim.api.nvim_win_get_cursor(0)
