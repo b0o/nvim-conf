@@ -12,6 +12,7 @@ return {
     map('n', '<c-f>L', '<Cmd>Leet list<Cr>', 'Leet: Select question (all)')
     map('n', '<c-f>l', '<Cmd>Leet list status=notac<Cr>', 'Leet: Select question (in progress)')
 
+    ---@diagnostic disable-next-line: missing-fields
     require('leetcode').setup {
       storage = {
         home = (vim.env.GIT_PROJECTS_DIR or vim.fn.stdpath 'data') .. '/leetcode',
