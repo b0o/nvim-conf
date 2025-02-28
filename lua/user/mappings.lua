@@ -148,9 +148,6 @@ map('n', 'ga', [[:exec "normal a".nr2char(getchar())."\e"<Cr>]], 'Insert a singl
 map('x', '>', '>gv', 'Indent')
 map('x', '<', '<gv', 'De-Indent')
 
-map('n', '<M-.>', "m'Do<Esc>p`", 'Break line at cursor')
-map('n', '<M-,>', "m'DO<Esc>p`", 'Break line at cursor (reverse)')
-
 map('n', 'go', 'o<C-u>', 'Insert on new line without autocomment')
 map('n', 'gO', 'O<C-u>', 'Insert on new line above without autocomment')
 

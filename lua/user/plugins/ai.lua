@@ -1,3 +1,5 @@
+local xk = require('user.keys').xk
+
 require('user.util.lazy').after_load('noice.nvim', function()
   if package.loaded['leetcode'] or vim.g.ActiveCopilot == 'disabled' then
     return
@@ -13,8 +15,64 @@ return {
   'zbirenbaum/copilot.lua',
   'supermaven-inc/supermaven-nvim',
   {
+    'greggh/claude-code.nvim',
+    -- dev = true,
+    opts = {
+      keymaps = {
+        toggle = {
+          normal = false,
+          terminal = false,
+        },
+      },
+      window = { enter_insert = false },
+    },
+    cmd = 'ClaudeCode',
+    keys = {
+      {
+        '<M-,>',
+        function()
+          local win = vim.api.nvim_get_current_win()
+          local buf = vim.api.nvim_win_get_buf(win)
+          local bufname = vim.fn.bufname(buf)
+          if bufname == 'claude-code' then
+            require('user.util.recent-wins').focus_most_recent()
+            return
+          end
+          for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+            local bufnr = vim.api.nvim_win_get_buf(winid)
+            if vim.fn.bufname(bufnr) == 'claude-code' then
+              vim.api.nvim_set_current_win(winid)
+              return
+            end
+          end
+          vim.cmd 'ClaudeCode'
+        end,
+        mode = { 'n', 't' },
+        desc = 'Claude Code: Toggle',
+      },
+      {
+        xk '<M-S-,>',
+        function()
+          for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+            local bufnr = vim.api.nvim_win_get_buf(winid)
+            if vim.fn.bufname(bufnr) == 'claude-code' then
+              vim.api.nvim_win_close(winid, true)
+              return
+            end
+          end
+          local win = vim.api.nvim_get_current_win()
+          vim.cmd 'ClaudeCode'
+          vim.api.nvim_set_current_win(win)
+          vim.defer_fn(function() vim.cmd 'stopinsert' end, 0)
+        end,
+        mode = { 'n', 't' },
+        desc = 'Claude Code: Toggle',
+      },
+    },
+  },
+  {
     'yetone/avante.nvim',
-    dev = true,
+    -- dev = true,
     event = 'VeryLazy',
     cmd = {
       'AvanteAsk',
@@ -49,7 +107,6 @@ return {
       local fn = require 'user.fn'
       local recent_wins = require 'user.util.recent-wins'
       local maputil = require 'user.util.map'
-      local xk = require('user.keys').xk
       local map = maputil.map
       local private = require 'user.util.private'
 
