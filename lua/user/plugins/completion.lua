@@ -115,6 +115,11 @@ return {
             'fallback',
           },
         },
+        completion = {
+          menu = {
+            auto_show = true,
+          },
+        },
       },
       completion = {
         list = {
