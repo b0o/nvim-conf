@@ -156,7 +156,7 @@ return {
         documentation = {
           auto_show = true,
           auto_show_delay_ms = 100,
-          update_delay_ms = 25,
+          update_delay_ms = 85,
           window = {
             max_height = 15,
             border = 'rounded',
