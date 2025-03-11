@@ -224,8 +224,8 @@ local servers = function()
     },
     'taplo',
     {
-      'tsserver',
-      enabled = false,
+      'ts_ls',
+      enabled = true,
       formatting = false,
       settings = {
         diagnostics = {
@@ -624,6 +624,7 @@ return {
   },
   {
     'pmizio/typescript-tools.nvim',
+    enabled = false,
     ft = {
       'typescript',
       'javascript',
@@ -677,7 +678,7 @@ return {
   },
   {
     'marilari88/twoslash-queries.nvim',
-    dev = true,
+    -- dev = true,
     opts = { multi_line = true },
     ft = {
       'typescript',
