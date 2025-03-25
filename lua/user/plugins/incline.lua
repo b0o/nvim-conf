@@ -18,6 +18,39 @@ return {
       local lsp_status = require 'user.util.lsp_status'
       local workspace = require 'user.util.workspace'
 
+      local au = a.nvim_create_augroup('user_incline', { clear = true })
+
+      -- Track cursor when inside of nvim-tree so we can highlight the currently hovered file's
+      -- incline statusline
+      local tree_hovered_buf = nil
+      a.nvim_create_autocmd('WinEnter', {
+        group = au,
+        pattern = 'NvimTree_*',
+        callback = function(e)
+          a.nvim_create_autocmd('CursorMoved', {
+            group = au,
+            buffer = e.buf,
+            callback = function()
+              local ok, node = pcall(require('nvim-tree.api').tree.get_node_under_cursor)
+              ---@cast node nvim_tree.api.Node
+              if ok and node and node.type == 'file' then
+                local buf = vim.fn.bufnr(node.absolute_path)
+                if buf then
+                  tree_hovered_buf = buf
+                  return
+                end
+              end
+              tree_hovered_buf = nil
+            end,
+          })
+        end,
+      })
+      vim.api.nvim_create_autocmd('WinLeave', {
+        group = au,
+        pattern = 'NvimTree_*',
+        callback = function() tree_hovered_buf = nil end,
+      })
+
       local extra_colors = {}
       if vim.g.colors_name == 'lavi' then
         local lavi = require 'lavi.palette'
@@ -407,7 +440,11 @@ return {
         render = function(props)
           local ft = vim.bo[props.buf].filetype
 
-          local buf_focused = props.buf == a.nvim_get_current_buf()
+          if tree_hovered_buf == props.buf then
+            props.focused = true
+          end
+
+          local buf_focused = props.buf == a.nvim_get_current_buf() or tree_hovered_buf == props.buf
           local modified = vim.bo[props.buf].modified
 
           local fg = props.focused and extra_colors.fg or extra_colors.fg_nc
