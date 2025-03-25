@@ -8,11 +8,12 @@ local files = require 'overseer.files'
 local overseer = require 'overseer'
 local pnpm = require 'user.util.workspace.pnpm'
 
+---@type { [string]: string[] }
 local lockfiles = {
-  npm = 'package-lock.json',
-  pnpm = 'pnpm-lock.yaml',
-  yarn = 'yarn.lock',
-  bun = 'bun.lockb',
+  npm = { 'package-lock.json' },
+  pnpm = { 'pnpm-lock.yaml' },
+  yarn = { 'yarn.lock' },
+  bun = { 'bun.lock', 'bun.lockb' },
 }
 
 ---@type overseer.TemplateFileDefinition
@@ -59,9 +60,11 @@ end
 
 local function pick_package_manager(package_file)
   local package_dir = vim.fs.dirname(package_file)
-  for mgr, lockfile in pairs(lockfiles) do
-    if files.exists(files.join(package_dir, lockfile)) then
-      return mgr
+  for mgr, candidates in pairs(lockfiles) do
+    for _, lockfile in ipairs(candidates) do
+      if files.exists(files.join(package_dir, lockfile)) then
+        return mgr
+      end
     end
   end
   return 'npm'
@@ -114,13 +117,41 @@ return {
     local ret = {}
     if data.scripts then
       for k in pairs(data.scripts) do
+        local components = { 'default' }
+        if k == 'tsc:watch' then
+          table.insert(components, { 'on_output_parse', problem_matcher = '$tsc-watch' })
+          table.insert(components, { 'on_result_notify', on_change = false })
+        end
+        if k == 'dev' then
+          table.insert(components, {
+            'on_output_parse',
+            parser = {
+              diagnostics = require('overseer.parser.lib').watcher_output(
+                '^build: start',
+                '^build: end',
+                { 'extract', { regex = true }, '\\v^(error|warning|info):\\s+(.*)$', 'type', 'text' },
+                {}
+              ),
+            },
+          })
+          table.insert(components, { 'on_result_notify', on_change = false })
+        end
+
         table.insert(
           ret,
-          overseer.wrap_template(
-            tmpl,
-            { name = string.format('%s %s', bin, k) },
-            { args = { 'run', k }, bin = bin, cwd = vim.fs.dirname(package) }
-          )
+          overseer.wrap_template(tmpl, {
+            name = string.format('%s run %s', bin, k),
+            builder = function(params)
+              params = tmpl.builder(params or {})
+              params.components = vim.deepcopy(params.components or {})
+              vim.list_extend(params.components, components)
+              return params
+            end,
+          }, {
+            args = { 'run', k },
+            bin = bin,
+            cwd = vim.fs.dirname(package),
+          })
         )
       end
     end
