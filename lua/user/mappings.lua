@@ -157,20 +157,71 @@ map('n', '<leader>yy', '"+yy', 'Yank line to system clipboard')
 map('n', '<C-y>', [[pumvisible() ? "\<C-y>" : '"+yy']], { expr = true, desc = 'Yank line to system clipboard' })
 map('x', '<C-y>', [[pumvisible() ? "\<C-y>" : '"+y']], { expr = true, desc = 'Yank line to system clipboard' })
 
+local function get_current_file_or_nvim_tree_node()
+  ---@type string
+  local file
+  ---@type string[]
+  local lines
+  ---@type integer|nil
+  local buf
+  ---@type string|nil
+  local filetype
+  if vim.bo.filetype == 'NvimTree' then
+    local ok, node = pcall(require('nvim-tree.api').tree.get_node_under_cursor)
+    ---@cast node nvim_tree.api.Node
+    if ok and node and node.type == 'file' then
+      file = vim.fn.fnamemodify(node.absolute_path, ':.')
+      filetype = vim.filetype.match { filename = node.absolute_path }
+      buf = vim.fn.bufnr(node.absolute_path)
+      -- If the file is not loaded, read it from disk
+      if buf == -1 then
+        lines = vim.fn.readfile(node.absolute_path)
+        buf = nil
+      end
+    else
+      return
+    end
+  else
+    buf = 0
+  end
+  if buf ~= nil then
+    file = vim.fn.fnamemodify(vim.fn.bufname(buf or 0), ':.')
+    lines = vim.api.nvim_buf_get_lines(buf or 0, 0, -1, false)
+    if filetype == nil then
+      filetype = vim.fn.expand '%:e'
+    end
+  end
+  return {
+    relative_path = file,
+    lines = lines,
+    filetype = filetype,
+  }
+end
+
 map('n', '<leader>Y', function()
-  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+  local file = get_current_file_or_nvim_tree_node()
+  if not file then
+    vim.notify('No file found', vim.log.levels.WARN)
+    return
+  end
+  local lines = file.lines
   vim.fn.setreg('+', table.concat(lines, '\n'))
   vim.notify('Copied ' .. #lines .. ' lines to clipboard', vim.log.levels.INFO)
-end, 'Yank file as markdown code block')
+end, 'Yank file contents')
 
 map('n', '<leader>ym', function()
-  local file = vim.fn.expand '%'
-  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+  local file = get_current_file_or_nvim_tree_node()
+  if not file then
+    vim.notify('No file found', vim.log.levels.WARN)
+    return
+  end
+  local lines = file.lines
+  local filetype = file.filetype
+  local relative_path = file.relative_path
   local code_block = table.concat(lines, '\n')
-  local filetype = vim.fn.expand '%:e'
-  local markdown = string.format('# %s\n```%s\n%s\n```', file, filetype, code_block)
+  local markdown = string.format('# %s\n```%s\n%s\n```', relative_path, filetype or '', code_block)
   vim.fn.setreg('+', markdown)
-  vim.notify('Copied ' .. file .. ' as markdown code block', vim.log.levels.INFO)
+  vim.notify('Copied ' .. relative_path .. ' as markdown code block', vim.log.levels.INFO)
 end, 'Yank file as markdown code block')
 
 map('n', '<leader>yp', '<Cmd>let @+ = expand("%:p")<Cr>:echom "Copied " . @+<Cr>', 'Yank file path')
