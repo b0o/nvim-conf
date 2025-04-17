@@ -350,11 +350,11 @@ local on_attach = function(_, bufnr)
   local code_action = lazy_require('tiny-code-action').code_action
   bufmap('nx', { '<localleader>A', '<localleader>ca' }, code_action, 'LSP: Code action')
 
-  local function goto_diag(dir)
+  local function goto_diag(dir, float)
     return function(sev)
       return function()
         local opts = {
-          float = true,
+          float = float,
           severity = vim.diagnostic.severity[sev],
         }
 
@@ -375,14 +375,23 @@ local on_attach = function(_, bufnr)
           error('Invalid direction: ' .. dir)
         end
 
-        vim.diagnostic.jump(opts)
+        if type(vim.diagnostic.jump) == 'function' then
+          vim.diagnostic.jump(opts)
+        else
+          vim.diagnostic['goto_' .. dir](opts)
+        end
       end
     end
   end
-  local diag_prev = goto_diag 'prev'
-  local diag_next = goto_diag 'next'
-  local diag_first = goto_diag 'first'
-  local diag_last = goto_diag 'last'
+  local diag_prev = goto_diag('prev', false)
+  local diag_next = goto_diag('next', false)
+  local diag_first = goto_diag('first', false)
+  local diag_last = goto_diag('last', false)
+
+  local diag_prev_float = goto_diag('prev', true)
+  local diag_next_float = goto_diag('next', true)
+  local diag_first_float = goto_diag('first', true)
+  local diag_last_float = goto_diag('last', true)
 
   bufmap('n', '<localleader>ds', vim.diagnostic.show, 'LSP: Show diagnostics')
   bufmap('n', { '<localleader>dt', '<localleader>T' }, trouble.toggle, 'LSP: Toggle Trouble')
@@ -392,6 +401,8 @@ local on_attach = function(_, bufnr)
     vim.diagnostic.enable(not enabled, { bufnr = 0 })
     vim.notify('Diagnostics ' .. (enabled and 'disabled' or 'enabled'))
   end, 'LSP: Toggle Diagnostic')
+
+  bufmap('n', '<leader><M-i>', vim.diagnostic.open_float, 'LSP: Float diagnostic under cursor')
 
   bufmap('n', '[d', diag_prev(), 'LSP: Goto prev diagnostic')
   bufmap('n', ']d', diag_next(), 'LSP: Goto next diagnostic')
@@ -414,6 +425,27 @@ local on_attach = function(_, bufnr)
   bufmap('n', ']W', diag_last 'WARN', 'LSP: Goto last warning')
   bufmap('n', '[E', diag_first 'ERROR', 'LSP: Goto first error')
   bufmap('n', ']E', diag_last 'ERROR', 'LSP: Goto last error')
+
+  bufmap('n', '<leader>[d', diag_prev_float(), 'LSP: Goto prev diagnostic (float)')
+  bufmap('n', '<leader>]d', diag_next_float(), 'LSP: Goto next diagnostic (float)')
+  bufmap('n', '<leader>[h', diag_prev_float 'HINT', 'LSP: Goto prev hint (float)')
+  bufmap('n', '<leader>]h', diag_next_float 'HINT', 'LSP: Goto next hint (float)')
+  bufmap('n', '<leader>[i', diag_prev_float 'INFO', 'LSP: Goto prev info (float)')
+  bufmap('n', '<leader>]i', diag_next_float 'INFO', 'LSP: Goto next info (float)')
+  bufmap('n', '<leader>[w', diag_prev_float 'WARN', 'LSP: Goto prev warning (float)')
+  bufmap('n', '<leader>]w', diag_next_float 'WARN', 'LSP: Goto next warning (float)')
+  bufmap('n', '<leader>[e', diag_prev_float 'ERROR', 'LSP: Goto prev error (float)')
+  bufmap('n', '<leader>]e', diag_next_float 'ERROR', 'LSP: Goto next error (float)')
+  bufmap('n', '<leader>[D', diag_first_float(), 'LSP: Goto first diagnostic (float)')
+  bufmap('n', '<leader>]D', diag_last_float(), 'LSP: Goto last diagnostic (float)')
+  bufmap('n', '<leader>[H', diag_first_float 'HINT', 'LSP: Goto first hint (float)')
+  bufmap('n', '<leader>]H', diag_last_float 'HINT', 'LSP: Goto last hint (float)')
+  bufmap('n', '<leader>[I', diag_first_float 'INFO', 'LSP: Goto first info (float)')
+  bufmap('n', '<leader>]I', diag_last_float 'INFO', 'LSP: Goto last info (float)')
+  bufmap('n', '<leader>[W', diag_first_float 'WARN', 'LSP: Goto first warning (float)')
+  bufmap('n', '<leader>]W', diag_last_float 'WARN', 'LSP: Goto last warning (float)')
+  bufmap('n', '<leader>[E', diag_first_float 'ERROR', 'LSP: Goto first error (float)')
+  bufmap('n', '<leader>]E', diag_last_float 'ERROR', 'LSP: Goto last error (flooat)')
 
   bufmap('n', '<localleader>dr', function() vim.diagnostic.reset(nil, 0) end, 'LSP: Reset diagnostics (buffer)')
 
