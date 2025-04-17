@@ -221,10 +221,50 @@ local spec = {
       },
     },
   },
+  {
+    'folke/flash.nvim',
+    event = 'VeryLazy',
+    opts = {
+      labels = "fjdghksla;eiworuqpcnxmz,vbty'",
+      search = {},
+      jump = {
+        autojump = true,
+      },
+      label = {
+        uppercase = false,
+      },
+      modes = {
+        treesitter = {
+          labels = 'abcdefghijklmnopqrstuvwxyz',
+          label = {
+            uppercase = false,
+            rainbow = {
+              enabled = true,
+              shade = 3,
+            },
+          },
+        },
+        treesitter_search = {
+          labels = 'abcdefghijklmnopqrstuvwxyz',
+          label = {
+            uppercase = false,
+            rainbow = {
+              enabled = true,
+              shade = 3,
+            },
+          },
+        },
+        char = {
+          keys = { 'f', 'F', 't', 'T', [';'] = '<Tab>', [','] = '<S-Tab>' },
+        },
+      },
+    },
+  },
 }
 
 very_lazy(function()
   local map = require('user.util.map').map
+  local xk = require('user.keys').xk
 
   local comment = lazy_require 'Comment.api'
   local todo_comments = lazy_require 'todo-comments'
@@ -255,6 +295,18 @@ very_lazy(function()
 
   map('n', '[t', todo_comments.jump_prev, 'Todo Comments: Previous')
   map('n', ']t', todo_comments.jump_next, 'Todo Comments: Next')
+
+  map('nxo', '<M-s>', function() require('flash').jump() end, { desc = 'Flash' })
+
+  map('nxo', '<M-S-s>', function() require('flash').treesitter() end, { desc = 'Flash Treesitter' })
+
+  map('nxo', xk '<C-M-S-s>', function() require('flash').treesitter_search() end, { desc = 'Flash Treesitter Search' })
+
+  map('ox', 'r', function() require('flash').remote() end, { desc = 'Remote Flash' })
+
+  map('ox', 'R', function() require('flash').treesitter_search() end, { desc = 'Treesitter Search' })
+
+  map('cx', '<C-s>', function() require('flash').toggle() end, { desc = 'Toggle Flash Search' })
 end)
 
 return spec
