@@ -195,7 +195,10 @@ local servers = function()
       root_dir = root_pattern(
         'tailwind.config.js',
         'tailwind.config.cjs',
+        'tailwind.config.mjs',
         'tailwind.config.ts',
+        'tailwind.config.cts',
+        'tailwind.config.mts',
         'postcss.config.js',
         'postcss.config.ts'
       ),
