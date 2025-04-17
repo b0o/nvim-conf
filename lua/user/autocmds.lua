@@ -108,7 +108,21 @@ autocmd('FocusLost', {
 
 autocmd('TextYankPost', {
   group = group,
-  callback = function() vim.highlight.on_yank() end,
+  callback = function()
+    vim.highlight.on_yank()
+    -- OSC 52 support
+    local ev = vim.v.event
+    if
+      -- unnamed register
+      ev.regname ~= ''
+      or ev.operator ~= 'y'
+      or not ev.regcontents
+    then
+      return
+    end
+    local lines = ev.regcontents --[[@as string[] ]]
+    require('user.fn').osc52_copy(ev.regname, lines)
+  end,
 })
 autocmd('TermOpen', {
   group = group,

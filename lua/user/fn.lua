@@ -585,4 +585,14 @@ M.find_dapui_float = function()
   end)
 end
 
+---@param reg string
+---@param lines (string|string[])[]
+M.osc52_copy = function(reg, lines)
+  lines = vim.iter(lines):flatten():totable()
+  if reg and reg ~= '' then
+    vim.fn.setreg(reg, table.concat(lines, '\n'))
+  end
+  require('vim.ui.clipboard.osc52').copy(reg)(lines)
+end
+
 return M

@@ -208,7 +208,7 @@ map('n', '<leader>Y', function()
     return
   end
   local lines = file.lines
-  vim.fn.setreg('+', table.concat(lines, '\n'))
+  require('user.fn').osc52_copy('+', lines)
   vim.notify('Copied ' .. #lines .. ' lines to clipboard', vim.log.levels.INFO)
 end, 'Yank file contents')
 
@@ -221,14 +221,26 @@ map('n', '<leader>ym', function()
   local lines = file.lines
   local filetype = file.filetype
   local relative_path = file.relative_path
-  local code_block = table.concat(lines, '\n')
-  local markdown = string.format('# %s\n```%s\n%s\n```\n', relative_path, filetype or '', code_block)
-  vim.fn.setreg('+', markdown)
+  require('user.fn').osc52_copy('+', {
+    '# ' .. relative_path,
+    '```' .. (filetype or ''),
+    lines,
+    '```',
+  })
   vim.notify('Copied ' .. relative_path .. ' as markdown code block', vim.log.levels.INFO)
 end, 'Yank file as markdown code block')
 
-map('n', '<leader>yp', '<Cmd>let @+ = expand("%:p")<Cr>:echom "Copied " . @+<Cr>', 'Yank file path')
-map('n', '<leader>yr', '<Cmd>let @+ = expand("%:.")<Cr>:echom "Copied " . @+<Cr>', 'Yank relative file path')
+map('n', '<leader>yp', function()
+  local file = vim.fn.expand '%:p'
+  require('user.fn').osc52_copy('+', { file })
+  vim.notify('Copied ' .. file, vim.log.levels.INFO)
+end, 'Yank file path')
+
+map('n', '<leader>yr', function()
+  local file = vim.fn.expand '%:.'
+  require('user.fn').osc52_copy('+', { file })
+  vim.notify('Copied ' .. file, vim.log.levels.INFO)
+end, 'Yank relative file path')
 
 map('n', '<localleader>aa', function()
   require('user.util.aider').add_buf()
@@ -245,11 +257,15 @@ map('n', '<localleader>ac', function() require('user.util.aider').clear_cmd() en
 map('n', '<leader>yP', function()
   local line = vim.fn.line '.'
   local file = vim.fn.expand '%'
-  vim.fn.setreg('+', file .. ':' .. line)
+  require('user.fn').osc52_copy('+', { file .. ':' .. line })
   vim.notify('Copied ' .. file .. ':' .. line, vim.log.levels.INFO)
 end, 'Yank file path with line number')
 
-map('n', '<leader>y:', [[<Cmd>let @+=@:<Cr>:echom "Copied '" . @+ . "'"<Cr>]], 'Yank last command')
+map('n', '<leader>y:', function()
+  local cmd = vim.fn.getreg '@:'
+  require('user.fn').osc52_copy('+', { cmd })
+  vim.notify('Copied ' .. cmd, vim.log.levels.INFO)
+end, 'Yank last command')
 
 map('nx', '<C-p>', '"+p', 'Paste from system clipboard')
 
