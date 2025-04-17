@@ -12,6 +12,14 @@ local spec = {
     },
   },
   {
+    'benlubas/wrapping-paper.nvim',
+    event = 'VeryLazy',
+    opts = {},
+    keys = {
+      { '<M-->', function() require('wrapping-paper').wrap_line() end, mode = { 'n' } },
+    },
+  },
+  {
     'brenton-leighton/multiple-cursors.nvim',
     opts = {},
     cmd = {

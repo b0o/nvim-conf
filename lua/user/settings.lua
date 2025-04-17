@@ -72,6 +72,7 @@ vim.o.showcmd = true
 vim.o.showcmdloc = 'statusline'
 vim.o.ruler = false
 vim.o.cmdheight = 0
+vim.o.wrap = false
 
 vim.o.laststatus = 3
 vim.o.statusline = '%{""}'
@@ -97,10 +98,7 @@ vim.o.termguicolors = true
 
 --- Diagnostics
 vim.diagnostic.config {
-  virtual_text = {
-    source = 'if_many',
-    severity = vim.diagnostic.severity.ERROR,
-  },
+  virtual_text = false,
   float = {
     border = 'rounded',
     prefix = function(diagnostic)
