@@ -31,6 +31,7 @@ M.xk = setmetatable({
   [ [[<C-M-S-q>]] ] = utf8(0xff04),
   [ [[<C-M-.>]] ] = utf8(0xff05),
   [ [[<C-M-S-.>]] ] = utf8(0xff06),
+  [ [[<C-M-j>]] ] = utf8(0x00a7),
   [ [[<C-\>]] ] = utf8(0x00f0),
   [ [[<C-S-\>]] ] = utf8(0x00f1),
   [ [[<M-S-\>]] ] = utf8(0x00f2),

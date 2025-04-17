@@ -1,6 +1,16 @@
 local smart_splits = lazy_require 'smart-splits'
 local wrap = require('user.util.map').wrap
 
+very_lazy(function()
+  if vim.env.ZELLIJ ~= nil then
+    local map = require('user.util.map').map
+    map('n', '<M-h>', '<C-w>h')
+    map('n', '<M-j>', '<C-w>j')
+    map('n', '<M-k>', '<C-w>k')
+    map('n', '<M-l>', '<C-w>l')
+  end
+end)
+
 ---@type LazySpec[]
 return {
   {
@@ -24,6 +34,7 @@ return {
   },
   {
     'mrjones2014/smart-splits.nvim',
+    cond = function() return vim.env.ZELLIJ == nil end,
     event = 'VeryLazy',
     keys = {
       { '<M-h>', wrap(smart_splits.move_cursor_left), desc = 'Goto window/pane left' },
