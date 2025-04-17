@@ -354,8 +354,8 @@ local on_attach = function(_, bufnr)
     return ':IncRename ' .. vim.fn.expand '<cword>'
   end, { silent = false, expr = true, desc = 'LSP: Rename' })
 
-  local code_actions = lazy_require('actions-preview').code_actions
-  bufmap('nx', { '<localleader>A', '<localleader>ca' }, code_actions, 'LSP: Code action')
+  local code_action = lazy_require('tiny-code-action').code_action
+  bufmap('nx', { '<localleader>A', '<localleader>ca' }, code_action, 'LSP: Code action')
 
   local function goto_diag(dir)
     return function(sev)
@@ -476,7 +476,7 @@ return {
     config = function()
       -- require('user.otter').setup()
       local otter = require 'otter'
-      local keeper = require 'otter.keeper'
+      -- local keeper = require 'otter.keeper'
       ---@type table<string, string> @ Filetype to extension mapping
       local extensions = require 'otter.tools.extensions'
 
@@ -567,7 +567,32 @@ return {
     end,
   },
   'b0o/schemastore.nvim',
-  'aznhe21/actions-preview.nvim',
+  {
+    'rachartier/tiny-code-action.nvim',
+    event = 'LspAttach',
+    opts = {
+      backend = 'delta',
+
+      backend_opts = {
+        delta = {
+          header_lines_to_remove = 6,
+          args = { '--line-numbers', '--width', '168' },
+        },
+      },
+      telescope_opts = {
+        layout_strategy = 'vertical',
+        layout_config = {
+          width = 170,
+          height = 40,
+          preview_cutoff = 1,
+          preview_height = function(_, _, max_lines)
+            local h = math.floor(max_lines * 0.5)
+            return math.max(h, 10)
+          end,
+        },
+      },
+    },
+  },
   {
     'smjonas/inc-rename.nvim',
     cmd = { 'IncRename' },
@@ -694,5 +719,20 @@ return {
     'folke/trouble.nvim',
     cmd = { 'Trouble', 'TroubleClose', 'TroubleRefresh', 'TroubleToggle' },
     opts = {},
+  },
+  {
+    'rachartier/tiny-inline-diagnostic.nvim',
+    event = 'LspAttach',
+    priority = 1000,
+    opts = {
+      options = {
+        show_source = true,
+        multilines = {
+          enabled = true,
+          always_show = true,
+        },
+        show_all_diags_on_cursorline = true,
+      },
+    },
   },
 }
