@@ -84,7 +84,7 @@ return {
       end
 
       local function status_lsp_client(status)
-        local icon = ''
+        local icon = '●'
         return function(bufnr)
           local count = lsp_status.status_clients_count(status, bufnr)
           if count == 0 then
