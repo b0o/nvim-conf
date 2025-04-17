@@ -31,10 +31,14 @@ return {
           margin = { top = 2, right = 1, bottom = 1 },
           style = 'fancy',
           filter = function(notif)
-            local ignore = {
-              ['No information available'] = true,
+            local ignores = {
+              '^No information available$',
+              '^client.supports_method is deprecated',
             }
-            return not ignore[notif.msg]
+            return not vim.iter(ignores):any(
+              ---@param pat string
+              function(pat) return string.find(notif.msg, pat) ~= nil end
+            )
           end,
         },
         quickfile = { enabled = true },
