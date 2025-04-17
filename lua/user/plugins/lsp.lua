@@ -229,14 +229,7 @@ local servers = function()
     {
       'ts_ls',
       enabled = true,
-      formatting = false,
-      settings = {
-        diagnostics = {
-          ignoredCodes = {
-            7016, -- "Could not find a declaration file for module..."
-          },
-        },
-      },
+      on_attach = function(client, bufnr) require('twoslash-queries').attach(client, bufnr) end,
     },
     'vimls',
     {
