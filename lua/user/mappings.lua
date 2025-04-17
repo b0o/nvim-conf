@@ -185,11 +185,14 @@ local function get_current_file_or_nvim_tree_node()
     buf = 0
   end
   if buf ~= nil then
-    file = vim.fn.fnamemodify(vim.fn.bufname(buf or 0), ':.')
+    file = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ':.')
     lines = vim.api.nvim_buf_get_lines(buf or 0, 0, -1, false)
     if filetype == nil then
       filetype = vim.fn.expand '%:e'
     end
+  end
+  if lines == nil then
+    return nil
   end
   return {
     relative_path = file,
@@ -219,7 +222,7 @@ map('n', '<leader>ym', function()
   local filetype = file.filetype
   local relative_path = file.relative_path
   local code_block = table.concat(lines, '\n')
-  local markdown = string.format('# %s\n```%s\n%s\n```', relative_path, filetype or '', code_block)
+  local markdown = string.format('# %s\n```%s\n%s\n```\n', relative_path, filetype or '', code_block)
   vim.fn.setreg('+', markdown)
   vim.notify('Copied ' .. relative_path .. ' as markdown code block', vim.log.levels.INFO)
 end, 'Yank file as markdown code block')
