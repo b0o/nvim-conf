@@ -54,6 +54,9 @@ M.formatters_by_ft = {
   zsh = { 'shfmt', 'shellharden' },
 }
 
+---@param name string
+---@param tbl conform.FormatterConfigOverride|fun(bufnr: integer): nil|conform.FormatterConfigOverride
+---@param setup? boolean
 function M.extend_formatter(name, tbl, setup)
   if not M.formatters[name] then
     M.formatters[name] = require('conform.formatters.' .. name)
@@ -64,6 +67,9 @@ function M.extend_formatter(name, tbl, setup)
   end
 end
 
+---@param ft string
+---@param formatter conform.FormatterConfigOverride|fun(bufnr: integer): nil|conform.FormatterConfigOverride
+---@param setup? boolean
 function M.set_formatter(ft, formatter, setup)
   M.formatters[ft] = formatter
   if setup == nil or setup == true then
@@ -71,6 +77,9 @@ function M.set_formatter(ft, formatter, setup)
   end
 end
 
+---@param tbl table<string, conform.FormatterConfigOverride|fun(bufnr: integer): nil|conform.FormatterConfigOverride>
+---@param merge? boolean
+---@param setup? boolean
 function M.set_formatters_by_ft(tbl, merge, setup)
   merge = merge == nil and true or merge
   if merge then
