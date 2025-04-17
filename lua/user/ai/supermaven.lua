@@ -15,17 +15,12 @@ M.start = function()
 
   local c = require 'supermaven-nvim.completion_preview'
   local xk = require('user.keys').xk
+  local map = require('user.util.map').map
 
-  vim.keymap.set('i', xk [[<C-\>]], c.on_accept_suggestion, {
-    silent = true,
-    desc = 'SuperMaven: Accept',
-  })
-  vim.keymap.set('i', [[<M-\>]], c.on_accept_suggestion_word, {
-    silent = true,
-    desc = 'SuperMaven: Accept word',
-  })
+  map('i', { xk [[<C-\>]], '' }, c.on_accept_suggestion, 'SuperMaven: Accept')
+  map('i', { [[<M-\>]] }, c.on_accept_suggestion_word, 'SuperMaven: Accept word')
 
-  vim.keymap.set('i', [[<M-right>]], function()
+  map('i', [[<M-right>]], function()
     local smu = require 'supermaven-nvim.util'
     local orig_to_next_word = smu.to_next_word
     ---@diagnostic disable-next-line: duplicate-set-field
@@ -38,16 +33,14 @@ M.start = function()
     end
     pcall(c.on_accept_suggestion_word)
     smu.to_next_word = orig_to_next_word
-  end, {
-    silent = true,
-    desc = 'SuperMaven: Accept next char',
-  })
+  end, 'SuperMaven: Accept next char')
 end
 
 M.stop = function()
   local xk = require('user.keys').xk
 
   vim.keymap.del('i', xk [[<C-\>]])
+  vim.keymap.del('i', '')
   vim.keymap.del('i', [[<M-\>]])
 
   require('supermaven-nvim.api').stop()
