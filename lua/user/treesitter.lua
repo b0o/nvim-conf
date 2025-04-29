@@ -88,21 +88,7 @@ require('nvim-treesitter.configs').setup {
     select = {
       enable = true,
       lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
-      keymaps = {
-        -- You can use the capture groups defined in textobjects.scm
-        ['af'] = '@function.outer',
-        ['if'] = '@function.inner',
-        ['ip'] = '@parameter.inner',
-        ['ap'] = '@parameter.outer',
-        ['ib'] = '@block.inner',
-        ['ab'] = '@block.outer',
-        ['im'] = '@class.inner', -- m as in "(M)odule"
-        ['am'] = '@class.outer',
-        ['aa'] = '@call.outer', -- a as in "function (A)pplication"
-        ['ia'] = '@call.inner',
-        ['a/'] = '@comment.outer',
-        ['i/'] = '@comment.outer',
-      },
+      keymaps = {},
     },
     move = {
       enable = true,
@@ -146,6 +132,28 @@ require('nvim-treesitter.configs').setup {
     enable = true,
   },
 }
+
+--- nvim-treesitter-textobjects
+local textobj_select = function(group)
+  return function() require('nvim-treesitter.textobjects.select').select_textobject(group, 'textobjects', 'o') end
+end
+
+-- We manually set up mappings because we don't want nvim-treesitter-textobjects' behavior
+-- where it tries to detect the available groups for the current filetype, leading to
+-- textobjects being unavailable for some injected languages.
+-- You can use the capture groups defined in queries/${ft}/textobjects.scm
+map('ox', 'af', textobj_select '@function.outer', 'Select function (outer)')
+map('ox', 'if', textobj_select '@function.inner', 'Select function (inner)')
+map('ox', 'ip', textobj_select '@parameter.inner', 'Select parameter (inner)')
+map('ox', 'ap', textobj_select '@parameter.outer', 'Select parameter (outer)')
+map('ox', 'ib', textobj_select '@block.inner', 'Select block (inner)')
+map('ox', 'ab', textobj_select '@block.outer', 'Select block (outer)')
+map('ox', 'im', textobj_select '@class.inner', 'Select class (inner)') -- m as in "(m)odule"
+map('ox', 'am', textobj_select '@class.outer', 'Select class (outer)')
+map('ox', 'aa', textobj_select '@call.outer', 'Select call (outer)') -- a as in "function (a)pplication" or "c(a)ll"
+map('ox', 'ia', textobj_select '@call.inner', 'Select call (inner)')
+map('ox', 'a/', textobj_select '@comment.outer', 'Select comment (outer)')
+map('ox', 'i/', textobj_select '@comment.outer', 'Select comment (outer)')
 
 -- Additional Filetypes
 
