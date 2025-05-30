@@ -269,10 +269,10 @@ end, 'Yank last command')
 
 map('nx', '<C-p>', '"+p', 'Paste from system clipboard')
 
-map('n', { '<C-M-j>', xk '<C-M-j>' }, '"dY"dp', 'Duplicate line downwards')
+map('n', { '<C-M-j>', xk '<C-M-j>', '<M-Cr>' }, '"dY"dp', 'Duplicate line downwards')
 map('n', '<C-M-k>', '"dY"dP', 'Duplicate line upwards')
 
-map('x', { '<C-M-j>', xk '<C-M-j>' }, '"dy`<"dPjgv', 'Duplicate selection downwards')
+map('x', { '<C-M-j>', xk '<C-M-j>', '<M-Cr>' }, '"dy`<"dPjgv', 'Duplicate selection downwards')
 map('x', '<C-M-k>', '"dy`>"dpgv', 'Duplicate selection upwards')
 
 local wrap_visual_selection_prev = nil
