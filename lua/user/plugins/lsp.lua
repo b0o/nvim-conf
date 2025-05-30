@@ -53,6 +53,7 @@ local servers = function()
         'pug',
         'sass',
         'scss',
+        'svelte',
         'typescriptreact',
       },
     },
@@ -191,6 +192,10 @@ local servers = function()
       },
     },
     {
+      'svelte',
+      formatting = false,
+    },
+    {
       'tailwindcss',
       root_dir = root_pattern(
         'tailwind.config.js',
@@ -221,6 +226,7 @@ local servers = function()
           includeLanguages = {
             typescript = 'javascript',
             typescriptreact = 'javascript',
+            svelte = 'svelte',
           },
         },
       },
