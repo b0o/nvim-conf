@@ -252,8 +252,6 @@ M.setup = function(config)
     end
     lspconfig[name].setup(opts)
   end
-
-  vim.cmd 'LspStart'
 end
 
 return M

@@ -502,7 +502,7 @@ return {
   {
     'neovim/nvim-lspconfig',
     cmd = { 'LspInfo', 'LspStart', 'LspStop', 'LspRestart', 'LspLog' },
-    event = 'VeryLazy',
+    lazy = false,
     config = function()
       user_lsp.setup {
         servers = servers(),
