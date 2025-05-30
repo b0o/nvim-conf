@@ -233,6 +233,34 @@ local servers = function()
     },
     'taplo',
     {
+      'tsgo',
+      enabled = false,
+      custom = true,
+      default_config = {
+        cmd = { 'tsgo', 'lsp', '--stdio' },
+        filetypes = { 'javascript', 'typescript', 'typescriptreact', 'javascriptreact' },
+        root_dir = function(fname)
+          local root_files = {
+            'tsconfig.json',
+            'package.json',
+            '.git',
+          }
+          return root_pattern(unpack(root_files))(fname)
+        end,
+        init_options = { hostInfo = 'neovim' },
+        single_file_support = true,
+      },
+      -- formatting = false,
+      -- settings = {
+      --   diagnostics = {
+      --     ignoredCodes = {
+      --       7016, -- "Could not find a declaration file for module..."
+      --     },
+      --   },
+      -- },
+      on_attach = function(client, bufnr) require('twoslash-queries').attach(client, bufnr) end,
+    },
+    {
       'ts_ls',
       enabled = true,
       on_attach = function(client, bufnr) require('twoslash-queries').attach(client, bufnr) end,
