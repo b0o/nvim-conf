@@ -12,6 +12,7 @@ function M.toggle_format_on_save() M.set_format_on_save(not format_on_save) end
 ---@type table<string, conform.FormatterConfigOverride|fun(bufnr: integer): nil|conform.FormatterConfigOverride>
 M.formatters = {}
 
+---@type table<string, conform.FiletypeFormatterInternal|fun(bufnr: integer):conform.FiletypeFormatterInternal>
 M.formatters_by_ft = {
   cmake = { 'gersemi' },
 
@@ -29,6 +30,7 @@ M.formatters_by_ft = {
   javascriptreact = { 'dprint' },
   typescript = { 'dprint' },
   typescriptreact = { 'dprint' },
+  svelte = { 'dprint' },
 
   dockerfile = { 'dprint' },
   json = { 'dprint' },
@@ -61,6 +63,7 @@ function M.extend_formatter(name, tbl, setup)
   if not M.formatters[name] then
     M.formatters[name] = require('conform.formatters.' .. name)
   end
+  ---@diagnostic disable-next-line: param-type-mismatch
   M.formatters[name] = vim.tbl_deep_extend('force', M.formatters[name], tbl)
   if setup == nil or setup == true then
     M.setup()
@@ -77,7 +80,7 @@ function M.set_formatter(ft, formatter, setup)
   end
 end
 
----@param tbl table<string, conform.FormatterConfigOverride|fun(bufnr: integer): nil|conform.FormatterConfigOverride>
+---@param tbl table<string, conform.FormatterConfigOverride|(fun(bufnr: integer): nil|conform.FormatterConfigOverride)>
 ---@param merge? boolean
 ---@param setup? boolean
 function M.set_formatters_by_ft(tbl, merge, setup)
@@ -85,6 +88,7 @@ function M.set_formatters_by_ft(tbl, merge, setup)
   if merge then
     M.formatters_by_ft = vim.tbl_deep_extend('force', M.formatters_by_ft, tbl)
   else
+    ---@diagnostic disable-next-line: assign-type-mismatch
     M.formatters_by_ft = tbl
   end
   if setup == nil or setup == true then
@@ -96,12 +100,19 @@ function M.setup()
   require('conform').setup {
     log_level = vim.log.levels.DEBUG,
     notify_on_error = true,
-    format_on_save = function()
+    format_on_save = function(buf)
       if format_on_save then
-        return {
+        local ft = vim.bo[buf].filetype
+        local formatter = M.formatters_by_ft[ft]
+        local opts = {
           timeout_ms = 5000,
           lsp_format = 'fallback',
         }
+        formatter = type(formatter) == 'function' and formatter(buf) or formatter
+        if type(formatter) == 'table' and formatter.lsp_format ~= nil then
+          opts.lsp_format = formatter.lsp_format
+        end
+        return opts
       end
     end,
     formatters = M.formatters,
