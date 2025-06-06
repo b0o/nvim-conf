@@ -184,9 +184,6 @@ return {
           'avante_commands',
           'avante_mentions',
           'avante_files',
-          'obsidian',
-          'obsidian_new',
-          'obsidian_tags',
         },
         providers = {
           lazydev = {
@@ -211,18 +208,6 @@ return {
             module = 'blink.compat.source',
             score_offset = 1000,
             opts = {},
-          },
-          obsidian = {
-            name = 'obsidian',
-            module = 'blink.compat.source',
-          },
-          obsidian_new = {
-            name = 'obsidian_new',
-            module = 'blink.compat.source',
-          },
-          obsidian_tags = {
-            name = 'obsidian_tags',
-            module = 'blink.compat.source',
           },
         },
       },

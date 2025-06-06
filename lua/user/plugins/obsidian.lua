@@ -4,8 +4,7 @@ local vault = private.obsidian_vault or {}
 ---@type LazySpec[]
 return {
   {
-    'epwalsh/obsidian.nvim',
-    dev = true,
+    'obsidian-nvim/obsidian.nvim',
     event = vault.path and {
       ('BufReadPre %s/**.md'):format(vault.path),
       ('BufNewFile %s/**.md'):format(vault.path),
@@ -51,7 +50,15 @@ return {
         ui = { enable = false },
         workspaces = { vault },
         ---@diagnostic disable-next-line: missing-fields
-        completion = { nvim_cmp = false },
+        completion = {
+          -- Enables completion using nvim_cmp
+          nvim_cmp = false,
+          -- Enables completion using blink.cmp
+          blink = true,
+          -- Trigger completion at 2 chars.
+          min_chars = 2,
+        },
+
         ---@diagnostic disable-next-line: missing-fields
         templates = {
           subdir = 'Meta/Templates',
@@ -79,13 +86,6 @@ return {
         },
       }
 
-      -- HACK: fix error, disable completion.nvim_cmp option, manually register sources
-      -- See: https://github.com/epwalsh/obsidian.nvim/issues/770#issuecomment-2557300925
-      local cmp = require 'cmp'
-      cmp.register_source('obsidian', require('cmp_obsidian').new())
-      cmp.register_source('obsidian_new', require('cmp_obsidian_new').new())
-      cmp.register_source('obsidian_tags', require('cmp_obsidian_tags').new())
-
       vim.cmd.delcommand 'Rename'
       vim.cmd.cabbrev { 'Rename', 'ObsidianRename' }
       vim.cmd.cabbrev { 'Today', 'ObsidianToday' }
@@ -100,11 +100,6 @@ return {
 
         map('n', '<C-f><C-f>', '<Cmd>ObsidianQuickSwitch<Cr>', 'Obsidian: Quick Switch')
         map('n', { '<C-f>o', '<C-f><C-o>' }, '<Cmd>ObsidianTitles<Cr>', 'Obsidian: Search Titles')
-
-        map('n', '<C-p>', function()
-          vim.api.nvim_feedkeys(':Obsidian', 't', false)
-          vim.defer_fn(require('cmp').complete, 0)
-        end, ':Obsidian')
 
         ft('markdown', function(bufmap)
           bufmap('n', '<C-]>', function()
