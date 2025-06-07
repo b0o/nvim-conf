@@ -75,7 +75,19 @@ return {
     end,
     cond = function() return vim.env.COLORSCHEME == 'tokyonight' end,
   },
-  'nvim-tree/nvim-web-devicons',
+  {
+    'nvim-tree/nvim-web-devicons',
+    opts = {
+      override = {
+        ['kdl'] = {
+          icon = '',
+          color = '#7aa2f7',
+          cterm_color = '65',
+          name = 'kdl',
+        },
+      },
+    },
+  },
   {
     'stevearc/dressing.nvim',
     opts = {},
