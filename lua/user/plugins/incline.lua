@@ -361,7 +361,7 @@ return {
             icon, accent_color = require('nvim-web-devicons').get_icon_color(icon_name)
           end
         end
-        icon = icon or ''
+        icon = icon or ''
         accent_color = accent_color or extra_colors.fg
         if not props.focused and buf_focused then
           return {
