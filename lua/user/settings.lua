@@ -61,7 +61,7 @@ vim.o.splitkeep = 'screen' -- keep the text on the same screen line when splitti
 vim.opt.shortmess:append 'I' -- Disable intro message
 
 vim.o.title = true
-vim.o.titlestring = '%f'
+vim.o.titlestring = 'nvim: %f'
 
 vim.o.showtabline = 0
 
