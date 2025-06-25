@@ -12,6 +12,8 @@ local spec = {
     config = function()
       local api = require 'nvim-tree.api'
       local preview = require 'nvim-tree-preview'
+      -- TODO: fix optional field type annotations in nvim-tree-preview
+      ---@diagnostic disable-next-line: missing-fields
       preview.setup {
         image_preview = {
           enable = true,
@@ -54,13 +56,12 @@ local spec = {
 
         local function get_visual_nodes()
           local core = require 'nvim-tree.core'
-          local view = require 'nvim-tree.view'
+          local tree = require('nvim-tree.api').tree
           local utils = require 'nvim-tree.utils'
           if not core.get_explorer() then
             return
           end
-          local winnr = view.get_winnr()
-          if not winnr then
+          if not tree.is_visible() then
             return
           end
           local start = vim.api.nvim_buf_get_mark(0, '<')[1]
@@ -285,11 +286,10 @@ very_lazy(function()
 
   local map = maputil.map
   local ft = maputil.ft
-  local wrap = maputil.wrap
 
   map('n', xk '<C-S-\\>', function()
-    if require('nvim-tree.view').is_visible() then
-      require('nvim-tree.view').close()
+    if require('nvim-tree.api').tree.is_visible() then
+      require('nvim-tree.api').tree.close()
     else
       require('nvim-tree.lib').open()
       recent_wins.focus_most_recent()
@@ -303,8 +303,8 @@ very_lazy(function()
       local wins = vim.api.nvim_tabpage_list_wins(0)
       for _, win in ipairs(wins) do
         local bufnr = vim.api.nvim_win_get_buf(win)
-        local ft = vim.bo[bufnr].filetype
-        if ft == 'NvimTree' or ft == 'DiffviewFiles' then
+        local filetype = vim.bo[bufnr].filetype
+        if filetype == 'NvimTree' or filetype == 'DiffviewFiles' then
           vim.api.nvim_set_current_win(win)
           return
         end

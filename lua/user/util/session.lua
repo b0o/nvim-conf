@@ -8,7 +8,7 @@ M.session_save = function()
     nvimTreeOpen = false,
     nvimTreeFocused = false,
   }
-  if package.loaded['nvim-tree'] and require('nvim-tree.view').is_visible() then
+  if package.loaded['nvim-tree'] and require('nvim-tree.api').tree.is_visible() then
     meta.nvimTreeOpen = true
     meta.nvimTreeFocused = vim.fn.bufname(vim.fn.bufnr()) == 'NvimTree'
     vim.cmd 'NvimTreeClose'
