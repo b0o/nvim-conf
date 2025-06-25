@@ -61,6 +61,10 @@ local spec = {
           preserve_output = true,
           use_terminal = true,
         },
+        templates = {
+          'builtin',
+          'mise',
+        },
         component_aliases = {
           default = {
             { 'display_duration', detail_level = 2 },
