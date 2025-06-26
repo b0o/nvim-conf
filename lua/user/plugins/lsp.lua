@@ -196,6 +196,21 @@ local servers = function()
       formatting = false,
     },
     {
+      'systemd',
+      custom = true,
+      default_config = {
+        cmd = { 'systemd-lsp' },
+        filetypes = { 'systemd' },
+        root_dir = function(fname)
+          local root_files = {
+            '.git',
+          }
+          return root_pattern(unpack(root_files))(fname)
+        end,
+        single_file_support = true,
+      },
+    },
+    {
       'tailwindcss',
       root_dir = root_pattern(
         'tailwind.config.js',
