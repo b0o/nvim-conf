@@ -57,6 +57,7 @@ map('n', 'ZQ', '<Cmd>confirm qall<Cr>', { silent = false, desc = 'Quit all' })
 map('n', xk '<C-S-w>', '<Cmd>tabclose<Cr>', 'Close tab (except last one)')
 map('n', '<leader>H', '<Cmd>hide<Cr>', 'Hide buffer')
 map('n', '<C-s>', '<Cmd>w<Cr>', 'Write buffer')
+map('n', '<C-M-s>', '<Cmd>noa w<Cr>', 'Write buffer (no autocommands)')
 
 -- quickly enter command mode with substitution commands prefilled
 map('n', '<leader>/', ':%s/', { silent = false, desc = 'Substitute' })
