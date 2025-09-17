@@ -107,6 +107,9 @@ local spec = {
     '2kabhishek/nerdy.nvim',
     dependencies = { 'stevearc/dressing.nvim' },
     cmd = 'Nerdy',
+    opts = {
+      use_new_command = true,
+    },
   },
   {
     'Allaman/emoji.nvim',
