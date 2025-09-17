@@ -6,7 +6,7 @@ local spec = {
     dependencies = {
       {
         'b0o/nvim-tree-preview.lua',
-        dev = true,
+        -- dev = true,
       },
     },
     config = function()
@@ -301,15 +301,24 @@ very_lazy(function()
     xk [[<C-\>]],
     fn.if_filetype({ 'NvimTree', 'DiffviewFiles' }, recent_wins.focus_most_recent, function()
       local wins = vim.api.nvim_tabpage_list_wins(0)
+      local tree_win, diffview_win
       for _, win in ipairs(wins) do
         local bufnr = vim.api.nvim_win_get_buf(win)
         local filetype = vim.bo[bufnr].filetype
-        if filetype == 'NvimTree' or filetype == 'DiffviewFiles' then
-          vim.api.nvim_set_current_win(win)
-          return
+        if filetype == 'NvimTree' then
+          tree_win = win
+        elseif filetype == 'DiffviewFiles' then
+          diffview_win = win
         end
       end
-      vim.cmd 'NvimTreeFocus'
+      -- prefer diffview
+      if diffview_win then
+        vim.api.nvim_set_current_win(diffview_win)
+      elseif tree_win then
+        vim.api.nvim_set_current_win(tree_win)
+      else
+        vim.cmd 'NvimTreeFocus'
+      end
     end),
     'Nvim-Tree: Toggle Focus'
   )
