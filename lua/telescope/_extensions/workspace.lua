@@ -160,11 +160,16 @@ function M.workspace_package_files(opts)
     vim.notify('No workspace detected', vim.log.levels.WARN)
     return
   end
+  local focused = info.focused or info.root
+  if not focused then
+    vim.notify('No focused package', vim.log.levels.WARN)
+    return
+  end
   local picker = opts.grep and tb.live_grep or tb.find_files
   local title = 'WS Package' .. (opts.grep and ' Grep' or ' Files')
   return picker(vim.tbl_extend('force', opts or {}, {
-    prompt_title = title .. ' ' .. (info.focused.name or ('/' .. info.focused.relative_path)),
-    cwd = info.focused.path:absolute(),
+    prompt_title = (title .. ' ' .. (focused.name or (focused.relative_path and ('/' .. focused.relative_path) or ''))),
+    cwd = focused.path:absolute(),
     attach_mappings = function(_, map)
       -- select a different package
       map({ 'i', 'n' }, '<C-o>', function(prompt_bufnr)
@@ -172,7 +177,7 @@ function M.workspace_package_files(opts)
         vim.schedule(
           function()
             M.workspace_packages(vim.tbl_extend('force', opts or {}, {
-              focused_path = info.focused.path,
+              focused_path = focused.path,
             }))
           end
         )
@@ -183,7 +188,7 @@ function M.workspace_package_files(opts)
         vim.schedule(
           function()
             M.workspace_package_files(vim.tbl_extend('force', opts or {}, {
-              focused_path = info.focused.path,
+              focused_path = focused.path,
               refresh = true,
             }))
           end
@@ -195,7 +200,7 @@ function M.workspace_package_files(opts)
         vim.schedule(
           function()
             M.workspace_package_files(vim.tbl_extend('force', opts or {}, {
-              focused_path = info.focused.path,
+              focused_path = focused.path,
               grep = not opts.grep,
             }))
           end

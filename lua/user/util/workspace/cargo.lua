@@ -233,6 +233,31 @@ M.get_package_info = function(path, opts)
   }
 end
 
+---@param opts? user.util.workspace.cargo.GetPackageInfoOpts
+---@return user.util.workspace.cargo.PackageInfo|nil
+M.get_root_package_info = function(opts)
+  opts = opts or {}
+  local root = M.get_root_path(Path:new(opts.focused_path or util.cwd()), {
+    only_cached = opts.only_cached,
+  })
+  if not root then
+    return
+  end
+  local info = M.get_package_info(root, opts)
+  if info ~= nil then
+    info.root = true
+    return info
+  end
+  return {
+    path = root,
+    name = nil,
+    root = true,
+    current = false,
+    relative_path = '',
+    focused = false,
+  }
+end
+
 M.clear_cache = function()
   cache.roots = {}
   cache.workspaces = {}
@@ -281,6 +306,15 @@ M.get_workspace_info = function(opts)
       if package.focused then
         res.focused = package
       end
+    end
+  end
+  if not res.root then
+    res.root = M.get_root_package_info {
+      focused_path = focused_path,
+      only_cached = opts.only_cached,
+    }
+    if res.root then
+      table.insert(res.packages, res.root)
     end
   end
   return res
