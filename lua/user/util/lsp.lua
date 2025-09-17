@@ -97,6 +97,9 @@ M.on_attach = function(client, bufnr)
   vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
   require('user.util.lsp_status').on_attach(client, bufnr)
 
+  -- Disable default `K` keymap
+  pcall(vim.keymap.del, 'n', 'K', { buffer = bufnr })
+
   -- Enable inlay hints if the client supports it.
   -- Credit @MariaSolOs:
   -- https://github.com/MariaSolOs/dotfiles/blob/8607ace4af5eb2e9001b3f14870c2ffc937f4dcd/.config/nvim/lua/lsp.lua#L118
@@ -148,7 +151,7 @@ M.setup = function(config)
   M.config = config
   M.servers = servers
 
-  vim.lsp.set_log_level(vim.log.levels.WARN)
+  vim.lsp.log.set_level(vim.log.levels.WARN)
 
   vim.lsp.handlers['textDocument/definition'] = function(_, result, ctx)
     if result == nil or vim.tbl_isempty(result) then
