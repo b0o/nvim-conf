@@ -98,6 +98,9 @@ vim.opt.fillchars = {
 
 vim.o.termguicolors = true
 
+vim.o.shell = '/usr/bin/zsh'
+vim.o.shellcmdflag = '-ic' -- -i causes zsh to load .zshrc so that tools like mise load correctly
+
 --- Diagnostics
 vim.diagnostic.config {
   virtual_text = false,
