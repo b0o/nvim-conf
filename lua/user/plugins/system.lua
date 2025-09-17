@@ -18,7 +18,7 @@ local spec = {
           end
         end,
         open_mapping = xk [[<C-S-/>]],
-        on_open = function() vim.cmd 'startinsert!' end,
+        start_in_insert = false,
         direction = 'float',
         persist_size = false,
         shade_terminals = false,
@@ -55,11 +55,13 @@ local spec = {
     },
     config = function()
       require('overseer').setup {
-        ---@diagnostic disable-next-line: assign-type-mismatch
         strategy = {
-          'jobstart',
-          preserve_output = true,
-          use_terminal = true,
+          'toggleterm',
+          direction = 'horizontal',
+          auto_scroll = true,
+          use_shell = true,
+          open_on_start = false,
+          hidden = true,
         },
         templates = {
           'builtin',

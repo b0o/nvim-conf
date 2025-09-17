@@ -130,7 +130,10 @@ autocmd('TermOpen', {
 })
 autocmd('WinEnter', {
   group = group,
-  pattern = { 'term://*', '\\[dap-repl-*\\]' },
+  pattern = {
+    -- 'term://*',
+    '\\[dap-repl-*\\]',
+  },
   callback = vim.schedule_wrap(function(event)
     local bufnr = vim.api.nvim_get_current_buf()
     if event.buf ~= bufnr then
