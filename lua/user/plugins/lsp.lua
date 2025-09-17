@@ -176,6 +176,7 @@ local servers = function()
         },
       },
     },
+    'marksman',
     {
       'ruff',
       hover = false,
