@@ -9,29 +9,10 @@ return {
       ('BufReadPre %s/**.md'):format(vault.path),
       ('BufNewFile %s/**.md'):format(vault.path),
     } or nil,
-    cmd = {
-      'ObsidianBacklinks',
-      'ObsidianDailies',
-      'ObsidianExtractNote',
-      'ObsidianFollowLink',
-      'ObsidianLink',
-      'ObsidianLinkNew',
-      'ObsidianLinks',
-      'ObsidianNew',
-      'ObsidianOpen',
-      'ObsidianPasteImg',
-      'ObsidianQuickSwitch',
-      'ObsidianRename',
-      'ObsidianSearch',
-      'ObsidianTags',
-      'ObsidianTemplate',
-      'ObsidianTitles',
-      'ObsidianToday',
-      'ObsidianTomorrow',
-      'ObsidianWorkspace',
-      'ObsidianYesterday',
-    },
+    cmd = 'Obsidian',
     config = function()
+      local xk = require('user.keys').xk
+
       vim.o.conceallevel = 1
 
       ---If the current file is a journal, return the date of the journal as a timestamp
@@ -47,7 +28,9 @@ return {
       end
 
       require('obsidian').setup {
-        ui = { enable = false },
+        ui = {
+          enable = false,
+        },
         workspaces = { vault },
         ---@diagnostic disable-next-line: missing-fields
         completion = {
@@ -59,52 +42,77 @@ return {
           min_chars = 2,
         },
 
-        ---@diagnostic disable-next-line: missing-fields
+        note_id_func = function(title)
+          if title == nil then
+            return require('obsidian.builtin').zettel_id()
+          end
+          title = title:gsub('[^A-Za-z0-9-]', '')
+          return title
+        end,
+
+        -- FIXME: relative dates don't tak into account the current file, if it's a journal file
         templates = {
           subdir = 'Meta/Templates',
           date_format = '%Y-%m-%d',
           time_format = '%H:%M',
           substitutions = {
-            yesterday = function() return os.date('%Y-%m-%d', journal_date_or_now() - 86400) end,
-            tomorrow = function() return os.date('%Y-%m-%d', journal_date_or_now() + 86400) end,
-            yesterday_journal = function() return os.date('Journal/%Y/%Y-%m/%Y-%m-%d', journal_date_or_now() - 86400) end,
-            tomorrow_journal = function() return os.date('Journal/%Y/%Y-%m/%Y-%m-%d', journal_date_or_now() + 86400) end,
-            month_abbr = function() return os.date('%b', journal_date_or_now()) end,
-            month = function() return os.date('%B', journal_date_or_now()) end,
-            year = function() return os.date('%Y', journal_date_or_now()) end,
-            weekday = function() return os.date('%A', journal_date_or_now()) end,
-            today_human = function() return os.date('%A, %B %d', journal_date_or_now()) end,
-            tomorrow_human = function() return os.date('%A, %B %d', journal_date_or_now() + 86400) end,
-            yesterday_human = function() return os.date('%A, %B %d', journal_date_or_now() - 86400) end,
+            yesterday = function() return tostring(os.date('%Y-%m-%d', journal_date_or_now() - 86400)) end,
+            tomorrow = function() return tostring(os.date('%Y-%m-%d', journal_date_or_now() + 86400)) end,
+            yesterday_journal = function()
+              return tostring(os.date('Journal/%Y/%Y-%m/%Y-%m-%d', journal_date_or_now() - 86400))
+            end,
+            tomorrow_journal = function()
+              return tostring(os.date('Journal/%Y/%Y-%m/%Y-%m-%d', journal_date_or_now() + 86400))
+            end,
+            month_abbr = function() return tostring(os.date('%b', journal_date_or_now())) end,
+            month = function() return tostring(os.date('%B', journal_date_or_now())) end,
+            year = function() return tostring(os.date('%Y', journal_date_or_now())) end,
+            weekday = function() return tostring(os.date('%A', journal_date_or_now())) end,
+            today_human = function() return tostring(os.date('%A, %B %d', journal_date_or_now())) end,
+            tomorrow_human = function() return tostring(os.date('%A, %B %d', journal_date_or_now() + 86400)) end,
+            yesterday_human = function() return tostring(os.date('%A, %B %d', journal_date_or_now() - 86400)) end,
           },
         },
-        ---@diagnostic disable-next-line: missing-fields
+
         daily_notes = {
           folder = 'Journal',
           date_format = '%Y/%Y-%m/%Y-%m-%d',
           template = 'JournalNvim.md',
         },
+
+        picker = {
+          note_mappings = {
+            new = xk['<C-Cr>'],
+            insert_link = '<C-i>',
+          },
+        },
+
+        footer = {
+          separator = '',
+        },
+
+        legacy_commands = false,
       }
 
       vim.cmd.delcommand 'Rename'
-      vim.cmd.cabbrev { 'Rename', 'ObsidianRename' }
-      vim.cmd.cabbrev { 'Today', 'ObsidianToday' }
-      vim.cmd.cabbrev { 'Yesterday', 'ObsidianYesterday' }
-      vim.cmd.cabbrev { 'Tomorrow', 'ObsidianTomorrow' }
-      vim.cmd.cabbrev { 'Daily', 'ObsidianTemplate JournalNvim' }
+      vim.cmd.cabbrev { 'Rename', 'Obsidian rename' }
+      vim.cmd.cabbrev { 'Today', 'Obsidian today' }
+      vim.cmd.cabbrev { 'Yesterday', 'Obsidian yesterday' }
+      vim.cmd.cabbrev { 'Tomorrow', 'Obsidian tomorrow' }
+      vim.cmd.cabbrev { 'Daily', 'Obsidian template JournalNvim' }
 
       very_lazy(function()
         local maputil = require 'user.util.map'
         local map = maputil.map
         local ft = maputil.ft
 
-        map('n', '<C-f><C-f>', '<Cmd>ObsidianQuickSwitch<Cr>', 'Obsidian: Quick Switch')
-        map('n', { '<C-f>o', '<C-f><C-o>' }, '<Cmd>ObsidianTitles<Cr>', 'Obsidian: Search Titles')
+        map('n', '<C-f><C-f>', '<Cmd>Obsidian quick_switch<cr>', 'Obsidian: Quick Switch')
+        map('n', { '<C-f>o', '<C-f><C-o>' }, '<Cmd>Obsidian titles<cr>', 'Obsidian: Search Titles')
 
         ft('markdown', function(bufmap)
           bufmap('n', '<C-]>', function()
-            if require('obsidian').util.cursor_on_markdown_link() then
-              return '<Cmd>ObsidianFollowLink<CR>'
+            if require('obsidian.api').cursor_link() ~= nil then
+              return '<Cmd>Obsidian follow_link<cr>'
             else
               return '<C-]>'
             end
