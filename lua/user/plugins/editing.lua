@@ -158,6 +158,22 @@ local spec = {
     end,
   },
   {
+    'WilliamHsieh/overlook.nvim',
+    opts = {},
+    keys = {
+      { '<leader>pp', function() require('overlook.api').peek_definition() end, desc = 'Overlook: Peek definition' },
+      { '<leader>pc', function() require('overlook.api').peek_cursor() end, desc = 'Overlook: Peek cursor' },
+      { '<leader>pu', function() require('overlook.api').restore_popup() end, desc = 'Overlook: Restore' },
+      { '<leader>pU', function() require('overlook.api').restore_all_popups() end, desc = 'Overlook: Restore all' },
+      { '<leader>pq', function() require('overlook.api').close_all() end, desc = 'Overlook: Close all' },
+      { '<leader>pf', function() require('overlook.api').switch_focus() end, desc = 'Overlook: Switch focus' },
+      { '<leader>ps', function() require('overlook.api').open_in_split() end, desc = 'Overlook: Open in split' },
+      { '<leader>pv', function() require('overlook.api').open_in_vsplit() end, desc = 'Overlook: Open in vsplit' },
+      { '<leader>pt', function() require('overlook.api').open_in_tab() end, desc = 'Overlook: Open popup in tab' },
+      { '<leader>po', function() require('overlook.api').open_in_original_window() end, desc = 'Overlook: Orig win' },
+    },
+  },
+  {
     'matze/vim-move',
     init = function() vim.g.move_map_keys = false end,
     event = 'VeryLazy',
