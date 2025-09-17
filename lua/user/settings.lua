@@ -82,6 +82,8 @@ vim.o.showmatch = true
 vim.o.scrolloff = 5
 vim.o.smoothscroll = true -- scroll by screen line rather than by text line when wrap is set
 
+vim.o.winborder = 'rounded'
+
 vim.opt.list = true
 vim.opt.listchars = {
   eol = '¬',
