@@ -60,20 +60,31 @@ local ft_augroup = vim.api.nvim_create_augroup('user_mappings_ft', { clear = tru
 --- to create buffer mappings for the given filetype. It has the same signature
 --- as map.map()
 ---@param ft string|string[] The filetype(s) to create the mapping for
----@param callback fun(bufmap: fun(mode: string|string[], lhs: string|string[], rhs: string|function, opts?: string|table), event: vim.api.keyset.create_autocmd.callback_args) The function to call to create the mappings
+---@param callback fun(bufmap: fun(mode: string|string[], lhs: string|string[], rhs: string|function, opts?: string|table), buf: number) The function to call to create the mappings
 M.ft = function(ft, callback)
+  ft = type(ft) == 'string' and { ft } or ft
+  ---@cast ft string[]
+  local cb = function(buf)
+    callback(
+      vim.schedule_wrap(
+        function(mode, lhs, rhs, opts) return M.map(mode, lhs, rhs, process_opts(opts, { buffer = buf })) end
+      ),
+      buf
+    )
+  end
   vim.api.nvim_create_autocmd('FileType', {
     group = ft_augroup,
     pattern = ft,
-    callback = function(event)
-      callback(
-        vim.schedule_wrap(
-          function(mode, lhs, rhs, opts) return M.map(mode, lhs, rhs, process_opts(opts, { buffer = event.buf })) end
-        ),
-        event
-      )
-    end,
+    callback = function(event) cb(event.buf) end,
   })
+  -- Iterate over open buffers and check if their filetype matches the given filetype,
+  -- since that indicates their FileType event has already been triggered and we missed it
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    local buf_ft = vim.bo[buf].filetype
+    if vim.tbl_contains(ft, buf_ft) then
+      cb(buf)
+    end
+  end
 end
 
 --- Given a buffer number, returns a function to create mappings for that buffer
