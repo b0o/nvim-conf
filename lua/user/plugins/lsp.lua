@@ -1,5 +1,4 @@
 local servers = function()
-  local root_pattern = require('lspconfig.util').root_pattern
   return {
     'astro',
     {
@@ -59,7 +58,7 @@ local servers = function()
     },
     {
       'eslint',
-      root_dir = root_pattern(
+      root_markers = {
         'eslint.config.js',
         '.eslintrc',
         '.eslintrc.js',
@@ -67,8 +66,8 @@ local servers = function()
         '.eslintrc.yaml',
         '.eslintrc.yml',
         '.eslintrc.json',
-        'package.json'
-      ),
+        'package.json',
+      },
       filetypes = {
         'astro',
         'javascript',
@@ -140,42 +139,19 @@ local servers = function()
     },
     {
       'ocamllsp',
-      root_dir = root_pattern('*.opam', 'esy.json', 'package.json', '.git', '.merlin'),
+      root_markers = {
+        '.opam',
+        'esy.json',
+        'package.json',
+        '.git',
+        '.merlin',
+      },
     },
     {
       'basedpyright',
       formatting = false,
     },
-    {
-      'cyright',
-      custom = true,
-      default_config = {
-        cmd = { 'cyright', '--stdio' },
-        filetypes = { 'cython' },
-        root_dir = function(fname)
-          local root_files = {
-            'pyproject.toml',
-            'setup.py',
-            'setup.cfg',
-            'requirements.txt',
-            'Pipfile',
-            'pyrightconfig.json',
-            '.git',
-          }
-          return root_pattern(unpack(root_files))(fname)
-        end,
-        single_file_support = true,
-        settings = {
-          python = {
-            analysis = {
-              autoSearchPaths = true,
-              useLibraryCodeForTypes = true,
-              diagnosticMode = 'openFilesOnly',
-            },
-          },
-        },
-      },
-    },
+    'cyright',
     'marksman',
     {
       'ruff',
@@ -196,24 +172,10 @@ local servers = function()
       'svelte',
       formatting = false,
     },
-    {
-      'systemd',
-      custom = true,
-      default_config = {
-        cmd = { 'systemd-lsp' },
-        filetypes = { 'systemd' },
-        root_dir = function(fname)
-          local root_files = {
-            '.git',
-          }
-          return root_pattern(unpack(root_files))(fname)
-        end,
-        single_file_support = true,
-      },
-    },
+    'systemd',
     {
       'tailwindcss',
-      root_dir = root_pattern(
+      root_markers = {
         'tailwind.config.js',
         'tailwind.config.cjs',
         'tailwind.config.mjs',
@@ -221,8 +183,8 @@ local servers = function()
         'tailwind.config.cts',
         'tailwind.config.mts',
         'postcss.config.js',
-        'postcss.config.ts'
-      ),
+        'postcss.config.ts',
+      },
       settings = {
         scss = {
           validate = false,
@@ -250,30 +212,6 @@ local servers = function()
     'taplo',
     {
       'tsgo',
-      enabled = false,
-      custom = true,
-      default_config = {
-        cmd = { 'tsgo', 'lsp', '--stdio' },
-        filetypes = { 'javascript', 'typescript', 'typescriptreact', 'javascriptreact' },
-        root_dir = function(fname)
-          local root_files = {
-            'tsconfig.json',
-            'package.json',
-            '.git',
-          }
-          return root_pattern(unpack(root_files))(fname)
-        end,
-        init_options = { hostInfo = 'neovim' },
-        single_file_support = true,
-      },
-      -- formatting = false,
-      -- settings = {
-      --   diagnostics = {
-      --     ignoredCodes = {
-      --       7016, -- "Could not find a declaration file for module..."
-      --     },
-      --   },
-      -- },
       on_attach = function(client, bufnr) require('twoslash-queries').attach(client, bufnr) end,
     },
     {
@@ -726,62 +664,8 @@ return {
     cmd = 'Glance',
   },
   {
-    'pmizio/typescript-tools.nvim',
-    enabled = false,
-    ft = {
-      'typescript',
-      'javascript',
-      'typescriptreact',
-      'javascriptreact',
-      -- 'mdx',
-    },
-    config = function()
-      require('typescript-tools').setup {
-        on_attach = function(client, bufnr)
-          require('twoslash-queries').attach(client, bufnr)
-          user_lsp.on_attach(client, bufnr)
-        end,
-        settings = {
-          separate_diagnostic_server = true,
-          publish_diagnostic_on = 'insert_leave',
-          tsserver_file_preferences = {
-            includeCompletionsForModuleExports = true,
-
-            -- inlay hints
-            includeInlayParameterNameHints = 'literals',
-            includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-            includeInlayFunctionParameterTypeHints = true,
-            includeInlayVariableTypeHints = true,
-            includeInlayVariableTypeHintsWhenTypeMatchesName = false,
-            includeInlayPropertyDeclarationTypeHints = true,
-            includeInlayFunctionLikeReturnTypeHints = true,
-            includeInlayEnumMemberValueHints = true,
-          },
-          tsserver_format_options = {
-            allowIncompleteCompletions = false,
-            allowRenameOfImportPath = false,
-          },
-
-          --- mdx
-          tsserver_plugins = {
-            '@mdx-js/typescript-plugin',
-          },
-        },
-      }
-      require('lspconfig')['typescript-tools'].setup {
-        filetypes = {
-          'typescript',
-          'javascript',
-          'typescriptreact',
-          'javascriptreact',
-          -- 'mdx',
-        },
-      }
-    end,
-  },
-  {
     'marilari88/twoslash-queries.nvim',
-    -- dev = true,
+    dev = true,
     opts = { multi_line = true },
     ft = {
       'typescript',

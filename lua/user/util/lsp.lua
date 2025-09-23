@@ -181,7 +181,6 @@ M.setup = function(config)
   end
 
   local capabilities = require('blink.cmp').get_lsp_capabilities()
-  local lspconfig = require 'lspconfig'
 
   local function is_enabled(server)
     if type(server) == 'table' then
@@ -231,14 +230,6 @@ M.setup = function(config)
         end
         lsp.on_attach = nil
       end
-      if lsp.custom == true then
-        if not lsp.default_config then
-          error 'LSP: default_config is required for custom servers'
-        end
-        local configs = require 'lspconfig.configs'
-        configs[name] = { default_config = lsp.default_config }
-        lsp.default_config = nil
-      end
       for k, v in pairs(lsp) do
         if k ~= 1 then
           opts[k] = v
@@ -247,13 +238,8 @@ M.setup = function(config)
     else
       name = lsp
     end
-    if not lspconfig[name] then
-      error('LSP: Server not found: ' .. name)
-    end
-    if type(lspconfig[name].setup) ~= 'function' then
-      error('LSP: not a function: ' .. name .. '.setup')
-    end
-    lspconfig[name].setup(opts)
+    vim.lsp.config(name, opts)
+    vim.lsp.enable(name)
   end
 end
 
