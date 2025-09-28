@@ -1,11 +1,14 @@
-## Maddison's Neovim configuration
+> [!WARNING]
+> **This has been superseded by [b0o/dotfiles](https://github.com/b0o/dotfiles)!**
+
+## Maddison's Neovim configuration (ARCHIVED)
 
 This is my Neovim configuration, cobbled together over several
 years. There are lots of things in here that are hyper-specific to my setup, but if you see anything interesting, feel free to steal it.
 
 ## Screenshots
 
-![2024-02-16_11-28-54_region](https://github.com/b0o/nvim-conf/assets/21299126/14439047-bfde-4d83-b84f-732bbf235707)
+<img width="1896" height="1033" alt="nvim" src="https://github.com/user-attachments/assets/f2fe98fa-fb27-48ce-809c-cd69e749e488" />
 
 ## License
 
